@@ -178,7 +178,7 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('mq:ready', function () {
     MQ.store.seed();
     updateClock();
     clockInterval = setInterval(updateClock, 1000);

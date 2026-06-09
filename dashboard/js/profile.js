@@ -140,7 +140,7 @@
     '</div>';
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('mq:ready', function () {
     MQ.store.seed();
     var params = new URLSearchParams(window.location.search);
     var staffId = params.get('id');

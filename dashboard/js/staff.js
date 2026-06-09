@@ -257,7 +257,7 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('mq:ready', function () {
     if (!MQ.hasRole('manager')) {
       window.location.href = 'index.html';
       return;

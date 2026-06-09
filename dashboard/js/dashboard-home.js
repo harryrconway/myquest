@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('mq:ready', function () {
     MQ.store.seed();
     renderGreeting();
     renderStats();

@@ -602,7 +602,7 @@
   }
 
   // ── Init ───────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('mq:ready', function () {
     MQ.store.seed();
     renderList();
 
