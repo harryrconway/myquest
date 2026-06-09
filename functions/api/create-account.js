@@ -1,80 +1,47 @@
-/* ============================================================
-   POST /api/create-account
-   Creates a new Supabase Auth user via email invite.
-   Requires: Authorization: Bearer <JWT> from an owner account.
-   Body: { email, name, role, cleaning_level }
-   ============================================================ */
-import { createClient } from '@supabase/supabase-js';
-
+/* POST /api/create-account — invite a new staff member via Supabase */
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const URL_BASE   = env.SUPABASE_URL;
+  const SVC_KEY    = env.SUPABASE_SERVICE_KEY;
+  if (!URL_BASE || !SVC_KEY) return json({ error: 'Server configuration error.' }, 500);
 
-  const SUPABASE_URL = env.SUPABASE_URL;
-  const SERVICE_KEY  = env.SUPABASE_SERVICE_KEY;
-
-  if (!SUPABASE_URL || !SERVICE_KEY) {
-    return json({ error: 'Server configuration error.' }, 500);
-  }
-
-  // Verify the caller's JWT
-  const authHeader = request.headers.get('Authorization') || '';
-  const callerJwt  = authHeader.replace('Bearer ', '').trim();
+  const callerJwt = (request.headers.get('Authorization') || '').replace('Bearer ', '').trim();
   if (!callerJwt) return json({ error: 'Unauthorised.' }, 401);
 
-  const callerClient = createClient(SUPABASE_URL, SERVICE_KEY);
-
-  const { data: userData, error: userError } = await callerClient.auth.getUser(callerJwt);
-  if (userError || !userData?.user) return json({ error: 'Unauthorised.' }, 401);
+  // Verify caller is authenticated
+  const userRes = await fetch(`${URL_BASE}/auth/v1/user`, {
+    headers: { 'Authorization': `Bearer ${callerJwt}`, 'apikey': SVC_KEY },
+  });
+  if (!userRes.ok) return json({ error: 'Unauthorised.' }, 401);
+  const user = await userRes.json();
 
   // Check caller is owner
-  const { data: callerProfile } = await callerClient
-    .from('profiles')
-    .select('role')
-    .eq('id', userData.user.id)
-    .single();
+  const profileRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${user.id}&select=role`, {
+    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
+  });
+  const profiles = await profileRes.json();
+  if (!profiles.length || profiles[0].role !== 'owner') return json({ error: 'Only owners can create accounts.' }, 403);
 
-  if (!callerProfile || callerProfile.role !== 'owner') {
-    return json({ error: 'Only owners can create accounts.' }, 403);
-  }
-
-  // Parse body
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
-
   const { email, name, role, cleaning_level } = body;
-  if (!email || !name || !role) return json({ error: 'email, name, and role are required.' }, 400);
+  if (!email || !name || !role) return json({ error: 'email, name and role are required.' }, 400);
+  if (!['owner','manager','staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
 
-  const validRoles = ['owner', 'manager', 'staff'];
-  if (!validRoles.includes(role)) return json({ error: 'Invalid role.' }, 400);
-
-  // Invite via Supabase Admin (sends an email invite; no password set server-side)
-  const adminClient = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
-
-  const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    data: {
-      name:           name,
-      role:           role,
-      cleaning_level: Number(cleaning_level) || 1,
-    },
+  // Send invite
+  const inviteRes = await fetch(`${URL_BASE}/auth/v1/invite`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, data: { name, role, cleaning_level: Number(cleaning_level) || 1 } }),
   });
-
-  if (inviteError) {
-    // Surface a clean message — don't leak Supabase internals
-    const msg = inviteError.message && inviteError.message.includes('already registered')
-      ? 'A user with this email already exists.'
-      : 'Failed to send invitation. Please try again.';
+  if (!inviteRes.ok) {
+    const err = await inviteRes.json().catch(() => ({}));
+    const msg = (err.msg || '').includes('already registered') ? 'A user with this email already exists.' : 'Failed to send invitation. Please try again.';
     return json({ error: msg }, 400);
   }
-
   return json({ success: true, message: 'Invitation sent to ' + email });
 }
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Content-Type-Options': 'nosniff',
-    },
-  });
+  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
