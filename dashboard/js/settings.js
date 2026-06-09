@@ -234,7 +234,7 @@
      INIT
   ══════════════════════════════════════════════════════════ */
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('mq:ready', function () {
     if (!MQ.hasRole('owner')) {
       window.location.href = 'index.html';
       return;

@@ -132,12 +132,19 @@
       return roleLevel(session.role) >= roleLevel(minRole);
     };
 
-    document.addEventListener('DOMContentLoaded', function () {
+    function onDomReady() {
       applyRoleGating(session);
       populateUserInfo(session);
       initLogout(sb);
       startIdleMonitor(sb);
-    });
+      document.dispatchEvent(new CustomEvent('mq:ready'));
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
+    } else {
+      onDomReady();
+    }
   }
 
   init();
