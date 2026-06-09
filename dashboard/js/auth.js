@@ -1,43 +1,17 @@
 /* ============================================================
-   MYQUEST — auth.js
-   Session management, role checking, UI gating.
-   Load this script FIRST (no defer) on every dashboard page.
+   MYQUEST — auth.js  (Supabase Auth)
+   Load FIRST (no defer) on every dashboard page.
+   Maintains the MQ.session / MQ.hasRole interface so all
+   dashboard pages continue to work without changes.
    ============================================================ */
 (function () {
   'use strict';
 
   window.MQ = window.MQ || {};
 
-  var ROLES      = { owner: 3, manager: 2, staff: 1 };
+  var ROLES       = { owner: 3, manager: 2, staff: 1 };
   var SESSION_KEY = 'mq_session';
-  var SESSION_TTL = 12 * 60 * 60 * 1000;  // 12 hours
-  var IDLE_TTL    = 30 * 60 * 1000;        // 30 minutes
-
-  function getSession() {
-    try {
-      var raw = sessionStorage.getItem(SESSION_KEY);
-      if (!raw) return null;
-      var s = JSON.parse(raw);
-      var now = Date.now();
-
-      // Hard expiry
-      if (s.expiresAt && now > new Date(s.expiresAt).getTime()) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return null;
-      }
-
-      // Idle timeout
-      if (s.lastActivity && now - new Date(s.lastActivity).getTime() > IDLE_TTL) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return null;
-      }
-
-      // Touch activity timestamp
-      s.lastActivity = new Date().toISOString();
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
-      return s;
-    } catch { return null; }
-  }
+  var IDLE_TTL    = 30 * 60 * 1000; // 30 minutes
 
   function roleLevel(role) {
     return ROLES[role] || 0;
@@ -68,18 +42,19 @@
     });
   }
 
-  function initLogout() {
+  function initLogout(sb) {
     document.querySelectorAll('.js-logout').forEach(function (btn) {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', async function () {
         sessionStorage.removeItem(SESSION_KEY);
+        await sb.auth.signOut();
         window.location.href = '../login.html';
       });
     });
   }
 
-  // Touch lastActivity on user interaction so idle timer resets correctly
-  function startIdleMonitor() {
+  function startIdleMonitor(sb) {
     var EVENTS = ['mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+
     function touch() {
       var raw = sessionStorage.getItem(SESSION_KEY);
       if (!raw) return;
@@ -89,33 +64,68 @@
         sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
       } catch {}
     }
+
     EVENTS.forEach(function (e) {
       document.addEventListener(e, touch, { passive: true });
     });
 
-    // Poll every 60s — redirect if idle or expired
     setInterval(function () {
       var raw = sessionStorage.getItem(SESSION_KEY);
-      if (!raw) { window.location.href = '../login.html'; return; }
+      if (!raw) {
+        sb.auth.signOut();
+        window.location.href = '../login.html';
+        return;
+      }
       try {
         var s = JSON.parse(raw);
-        var now = Date.now();
-        var expired = s.expiresAt && now > new Date(s.expiresAt).getTime();
-        var idle    = s.lastActivity && now - new Date(s.lastActivity).getTime() > IDLE_TTL;
-        if (expired || idle) {
+        var idle = s.lastActivity && Date.now() - new Date(s.lastActivity).getTime() > IDLE_TTL;
+        if (idle) {
           sessionStorage.removeItem(SESSION_KEY);
+          sb.auth.signOut();
           window.location.href = '../login.html';
         }
       } catch {}
     }, 60000);
   }
 
-  function init() {
-    var session = getSession();
-    if (!session) {
+  async function init() {
+    var sb = window.MQ && MQ.supabase;
+    if (!sb) {
       window.location.href = '../login.html';
       return;
     }
+
+    // Check Supabase session
+    var result = await sb.auth.getSession();
+    if (!result.data || !result.data.session) {
+      sessionStorage.removeItem(SESSION_KEY);
+      window.location.href = '../login.html';
+      return;
+    }
+
+    var sbSession = result.data.session;
+    var userId    = sbSession.user.id;
+    var email     = sbSession.user.email;
+
+    // Load profile (name + role)
+    var profileResult = await sb.from('profiles').select('name, role').eq('id', userId).single();
+
+    var name = email;
+    var role = 'staff';
+    if (profileResult.data) {
+      name = profileResult.data.name || email;
+      role = profileResult.data.role || 'staff';
+    }
+
+    // Build / refresh MQ.session (same shape as before)
+    var session = {
+      email:        email,
+      name:         name,
+      role:         role,
+      loginTime:    new Date().toISOString(),
+      lastActivity: new Date().toISOString(),
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
 
     MQ.session = session;
     MQ.hasRole = function (minRole) {
@@ -125,8 +135,8 @@
     document.addEventListener('DOMContentLoaded', function () {
       applyRoleGating(session);
       populateUserInfo(session);
-      initLogout();
-      startIdleMonitor();
+      initLogout(sb);
+      startIdleMonitor(sb);
     });
   }
 

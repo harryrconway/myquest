@@ -60,59 +60,7 @@
       </div>
 
       <!-- ══════════════════════════════════════════════════════
-           STATE 2: Change Password (first login / reset)
-      ══════════════════════════════════════════════════════ -->
-      <div class="login-state" id="state-change-pw" hidden>
-
-        <div class="login-badge login-badge--blue">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </div>
-        <h1 class="login-heading">Set your password</h1>
-        <p class="login-sub">Your account requires a new password before you can continue.</p>
-
-        <div class="login-error-block" id="change-pw-error" hidden></div>
-
-        <form id="change-pw-form" class="login-form" novalidate autocomplete="off">
-          <div class="form-group">
-            <label class="form-label" for="new-password">New Password</label>
-            <div class="pw-input-wrap">
-              <input class="form-input" type="password" id="new-password" name="new-password"
-                autocomplete="new-password" placeholder="Min. 10 characters" required>
-              <button type="button" class="pw-toggle" id="pw-toggle-new" aria-label="Show password">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
-            </div>
-            <div class="pw-strength-wrap">
-              <div class="pw-strength-track"><div class="pw-strength-bar" id="pw-strength-bar"></div></div>
-              <span class="pw-strength-label" id="pw-strength-label"></span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="confirm-password">Confirm Password</label>
-            <div class="pw-input-wrap">
-              <input class="form-input" type="password" id="confirm-password" name="confirm-password"
-                autocomplete="new-password" placeholder="Repeat your new password" required>
-              <button type="button" class="pw-toggle" id="pw-toggle-confirm" aria-label="Show password">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="pw-requirements">
-            <p>Password must be:</p>
-            <ul>
-              <li id="req-len">At least 10 characters</li>
-              <li id="req-case">Upper &amp; lowercase letters</li>
-              <li id="req-num">At least one number</li>
-              <li id="req-sym">At least one symbol (!@#$…)</li>
-            </ul>
-          </div>
-          <button type="submit" class="btn-primary login-submit">Set Password &amp; Sign In</button>
-        </form>
-
-      </div>
-
-      <!-- ══════════════════════════════════════════════════════
-           STATE 4: Success
+           STATE 2: Success
       ══════════════════════════════════════════════════════ -->
       <div class="login-state" id="state-success" hidden>
         <div class="login-check" aria-hidden="true">
@@ -125,49 +73,11 @@
         <p class="login-sub">Taking you to the dashboard…</p>
       </div>
 
-      <!-- ══════════════════════════════════════════════════════
-           STATE 5: Email verification pending (shown at login)
-      ══════════════════════════════════════════════════════ -->
-      <div class="login-state" id="state-verify-email" hidden>
-
-        <div class="login-badge login-badge--blue">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </div>
-        <h1 class="login-heading">Check your email</h1>
-        <p class="login-sub">A verification link has been sent to <strong id="verify-email-address" style="color:#0f172a;font-weight:700;"></strong>. Click it to activate your account.</p>
-
-        <div id="verify-resend-status" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;font-size:13px;color:#16a34a;font-weight:600;width:100%;text-align:center;margin-top:4px;">
-          Verification email sent — check your inbox
-        </div>
-
-        <button class="btn-primary login-submit" id="btn-resend-verify" style="margin-top:4px;">
-          Resend verification email
-        </button>
-        <button type="button" id="verify-back-link" style="background:none;border:none;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px;margin-top:2px;">
-          ← Back to sign in
-        </button>
-
-      </div>
-
-      <!-- ══════════════════════════════════════════════════════
-           STATE 6: Verification link result (arriving from email)
-      ══════════════════════════════════════════════════════ -->
-      <div class="login-state" id="state-verify-result" hidden>
-
-        <div id="verify-result-icon" style="margin-bottom:8px;">
-          <svg width="48" height="48" viewBox="0 0 72 72" fill="none" aria-hidden="true">
-            <circle cx="36" cy="36" r="32" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="6 4"/>
-          </svg>
-        </div>
-        <h1 class="login-heading" id="verify-result-heading">Verifying…</h1>
-        <p class="login-sub" id="verify-result-sub">Please wait a moment.</p>
-        <a href="login.html" id="verify-result-link" hidden style="display:inline-block;margin-top:16px;font-size:13px;font-weight:600;color:#64748b;text-decoration:none;">← Back to sign in</a>
-
-      </div>
-
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="dashboard/js/supabase-client.js"></script>
   <script src="dashboard/js/store.js"></script>
   <script src="login.js"></script>
 
