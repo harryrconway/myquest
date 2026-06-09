@@ -256,6 +256,24 @@
           <button type="submit" class="btn-primary" id="ca-submit">Send Invitation</button>
         </div>
       </form>
+
+      <div id="ca-success-panel" hidden>
+        <div style="text-align:center;padding:3rem 2rem 2.5rem;">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;box-shadow:0 6px 28px rgba(34,197,94,.32);animation:ca-pop .45s cubic-bezier(.22,1.25,.36,1) both;">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 style="font-size:1.35rem;font-weight:700;color:#0f172a;margin:0 0 .45rem;">Invitation sent!</h2>
+          <p style="font-size:14px;color:#64748b;margin:0 0 .3rem;">An invite email has been sent to</p>
+          <p id="ca-success-email" style="font-size:15px;font-weight:600;color:#0f172a;margin:0 0 .75rem;word-break:break-all;"></p>
+          <p style="font-size:13px;color:#94a3b8;line-height:1.55;margin:0 0 2rem;">They'll receive a secure link to set their own password and log in.</p>
+          <div style="display:flex;gap:.75rem;justify-content:center;">
+            <button type="button" class="btn-secondary" id="ca-success-another">Add Another</button>
+            <button type="button" class="btn-primary" id="ca-success-done">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <style>@keyframes ca-pop{0%{transform:scale(0) rotate(-30deg);opacity:0}75%{transform:scale(1.12) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}</style>
     </div>
   </div>
 

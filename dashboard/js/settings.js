@@ -143,19 +143,52 @@
   ══════════════════════════════════════════════════════════ */
 
   function openCreateModal() {
-    var form = document.getElementById('create-account-form');
-    if (form) form.reset();
-    var err = document.getElementById('create-account-error');
-    if (err) err.hidden = true;
+    var form   = document.getElementById('create-account-form');
+    var panel  = document.getElementById('ca-success-panel');
+    var header = document.querySelector('#modal-create-account .modal-header');
+    var err    = document.getElementById('create-account-error');
+    if (form)   { form.reset(); form.style.display = ''; }
+    if (panel)  panel.hidden = true;
+    if (header) header.style.display = '';
+    if (err)    err.hidden = true;
     MQ.ui.modal.open('modal-create-account');
   }
 
+  var ROLE_LEVEL_DEFAULTS = { staff: '1', manager: '4', owner: '5' };
+
   function initCreateAccountForm() {
-    var form     = document.getElementById('create-account-form');
-    var errorEl  = document.getElementById('create-account-error');
+    var form      = document.getElementById('create-account-form');
+    var errorEl   = document.getElementById('create-account-error');
     var submitBtn = document.getElementById('ca-submit');
+    var roleEl    = document.getElementById('ca-role');
+    var levelEl   = document.getElementById('ca-level');
 
     if (!form) return;
+
+    // Auto-update cleaning level when role changes
+    if (roleEl && levelEl) {
+      roleEl.addEventListener('change', function () {
+        levelEl.value = ROLE_LEVEL_DEFAULTS[this.value] || '1';
+      });
+    }
+
+    // Success panel buttons
+    var doneBtn    = document.getElementById('ca-success-done');
+    var anotherBtn = document.getElementById('ca-success-another');
+    if (doneBtn) {
+      doneBtn.addEventListener('click', function () { MQ.ui.modal.close('modal-create-account'); });
+    }
+    if (anotherBtn) {
+      anotherBtn.addEventListener('click', function () {
+        var panel  = document.getElementById('ca-success-panel');
+        var header = document.querySelector('#modal-create-account .modal-header');
+        if (panel)  panel.hidden = true;
+        if (header) header.style.display = '';
+        form.reset();
+        form.style.display = '';
+        if (errorEl) errorEl.hidden = true;
+      });
+    }
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -184,8 +217,19 @@
         return;
       }
 
-      MQ.ui.modal.close('modal-create-account');
-      MQ.ui.toast('Invitation sent to ' + email);
+      // Show success state inside modal
+      var header    = document.querySelector('#modal-create-account .modal-header');
+      var panel     = document.getElementById('ca-success-panel');
+      var emailDisp = document.getElementById('ca-success-email');
+      if (panel && emailDisp) {
+        if (header) header.style.display = 'none';
+        form.style.display = 'none';
+        emailDisp.textContent = email;
+        panel.hidden = false;
+      } else {
+        MQ.ui.modal.close('modal-create-account');
+        MQ.ui.toast('Invitation sent to ' + email);
+      }
       renderAccounts();
     });
   }
