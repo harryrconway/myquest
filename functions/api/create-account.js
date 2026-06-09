@@ -32,7 +32,11 @@ export async function onRequestPost(context) {
   const inviteRes = await fetch(`${URL_BASE}/auth/v1/invite`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, data: { name, role, cleaning_level: Number(cleaning_level) || 1 } }),
+    body: JSON.stringify({
+      email,
+      data: { name, role, cleaning_level: Number(cleaning_level) || 1 },
+      redirect_to: 'https://myquest.au/set-password.html',
+    }),
   });
   if (!inviteRes.ok) {
     const err = await inviteRes.json().catch(() => ({}));
