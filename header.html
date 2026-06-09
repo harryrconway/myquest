@@ -1,0 +1,83 @@
+<header class="site-header" role="banner">
+  <div class="container header-inner">
+
+    <a href="index.html" class="header-logo" aria-label="MyQuest — home">
+      <svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Leaf icon -->
+        <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#2d6a4f"/>
+        <path d="M20 2 C20 2 22 16 14 22" stroke="#2d6a4f" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <!-- Wordmark -->
+        <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="#1a1a1a">MyQuest</text>
+      </svg>
+    </a>
+
+    <nav class="header-nav" aria-label="Main navigation">
+      <ul class="header-nav__list">
+        <li><a href="index.html" class="header-nav__link" data-page="home">Home</a></li>
+        <li><a href="index.html#services" class="header-nav__link" data-page="services">Services</a></li>
+        <li><a href="index.html#why-us" class="header-nav__link" data-page="about">About</a></li>
+        <li><a href="index.html#testimonials" class="header-nav__link" data-page="reviews">Reviews</a></li>
+        <li><a href="index.html#contact" class="header-nav__link" data-page="contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <a href="login.html" class="header-login">Login</a>
+      <a href="index.html#contact" class="btn-primary">Book Now</a>
+    </div>
+
+    <button
+      class="hamburger"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="2" y="5" width="20" height="2" rx="1" fill="currentColor"/>
+        <rect x="2" y="11" width="20" height="2" rx="1" fill="currentColor"/>
+        <rect x="2" y="17" width="20" height="2" rx="1" fill="currentColor"/>
+      </svg>
+    </button>
+
+  </div>
+</header>
+
+<div
+  class="mobile-menu"
+  id="mobile-menu"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation menu"
+  aria-hidden="true"
+>
+  <div class="mobile-menu__top">
+    <a href="index.html" class="mobile-menu__logo" aria-label="MyQuest — home">
+      <svg width="120" height="32" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
+        <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text>
+      </svg>
+    </a>
+    <button class="mobile-menu__close" aria-label="Close menu">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <line x1="5" y1="5" x2="23" y2="23" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="23" y1="5" x2="5" y2="23" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <nav aria-label="Mobile navigation">
+    <ul class="mobile-menu__list">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="index.html#why-us">About</a></li>
+      <li><a href="index.html#testimonials">Reviews</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="mobile-menu__footer">
+    <a href="login.html" class="mobile-menu__login">Login</a>
+    <a href="index.html#contact" class="btn-primary">Book Now</a>
+  </div>
+</div>

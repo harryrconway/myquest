@@ -1,0 +1,298 @@
+/* ============================================================
+   MYQUEST — Login Page Styles
+   ============================================================ */
+
+.login-page {
+  background: linear-gradient(135deg, var(--color-forest-green) 0%, #3a8a63 50%, var(--color-sage) 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+/* ---- Login Card ------------------------------------------- */
+.login-main {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), 0 20px 60px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 440px;
+  padding: var(--space-12);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-forest-green), var(--color-sage));
+}
+
+/* ---- Form State ------------------------------------------- */
+.login-form-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.login-logo {
+  display: inline-flex;
+  margin-bottom: var(--space-4);
+  transition: opacity var(--transition-fast);
+}
+
+.login-logo:hover {
+  opacity: 0.8;
+}
+
+.login-heading {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-dark);
+}
+
+.login-sub {
+  font-size: var(--text-sm);
+  color: var(--color-mid);
+  line-height: 1.65;
+  max-width: 30ch;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  text-align: left;
+}
+
+.login-submit {
+  width: 100%;
+  padding: 0.875rem;
+  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
+}
+
+.login-back {
+  font-size: var(--text-sm);
+  color: var(--color-light);
+  margin-top: var(--space-2);
+  transition: color var(--transition-fast);
+}
+
+.login-back:hover {
+  color: var(--color-forest-green);
+}
+
+/* ---- Success State ---------------------------------------- */
+.login-success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.login-check {
+  margin-bottom: var(--space-4);
+}
+
+.check-icon {
+  width: 80px;
+  height: 80px;
+}
+
+/* Checkmark circle draw animation */
+.check-circle {
+  stroke-dasharray: 201;
+  stroke-dashoffset: 201;
+  animation: draw-circle 0.6s ease forwards;
+}
+
+.check-mark {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: draw-check 0.4s ease 0.5s forwards;
+}
+
+@keyframes draw-circle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes draw-check {
+  to { stroke-dashoffset: 0; }
+}
+
+.login-hint {
+  font-size: var(--text-xs);
+  color: var(--color-light);
+}
+
+.login-resend {
+  font-size: var(--text-sm);
+  color: var(--color-forest-green);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-forest-green);
+  background: transparent;
+  margin-top: var(--space-4);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.login-resend:hover {
+  background: var(--color-forest-green);
+  color: white;
+}
+
+/* ---- Multi-state login ------------------------------------ */
+.login-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.login-logo-wrap {
+  margin-bottom: var(--space-2);
+}
+
+/* Icon badge above headings */
+.login-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+.login-badge--green { background: #dcfce7; color: #16a34a; }
+.login-badge--blue  { background: #dbeafe; color: #1d4ed8; }
+
+/* Error block */
+.login-error-block {
+  width: 100%;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #dc2626;
+  line-height: 1.55;
+  text-align: left;
+}
+
+/* Password input wrapper with toggle */
+.pw-input-wrap {
+  position: relative;
+}
+.pw-input-wrap .form-input {
+  padding-right: 42px;
+}
+.pw-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-light);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+.pw-toggle:hover { color: var(--color-mid); }
+
+/* Strength bar */
+.pw-strength-wrap {
+  margin-top: 8px;
+  text-align: left;
+}
+.pw-strength-track {
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pw-strength-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.pw-strength-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-top: 5px;
+  min-height: 16px;
+  transition: color 0.3s;
+}
+
+/* Requirements checklist */
+.pw-requirements {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 12.5px;
+  color: #64748b;
+}
+.pw-requirements p {
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+}
+.pw-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pw-requirements li::before {
+  content: '✕';
+  margin-right: 8px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+}
+.pw-requirements li.req-met { color: #16a34a; }
+.pw-requirements li.req-met::before { content: '✓'; color: #16a34a; }
+
+/* ---- Responsive ------------------------------------------- */
+@media (max-width: 480px) {
+  .login-card {
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-lg);
+  }
+}
+
+.cf-turnstile {
+  margin: 0.25rem 0;
+}

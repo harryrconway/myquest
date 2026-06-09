@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clients | MyQuest</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="js/store.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body class="dash-body" data-page="clients">
+
+  <div class="dash-sidebar__backdrop" id="dash-backdrop"></div>
+  <div class="dash-mobile-bar">
+    <button class="dash-hamburger" id="dash-hamburger" aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <svg width="100" height="26" viewBox="0 0 140 36" fill="none" aria-hidden="true"><path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/><path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/><text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text></svg>
+    <div style="width:22px"></div>
+  </div>
+  <div class="dash-shell">
+    <aside class="dash-sidebar" id="dash-sidebar">
+      <div class="dash-sidebar__logo"><a href="index.html"><svg width="120" height="30" viewBox="0 0 140 36" fill="none" aria-hidden="true"><path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/><path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/><text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text></svg></a></div>
+      <nav class="dash-sidebar__nav">
+        <a href="index.html" data-page="dashboard"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</a>
+        <a href="jobs.html" data-page="jobs"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Jobs</a>
+        <a href="calendar.html" data-page="calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendar</a>
+        <a href="roster.html" data-page="roster"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Roster</a>
+        <div class="dash-sidebar__section-label">Clients</div>
+        <a href="clients.html" data-page="clients"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Clients</a>
+        
+        <div class="dash-sidebar__section-label">Team</div>
+        <a href="staff.html" data-page="staff" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg> Staff</a>
+        <a href="time-tracking.html" data-page="time"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time Tracking</a>
+        <div class="dash-sidebar__section-label">Operations</div>
+        <a href="inventory.html" data-page="inventory" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Inventory</a>
+        
+        
+                <button class="dash-guidelines-btn" onclick="toggleGuidelines(event)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Guidelines
+        </button>
+        <a href="settings.html" data-page="settings" data-min-role="owner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/></svg> Settings</a>
+      </nav>
+      <div class="dash-sidebar__footer">
+        <div class="dash-sidebar__user">
+          <div class="dash-sidebar__avatar js-user-avatar">H</div>
+          <div class="dash-sidebar__user-info">
+            <div class="dash-sidebar__user-name js-user-name">Loading…</div>
+            <div class="dash-sidebar__user-role js-user-role">staff</div>
+          </div>
+        </div>
+        <button class="dash-sidebar__logout js-logout">Sign Out</button>
+      </div>
+    </aside>
+    <div class="dash-main"><div class="dash-content">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-header__title">Clients</h1>
+          <p class="page-header__sub">Manage your clients and their properties</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="btn-primary" id="btn-add-client">+ Add Client</button>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card__header" style="padding:var(--space-4) var(--space-6);">
+          <div style="position:relative;width:100%;max-width:360px;">
+            <svg style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--color-light);pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="client-search" class="form-input" placeholder="Search clients by name, email or phone…" style="padding-left:2.25rem;border-radius:var(--radius-full);background:#f9fafb;border-color:#e5e7eb;">
+          </div>
+          <span id="client-count" style="font-size:var(--text-sm);color:var(--color-light);flex-shrink:0;"></span>
+        </div>
+        <div id="clients-list" style="padding:var(--space-2) var(--space-4) var(--space-4);">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+    </div></div>
+  </div>
+
+  <!-- Modal: Add / Edit Client -->
+  <div class="modal-overlay" id="modal-add-client" hidden>
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <h2 class="modal-title" id="client-modal-title">Add Client</h2>
+        <button class="modal-close" data-modal-close="modal-add-client" aria-label="Close">&times;</button>
+      </div>
+      <form id="client-form" novalidate>
+        <div class="modal-body">
+          <input type="hidden" id="client-id">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="client-name">Full Name / Business Name <span style="color:var(--color-error)">*</span></label>
+              <input class="form-input" type="text" id="client-name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="client-phone">Mobile</label>
+              <input class="form-input" type="tel" id="client-phone">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="client-email">Email</label>
+              <input class="form-input" type="email" id="client-email">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="client-address">Address</label>
+              <input class="form-input" type="text" id="client-address">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" data-modal-close="modal-add-client">Cancel</button>
+          <button type="submit" class="btn-primary">Save Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Property -->
+  <div class="modal-overlay" id="modal-add-property" hidden>
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="property-modal-title">Add Property</h2>
+          <div id="property-client-label" style="font-size:13px;color:#64748b;margin-top:3px;font-weight:500;"></div>
+        </div>
+        <button class="modal-close" data-modal-close="modal-add-property" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="property-id">
+        <input type="hidden" id="property-client-id">
+
+        <div class="modal-seg">
+          <button type="button" id="prop-tab-res" class="modal-seg__btn is-active" onclick="ClientsPage.switchPropTab('residential')">Residential</button>
+          <button type="button" id="prop-tab-com" class="modal-seg__btn" onclick="ClientsPage.switchPropTab('commercial')">Commercial</button>
+        </div>
+
+        <!-- Residential panel -->
+        <div id="tab-residential">
+          <div class="mform-section">
+            <p class="mform-section__title">Property Details</p>
+            <div class="mform-grid-2" style="margin-bottom:10px;">
+              <div class="mform-field">
+                <label for="prop-subtype">Type</label>
+                <select class="form-input" id="prop-subtype">
+                  <option value="house">House</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="townhouse">Townhouse</option>
+                  <option value="unit">Unit</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="mform-field">
+                <label for="prop-sqm">Size (sqm)</label>
+                <input class="form-input" type="number" id="prop-sqm" min="0" placeholder="e.g. 180">
+              </div>
+            </div>
+            <div class="mform-grid-3">
+              <div class="mform-field">
+                <label for="prop-bedrooms">Bedrooms</label>
+                <input class="form-input" type="number" id="prop-bedrooms" min="0" value="3">
+              </div>
+              <div class="mform-field">
+                <label for="prop-bathrooms">Bathrooms</label>
+                <input class="form-input" type="number" id="prop-bathrooms" min="0" value="1">
+              </div>
+              <div class="mform-field">
+                <label for="prop-toilets">Toilets</label>
+                <input class="form-input" type="number" id="prop-toilets" min="0" value="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="mform-section">
+            <p class="mform-section__title">Flooring &amp; Access</p>
+            <div class="mform-grid-2" style="margin-bottom:12px;">
+              <div class="mform-field">
+                <label for="prop-carpet">Carpet Areas</label>
+                <input class="form-input" type="text" id="prop-carpet" placeholder="e.g. bedrooms, hallway">
+              </div>
+              <div class="mform-field">
+                <label for="prop-hardfloor">Hard Floor Areas</label>
+                <input class="form-input" type="text" id="prop-hardfloor" placeholder="e.g. kitchen, living">
+              </div>
+            </div>
+            <div class="mform-field" style="margin-bottom:14px;">
+              <label for="prop-stories">Stories</label>
+              <input class="form-input" type="number" id="prop-stories" min="1" value="1" style="max-width:120px;">
+            </div>
+            <div class="mform-toggle-row">
+              <label class="mform-toggle">
+                <input type="checkbox" id="prop-balcony">
+                <span class="mform-toggle__label">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                  Balcony
+                </span>
+              </label>
+              <label class="mform-toggle">
+                <input type="checkbox" id="prop-garage">
+                <span class="mform-toggle__label">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M2 13h20"/></svg>
+                  Garage
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commercial panel -->
+        <div id="tab-commercial" style="display:none;">
+          <div class="mform-section">
+            <p class="mform-section__title">Building Details</p>
+            <div class="mform-grid-2" style="margin-bottom:10px;">
+              <div class="mform-field">
+                <label for="prop-com-subtype">Building Type</label>
+                <select class="form-input" id="prop-com-subtype">
+                  <option value="office">Office</option>
+                  <option value="retail">Retail</option>
+                  <option value="warehouse">Warehouse</option>
+                  <option value="medical">Medical</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="mform-field">
+                <label for="prop-com-sqm">Size (sqm)</label>
+                <input class="form-input" type="number" id="prop-com-sqm" min="0" placeholder="e.g. 350">
+              </div>
+            </div>
+            <div class="mform-grid-3">
+              <div class="mform-field">
+                <label for="prop-offices">Offices / Rooms</label>
+                <input class="form-input" type="number" id="prop-offices" min="0">
+              </div>
+              <div class="mform-field">
+                <label for="prop-com-bathrooms">Bathrooms</label>
+                <input class="form-input" type="number" id="prop-com-bathrooms" min="0">
+              </div>
+              <div class="mform-field">
+                <label for="prop-com-kitchens">Kitchens</label>
+                <input class="form-input" type="number" id="prop-com-kitchens" min="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="mform-section">
+            <p class="mform-section__title">Service Details</p>
+            <div class="mform-grid-2">
+              <div class="mform-field">
+                <label for="prop-staff-count">Staff Count</label>
+                <input class="form-input" type="number" id="prop-staff-count" min="0" placeholder="Number of employees">
+              </div>
+              <div class="mform-field">
+                <label for="prop-frequency">Clean Frequency</label>
+                <select class="form-input" id="prop-frequency">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="fortnightly">Fortnightly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shared: Clean Type -->
+        <div class="mform-section">
+          <p class="mform-section__title">Clean Type</p>
+          <div class="mform-grid-2">
+            <div class="mform-field">
+              <label for="prop-clean-type">Type of Clean</label>
+              <select class="form-input" id="prop-clean-type">
+                <option value="Standard">Standard</option>
+                <option value="Deep Clean">Deep Clean</option>
+                <option value="End of Lease">End of Lease</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shared: Access & Notes -->
+        <div class="mform-section">
+          <p class="mform-section__title">Access &amp; Notes</p>
+          <div class="mform-grid-2" style="margin-bottom:10px;">
+            <div class="mform-field">
+              <label for="prop-pets">Pets</label>
+              <input class="form-input" type="text" id="prop-pets" placeholder="e.g. One dog">
+            </div>
+            <div class="mform-field">
+              <label for="prop-access">Access Notes</label>
+              <input class="form-input" type="text" id="prop-access" placeholder="e.g. Key under mat">
+            </div>
+            <div class="mform-field">
+              <label for="prop-alarm">Alarm Code</label>
+              <input class="form-input" type="text" id="prop-alarm">
+            </div>
+            <div class="mform-field">
+              <label for="prop-parking">Parking Notes</label>
+              <input class="form-input" type="text" id="prop-parking">
+            </div>
+          </div>
+          <div class="mform-field" style="margin-bottom:10px;">
+            <label for="prop-fragile">Fragile Items / Areas to Avoid</label>
+            <input class="form-input" type="text" id="prop-fragile">
+          </div>
+          <div class="mform-field">
+            <label for="prop-special">Special Requests</label>
+            <textarea class="form-input" id="prop-special" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" data-modal-close="modal-add-property">Cancel</button>
+        <button type="button" class="btn-primary" id="property-save-btn">Save Property</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Quote Calculator -->
+  <div class="modal-overlay" id="modal-quote" hidden>
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="quote-modal-title">New Quote</h2>
+          <div id="quote-modal-sub" style="font-size:13px;color:#64748b;margin-top:3px;font-weight:500;"></div>
+        </div>
+        <button class="modal-close" data-modal-close="modal-quote" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="quote-client-id">
+
+        <div class="modal-seg">
+          <button type="button" id="quote-tab-res" class="modal-seg__btn is-active" onclick="ClientsPage.switchQuoteTab('residential')">Residential</button>
+          <button type="button" id="quote-tab-com" class="modal-seg__btn" onclick="ClientsPage.switchQuoteTab('commercial')">Commercial</button>
+        </div>
+
+        <!-- Residential panel -->
+        <div id="quote-panel-res">
+          <div class="mform-section">
+            <p class="mform-section__title">Property</p>
+            <div class="mform-field">
+              <label for="quote-res-prop">Select Property</label>
+              <select class="form-input" id="quote-res-prop" onchange="ClientsPage.onQuotePropChange('residential')">
+                <option value="">— No property —</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mform-section">
+            <p class="mform-section__title">Job Details</p>
+            <div class="mform-grid-3">
+              <div class="mform-field">
+                <label for="quote-beds">Bedrooms</label>
+                <input class="form-input" type="number" id="quote-beds" value="3" min="0">
+              </div>
+              <div class="mform-field">
+                <label for="quote-baths">Bathrooms</label>
+                <input class="form-input" type="number" id="quote-baths" value="1" min="0">
+              </div>
+              <div class="mform-field">
+                <label for="quote-condition">Condition</label>
+                <select class="form-input" id="quote-condition">
+                  <option value="standard">Standard</option>
+                  <option value="poor">Poor (×1.3)</option>
+                  <option value="heavy">Heavy (×1.6)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mform-section">
+            <p class="mform-section__title">Add-on Extras</p>
+            <div class="quote-extras-grid">
+              <label class="quote-extra-toggle"><input type="checkbox" class="qres-extra" value="oven"><span class="quote-extra-toggle__body"><span class="quote-extra-toggle__name">Oven</span><span class="quote-extra-toggle__price">+$40</span></span></label>
+              <label class="quote-extra-toggle"><input type="checkbox" class="qres-extra" value="windows"><span class="quote-extra-toggle__body"><span class="quote-extra-toggle__name">Windows</span><span class="quote-extra-toggle__price">+$30</span></span></label>
+              <label class="quote-extra-toggle"><input type="checkbox" class="qres-extra" value="balcony"><span class="quote-extra-toggle__body"><span class="quote-extra-toggle__name">Balcony</span><span class="quote-extra-toggle__price">+$25</span></span></label>
+              <label class="quote-extra-toggle"><input type="checkbox" class="qres-extra" value="garage"><span class="quote-extra-toggle__body"><span class="quote-extra-toggle__name">Garage</span><span class="quote-extra-toggle__price">+$20</span></span></label>
+              <label class="quote-extra-toggle"><input type="checkbox" class="qres-extra" value="fridge"><span class="quote-extra-toggle__body"><span class="quote-extra-toggle__name">Fridge</span><span class="quote-extra-toggle__price">+$20</span></span></label>
+              <label class="quote-extra-toggle"><input type="checkbox" class="qres-extra" value="walls"><span class="quote-extra-toggle__body"><span class="quote-extra-toggle__name">Wall Wash</span><span class="quote-extra-toggle__price">+$50</span></span></label>
+            </div>
+          </div>
+
+          <div class="mform-section">
+            <div class="sqm-override">
+              <p class="sqm-override__label">Sqm Override <span style="font-weight:500;color:#cbd5e1;text-transform:none;letter-spacing:0;font-size:11px;">— overrides bed/bath formula if both fields are filled</span></p>
+              <div class="mform-grid-2">
+                <div class="mform-field">
+                  <label for="quote-sqm">Size (sqm)</label>
+                  <input class="form-input" type="number" id="quote-sqm" min="0" placeholder="e.g. 150">
+                </div>
+                <div class="mform-field">
+                  <label for="quote-sqm-rate">Rate per sqm ($)</label>
+                  <input class="form-input" type="number" id="quote-sqm-rate" min="0" step="0.01" placeholder="e.g. 0.80">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commercial panel -->
+        <div id="quote-panel-com" style="display:none;">
+          <div class="mform-section">
+            <p class="mform-section__title">Property</p>
+            <div class="mform-field">
+              <label for="quote-com-prop">Select Property</label>
+              <select class="form-input" id="quote-com-prop" onchange="ClientsPage.onQuotePropChange('commercial')">
+                <option value="">— No property —</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mform-section">
+            <p class="mform-section__title">Job Details</p>
+            <div class="mform-grid-3">
+              <div class="mform-field">
+                <label for="quote-com-sqm">Floor Area (sqm)</label>
+                <input class="form-input" type="number" id="quote-com-sqm" value="200" min="1">
+              </div>
+              <div class="mform-field">
+                <label for="quote-com-complexity">Complexity</label>
+                <select class="form-input" id="quote-com-complexity">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium (×1.25)</option>
+                  <option value="high">High (×1.6)</option>
+                </select>
+              </div>
+              <div class="mform-field">
+                <label for="quote-com-frequency">Frequency</label>
+                <select class="form-input" id="quote-com-frequency">
+                  <option value="daily">Daily</option>
+                  <option value="three-week">3× per week</option>
+                  <option value="weekly" selected>Weekly</option>
+                  <option value="fortnightly">Fortnightly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result card -->
+        <div id="quote-result" style="display:none;margin-top:4px;">
+          <div class="quote-result-card">
+            <p class="quote-result-card__lbl">Quote Estimate</p>
+            <div class="quote-result-stats">
+              <div>
+                <div class="quote-result-stat__val" id="qr-stat1-val">—</div>
+                <div class="quote-result-stat__lbl" id="qr-stat1-lbl">Total Price</div>
+              </div>
+              <div>
+                <div class="quote-result-stat__val" id="qr-stat2-val">—</div>
+                <div class="quote-result-stat__lbl" id="qr-stat2-lbl">Labour Hours</div>
+              </div>
+              <div>
+                <div class="quote-result-stat__val" id="qr-stat3-val">—</div>
+                <div class="quote-result-stat__lbl" id="qr-stat3-lbl">Staff Required</div>
+              </div>
+            </div>
+            <div class="quote-result-card__breakdown" id="qr-breakdown"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" data-modal-close="modal-quote" style="margin-right:auto;">Cancel</button>
+        <button type="button" class="btn-primary" onclick="ClientsPage.calcQuote()">Calculate</button>
+        <button type="button" class="btn-primary" id="quote-save-btn" onclick="ClientsPage.saveQuote()" style="display:none;">Save Quote</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/ui.js" defer></script>
+  <script src="js/clients.js" defer></script>
+
+  <!-- Guidelines popout -->
+  <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
+    <div class="guidelines-popout__header">
+      <span class="guidelines-popout__title">How to use MyQuest</span>
+      <button class="guidelines-popout__close" onclick="closeGuidelines()">&times;</button>
+    </div>
+    <div class="guidelines-popout__body">
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">1</span>
+        <div><p class="guidelines-step__title">Add your clients</p><p class="guidelines-step__desc">Go to the Clients page and add each customer — name, phone, email, address.</p></div>
+      </div>
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">2</span>
+        <div><p class="guidelines-step__title">Add their property</p><p class="guidelines-step__desc">On the client's card, click Add Property. Fill in bedrooms, bathrooms, clean type, access notes and alarm code.</p></div>
+      </div>
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">3</span>
+        <div><p class="guidelines-step__title">Create a quote</p><p class="guidelines-step__desc">Click New Quote on the client's card. The calculator uses the property details and your rates from Settings to generate a price.</p></div>
+      </div>
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">4</span>
+        <div><p class="guidelines-step__title">Add your staff</p><p class="guidelines-step__desc">Go to the Staff page and add your team members — name, contact, role, and start date.</p></div>
+      </div>
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">5</span>
+        <div><p class="guidelines-step__title">Build a roster</p><p class="guidelines-step__desc">Go to the Roster page and schedule who is working which days.</p></div>
+      </div>
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">6</span>
+        <div><p class="guidelines-step__title">Add jobs</p><p class="guidelines-step__desc">Once a client confirms, click Add Job on their card. Assign the property, date, time, and which staff member is doing it.</p></div>
+      </div>
+      <div class="guidelines-step">
+        <span class="guidelines-step__num">7</span>
+        <div><p class="guidelines-step__title">Track on the day</p><p class="guidelines-step__desc">The dashboard shows today's jobs at a glance — who's working, what properties, and completion status.</p></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function toggleGuidelines(e) {
+      e.stopPropagation();
+      var p = document.getElementById('guidelines-popout');
+      p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    }
+    function closeGuidelines() {
+      document.getElementById('guidelines-popout').style.display = 'none';
+    }
+    document.addEventListener('click', function(e) {
+      var p = document.getElementById('guidelines-popout');
+      if (p && p.style.display !== 'none' && !p.contains(e.target)) {
+        p.style.display = 'none';
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeGuidelines();
+    });
+  </script>
+</body></html>
