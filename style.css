@@ -1648,39 +1648,54 @@ textarea.form-input {
 
 /* ---- Responsive ------------------------------------------ */
 @media (max-width: 600px) {
-  /* Pin modal to bottom of screen as a sheet — avoids iOS address-bar/keyboard issues */
+  /* Fullscreen modal — no bottom sheet, no scroll, fixed in place */
   .qm-overlay {
     padding: 0;
-    align-items: flex-end;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .qm-card {
     max-width: 100%;
     width: 100%;
-    height: min(92vh, 92dvh);
-    border-radius: 20px 20px 0 0;
-  }
-
-  .qm-title {
-    padding: 16px 20px 0;
-    font-size: 22px;
-  }
-
-  .qm-body {
-    padding: 18px 20px;
-  }
-
-  .qm-footer {
-    padding: 12px 20px 16px;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
   }
 
   .qm-header {
-    padding: 14px 20px;
+    padding: 12px 20px;
   }
 
-  .qm-grid-type {
-    grid-template-columns: repeat(2, 1fr);
+  .qm-title {
+    font-size: 20px;
+    padding: 10px 20px 0;
   }
+
+  .qm-body {
+    padding: 14px 20px;
+    overflow: hidden;
+  }
+
+  .qm-footer {
+    padding: 10px 20px max(14px, env(safe-area-inset-bottom));
+  }
+
+  /* Compact spacing so all step content fits without scrolling */
+  .qm-step    { gap: 12px; }
+  .qm-field   { gap: 4px; }
+  .qm-label   { font-size: 13px; }
+  .qm-input   { padding: 8px 12px; font-size: 14px; }
+  .qm-textarea { min-height: 80px; }
+
+  .qm-rcard        { padding: 12px 16px; }
+  .qm-radio-cards  { gap: 6px; }
+
+  .qm-ctile        { padding: 8px 14px; font-size: 13px; }
+  .qm-grid-check   { gap: 6px; }
+
+  .qm-tile         { padding: 16px 8px; font-size: 13px; }
+  .qm-grid-type    { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
   .qm-row-2,
   .qm-row-3 {
