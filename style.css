@@ -963,6 +963,7 @@ textarea.form-input {
   padding: 24px;
   opacity: 0;
   transition: opacity 0.28s ease;
+  overflow: hidden;
 }
 
 .qm-overlay[hidden] {
@@ -1783,11 +1784,9 @@ textarea.form-input {
 
 /* ---- Responsive ------------------------------------------ */
 @media (max-width: 600px) {
-  /* Fullscreen modal — no bottom sheet, no scroll, fixed in place */
+  /* Fullscreen modal on mobile — JS drives height and padding-top via visualViewport */
   .qm-overlay {
     padding: 0;
-    align-items: stretch;
-    justify-content: stretch;
   }
 
   .qm-card {

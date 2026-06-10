@@ -63,26 +63,39 @@
     });
     document.getElementById('qm-close').focus();
 
-    // Keep overlay and card locked to the visual viewport on all devices.
-    // Covers: iOS keyboard scroll, iPad split-keyboard, Android resize.
+    // Keep the card inside the visible area on every device.
+    //
+    // The overlay MUST stay at inset:0 (never shrink it) so its dark background
+    // always covers the full layout viewport — shrinking it created gaps where the
+    // landing page showed through when vv.offsetTop > 0 (iOS page shift on focus).
+    //
+    // Instead, keep the overlay full-page and drive paddingTop so the card is
+    // positioned within the visual viewport (above the keyboard).
     if (window.visualViewport) {
       _vpHandler = function () {
         var vv  = window.visualViewport;
         var ov  = document.getElementById('quote-modal');
         var crd = document.querySelector('.qm-card');
-        // Anchor overlay to the visible area (offsetTop shifts when iOS scrolls the page)
-        if (ov) {
-          ov.style.top    = vv.offsetTop + 'px';
-          ov.style.height = vv.height + 'px';
-        }
-        // Mobile fullscreen card fills visual viewport height
-        if (crd && window.innerWidth <= 600) {
-          crd.style.height = vv.height + 'px';
-        }
+        if (!vv || !ov) return;
+
+        var mobile = window.innerWidth <= 600;
+
+        // Resize card to fit within the visible area
+        var cardH = mobile
+          ? vv.height                          // fullscreen on phones
+          : Math.min(680, vv.height - 48);     // capped on tablet / desktop
+
+        if (crd) crd.style.height = cardH + 'px';
+
+        // Push card down to vv.offsetTop, then vertically centre it in the visible area.
+        // Using paddingTop instead of changing overlay top/height keeps inset:0 intact.
+        var centreGap = mobile ? 0 : Math.max(0, (vv.height - cardH) / 2);
+        ov.style.alignItems = 'flex-start';
+        ov.style.paddingTop = (vv.offsetTop + centreGap) + 'px';
       };
       window.visualViewport.addEventListener('resize', _vpHandler);
       window.visualViewport.addEventListener('scroll', _vpHandler);
-      _vpHandler(); // apply immediately so first render is correct
+      _vpHandler(); // run immediately so initial render is correct
     }
   }
 
@@ -96,8 +109,8 @@
     // Clear inline styles set by the viewport handler
     var card    = document.querySelector('.qm-card');
     var overlay = document.getElementById('quote-modal');
-    if (card)    card.style.height    = '';
-    if (overlay) { overlay.style.top = ''; overlay.style.height = ''; }
+    if (card)    card.style.height      = '';
+    if (overlay) { overlay.style.alignItems = ''; overlay.style.paddingTop = ''; }
 
     // Restore body scroll (reverse of position:fixed lock)
     document.body.style.position = '';
