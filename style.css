@@ -858,9 +858,7 @@ textarea.form-input {
   }
 
   .hero__illustration {
-    order: 2;
-    max-width: 240px;
-    margin: 0 auto;
+    display: none;
   }
 
   .hero-svg {

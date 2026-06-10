@@ -12,6 +12,7 @@
   display: flex;
   align-items: center;
   transition: box-shadow var(--transition-base), background var(--transition-base);
+  padding-top: env(safe-area-inset-top);
 }
 
 .site-header.is-scrolled {
@@ -150,6 +151,8 @@ body.menu-open .mobile-menu-backdrop {
   display: flex;
   flex-direction: column;
   padding: var(--space-6);
+  padding-top: max(var(--space-6), env(safe-area-inset-top));
+  padding-bottom: max(var(--space-6), env(safe-area-inset-bottom));
   transform: translateX(100%);
   transition: transform var(--transition-slow);
   overflow: hidden;
