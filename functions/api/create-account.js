@@ -40,7 +40,11 @@ export async function onRequestPost(context) {
   });
   if (!inviteRes.ok) {
     const err = await inviteRes.json().catch(() => ({}));
-    const msg = (err.msg || '').includes('already registered') ? 'A user with this email already exists.' : 'Failed to send invitation. Please try again.';
+    const raw = err.msg || err.message || err.error_description || '';
+    let msg = 'Failed to send invitation. Please try again.';
+    if (raw.toLowerCase().includes('already registered')) msg = 'A user with this email already exists.';
+    else if (raw.toLowerCase().includes('rate limit')) msg = 'Email rate limit reached. Wait a few minutes and try again.';
+    else if (raw) msg = raw;
     return json({ error: msg }, 400);
   }
   return json({ success: true, message: 'Invitation sent to ' + email });
