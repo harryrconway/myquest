@@ -59,7 +59,9 @@
       var roleBadge = ROLE_BADGE[p.role] || 'badge--grey';
       var statusBadge = (p.status === 'active' || !p.status)
         ? '<span class="badge badge--green">Active</span>'
-        : '<span class="badge badge--grey">Suspended</span>';
+        : p.status === 'invited'
+          ? '<span class="badge badge--amber">Invited</span>'
+          : '<span class="badge badge--grey">Suspended</span>';
 
       var levelName = p.cleaning_level ? (LEVEL_NAMES[parseInt(p.cleaning_level)] || 'Level ' + p.cleaning_level) : null;
       var levelTag  = levelName
@@ -74,7 +76,7 @@
         '</button>';
 
       if (!isMe) {
-        if (p.status === 'active' || !p.status) {
+        if (p.status === 'active' || !p.status || p.status === 'invited') {
           actions += ' <button class="btn-icon" title="Suspend account" onclick="SettingsPage.suspendAccount(\'' + escHtml(p.id) + '\',\'' + escHtml(p.name || p.email) + '\')">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>' +
             '</button>';
@@ -165,11 +167,18 @@
 
     if (!form) return;
 
-    // Auto-update cleaning level when role changes
+    // Show cleaning level only for staff; hide for manager/owner
     if (roleEl && levelEl) {
-      roleEl.addEventListener('change', function () {
-        levelEl.value = ROLE_LEVEL_DEFAULTS[this.value] || '1';
-      });
+      function updateLevelVisibility() {
+        var isStaff = roleEl.value === 'staff';
+        var grp = document.getElementById('ca-level-group');
+        if (grp) grp.style.display = isStaff ? '' : 'none';
+        levelEl.required = isStaff;
+        if (!isStaff) levelEl.value = '';
+        else if (!levelEl.value) levelEl.value = ROLE_LEVEL_DEFAULTS[roleEl.value] || '1';
+      }
+      roleEl.addEventListener('change', updateLevelVisibility);
+      updateLevelVisibility(); // apply on first render
     }
 
     // Success panel buttons
@@ -197,7 +206,7 @@
       var name           = document.getElementById('ca-name').value.trim();
       var email          = document.getElementById('ca-email').value.trim().toLowerCase();
       var role           = document.getElementById('ca-role').value;
-      var cleaning_level = parseInt(document.getElementById('ca-level').value) || 1;
+      var cleaning_level = role === 'staff' ? (parseInt(document.getElementById('ca-level').value) || 1) : null;
 
       if (!name || !email || !role) {
         if (errorEl) { errorEl.textContent = 'All fields are required.'; errorEl.hidden = false; }

@@ -47,6 +47,22 @@ export async function onRequestPost(context) {
     else if (raw) msg = raw;
     return json({ error: msg }, 400);
   }
+
+  // Mark the new profile as 'invited' so it doesn't show as Active until they set a password
+  const invited = await inviteRes.json().catch(() => ({}));
+  if (invited.id) {
+    await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${invited.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${SVC_KEY}`,
+        'apikey': SVC_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ status: 'invited' }),
+    }).catch(() => {});
+  }
+
   return json({ success: true, message: 'Invitation sent to ' + email });
 }
 

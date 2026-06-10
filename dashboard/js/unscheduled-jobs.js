@@ -359,6 +359,13 @@
 
     initDatePicker('uj');
     initTimePicker('uj');
+
+    // Realtime: reload when any quote_requests row changes (new submission or status update)
+    MQ.supabase
+      .channel('uj-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' },
+        function () { load(); })
+      .subscribe();
   });
 
   window.UJPage = { view: view, openAccept: openAccept, archive: archive };

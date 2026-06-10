@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Redirect invite/recovery tokens that Supabase drops on the homepage back to set-password.html -->
+  <script>(function(){var h=window.location.hash;if(h.indexOf('access_token')!==-1&&(h.indexOf('type=invite')!==-1||h.indexOf('type=recovery')!==-1)){window.location.replace('set-password.html'+h);}})();</script>
 
   <title>MyQuest | Professional Cleaning Services | Northern Rivers &amp; Gold Coast</title>
   <meta name="description" content="MyQuest delivers professional residential, commercial and deep cleaning services across the Northern Rivers and Gold Coast. Fully insured, police-checked staff. Get a free quote today.">

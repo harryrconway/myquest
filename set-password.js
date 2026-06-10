@@ -59,6 +59,14 @@
         return;
       }
 
+      // Mark profile as active now that the user has set their password
+      var sess = await sb.auth.getSession();
+      if (sess.data && sess.data.session) {
+        await sb.from('profiles')
+          .update({ status: 'active' })
+          .eq('id', sess.data.session.user.id);
+      }
+
       show('state-done');
       setTimeout(function () { window.location.href = 'dashboard/index.html'; }, 2000);
     });
