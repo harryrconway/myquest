@@ -46,22 +46,11 @@
       </div>
       <nav class="dash-sidebar__nav" aria-label="Dashboard navigation">
         <a href="index.html" data-page="dashboard"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</a>
-        <a href="jobs.html" data-page="jobs"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg> Jobs</a>
-        <a href="calendar.html" data-page="calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendar</a>
-        <a href="roster.html" data-page="roster"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Roster</a>
-        <div class="dash-sidebar__section-label">Clients</div>
-        <a href="clients.html" data-page="clients"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Clients</a>
-        
+        <a href="unscheduled-jobs.html" data-page="unscheduled-jobs" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Unscheduled Jobs</a>
+        <a href="scheduled-jobs.html" data-page="scheduled-jobs"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg> Scheduled Jobs</a>
+        <a href="completed-jobs.html" data-page="completed-jobs"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Completed Jobs</a>
         <div class="dash-sidebar__section-label">Team</div>
         <a href="staff.html" data-page="staff" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg> Staff</a>
-        <a href="time-tracking.html" data-page="time"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time Tracking</a>
-        <div class="dash-sidebar__section-label">Operations</div>
-        <a href="inventory.html" data-page="inventory" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Inventory</a>
-        
-        
-                <button class="dash-guidelines-btn" onclick="toggleGuidelines(event)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Guidelines
-        </button>
         <a href="settings.html" data-page="settings" data-min-role="owner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</a>
       </nav>
       <div class="dash-sidebar__footer">
@@ -90,27 +79,34 @@
 
         <!-- Stat Cards -->
         <div class="stats-grid mb-6" id="stats-grid">
-          <div class="stat-card">
+          <a href="unscheduled-jobs.html" class="stat-card stat-card--link" data-min-role="manager">
+            <div class="stat-card__icon stat-card__icon--amber">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="stat-card__value" id="stat-new-requests">—</div>
+            <div class="stat-card__label">New Requests</div>
+          </a>
+          <a href="scheduled-jobs.html" class="stat-card stat-card--link">
             <div class="stat-card__icon stat-card__icon--blue">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div class="stat-card__value" id="stat-today-jobs">—</div>
-            <div class="stat-card__label">Today's Jobs</div>
-          </div>
-          <div class="stat-card">
+            <div class="stat-card__label">Scheduled Today</div>
+          </a>
+          <a href="scheduled-jobs.html" class="stat-card stat-card--link">
             <div class="stat-card__icon stat-card__icon--green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+            </div>
+            <div class="stat-card__value" id="stat-week-jobs">—</div>
+            <div class="stat-card__label">Jobs This Week</div>
+          </a>
+          <a href="completed-jobs.html" class="stat-card stat-card--link">
+            <div class="stat-card__icon stat-card__icon--purple">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <div class="stat-card__value" id="stat-completed">—</div>
-            <div class="stat-card__label">Completed Today</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--amber">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            </div>
-            <div class="stat-card__value" id="stat-staff">—</div>
-            <div class="stat-card__label">Active Staff</div>
-          </div>
+            <div class="stat-card__value" id="stat-completed-month">—</div>
+            <div class="stat-card__label">Completed This Month</div>
+          </a>
         </div>
 
         <!-- Quick Actions -->
@@ -118,21 +114,21 @@
           <div class="dash-card__body">
             <p class="dash-quick-actions-label">Quick Actions</p>
             <div class="dash-quick-actions-row">
-              <a href="jobs.html" class="dash-quick-btn" style="--qa-color:#2d6a4f;--qa-bg:#d8edd9;">
-                <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>
-                <span class="dash-quick-btn__label">Add Job</span>
+              <a href="unscheduled-jobs.html" class="dash-quick-btn" style="--qa-color:#2d6a4f;--qa-bg:#d8edd9;">
+                <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+                <span class="dash-quick-btn__label">Review Requests</span>
               </a>
-              <a href="clients.html" class="dash-quick-btn" style="--qa-color:#2563eb;--qa-bg:#dbeafe;">
-                <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-                <span class="dash-quick-btn__label">Create Quote</span>
-              </a>
-              <a href="clients.html" class="dash-quick-btn" style="--qa-color:#7c3aed;--qa-bg:#ede9fe;">
-                <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="11" x2="13" y2="11"/><line x1="16" y1="8" x2="16" y2="14"/></svg></span>
-                <span class="dash-quick-btn__label">New Client</span>
-              </a>
-              <a href="roster.html" class="dash-quick-btn" style="--qa-color:#d97706;--qa-bg:#fef3c7;">
+              <a href="scheduled-jobs.html" class="dash-quick-btn" style="--qa-color:#2563eb;--qa-bg:#dbeafe;">
                 <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>
-                <span class="dash-quick-btn__label">Create Roster</span>
+                <span class="dash-quick-btn__label">Scheduled Jobs</span>
+              </a>
+              <a href="staff.html" class="dash-quick-btn" style="--qa-color:#7c3aed;--qa-bg:#ede9fe;">
+                <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></span>
+                <span class="dash-quick-btn__label">Manage Staff</span>
+              </a>
+              <a href="settings.html" class="dash-quick-btn" style="--qa-color:#d97706;--qa-bg:#fef3c7;" data-min-role="owner">
+                <span class="dash-quick-btn__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+                <span class="dash-quick-btn__label">Settings</span>
               </a>
             </div>
           </div>
@@ -145,7 +141,7 @@
               <h2 class="card-section-header__title">Upcoming Jobs</h2>
               <span class="card-section-header__pill">Next 7 days</span>
             </div>
-            <a href="jobs.html" class="card-section-header__link">
+            <a href="scheduled-jobs.html" class="card-section-header__link">
               View all
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
             </a>

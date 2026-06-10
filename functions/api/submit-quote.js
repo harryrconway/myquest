@@ -1,0 +1,183 @@
+/* POST /api/submit-quote — public endpoint, stores quote request + sends emails */
+export async function onRequestOptions() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const SUPABASE_URL = env.SUPABASE_URL;
+  const SERVICE_KEY  = env.SUPABASE_SERVICE_KEY;
+  const RESEND_KEY   = env.RESEND_API_KEY;
+  const ADMIN_EMAIL  = env.ADMIN_EMAIL || 'hello@myquest.au';
+
+  if (!SUPABASE_URL || !SERVICE_KEY) return json({ error: 'Server configuration error.' }, 500);
+
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
+
+  const { full_name, phone, email } = body;
+  if (!full_name || !phone || !email) {
+    return json({ error: 'Name, phone and email are required.' }, 400);
+  }
+
+  // Insert to Supabase
+  const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/quote_requests`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SERVICE_KEY}`,
+      'apikey': SERVICE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({
+      full_name:           full_name,
+      phone:               phone,
+      email:               email,
+      preferred_contact:   body.preferred_contact   || null,
+      street_address:      body.street_address      || null,
+      suburb:              body.suburb               || null,
+      state:               body.state                || null,
+      postcode:            body.postcode             || null,
+      access_instructions: body.access_instructions || null,
+      property_type:       body.property_type        || null,
+      bedrooms:            body.bedrooms    ? parseInt(body.bedrooms)    : null,
+      bathrooms:           body.bathrooms   ? parseInt(body.bathrooms)   : null,
+      living_areas:        body.living_areas ? parseInt(body.living_areas) : null,
+      floor_area_sqm:      body.floor_area_sqm ? parseInt(body.floor_area_sqm) : null,
+      staff_count:         body.staff_count  ? parseInt(body.staff_count)  : null,
+      services:            body.services    || [],
+      frequency:           body.frequency           || null,
+      condition:           body.condition            || null,
+      extras:              body.extras               || [],
+      preferred_days:      body.preferred_days       || [],
+      preferred_time:      body.preferred_time       || null,
+      flexible_schedule:   body.flexible_schedule    || false,
+      notes:               body.notes                || null,
+    }),
+  });
+
+  if (!insertRes.ok) {
+    return json({ error: 'Failed to save quote request. Please try again.' }, 500);
+  }
+
+  // Send emails (fire and forget — don't fail the response if email fails)
+  if (RESEND_KEY) {
+    const suburb   = body.suburb ? body.suburb : '';
+    const services = body.services && body.services.length ? body.services.join(', ') : 'Not specified';
+    const address  = [body.street_address, body.suburb, body.state, body.postcode].filter(Boolean).join(', ');
+
+    // Customer confirmation
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    'MyQuest <hello@myquest.au>',
+        to:      [email],
+        subject: "We've received your quote request — MyQuest",
+        html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
+<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#2d6a4f;padding:28px 36px;">
+    <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
+      <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <text x="28" y="25" font-family="'Plus Jakarta Sans',sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text>
+    </svg>
+  </div>
+  <div style="background:#fff;padding:36px;">
+    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Hi ${full_name}, we've got your request!</h2>
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">Thanks for reaching out to MyQuest. We've received your quote request and a member of our team will be in touch within <strong>2 hours</strong>.</p>
+    <div style="background:#f9fafb;border-radius:8px;padding:20px;margin:0 0 24px;">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;margin:0 0 12px;">Your request</p>
+      <p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Services:</strong> ${services}</p>
+      ${suburb ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Suburb:</strong> ${suburb}</p>` : ''}
+      ${body.property_type ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Property:</strong> ${body.property_type}</p>` : ''}
+      ${body.frequency ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Frequency:</strong> ${body.frequency}</p>` : ''}
+    </div>
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">If you have any questions before we reach out, give us a call:</p>
+    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#2d6a4f;font-weight:700;font-size:16px;">0497 828 838</a></p>
+    <p style="color:#6b7280;font-size:14px;margin:0;">The MyQuest Team<br>
+    <a href="https://myquest.au" style="color:#2d6a4f;">myquest.au</a></p>
+  </div>
+</div>
+</body></html>`,
+      }),
+    }).catch(() => {});
+
+    // Admin notification
+    const rows = [
+      row('Name', full_name, false),
+      row('Phone', `<a href="tel:${phone}" style="color:#2d6a4f;">${phone}</a>`, true),
+      row('Email', `<a href="mailto:${email}" style="color:#2d6a4f;">${email}</a>`, false),
+      body.preferred_contact ? row('Preferred contact', body.preferred_contact, true)  : '',
+      address                ? row('Address',           address,                 false) : '',
+      body.property_type     ? row('Property type',     body.property_type,      true)  : '',
+      body.bedrooms          ? row('Bedrooms',           body.bedrooms,           false) : '',
+      body.bathrooms         ? row('Bathrooms',          body.bathrooms,          true)  : '',
+      body.living_areas      ? row('Living areas',       body.living_areas,       false) : '',
+      body.floor_area_sqm    ? row('Floor area',         body.floor_area_sqm + ' sqm', true)  : '',
+      body.staff_count       ? row('Staff count',        body.staff_count,        false) : '',
+      services               ? row('Services',           services,                true)  : '',
+      body.frequency         ? row('Frequency',          body.frequency,          false) : '',
+      body.condition         ? row('Condition',          body.condition,          true)  : '',
+      body.extras && body.extras.length ? row('Extras', body.extras.join(', '), false) : '',
+      body.preferred_days && body.preferred_days.length ? row('Preferred days', body.preferred_days.join(', '), true) : '',
+      body.preferred_time    ? row('Preferred time',     body.preferred_time,     false) : '',
+      body.notes             ? row('Notes',              body.notes,              true)  : '',
+    ].filter(Boolean).join('');
+
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    'MyQuest <hello@myquest.au>',
+        to:      [ADMIN_EMAIL],
+        subject: `New Quote Request — ${full_name}${suburb ? ' · ' + suburb : ''}`,
+        html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
+<div style="font-family:sans-serif;max-width:600px;margin:32px auto;">
+  <div style="background:#2d6a4f;padding:20px 24px;border-radius:8px 8px 0 0;">
+    <h2 style="color:white;margin:0;font-size:18px;">New Quote Request</h2>
+    <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px;">Submitted ${new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })}</p>
+  </div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">${rows}</table>
+  </div>
+  <p style="text-align:center;margin-top:20px;">
+    <a href="https://myquest.au/dashboard/unscheduled-jobs.html"
+       style="background:#2d6a4f;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+      View in Dashboard →
+    </a>
+  </p>
+</div>
+</body></html>`,
+      }),
+    }).catch(() => {});
+  }
+
+  return json({ success: true }, 200);
+}
+
+function row(label, value, stripe) {
+  var bg = stripe ? 'background:#f9fafb;' : '';
+  return `<tr style="${bg}">
+    <td style="padding:8px 16px;font-weight:600;white-space:nowrap;color:#374151;width:140px;">${label}</td>
+    <td style="padding:8px 16px;color:#111827;">${value}</td>
+  </tr>`;
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}

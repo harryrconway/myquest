@@ -90,7 +90,7 @@
 
       <div class="header-actions">
         <a href="login.html" class="header-login">Login</a>
-        <a href="#contact" class="btn-primary">Book Now</a>
+        <button class="btn-primary" data-open-quote>Get a Free Quote</button>
       </div>
 
       <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
@@ -131,7 +131,7 @@
     </nav>
     <div class="mobile-menu__footer">
       <a href="login.html" class="mobile-menu__login">Login</a>
-      <a href="#contact" class="btn-primary">Book Now</a>
+      <button class="btn-primary" data-open-quote>Get a Free Quote</button>
     </div>
   </div>
 
@@ -147,8 +147,8 @@
           <h1 class="hero__heading">Professional Cleaning Services You Can Trust</h1>
           <p class="hero__sub">We deliver spotless results every time, for homes, offices, and more. Fully insured, police checked, and always on time.</p>
           <div class="hero__actions">
-            <a href="#contact" class="btn-primary">Book Now</a>
-            <a href="#contact" class="btn-outline">Get a Free Quote</a>
+            <button class="btn-primary" data-open-quote>Get a Free Quote</button>
+            <p class="hero__cta-note">Receive a callback from our team within 2 hours</p>
           </div>
         </div>
         <div class="hero__illustration" aria-hidden="true">
@@ -354,7 +354,7 @@
           <div class="process-step animate-on-scroll">
             <div class="process-step__number" aria-hidden="true">1</div>
             <h3 class="process-step__title">Request a Quote</h3>
-            <p class="process-step__desc">Fill in our quick contact form or call us. Tell us about your space and we'll provide a transparent, no-obligation quote.</p>
+            <p class="process-step__desc">Click "Get a Free Quote" and fill in our quick form. Tell us about your space and we'll be in touch within 2 hours with a transparent, no-obligation quote.</p>
           </div>
 
           <div class="process__connector" aria-hidden="true"></div>
@@ -383,111 +383,29 @@
          ====================================================== -->
     <section id="contact" class="section contact" aria-labelledby="contact-heading">
       <div class="container">
-        <div class="contact__inner">
+        <div class="contact__inner contact__inner--centered">
 
-          <div class="contact__info">
-            <span class="section-label">Get In Touch</span>
-            <h2 class="section-heading" id="contact-heading">Request a Free Quote</h2>
-            <p class="section-sub">Ready to experience the MyQuest difference? Fill in the form and we'll be in touch within 2 hours.</p>
-            <ul class="contact__details">
-              <li>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/>
-                </svg>
-                <a href="tel:+61497828838">0497 828 838</a>
-              </li>
-              <li>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                <a href="mailto:hello@myquest.au">hello@myquest.au</a>
-              </li>
-            </ul>
-          </div>
+          <span class="section-label">Get In Touch</span>
+          <h2 class="section-heading" id="contact-heading">Request a Free Quote</h2>
+          <p class="section-sub">Receive a callback from our team within 2 hours.</p>
 
-          <div class="contact__form-wrap">
-            <form id="contact-form" class="contact__form" novalidate>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="name">Full Name <span aria-hidden="true">*</span></label>
-                  <input class="form-input" type="text" id="name" name="name" autocomplete="name" required aria-required="true">
-                  <span class="form-error" id="name-error" role="alert">Please enter your name.</span>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="phone">Phone Number <span aria-hidden="true">*</span></label>
-                  <input class="form-input" type="tel" id="phone" name="phone" autocomplete="tel" required aria-required="true">
-                  <span class="form-error" id="phone-error" role="alert">Please enter your phone number.</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="email">Email Address <span aria-hidden="true">*</span></label>
-                <input class="form-input" type="email" id="email" name="email" autocomplete="email" required aria-required="true">
-                <span class="form-error" id="email-error" role="alert">Please enter a valid email address.</span>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="service-btn">Service Required</label>
-                <div class="c-select" id="service-select">
-                  <button type="button" class="c-select__trigger" id="service-btn"
-                          aria-haspopup="listbox" aria-expanded="false" aria-controls="service-listbox">
-                    <span class="c-select__val">Select a service…</span>
-                    <svg class="c-select__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-                  <ul class="c-select__menu" id="service-listbox" role="listbox" aria-label="Service Required">
-                    <li class="c-select__option" role="option" data-value="residential">
-                      <span class="c-select__opt-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                      </span>
-                      <span class="c-select__opt-label">Residential Cleaning</span>
-                    </li>
-                    <li class="c-select__option" role="option" data-value="commercial">
-                      <span class="c-select__opt-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                      </span>
-                      <span class="c-select__opt-label">Commercial Cleaning</span>
-                    </li>
-                    <li class="c-select__option" role="option" data-value="deep-clean">
-                      <span class="c-select__opt-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-                      </span>
-                      <span class="c-select__opt-label">Deep Cleaning</span>
-                    </li>
-                    <li class="c-select__option" role="option" data-value="other">
-                      <span class="c-select__opt-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-                      </span>
-                      <span class="c-select__opt-label">Other</span>
-                    </li>
-                  </ul>
-                </div>
-                <select id="service" name="service" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" tabindex="-1" aria-hidden="true">
-                  <option value=""></option>
-                  <option value="residential">Residential Cleaning</option>
-                  <option value="commercial">Commercial Cleaning</option>
-                  <option value="deep-clean">Deep Cleaning</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="message">Message</label>
-                <textarea class="form-input" id="message" name="message" rows="4" placeholder="Tell us about your space, frequency needed, or any special requirements..."></textarea>
-              </div>
-              <input type="hidden" name="access_key" value="416f2740-50af-444b-a8ef-bd95471150cb">
-              <input type="hidden" name="subject" value="New Enquiry — MyQuest Website">
-              <button type="submit" class="btn-primary contact__submit">Send Message</button>
-            </form>
+          <button class="btn-primary contact__cta" data-open-quote>Get a Free Quote</button>
 
-            <div class="contact__success" id="contact-success" hidden aria-live="polite">
-              <div class="contact__success-icon" aria-hidden="true">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                  <circle cx="32" cy="32" r="30" fill="#2d6a4f"/>
-                  <path d="M18 32L27 41L46 22" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <h3>Thank you!</h3>
-              <p>We've received your enquiry and will be in touch within 2 hours.</p>
-            </div>
-          </div>
+          <ul class="contact__details">
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/>
+              </svg>
+              <a href="tel:+61497828838">0497 828 838</a>
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <a href="mailto:hello@myquest.au">hello@myquest.au</a>
+            </li>
+          </ul>
 
         </div>
       </div>
@@ -575,6 +493,24 @@
   <script src="header.js" defer></script>
   <script src="footer.js" defer></script>
   <script src="main.js" defer></script>
+  <script src="quote-modal.js" defer></script>
+
+  <!-- ── Quote modal ───────────────────────────────────────── -->
+  <div class="qm-overlay" id="quote-modal" hidden role="dialog" aria-modal="true" aria-labelledby="qm-title">
+    <div class="qm-card">
+      <div class="qm-header">
+        <div class="qm-progress"><div class="qm-progress__bar" id="qm-progress-bar"></div></div>
+        <div class="qm-step-label" id="qm-step-label">Step 1 of 10</div>
+        <button class="qm-close" id="qm-close" aria-label="Close">&times;</button>
+      </div>
+      <h2 class="qm-title" id="qm-title">Your Details</h2>
+      <div class="qm-body" id="qm-body"></div>
+      <div class="qm-footer" id="qm-footer">
+        <button class="btn-outline" id="qm-back" style="display:none">Back</button>
+        <button class="btn-primary" id="qm-next">Next</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Policy modal styles ─────────────────────────────── -->
   <style>
