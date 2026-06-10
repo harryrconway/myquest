@@ -21,14 +21,14 @@
   ];
 
   var PROPERTY_TYPES = [
-    { value: 'House',       label: 'House',       icon: '🏠' },
-    { value: 'Apartment',   label: 'Apartment',   icon: '🏢' },
-    { value: 'Townhouse',   label: 'Townhouse',   icon: '🏘️' },
-    { value: 'Office',      label: 'Office',      icon: '🖥️' },
-    { value: 'Retail',      label: 'Retail',      icon: '🛍️' },
-    { value: 'Medical',     label: 'Medical',     icon: '🏥' },
-    { value: 'Warehouse',   label: 'Warehouse',   icon: '🏭' },
-    { value: 'Other',       label: 'Other',       icon: '📋' },
+    { value: 'House',       label: 'House'      },
+    { value: 'Apartment',   label: 'Apartment'  },
+    { value: 'Townhouse',   label: 'Townhouse'  },
+    { value: 'Office',      label: 'Office'     },
+    { value: 'Retail',      label: 'Retail'     },
+    { value: 'Medical',     label: 'Medical'    },
+    { value: 'Warehouse',   label: 'Warehouse'  },
+    { value: 'Other',       label: 'Other'      },
   ];
 
   var SERVICES = [
@@ -171,7 +171,6 @@
         PROPERTY_TYPES.map(function (pt) {
           var sel = state.property_type === pt.value ? ' qm-tile--selected' : '';
           return '<button type="button" class="qm-tile' + sel + '" data-value="' + pt.value + '">' +
-            '<span class="qm-tile__icon">' + pt.icon + '</span>' +
             '<span class="qm-tile__label">' + pt.label + '</span>' +
           '</button>';
         }).join('') +
@@ -196,9 +195,8 @@
     return '<div class="qm-step">' +
       '<div class="qm-row-2">' +
         numberField('Floor Area (sqm)', 'qm-sqm', state.floor_area_sqm, 1, 99999) +
-        numberField('Number of Staff', 'qm-staff', state.staff_count, 1, 500) +
+        numberField('Bathrooms', 'qm-baths', state.bathrooms, 1, 20) +
       '</div>' +
-      numberField('Bathrooms', 'qm-baths', state.bathrooms, 1, 20) +
     '</div>';
   }
 
@@ -288,6 +286,16 @@
 
   /* ─── Review & Submit ─────────────────────────────────────────────────── */
 
+  var REVIEW_STEP_MAP = {
+    'Name': 0, 'Phone': 0, 'Email': 0, 'Preferred contact': 0,
+    'Address': 1, 'Access': 1,
+    'Property type': 2,
+    'Bedrooms': 3, 'Bathrooms': 3, 'Living areas': 3, 'Floor area': 3,
+    'Services': 4, 'Frequency': 5, 'Condition': 6, 'Extras': 7,
+    'Preferred days': 8, 'Preferred time': 8, 'Flexible schedule': 8,
+    'Notes': 9,
+  };
+
   function renderReview() {
     var body    = document.getElementById('qm-body');
     var backBtn = document.getElementById('qm-back');
@@ -303,7 +311,18 @@
     nextBtn.disabled      = false;
 
     var rows = [];
-    function r(label, val) { if (val) rows.push('<tr><td class="qm-rv__label">' + escHtml(label) + '</td><td class="qm-rv__val">' + escHtml(String(val)) + '</td></tr>'); }
+    function r(label, val) {
+      if (!val) return;
+      var step = REVIEW_STEP_MAP[label];
+      var stepAttr = step !== undefined ? ' data-step="' + step + '"' : '';
+      rows.push(
+        '<tr class="qm-rv__row"' + stepAttr + ' title="Edit ' + escHtml(label) + '">' +
+          '<td class="qm-rv__label">' + escHtml(label) + '</td>' +
+          '<td class="qm-rv__val">' + escHtml(String(val)) + '</td>' +
+          '<td class="qm-rv__edit">›</td>' +
+        '</tr>'
+      );
+    }
 
     r('Name', state.full_name);
     r('Phone', state.phone);
@@ -318,7 +337,6 @@
       r('Living areas', state.living_areas);
     } else {
       r('Floor area', state.floor_area_sqm ? state.floor_area_sqm + ' sqm' : '');
-      r('Staff', state.staff_count);
       r('Bathrooms', state.bathrooms);
     }
     r('Services', state.services.join(', '));
@@ -336,6 +354,16 @@
         '<div id="qm-submit-error" class="qm-error" style="display:none"></div>' +
       '</div>';
     body.scrollTop = 0;
+
+    body.querySelectorAll('.qm-rv__row[data-step]').forEach(function (row) {
+      row.addEventListener('click', function () {
+        var step = parseInt(this.dataset.step);
+        currentStep = step;
+        renderStep();
+        document.getElementById('qm-next').onclick = next;
+        document.getElementById('qm-back').onclick = back;
+      });
+    });
   }
 
   function renderSuccess() {
@@ -389,7 +417,6 @@
         bind('qm-baths',  'input', function () { state.bathrooms = this.value; });
         bind('qm-living', 'input', function () { state.living_areas = this.value; });
         bind('qm-sqm',    'input', function () { state.floor_area_sqm = this.value; });
-        bind('qm-staff',  'input', function () { state.staff_count = this.value; });
         break;
       case 4:
         document.querySelectorAll('.qm-service').forEach(function (cb) {

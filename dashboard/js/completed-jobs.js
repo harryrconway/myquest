@@ -5,7 +5,8 @@
 (function () {
   'use strict';
 
-  var jobs = [];
+  var jobs         = [];
+  var filteredJobs = [];
 
   function escHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -33,6 +34,25 @@
     }).join(', ');
   }
 
+  /* ─── Search / Count ────────────────────────────────────────── */
+
+  function updateCount() {
+    var el = document.getElementById('cj-count');
+    if (el) el.textContent = filteredJobs.length + ' ' + (filteredJobs.length === 1 ? 'job' : 'jobs');
+  }
+
+  function filterAndRender(query) {
+    var q = (query || '').toLowerCase().trim();
+    filteredJobs = q ? jobs.filter(function (j) {
+      return (j.full_name   || '').toLowerCase().indexOf(q) !== -1 ||
+             (j.suburb      || '').toLowerCase().indexOf(q) !== -1 ||
+             (j.state       || '').toLowerCase().indexOf(q) !== -1 ||
+             (j.services    || []).join(' ').toLowerCase().indexOf(q) !== -1;
+    }) : jobs.slice();
+    updateCount();
+    render(filteredJobs);
+  }
+
   /* ─── Load ─────────────────────────────────────────────────── */
 
   async function load() {
@@ -48,7 +68,8 @@
 
       if (error) throw error;
       jobs = data || [];
-      render();
+      var searchEl = document.getElementById('cj-search');
+      filterAndRender(searchEl ? searchEl.value : '');
     } catch (err) {
       wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-error);">Failed to load jobs: ' + escHtml(err.message) + '</div>';
     }
@@ -56,28 +77,30 @@
 
   /* ─── Render ────────────────────────────────────────────────── */
 
-  function render() {
+  function render(list) {
     var wrap = document.getElementById('cj-table-wrap');
 
-    if (!jobs.length) {
+    if (!list.length) {
       wrap.innerHTML = MQ.ui.emptyState(
         'M20 6 9 17 4 12',
-        'No completed jobs yet',
-        'Completed jobs will appear here'
+        jobs.length ? 'No results found' : 'No completed jobs yet',
+        jobs.length ? 'Try a different search term' : 'Completed jobs will appear here'
       );
       return;
     }
 
-    var rows = jobs.map(function (j) {
+    var rows = list.map(function (j) {
       var address = [j.suburb, j.state].filter(Boolean).join(', ') || '—';
       return '<tr>' +
-        '<td>' + escHtml(fmtDate(j.job_completed_at)) + '</td>' +
+        '<td><strong>' + escHtml(fmtDate(j.job_completed_at)) + '</strong></td>' +
         '<td>' + escHtml(j.full_name) + '</td>' +
         '<td>' + escHtml(address) + '</td>' +
         '<td>' + escHtml(fmtServices(j.services)) + '</td>' +
-        '<td>' + escHtml(getStaffNames(j.assigned_staff_ids)) + '</td>' +
+        '<td style="font-size:13px;">' + escHtml(getStaffNames(j.assigned_staff_ids)) + '</td>' +
         '<td>' +
-          '<button class="btn-outline" style="font-size:12px;padding:4px 10px;" onclick="CJPage.view(\'' + j.id + '\')">View</button>' +
+          '<div class="dash-table__action-group">' +
+            '<button class="action-btn action-btn--view" onclick="CJPage.view(\'' + j.id + '\')">View</button>' +
+          '</div>' +
         '</td>' +
       '</tr>';
     }).join('');
@@ -131,6 +154,9 @@
   document.addEventListener('mq:ready', function () {
     load();
     document.getElementById('btn-refresh').addEventListener('click', load);
+
+    var searchEl = document.getElementById('cj-search');
+    if (searchEl) searchEl.addEventListener('input', function () { filterAndRender(this.value); });
   });
 
   window.CJPage = { view: view };

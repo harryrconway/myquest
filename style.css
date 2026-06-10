@@ -877,12 +877,11 @@ textarea.form-input {
 .qm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 9000;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  padding: 16px;
   opacity: 0;
   transition: opacity 0.28s ease;
 }
@@ -901,15 +900,15 @@ textarea.form-input {
 }
 
 .qm-card {
-  background: #fff;
-  border-radius: 16px;
+  background: #2d6a4f;
+  color: #fff;
+  border-radius: 0;
   width: 100%;
-  max-width: 580px;
-  max-height: 90vh;
+  max-width: 100%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.25);
-  transform: translateY(24px);
+  transform: translateY(18px);
   opacity: 0;
   transition: transform 0.28s ease, opacity 0.28s ease;
 }
@@ -918,21 +917,23 @@ textarea.form-input {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 24px 0;
+  padding: 18px 32px 0;
   flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.15);
+  padding-bottom: 14px;
 }
 
 .qm-progress {
   flex: 1;
   height: 4px;
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .qm-progress__bar {
   height: 100%;
-  background: #2d6a4f;
+  background: #fff;
   border-radius: 9999px;
   transition: width 0.35s ease;
   width: 10%;
@@ -940,7 +941,7 @@ textarea.form-input {
 
 .qm-step-label {
   font-size: 12px;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -955,30 +956,34 @@ textarea.form-input {
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.7);
   border-radius: 8px;
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
 }
 
 .qm-close:hover {
-  background: #f1f5f9;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
 
 .qm-title {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: #fff;
   margin: 0;
-  padding: 16px 24px 0;
+  padding: 20px 32px 0;
   flex-shrink: 0;
 }
 
 .qm-body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 24px;
+  padding: 24px 32px 24px;
+  max-width: 700px;
+  width: 100%;
+  align-self: center;
+  box-sizing: border-box;
 }
 
 .qm-footer {
@@ -986,9 +991,32 @@ textarea.form-input {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  padding: 16px 24px 20px;
-  border-top: 1px solid #f1f5f9;
+  padding: 16px 32px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.qm-footer .btn-outline {
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+}
+
+.qm-footer .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+  color: #fff;
+}
+
+.qm-footer .btn-primary {
+  background: #fff;
+  color: #2d6a4f;
+  border-color: #fff;
+}
+
+.qm-footer .btn-primary:hover {
+  background: #f0fdf4;
 }
 
 /* ---- Step content ---------------------------------------- */
@@ -1005,32 +1033,41 @@ textarea.form-input {
 }
 
 .qm-label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .qm-req {
-  color: #ef4444;
+  color: #86efac;
 }
 
 .qm-input {
   width: 100%;
-  padding: 0.7rem 0.875rem;
-  border: 1.5px solid #d1d5db;
+  padding: 0.75rem 0.875rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   font-size: 15px;
   font-family: inherit;
-  color: #111827;
-  background: #fff;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
 }
 
+.qm-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
 .qm-input:focus {
   outline: none;
-  border-color: #2d6a4f;
-  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+.qm-input option {
+  background: #1e5236;
+  color: #fff;
 }
 
 .qm-textarea {
@@ -1052,7 +1089,7 @@ textarea.form-input {
 
 .qm-hint {
   font-size: 13px;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.65);
   margin: 0;
 }
 
@@ -1067,22 +1104,22 @@ textarea.form-input {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 16px;
-  border: 1.5px solid #d1d5db;
+  padding: 7px 18px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 9999px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .qm-radio-pill input { display: none; }
 
 .qm-radio-pill--on,
 .qm-radio-pill:has(input:checked) {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+  border-color: #fff;
+  background: #fff;
   color: #2d6a4f;
 }
 
@@ -1097,34 +1134,29 @@ textarea.form-input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 8px;
-  border: 1.5px solid #e5e7eb;
+  justify-content: center;
+  gap: 4px;
+  padding: 18px 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .qm-tile:hover {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .qm-tile--selected {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+  border-color: #fff;
+  background: #fff;
   color: #2d6a4f;
-  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
-}
-
-.qm-tile__icon {
-  font-size: 24px;
-  line-height: 1;
 }
 
 /* ---- Radio cards ----------------------------------------- */
@@ -1138,36 +1170,47 @@ textarea.form-input {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  border: 1.5px solid #e5e7eb;
+  padding: 14px 18px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
   transition: border-color 0.15s, background 0.15s;
 }
 
 .qm-rcard input { display: none; }
 
 .qm-rcard:hover {
-  border-color: #2d6a4f;
-  background: #f9fafb;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .qm-rcard--on,
 .qm-rcard:has(input:checked) {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+  border-color: #fff;
+  background: #fff;
 }
 
 .qm-rcard__label {
   font-size: 15px;
   font-weight: 600;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95);
   flex: 1;
+}
+
+.qm-rcard--on .qm-rcard__label,
+.qm-rcard:has(input:checked) .qm-rcard__label {
+  color: #2d6a4f;
 }
 
 .qm-rcard__desc {
   font-size: 13px;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.qm-rcard--on .qm-rcard__desc,
+.qm-rcard:has(input:checked) .qm-rcard__desc {
+  color: #4b7a63;
 }
 
 /* ---- Check tiles ----------------------------------------- */
@@ -1181,27 +1224,28 @@ textarea.form-input {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border: 1.5px solid #d1d5db;
+  padding: 9px 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  color: #374151;
-  transition: border-color 0.15s, background 0.15s;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.07);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
 .qm-ctile input { display: none; }
 
 .qm-ctile:hover {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .qm-ctile--on,
 .qm-ctile:has(input:checked) {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+  border-color: #fff;
+  background: #fff;
   color: #2d6a4f;
 }
 
@@ -1216,29 +1260,46 @@ textarea.form-input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 8px;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  color: #374151;
-  transition: border-color 0.15s, background 0.15s;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
   user-select: none;
+  -webkit-user-select: none;
+  outline: none;
 }
 
-.qm-day input { display: none; }
-
-.qm-day:hover {
-  border-color: #2d6a4f;
-  background: #f0fdf4;
+.qm-day input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.qm-day--on {
-  border-color: #2d6a4f;
-  background: #2d6a4f;
+.qm-day:hover,
+.qm-day:active {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
+}
+
+.qm-day--on,
+.qm-day:has(input:checked) {
+  border-color: #fff;
+  background: #fff;
+  color: #2d6a4f;
+}
+
+.qm-day:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
 }
 
 /* ---- Flexible checkbox row ------------------------------- */
@@ -1247,15 +1308,15 @@ textarea.form-input {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
 }
 
 /* ---- Error message --------------------------------------- */
 .qm-error {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
   font-size: 13px;
   padding: 10px 14px;
   border-radius: 8px;
@@ -1266,25 +1327,42 @@ textarea.form-input {
 .qm-rv {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 15px;
+}
+
+.qm-rv__row {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.qm-rv__row:hover td {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .qm-rv__label {
-  padding: 7px 12px 7px 0;
+  padding: 10px 14px 10px 0;
   font-weight: 600;
-  color: #6b7280;
-  width: 140px;
-  vertical-align: top;
+  color: rgba(255, 255, 255, 0.55);
+  width: 150px;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
 .qm-rv__val {
-  padding: 7px 0;
-  color: #111827;
+  padding: 10px 0;
+  color: #fff;
+}
+
+.qm-rv__edit {
+  width: 24px;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 18px;
+  padding-right: 4px;
 }
 
 .qm-rv tr:not(:last-child) td {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ---- Success step ---------------------------------------- */
@@ -1293,17 +1371,17 @@ textarea.form-input {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 32px 0 16px;
-  gap: 12px;
+  padding: 48px 0 24px;
+  gap: 14px;
 }
 
 .qm-success__icon {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #2d6a4f;
-  color: #fff;
-  font-size: 28px;
+  background: #fff;
+  color: #2d6a4f;
+  font-size: 30px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -1311,35 +1389,55 @@ textarea.form-input {
 }
 
 .qm-success__heading {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: #fff;
   margin: 0;
 }
 
 .qm-success__body {
-  font-size: 15px;
-  color: #4b5563;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.65;
   margin: 0;
+  max-width: 420px;
 }
 
 .qm-success__sub {
   font-size: 14px;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.65);
   margin: 0;
 }
 
 .qm-success__btn {
   margin-top: 8px;
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 2.5rem;
+  background: #fff;
+  color: #2d6a4f;
+  border-color: #fff;
+}
+
+.qm-success__btn:hover {
+  background: #f0fdf4;
 }
 
 /* ---- Responsive ------------------------------------------ */
-@media (max-width: 480px) {
-  .qm-card {
-    max-height: 95vh;
-    border-radius: 12px;
+@media (max-width: 600px) {
+  .qm-title {
+    padding: 16px 20px 0;
+    font-size: 22px;
+  }
+
+  .qm-body {
+    padding: 18px 20px;
+  }
+
+  .qm-footer {
+    padding: 12px 20px 16px;
+  }
+
+  .qm-header {
+    padding: 14px 20px;
   }
 
   .qm-grid-type {

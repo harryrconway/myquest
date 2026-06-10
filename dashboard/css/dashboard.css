@@ -2653,3 +2653,292 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   color: #64748b;
   line-height: 1.55;
 }
+
+/* ============================================================
+   JOB PAGES — shared toolbar, search, count, action buttons
+   ============================================================ */
+
+.jobs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.jobs-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-light, #6b7280);
+  white-space: nowrap;
+  background: #f1f5f9;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+}
+
+.jobs-search-wrap {
+  position: relative;
+  max-width: 320px;
+  width: 100%;
+}
+
+.jobs-search-wrap svg {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.jobs-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.jobs-search:focus {
+  outline: none;
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+}
+
+/* ---- Action buttons for job tables ----------------------- */
+.dash-table__action-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.action-btn--view {
+  background: #f1f5f9;
+  color: #374151;
+  border-color: #e2e8f0;
+}
+
+.action-btn--view:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.action-btn--accept {
+  background: #2d6a4f;
+  color: #fff;
+  border-color: #2d6a4f;
+}
+
+.action-btn--accept:hover {
+  background: #1e5236;
+  border-color: #1e5236;
+}
+
+.action-btn--complete {
+  background: #2d6a4f;
+  color: #fff;
+  border-color: #2d6a4f;
+}
+
+.action-btn--complete:hover {
+  background: #1e5236;
+  border-color: #1e5236;
+}
+
+.action-btn--edit {
+  background: #f1f5f9;
+  color: #374151;
+  border-color: #e2e8f0;
+}
+
+.action-btn--edit:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.action-btn--archive {
+  background: transparent;
+  color: #9ca3af;
+  border-color: #e5e7eb;
+}
+
+.action-btn--archive:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* ============================================================
+   CUSTOM DATE PICKER
+   ============================================================ */
+
+.custom-date-picker {
+  position: relative;
+}
+
+.cdp-display {
+  padding: 0.55rem 0.875rem;
+  border: 1.5px solid var(--color-border, #d1d5db);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #111827;
+  transition: border-color 0.15s;
+  user-select: none;
+}
+
+.cdp-display:hover,
+.cdp-display:focus {
+  border-color: #2d6a4f;
+  outline: none;
+}
+
+.cdp-display--placeholder {
+  color: #9ca3af;
+}
+
+.cdp-dropdown {
+  position: absolute;
+  z-index: 200;
+  background: #fff;
+  border: 1.5px solid #2d6a4f;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  min-width: 260px;
+  top: calc(100% + 6px);
+  left: 0;
+}
+
+.cdp-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cdp-nav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  line-height: 1;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.cdp-nav-btn:hover {
+  background: #f0fdf4;
+}
+
+.cdp-nav-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111827;
+}
+
+.cdp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cdp-cell {
+  padding: 6px 2px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background 0.1s, color 0.1s;
+}
+
+.cdp-cell:hover:not(.cdp-cell--header):not(.cdp-cell--other) {
+  background: #f0fdf4;
+  color: #2d6a4f;
+}
+
+.cdp-cell--selected {
+  background: #2d6a4f !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+.cdp-cell--today {
+  font-weight: 700;
+  color: #2d6a4f;
+}
+
+.cdp-cell--header {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  cursor: default;
+  padding-bottom: 8px;
+}
+
+.cdp-cell--other {
+  color: #d1d5db;
+  cursor: default;
+}
+
+/* ============================================================
+   CUSTOM TIME PICKER
+   ============================================================ */
+
+.custom-time-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ctp-select {
+  padding: 0.55rem 0.6rem;
+  border: 1.5px solid var(--color-border, #d1d5db);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 70px;
+}
+
+.ctp-select:focus {
+  outline: none;
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+}
+
+.ctp-colon {
+  font-weight: 700;
+  color: #374151;
+  font-size: 16px;
+}

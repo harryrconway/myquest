@@ -61,6 +61,13 @@
       </div>
 
       <div class="dash-card">
+        <div class="jobs-toolbar">
+          <span class="jobs-count" id="uj-count">—</span>
+          <div class="jobs-search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="uj-search" class="jobs-search" placeholder="Search by name, location, service…">
+          </div>
+        </div>
         <div id="uj-table-wrap">
           <!-- Rendered by JS -->
         </div>
@@ -97,12 +104,33 @@
         <input type="hidden" id="uj-accept-id">
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label" for="uj-date">Date <span style="color:var(--color-error)">*</span></label>
-            <input class="form-input" type="date" id="uj-date">
+            <label class="form-label">Date <span style="color:var(--color-error)">*</span></label>
+            <div class="custom-date-picker" id="uj-date-picker">
+              <div class="cdp-display cdp-display--placeholder" id="uj-date-display" tabindex="0">Select a date</div>
+              <input type="hidden" id="uj-date">
+              <div class="cdp-dropdown" id="uj-date-dropdown" hidden>
+                <div class="cdp-nav">
+                  <button type="button" class="cdp-nav-btn" id="uj-date-prev">&#8249;</button>
+                  <span class="cdp-nav-label" id="uj-date-month-label"></span>
+                  <button type="button" class="cdp-nav-btn" id="uj-date-next">&#8250;</button>
+                </div>
+                <div class="cdp-grid" id="uj-date-grid"></div>
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="uj-time">Time <span style="color:var(--color-error)">*</span></label>
-            <input class="form-input" type="time" id="uj-time">
+            <label class="form-label">Time <span style="color:var(--color-error)">*</span></label>
+            <div class="custom-time-picker" id="uj-time-picker">
+              <select class="ctp-select" id="uj-time-hour"></select>
+              <span class="ctp-colon">:</span>
+              <select class="ctp-select" id="uj-time-min">
+                <option value="00">00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+              <input type="hidden" id="uj-time">
+            </div>
           </div>
         </div>
         <div class="form-group">

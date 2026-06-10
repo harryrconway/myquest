@@ -61,6 +61,13 @@
       </div>
 
       <div class="dash-card">
+        <div class="jobs-toolbar">
+          <span class="jobs-count" id="sj-count">—</span>
+          <div class="jobs-search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="sj-search" class="jobs-search" placeholder="Search by name, location, service…">
+          </div>
+        </div>
         <div id="sj-table-wrap">
           <!-- Rendered by JS -->
         </div>
@@ -95,12 +102,33 @@
         <input type="hidden" id="sj-edit-id">
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label" for="sj-edit-date">Date <span style="color:var(--color-error)">*</span></label>
-            <input class="form-input" type="date" id="sj-edit-date">
+            <label class="form-label">Date <span style="color:var(--color-error)">*</span></label>
+            <div class="custom-date-picker" id="sj-edit-date-picker">
+              <div class="cdp-display cdp-display--placeholder" id="sj-edit-date-display" tabindex="0">Select a date</div>
+              <input type="hidden" id="sj-edit-date">
+              <div class="cdp-dropdown" id="sj-edit-date-dropdown" hidden>
+                <div class="cdp-nav">
+                  <button type="button" class="cdp-nav-btn" id="sj-edit-date-prev">&#8249;</button>
+                  <span class="cdp-nav-label" id="sj-edit-date-month-label"></span>
+                  <button type="button" class="cdp-nav-btn" id="sj-edit-date-next">&#8250;</button>
+                </div>
+                <div class="cdp-grid" id="sj-edit-date-grid"></div>
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="sj-edit-time">Time <span style="color:var(--color-error)">*</span></label>
-            <input class="form-input" type="time" id="sj-edit-time">
+            <label class="form-label">Time <span style="color:var(--color-error)">*</span></label>
+            <div class="custom-time-picker" id="sj-edit-time-picker">
+              <select class="ctp-select" id="sj-edit-time-hour"></select>
+              <span class="ctp-colon">:</span>
+              <select class="ctp-select" id="sj-edit-time-min">
+                <option value="00">00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+              <input type="hidden" id="sj-edit-time">
+            </div>
           </div>
         </div>
         <div class="form-group">
