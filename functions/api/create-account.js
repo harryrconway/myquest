@@ -1,4 +1,16 @@
 /* POST /api/create-account — invite a new staff member via Supabase */
+const ORIGIN = 'https://myquest.au';
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': ORIGIN,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const URL_BASE   = env.SUPABASE_URL;
@@ -67,5 +79,8 @@ export async function onRequestPost(context) {
 }
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ORIGIN },
+  });
 }

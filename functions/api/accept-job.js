@@ -1,10 +1,10 @@
 /* POST /api/accept-job — manager+ auth required */
-const SUPABASE_URL_BASE = 'https://mxgvkzyifphucndovypt.supabase.co';
+const ORIGIN = 'https://myquest.au';
 
 export async function onRequestOptions() {
   return new Response(null, {
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
@@ -13,6 +13,7 @@ export async function onRequestOptions() {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const SUPABASE_URL_BASE = env.SUPABASE_URL;
   const SERVICE_KEY = env.SUPABASE_SERVICE_KEY;
   const RESEND_KEY  = env.RESEND_API_KEY;
 
@@ -142,6 +143,6 @@ function formatTime(timeStr) {
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ORIGIN },
   });
 }
