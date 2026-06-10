@@ -2942,3 +2942,335 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   color: #374151;
   font-size: 16px;
 }
+
+/* ============================================================
+   JOB PAGE HERO BANNER
+   ============================================================ */
+
+.jobs-hero {
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 16px;
+  border-top: 4px solid #f59e0b;
+}
+
+.jobs-hero--amber { border-top-color: #f59e0b; }
+.jobs-hero--blue  { border-top-color: #3b82f6; }
+.jobs-hero--green { border-top-color: #2d6a4f; }
+
+.jobs-hero__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.jobs-hero__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jobs-hero--amber .jobs-hero__icon { background: #fef3c7; color: #d97706; }
+.jobs-hero--blue  .jobs-hero__icon { background: #dbeafe; color: #2563eb; }
+.jobs-hero--green .jobs-hero__icon { background: #d8edd9; color: #2d6a4f; }
+
+.jobs-hero__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.jobs-hero__sub {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 3px 0 0;
+  line-height: 1.4;
+}
+
+.jobs-hero__right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.jobs-hero__stat {
+  text-align: right;
+}
+
+.jobs-hero__count {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  display: block;
+}
+
+.jobs-hero--amber .jobs-hero__count { color: #d97706; }
+.jobs-hero--blue  .jobs-hero__count { color: #2563eb; }
+.jobs-hero--green .jobs-hero__count { color: #2d6a4f; }
+
+.jobs-hero__count-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 3px;
+}
+
+/* ---- Search bar below hero -------------------------------- */
+.jobs-searchbar {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.jobs-searchbar svg {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.jobs-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  color: #111827;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.jobs-search-input:focus {
+  outline: none;
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+}
+
+/* ============================================================
+   REQUEST CARDS (Unscheduled Jobs)
+   ============================================================ */
+
+.req-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.req-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #f59e0b;
+  padding: 16px 20px 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.req-card:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09);
+  transform: translateY(-1px);
+}
+
+.req-card__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.req-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.req-card__row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.req-card__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.req-card__ago {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.req-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.req-card__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.req-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.req-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+}
+
+.req-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ---- Job card footer actions for scheduled/completed ------ */
+.job-card__actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ---- Avatar colour variants -------------------------------- */
+.req-card__avatar--blue  { background: #dbeafe; color: #1e40af; }
+.req-card__avatar--green { background: #d8edd9; color: #166534; }
+
+/* ---- Chip colour variants ---------------------------------- */
+.req-chip--blue  { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+.req-chip--green { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+
+/* ---- job-group__badge (count pill next to date heading) ---- */
+.job-group__badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* ---- job-card redesign: flex layout matching req-card ------ */
+.job-card--scheduled,
+.job-card--completed {
+  display: flex;
+  align-items: flex-start;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 16px 20px 16px 18px;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.job-card--scheduled { border-left: 4px solid #3b82f6; }
+.job-card--completed { border-left: 4px solid #2d6a4f; opacity: 0.92; }
+
+.job-card--scheduled:hover,
+.job-card--completed:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09);
+  transform: translateY(-1px);
+}
+
+/* Time column inside new-style scheduled cards */
+.job-card--scheduled .job-card__time,
+.job-card--completed .job-card__time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  flex-shrink: 0;
+}
+
+.job-card__hour {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+.job-card--completed .job-card__hour { color: #166534; }
+
+/* Done badge (checkmark circle) for completed cards */
+.job-card__done-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #d8edd9;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+/* job-group wrapper for the new pages (no padding — cards handle spacing) */
+.job-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.job-group:last-child { margin-bottom: 0; }

@@ -1,12 +1,12 @@
 /* ============================================================
    MYQUEST — scheduled-jobs.js
-   Reads quote_requests WHERE status='scheduled' from Supabase
    ============================================================ */
 (function () {
   'use strict';
 
   var jobs         = [];
   var filteredJobs = [];
+  var editingId    = null;
   var viewingId    = null;
 
   function escHtml(str) {
@@ -16,20 +16,19 @@
   function fmtDate(str) {
     if (!str) return '—';
     try {
-      var parts = str.split('-');
-      var dt = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      return dt.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      var d = new Date(str);
+      return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
     } catch (e) { return str; }
   }
 
   function fmtTime(str) {
-    if (!str) return '—';
-    try {
-      var parts = str.split(':').map(Number);
-      var h = parts[0], m = parts[1];
-      var suffix = h < 12 ? 'am' : 'pm';
-      return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + suffix;
-    } catch (e) { return str; }
+    if (!str) return '';
+    var parts = str.split(':');
+    var h = parseInt(parts[0]);
+    var m = parts[1] || '00';
+    var ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 || 12;
+    return h + ':' + m + ' ' + ampm;
   }
 
   function fmtServices(arr) {
@@ -37,40 +36,21 @@
     return arr.join(', ');
   }
 
-  function getStaffNames(ids) {
-    if (!ids || !ids.length) return '—';
-    var staff = MQ.store.staff.getAll();
-    return ids.map(function (id) {
-      var s = staff.find(function (x) { return x.id === id; });
-      return s ? s.name : id;
-    }).join(', ');
-  }
-
-  /* ─── Role filter ───────────────────────────────────────────── */
-
-  function filterForRole(all) {
-    if (MQ.hasRole('manager')) return all;
-    var userId = MQ.getCurrentUserId && MQ.getCurrentUserId();
-    if (!userId) return all;
-    return all.filter(function (j) {
-      return j.assigned_staff_ids && j.assigned_staff_ids.indexOf(userId) !== -1;
-    });
-  }
-
   /* ─── Search / Count ────────────────────────────────────────── */
 
   function updateCount() {
     var el = document.getElementById('sj-count');
-    if (el) el.textContent = filteredJobs.length + ' ' + (filteredJobs.length === 1 ? 'job' : 'jobs');
+    if (el) el.textContent = filteredJobs.length;
   }
 
   function filterAndRender(query) {
     var q = (query || '').toLowerCase().trim();
     filteredJobs = q ? jobs.filter(function (j) {
-      return (j.full_name   || '').toLowerCase().indexOf(q) !== -1 ||
-             (j.suburb      || '').toLowerCase().indexOf(q) !== -1 ||
-             (j.state       || '').toLowerCase().indexOf(q) !== -1 ||
-             (j.services    || []).join(' ').toLowerCase().indexOf(q) !== -1;
+      return (j.full_name     || '').toLowerCase().indexOf(q) !== -1 ||
+             (j.suburb        || '').toLowerCase().indexOf(q) !== -1 ||
+             (j.state         || '').toLowerCase().indexOf(q) !== -1 ||
+             (j.services      || []).join(' ').toLowerCase().indexOf(q) !== -1 ||
+             (j.property_type || '').toLowerCase().indexOf(q) !== -1;
     }) : jobs.slice();
     updateCount();
     render(filteredJobs);
@@ -80,67 +60,91 @@
 
   async function load() {
     var wrap = document.getElementById('sj-table-wrap');
-    wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-light);">Loading…</div>';
+    wrap.innerHTML = '<div style="padding:60px;text-align:center;color:var(--color-light);">Loading…</div>';
 
     try {
       var { data, error } = await MQ.supabase
         .from('quote_requests')
         .select('*')
         .eq('status', 'scheduled')
-        .order('scheduled_date', { ascending: true })
-        .order('scheduled_time', { ascending: true });
+        .order('scheduled_date', { ascending: true });
 
       if (error) throw error;
-      jobs = filterForRole(data || []);
+      jobs = data || [];
       var searchEl = document.getElementById('sj-search');
       filterAndRender(searchEl ? searchEl.value : '');
     } catch (err) {
-      wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-error);">Failed to load jobs: ' + escHtml(err.message) + '</div>';
+      wrap.innerHTML = '<div style="padding:60px;text-align:center;color:var(--color-error);">Failed to load: ' + escHtml(err.message) + '</div>';
     }
   }
 
   /* ─── Render ────────────────────────────────────────────────── */
+
+  function groupByDate(list) {
+    var groups = {};
+    var order  = [];
+    list.forEach(function (j) {
+      var key = j.scheduled_date || 'unset';
+      if (!groups[key]) { groups[key] = []; order.push(key); }
+      groups[key].push(j);
+    });
+    return order.map(function (k) { return { date: k, jobs: groups[k] }; });
+  }
 
   function render(list) {
     var wrap = document.getElementById('sj-table-wrap');
 
     if (!list.length) {
       wrap.innerHTML = MQ.ui.emptyState(
-        'M3 4h18v2H3V4zm0 4h18v2H3V8zm0 4h12v2H3v-2z',
+        'M3 4 h18 M3 10 h18 M8 2 v4 M16 2 v4',
         jobs.length ? 'No results found' : 'No scheduled jobs',
-        jobs.length ? 'Try a different search term' : 'Accepted jobs will appear here'
+        jobs.length ? 'Try a different search term' : 'Accepted quote requests will appear here'
       );
       return;
     }
 
-    var isManager = MQ.hasRole('manager');
-    var rows = list.map(function (j) {
-      var address = [j.suburb, j.state].filter(Boolean).join(', ') || '—';
-      return '<tr>' +
-        '<td><strong>' + escHtml(fmtDate(j.scheduled_date)) + '</strong><br><span style="color:#6b7280;font-size:12px;">' + escHtml(fmtTime(j.scheduled_time)) + '</span></td>' +
-        '<td>' + escHtml(j.full_name) + '</td>' +
-        '<td>' + escHtml(address) + '</td>' +
-        '<td>' + escHtml(fmtServices(j.services)) + '</td>' +
-        '<td style="font-size:13px;">' + escHtml(getStaffNames(j.assigned_staff_ids)) + '</td>' +
-        '<td>' +
-          '<div class="dash-table__action-group">' +
-            '<button class="action-btn action-btn--view" onclick="SJPage.view(\'' + j.id + '\')">View</button>' +
-            (isManager ? '<button class="action-btn action-btn--edit" onclick="SJPage.openEdit(\'' + j.id + '\')">Edit</button>' : '') +
-            (isManager ? '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">Complete</button>' : '') +
+    var groups = groupByDate(list);
+    var html   = groups.map(function (g) {
+      var dateLabel = g.date === 'unset' ? 'No date set' : fmtDate(g.date);
+
+      var cards = g.jobs.map(function (j) {
+        var initial  = (j.full_name || '?')[0].toUpperCase();
+        var location = [j.suburb, j.state].filter(Boolean).join(', ');
+        var chips    = (j.services || []).slice(0, 3).map(function (s) {
+          return '<span class="req-chip req-chip--blue">' + escHtml(s) + '</span>';
+        }).join('');
+
+        return '<div class="job-card job-card--scheduled">' +
+          '<div class="job-card__time">' +
+            '<span class="job-card__hour">' + escHtml(fmtTime(j.scheduled_time)) + '</span>' +
           '</div>' +
-        '</td>' +
-      '</tr>';
+          '<div class="req-card__avatar req-card__avatar--blue">' + initial + '</div>' +
+          '<div class="req-card__body">' +
+            '<div class="req-card__row1">' +
+              '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
+              (j.property_type ? '<span class="badge badge--blue" style="font-size:11px;">' + escHtml(j.property_type) + '</span>' : '') +
+            '</div>' +
+            (location ? '<div class="req-card__meta"><span>' + escHtml(location) + '</span></div>' : '') +
+            (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
+          '</div>' +
+          '<div class="req-card__actions">' +
+            '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">View</button>'     +
+            '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">Edit</button>'     +
+            '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">Complete</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      return '<div class="job-group">' +
+        '<div class="job-group__header">' +
+          '<span class="job-group__date">' + dateLabel + '</span>' +
+          '<span class="job-group__badge">' + g.jobs.length + ' job' + (g.jobs.length === 1 ? '' : 's') + '</span>' +
+        '</div>' +
+        '<div class="job-group__cards">' + cards + '</div>' +
+      '</div>';
     }).join('');
 
-    wrap.innerHTML =
-      '<div style="overflow-x:auto;">' +
-        '<table class="dash-table">' +
-          '<thead><tr>' +
-            '<th>Date &amp; Time</th><th>Client</th><th>Location</th><th>Services</th><th>Staff</th><th>Actions</th>' +
-          '</tr></thead>' +
-          '<tbody>' + rows + '</tbody>' +
-        '</table>' +
-      '</div>';
+    wrap.innerHTML = html;
   }
 
   /* ─── View details ──────────────────────────────────────────── */
@@ -152,100 +156,124 @@
 
     function row(label, val) {
       if (!val && val !== 0) return '';
-      return '<tr><td style="padding:7px 12px 7px 0;font-weight:600;color:#6b7280;width:160px;white-space:nowrap;vertical-align:top;">' +
-        escHtml(label) + '</td><td style="padding:7px 0;color:#111827;">' + val + '</td></tr>';
+      return '<tr><td style="padding:8px 14px 8px 0;font-weight:600;color:#6b7280;width:160px;white-space:nowrap;vertical-align:top;">' +
+        escHtml(label) + '</td><td style="padding:8px 0;color:#111827;">' + val + '</td></tr>';
     }
 
     var address = [j.street_address, j.suburb, j.state, j.postcode].filter(Boolean).join(', ');
-    var html =
+
+    document.getElementById('sj-view-body').innerHTML =
       '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
-        row('Name',             escHtml(j.full_name)) +
-        row('Phone',            '<a href="tel:' + escHtml(j.phone) + '">' + escHtml(j.phone) + '</a>') +
-        row('Email',            '<a href="mailto:' + escHtml(j.email) + '">' + escHtml(j.email) + '</a>') +
-        row('Address',          escHtml(address)) +
-        row('Property type',    escHtml(j.property_type)) +
-        row('Services',         escHtml(fmtServices(j.services))) +
-        row('Frequency',        escHtml(j.frequency)) +
-        row('Scheduled',        escHtml(fmtDate(j.scheduled_date) + ' at ' + fmtTime(j.scheduled_time))) +
-        row('Staff',            escHtml(getStaffNames(j.assigned_staff_ids))) +
-        row('Internal notes',   escHtml(j.internal_notes)) +
-        row('Notes from client', escHtml(j.notes)) +
+        row('Name',           escHtml(j.full_name)) +
+        row('Phone',          '<a href="tel:' + escHtml(j.phone) + '">' + escHtml(j.phone) + '</a>') +
+        row('Email',          '<a href="mailto:' + escHtml(j.email) + '">' + escHtml(j.email) + '</a>') +
+        row('Address',        escHtml(address)) +
+        row('Property type',  escHtml(j.property_type)) +
+        row('Bedrooms',       j.bedrooms) +
+        row('Bathrooms',      j.bathrooms) +
+        row('Services',       escHtml(fmtServices(j.services))) +
+        row('Frequency',      escHtml(j.frequency)) +
+        row('Scheduled date', escHtml(fmtDate(j.scheduled_date))) +
+        row('Scheduled time', escHtml(fmtTime(j.scheduled_time))) +
+        row('Notes',          escHtml(j.notes)) +
+        row('Internal notes', escHtml(j.internal_notes)) +
       '</table>';
 
-    document.getElementById('sj-view-body').innerHTML = html;
-    document.getElementById('sj-view-complete-btn').style.display = MQ.hasRole('manager') ? '' : 'none';
     MQ.ui.modal.open('modal-sj-view');
   }
 
-  /* ─── Edit schedule ─────────────────────────────────────────── */
+  /* ─── Mark complete ─────────────────────────────────────────── */
 
-  function openEdit(id) {
+  async function markComplete(id) {
     var j = jobs.find(function (x) { return x.id === id; });
     if (!j) return;
     viewingId = id;
 
+    MQ.ui.confirmDelete(
+      'Mark "' + (j.full_name || 'this job') + '" as complete? A thank-you email will be sent.',
+      async function () {
+        try {
+          var session = await MQ.supabase.auth.getSession();
+          var token   = session.data.session && session.data.session.access_token;
+
+          var res  = await fetch('/api/complete-job', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ jobId: id }),
+          });
+          var data = await res.json();
+          if (!data.success) throw new Error(data.error || 'Failed to mark complete.');
+
+          MQ.ui.modal.close('modal-sj-view');
+          MQ.ui.toast('Job marked complete — thank-you email sent');
+          window.location.href = 'completed-jobs.html';
+        } catch (err) {
+          MQ.ui.toast('Error: ' + err.message, 'error');
+        }
+      }
+    );
+  }
+
+  /* ─── Edit Schedule ─────────────────────────────────────────── */
+
+  function openEdit(id) {
+    var j = jobs.find(function (x) { return x.id === id; });
+    if (!j) return;
+    editingId = id;
+
     document.getElementById('sj-edit-id').value = id;
+    document.getElementById('sj-edit-date').value = j.scheduled_date || '';
+    document.getElementById('sj-edit-time').value = j.scheduled_time || '';
     document.getElementById('sj-edit-error').style.display = 'none';
 
-    // Set date picker
-    var dateHidden  = document.getElementById('sj-edit-date');
-    var displayEl   = document.getElementById('sj-edit-date-display');
-    if (j.scheduled_date) {
-      dateHidden.value = j.scheduled_date;
-      if (displayEl) {
+    var displayEl = document.getElementById('sj-edit-date-display');
+    if (displayEl) {
+      if (j.scheduled_date) {
         var d = new Date(j.scheduled_date + 'T00:00:00');
-        displayEl.textContent = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+        displayEl.textContent = d.toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'long',year:'numeric'});
         displayEl.classList.remove('cdp-display--placeholder');
-      }
-    } else {
-      dateHidden.value = '';
-      if (displayEl) {
+      } else {
         displayEl.textContent = 'Select a date';
         displayEl.classList.add('cdp-display--placeholder');
       }
     }
 
-    // Set time pickers
     if (j.scheduled_time) {
-      var parts = j.scheduled_time.split(':').map(Number);
+      var parts  = (j.scheduled_time || '08:00').split(':');
       var hourEl = document.getElementById('sj-edit-time-hour');
       var minEl  = document.getElementById('sj-edit-time-min');
-      if (hourEl) hourEl.value = String(parts[0]);
-      if (minEl)  minEl.value  = parts[1] < 10 ? '0' + parts[1] : String(parts[1]);
-      syncTimeHidden('sj-edit');
+      if (hourEl) hourEl.value = parseInt(parts[0]).toString();
+      if (minEl)  minEl.value  = parts[1] || '00';
+      syncEditTimeHidden();
     }
 
-    // Staff checkboxes
     var staff  = MQ.store.staff.getAll();
     var cbWrap = document.getElementById('sj-edit-staff-checkboxes');
+    var assigned = j.assigned_staff_ids || [];
     cbWrap.innerHTML = staff.length ? staff.map(function (s) {
-      var checked = j.assigned_staff_ids && j.assigned_staff_ids.indexOf(s.id) !== -1;
-      return '<label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 10px;border:1.5px solid #e5e7eb;border-radius:6px;cursor:pointer;">' +
-        '<input type="checkbox" value="' + escHtml(s.id) + '"' + (checked ? ' checked' : '') + '> ' + escHtml(s.name) +
+      var checked = assigned.indexOf(s.id) !== -1 ? ' checked' : '';
+      return '<label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 12px;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;">' +
+        '<input type="checkbox" value="' + escHtml(s.id) + '"' + checked + '> ' + escHtml(s.name) +
       '</label>';
     }).join('') : '<span style="font-size:13px;color:#9ca3af;">No staff added yet</span>';
 
+    MQ.ui.modal.close('modal-sj-view');
     MQ.ui.modal.open('modal-sj-edit');
   }
 
   async function submitEdit() {
-    var id   = document.getElementById('sj-edit-id').value;
-    var date = document.getElementById('sj-edit-date').value;
-    var time = document.getElementById('sj-edit-time').value;
+    var id    = document.getElementById('sj-edit-id').value;
+    var date  = document.getElementById('sj-edit-date').value;
+    var time  = document.getElementById('sj-edit-time').value;
     var errEl = document.getElementById('sj-edit-error');
 
-    if (!date || !time) {
-      errEl.textContent = 'Date and time are required.';
-      errEl.style.display = '';
-      return;
-    }
+    if (!date || !time) { errEl.textContent = 'Date and time are required.'; errEl.style.display = ''; return; }
 
     var staffIds = Array.from(document.querySelectorAll('#sj-edit-staff-checkboxes input:checked'))
       .map(function (cb) { return cb.value; });
 
     var btn = document.getElementById('sj-edit-submit');
-    btn.disabled    = true;
-    btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     try {
       var { error } = await MQ.supabase
@@ -258,37 +286,10 @@
       MQ.ui.toast('Schedule updated');
       load();
     } catch (err) {
-      errEl.textContent = err.message;
-      errEl.style.display = '';
+      errEl.textContent = err.message; errEl.style.display = '';
     } finally {
-      btn.disabled    = false;
-      btn.textContent = 'Save Changes';
+      btn.disabled = false; btn.textContent = 'Save Changes';
     }
-  }
-
-  /* ─── Mark complete ─────────────────────────────────────────── */
-
-  async function markComplete(id) {
-    MQ.ui.confirmDelete('Mark this job as complete? A thank-you email will be sent to the customer.', async function () {
-      try {
-        var session = await MQ.supabase.auth.getSession();
-        var token   = session.data.session && session.data.session.access_token;
-
-        var res = await fetch('/api/complete-job', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ jobId: id }),
-        });
-        var data = await res.json();
-        if (!data.success) throw new Error(data.error || 'Failed to complete job.');
-
-        MQ.ui.modal.close('modal-sj-view');
-        MQ.ui.toast('Job marked complete — thank-you email sent');
-        window.location.href = 'completed-jobs.html';
-      } catch (err) {
-        MQ.ui.toast('Error: ' + err.message, 'error');
-      }
-    });
   }
 
   /* ─── Date Picker ───────────────────────────────────────────── */
@@ -301,15 +302,12 @@
     var labelEl   = document.getElementById(prefix + '-date-month-label');
     var prevBtn   = document.getElementById(prefix + '-date-prev');
     var nextBtn   = document.getElementById(prefix + '-date-next');
-
     if (!displayEl) return;
 
-    var today     = new Date();
-    today.setHours(0, 0, 0, 0);
-    var viewYear  = today.getFullYear();
-    var viewMonth = today.getMonth();
+    var today        = new Date(); today.setHours(0,0,0,0);
+    var viewYear     = today.getFullYear();
+    var viewMonth    = today.getMonth();
     var selectedDate = null;
-
     var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     var DNAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -317,100 +315,61 @@
 
     function renderGrid() {
       labelEl.textContent = MONTHS[viewMonth] + ' ' + viewYear;
-      var cells = '';
-      DNAMES.forEach(function (d) {
-        cells += '<div class="cdp-cell cdp-cell--header">' + d + '</div>';
-      });
+      var cells = DNAMES.map(function(d) { return '<div class="cdp-cell cdp-cell--header">' + d + '</div>'; }).join('');
       var first = new Date(viewYear, viewMonth, 1).getDay();
-      var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-      var daysInPrev  = new Date(viewYear, viewMonth, 0).getDate();
-      for (var i = 0; i < first; i++) {
-        cells += '<div class="cdp-cell cdp-cell--other">' + (daysInPrev - first + 1 + i) + '</div>';
+      var dim   = new Date(viewYear, viewMonth + 1, 0).getDate();
+      var prevD = new Date(viewYear, viewMonth, 0).getDate();
+      for (var i = 0; i < first; i++) cells += '<div class="cdp-cell cdp-cell--other">' + (prevD - first + 1 + i) + '</div>';
+      for (var d = 1; d <= dim; d++) {
+        var dt  = new Date(viewYear, viewMonth, d);
+        var cls = 'cdp-cell' + (dt.getTime() === today.getTime() ? ' cdp-cell--today' : '') + (selectedDate && dt.getTime() === selectedDate.getTime() ? ' cdp-cell--selected' : '');
+        cells += '<div class="' + cls + '" data-date="' + viewYear + '-' + pad(viewMonth+1) + '-' + pad(d) + '">' + d + '</div>';
       }
-      for (var day = 1; day <= daysInMonth; day++) {
-        var thisDate = new Date(viewYear, viewMonth, day);
-        var isToday  = thisDate.getTime() === today.getTime();
-        var isSel    = selectedDate && thisDate.getTime() === selectedDate.getTime();
-        var cls      = 'cdp-cell' + (isToday ? ' cdp-cell--today' : '') + (isSel ? ' cdp-cell--selected' : '');
-        cells += '<div class="' + cls + '" data-date="' + viewYear + '-' + pad(viewMonth + 1) + '-' + pad(day) + '">' + day + '</div>';
-      }
-      var trail = (7 - ((first + daysInMonth) % 7)) % 7;
-      for (var t = 1; t <= trail; t++) {
-        cells += '<div class="cdp-cell cdp-cell--other">' + t + '</div>';
-      }
+      var trail = (7 - ((first + dim) % 7)) % 7;
+      for (var t = 1; t <= trail; t++) cells += '<div class="cdp-cell cdp-cell--other">' + t + '</div>';
       gridEl.innerHTML = cells;
-      gridEl.querySelectorAll('.cdp-cell[data-date]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var val = this.dataset.date;
-          hiddenEl.value   = val;
-          selectedDate     = new Date(val + 'T00:00:00');
-          displayEl.textContent = selectedDate.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+      gridEl.querySelectorAll('.cdp-cell[data-date]').forEach(function(el) {
+        el.addEventListener('click', function() {
+          hiddenEl.value = this.dataset.date;
+          selectedDate   = new Date(this.dataset.date + 'T00:00:00');
+          displayEl.textContent = selectedDate.toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'long',year:'numeric'});
           displayEl.classList.remove('cdp-display--placeholder');
-          dropEl.hidden = true;
-          renderGrid();
+          dropEl.hidden = true; renderGrid();
         });
       });
     }
 
-    displayEl.addEventListener('click', function (e) {
-      e.stopPropagation();
-      dropEl.hidden = !dropEl.hidden;
-      if (!dropEl.hidden) renderGrid();
-    });
-    displayEl.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dropEl.hidden = !dropEl.hidden; if (!dropEl.hidden) renderGrid(); }
-    });
-    prevBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } renderGrid();
-    });
-    nextBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } renderGrid();
-    });
-    document.addEventListener('click', function (e) {
-      var picker = document.getElementById(prefix + '-date-picker');
-      if (picker && !picker.contains(e.target)) dropEl.hidden = true;
-    });
+    displayEl.addEventListener('click',   function(e) { e.stopPropagation(); dropEl.hidden = !dropEl.hidden; if (!dropEl.hidden) renderGrid(); });
+    displayEl.addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); dropEl.hidden=!dropEl.hidden; if(!dropEl.hidden)renderGrid(); } });
+    prevBtn.addEventListener('click', function(e) { e.stopPropagation(); viewMonth--; if(viewMonth<0){viewMonth=11;viewYear--;} renderGrid(); });
+    nextBtn.addEventListener('click', function(e) { e.stopPropagation(); viewMonth++; if(viewMonth>11){viewMonth=0;viewYear++;} renderGrid(); });
+    document.addEventListener('click', function(e) { var p=document.getElementById(prefix+'-date-picker'); if(p&&!p.contains(e.target))dropEl.hidden=true; });
   }
 
   /* ─── Time Picker ───────────────────────────────────────────── */
 
-  function initTimePicker(hourId, minId, hiddenId) {
-    var hourEl   = document.getElementById(hourId);
-    var minEl    = document.getElementById(minId);
-    var hiddenEl = document.getElementById(hiddenId);
+  function initTimePicker() {
+    var hourEl = document.getElementById('sj-edit-time-hour');
     if (!hourEl) return;
-
-    var HOURS = [
-      {v:'6',l:'6:00 am'},{v:'7',l:'7:00 am'},{v:'8',l:'8:00 am'},{v:'9',l:'9:00 am'},
+    var HOURS = [{v:'6',l:'6:00 am'},{v:'7',l:'7:00 am'},{v:'8',l:'8:00 am'},{v:'9',l:'9:00 am'},
       {v:'10',l:'10:00 am'},{v:'11',l:'11:00 am'},{v:'12',l:'12:00 pm'},{v:'13',l:'1:00 pm'},
       {v:'14',l:'2:00 pm'},{v:'15',l:'3:00 pm'},{v:'16',l:'4:00 pm'},{v:'17',l:'5:00 pm'},
-      {v:'18',l:'6:00 pm'},{v:'19',l:'7:00 pm'},{v:'20',l:'8:00 pm'},
-    ];
-    hourEl.innerHTML = HOURS.map(function (h) {
-      return '<option value="' + h.v + '">' + h.l + '</option>';
-    }).join('');
+      {v:'18',l:'6:00 pm'},{v:'19',l:'7:00 pm'},{v:'20',l:'8:00 pm'}];
+    hourEl.innerHTML = HOURS.map(function(h){ return '<option value="'+h.v+'">'+h.l+'</option>'; }).join('');
     hourEl.value = '8';
-
-    function sync() {
-      var h = parseInt(hourEl.value);
-      var m = minEl ? minEl.value : '00';
-      if (hiddenEl) hiddenEl.value = (h < 10 ? '0' + h : '' + h) + ':' + m;
-    }
-    hourEl.addEventListener('change', sync);
-    if (minEl) minEl.addEventListener('change', sync);
-    sync();
+    hourEl.addEventListener('change', syncEditTimeHidden);
+    var minEl = document.getElementById('sj-edit-time-min');
+    if (minEl) minEl.addEventListener('change', syncEditTimeHidden);
+    syncEditTimeHidden();
   }
 
-  function syncTimeHidden(prefix) {
-    var hourEl   = document.getElementById(prefix + '-time-hour');
-    var minEl    = document.getElementById(prefix + '-time-min');
-    var hiddenEl = document.getElementById(prefix + '-time');
-    if (!hourEl || !hiddenEl) return;
-    var h = parseInt(hourEl.value);
-    var m = minEl ? minEl.value : '00';
-    hiddenEl.value = (h < 10 ? '0' + h : '' + h) + ':' + m;
+  function syncEditTimeHidden() {
+    var h = document.getElementById('sj-edit-time-hour');
+    var m = document.getElementById('sj-edit-time-min');
+    var hidden = document.getElementById('sj-edit-time');
+    if (!h || !hidden) return;
+    var hv = parseInt(h.value);
+    hidden.value = (hv < 10 ? '0' + hv : '' + hv) + ':' + (m ? m.value : '00');
   }
 
   /* ─── Init ──────────────────────────────────────────────────── */
@@ -419,15 +378,13 @@
     load();
     document.getElementById('btn-refresh').addEventListener('click', load);
     document.getElementById('sj-edit-submit').addEventListener('click', submitEdit);
-    document.getElementById('sj-view-complete-btn').addEventListener('click', function () {
-      if (viewingId) markComplete(viewingId);
-    });
+    document.getElementById('sj-view-complete-btn').addEventListener('click', function () { if (viewingId) markComplete(viewingId); });
 
     var searchEl = document.getElementById('sj-search');
     if (searchEl) searchEl.addEventListener('input', function () { filterAndRender(this.value); });
 
     initDatePicker('sj-edit');
-    initTimePicker('sj-edit-time-hour', 'sj-edit-time-min', 'sj-edit-time');
+    initTimePicker();
   });
 
   window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete };
