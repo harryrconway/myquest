@@ -429,7 +429,15 @@
         bindRadios('preferred_contact', function (v) { state.preferred_contact = v; });
         break;
       case 1:
-        bind('qm-street',  'input', function () { state.street_address = this.value; });
+        bind('qm-street',  'input', function () {
+          state.street_address = this.value;
+          if (this.value) {
+            var suburbEl = document.getElementById('qm-suburb');
+            setTimeout(function () {
+              if (suburbEl && !suburbEl.value) suburbEl.focus();
+            }, 150);
+          }
+        });
         bind('qm-suburb',  'input', function () { state.suburb = this.value; });
         bind('qm-postcode','input', function () { state.postcode = this.value; });
         bind('qm-access',  'input', function () { state.access_instructions = this.value; });
