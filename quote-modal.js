@@ -548,8 +548,14 @@
       case 4:
         document.querySelectorAll('.qm-service').forEach(function (cb) {
           cb.addEventListener('change', function () {
-            if (this.checked) { if (state.services.indexOf(this.value) === -1) state.services.push(this.value); }
-            else { state.services = state.services.filter(function (v) { return v !== cb.value; }); }
+            var tile = this.closest('.qm-ctile');
+            if (this.checked) {
+              if (state.services.indexOf(this.value) === -1) state.services.push(this.value);
+              if (tile) tile.classList.add('qm-ctile--on');
+            } else {
+              state.services = state.services.filter(function (v) { return v !== cb.value; });
+              if (tile) tile.classList.remove('qm-ctile--on');
+            }
           });
         });
         break;
@@ -562,8 +568,14 @@
       case 7:
         document.querySelectorAll('.qm-extra').forEach(function (cb) {
           cb.addEventListener('change', function () {
-            if (this.checked) { if (state.extras.indexOf(this.value) === -1) state.extras.push(this.value); }
-            else { state.extras = state.extras.filter(function (v) { return v !== cb.value; }); }
+            var tile = this.closest('.qm-ctile');
+            if (this.checked) {
+              if (state.extras.indexOf(this.value) === -1) state.extras.push(this.value);
+              if (tile) tile.classList.add('qm-ctile--on');
+            } else {
+              state.extras = state.extras.filter(function (v) { return v !== cb.value; });
+              if (tile) tile.classList.remove('qm-ctile--on');
+            }
           });
         });
         break;

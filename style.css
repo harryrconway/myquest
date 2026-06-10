@@ -858,7 +858,9 @@ textarea.form-input {
   }
 
   .hero__illustration {
-    order: -1;
+    order: 2;
+    max-width: 240px;
+    margin: 0 auto;
   }
 
   .hero-svg {
@@ -1706,7 +1708,7 @@ textarea.form-input {
   }
 
   /* Compact spacing so all step content fits without scrolling */
-  .qm-step    { gap: 12px; }
+  .qm-step    { gap: 12px; padding-top: 20px; }
   .qm-field   { gap: 4px; }
   .qm-label   { font-size: 13px; }
   .qm-input   { padding: 8px 12px; font-size: 16px; }
