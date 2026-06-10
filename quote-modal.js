@@ -489,8 +489,17 @@
         });
         break;
       case 3:
-        bind('qm-beds',   'input', function () { state.bedrooms = this.value; });
-        bind('qm-baths',  'input', function () { state.bathrooms = this.value; });
+        bind('qm-beds', 'input', function () {
+          state.bedrooms = this.value;
+          if (this.value) document.getElementById('qm-baths') && document.getElementById('qm-baths').focus();
+        });
+        bind('qm-baths', 'input', function () {
+          state.bathrooms = this.value;
+          if (this.value) {
+            var next = document.getElementById('qm-living') || document.getElementById('qm-sqm');
+            if (next) next.focus();
+          }
+        });
         bind('qm-living', 'input', function () { state.living_areas = this.value; });
         bind('qm-sqm',    'input', function () { state.floor_area_sqm = this.value; });
         break;
