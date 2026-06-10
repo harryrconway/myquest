@@ -313,34 +313,40 @@
     MQ.ui.modal.close('modal-data-options');
   }
 
+  async function callClearApi(target) {
+    var jwt = await getJwt();
+    if (!jwt) throw new Error('Not authenticated.');
+    var res  = await fetch('/api/clear-jobs', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body:    JSON.stringify({ target: target }),
+    });
+    var data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Delete failed.');
+  }
+
   function clearUnscheduled() {
     if (!window.confirm('Permanently delete all unscheduled quote requests? This cannot be undone.')) return;
     closeOptionsModal();
-    MQ.supabase.from('quote_requests').delete().eq('status', 'unscheduled')
-      .then(function (res) {
-        if (res.error) { MQ.ui.toast('Error: ' + res.error.message, 'error'); return; }
-        MQ.ui.toast('Unscheduled jobs cleared');
-      });
+    callClearApi('unscheduled')
+      .then(function () { MQ.ui.toast('Unscheduled jobs cleared'); })
+      .catch(function (err) { MQ.ui.toast('Error: ' + err.message, 'error'); });
   }
 
   function clearScheduled() {
     if (!window.confirm('Permanently delete all scheduled jobs? This cannot be undone.')) return;
     closeOptionsModal();
-    MQ.supabase.from('quote_requests').delete().eq('status', 'scheduled')
-      .then(function (res) {
-        if (res.error) { MQ.ui.toast('Error: ' + res.error.message, 'error'); return; }
-        MQ.ui.toast('Scheduled jobs cleared');
-      });
+    callClearApi('scheduled')
+      .then(function () { MQ.ui.toast('Scheduled jobs cleared'); })
+      .catch(function (err) { MQ.ui.toast('Error: ' + err.message, 'error'); });
   }
 
   function clearCompleted() {
     if (!window.confirm('Permanently delete all completed jobs? This cannot be undone.')) return;
     closeOptionsModal();
-    MQ.supabase.from('quote_requests').delete().eq('status', 'completed')
-      .then(function (res) {
-        if (res.error) { MQ.ui.toast('Error: ' + res.error.message, 'error'); return; }
-        MQ.ui.toast('Completed jobs cleared');
-      });
+    callClearApi('completed')
+      .then(function () { MQ.ui.toast('Completed jobs cleared'); })
+      .catch(function (err) { MQ.ui.toast('Error: ' + err.message, 'error'); });
   }
 
   function clearStaff() {
@@ -380,15 +386,10 @@
     btn.disabled = true;
 
     try {
-      // Delete all Supabase job records across all statuses
-      await Promise.all([
-        MQ.supabase.from('quote_requests').delete().eq('status', 'unscheduled'),
-        MQ.supabase.from('quote_requests').delete().eq('status', 'scheduled'),
-        MQ.supabase.from('quote_requests').delete().eq('status', 'completed'),
-        MQ.supabase.from('quote_requests').delete().eq('status', 'archived'),
-      ]);
+      // Delete all Supabase job records via server-side API
+      await callClearApi('all');
 
-      // Clear all local data except the auth session
+      // Clear all local data except auth session
       var SESSION_KEYS = ['mq_session', 'mq_permissions'];
       Object.keys(localStorage).forEach(function (k) {
         if (SESSION_KEYS.indexOf(k) === -1) localStorage.removeItem(k);
