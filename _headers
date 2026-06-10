@@ -1,5 +1,19 @@
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/dashboard/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
 /*.js
+  Cache-Control: public, max-age=31536000, immutable
   Content-Type: application/javascript; charset=utf-8
 
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
 /dashboard/js/*.js
+  Cache-Control: public, max-age=31536000, immutable
   Content-Type: application/javascript; charset=utf-8
+
+/dashboard/css/*.css
+  Cache-Control: public, max-age=31536000, immutable
