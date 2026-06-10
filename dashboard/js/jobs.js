@@ -98,8 +98,6 @@
     var assigned = (j.staffIds || []).map(function (sid) {
       return allStaff.find(function (s) { return s.id === sid; });
     }).filter(Boolean);
-    var leader = j.teamLeaderId ? allStaff.find(function (s) { return s.id === j.teamLeaderId; }) : null;
-
     document.getElementById('view-job-title').textContent = client ? client.name : 'Job Details';
     document.getElementById('view-job-meta').textContent  =
       MQ.ui.formatDate(j.date) + (j.time ? '  ·  ' + MQ.ui.formatTime(j.time) : '');
@@ -112,7 +110,6 @@
       (j.serviceType ? '<span class="badge badge--blue">' + escHtml(serviceLabel(j.serviceType)) + '</span>' : '') +
       (j.duration    ? '<span class="badge badge--grey">' + j.duration + 'h</span>' : '') +
       (j.price       ? '<span class="badge badge--green">$' + parseFloat(j.price).toFixed(2) + '</span>' : '') +
-      (j.recurring   ? '<span class="badge badge--grey">Repeats ' + j.recurring + '</span>' : '') +
     '</div>';
 
     /* Two-column layout */
@@ -158,10 +155,8 @@
         '<div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-mid);margin-bottom:var(--space-3);">Team</div>' +
         '<div style="display:flex;flex-direction:column;gap:var(--space-2);">' +
           assigned.map(function (s) {
-            var isLead = leader && s.id === leader.id;
-            return '<div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);background:' + (isLead ? '#f0fdf4' : '#f9fafb') + ';border:1.5px solid ' + (isLead ? '#b7d5c4' : '#e5e7eb') + ';border-radius:var(--radius-sm);">' +
-              '<span style="font-size:var(--text-sm);font-weight:' + (isLead ? '600' : '400') + ';color:var(--color-dark);flex:1;">' + escHtml(s.name) + '</span>' +
-              (isLead ? '<span class="badge badge--green" style="font-size:0.6rem;">Leader</span>' : '') +
+            return '<div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:var(--radius-sm);">' +
+              '<span style="font-size:var(--text-sm);color:var(--color-dark);flex:1;">' + escHtml(s.name) + '</span>' +
               '<span class="badge badge--grey" style="font-size:0.6rem;">' + escHtml(s.role || 'staff') + '</span>' +
             '</div>';
           }).join('') +
@@ -259,7 +254,6 @@
 
   function populateStaffCheckboxes(selectedIds) {
     var container = document.getElementById('job-staff-checkboxes');
-    var leaderSel = document.getElementById('job-leader');
     var staff     = MQ.store.staff.getAll().filter(function (s) { return s.active; });
     selectedIds   = selectedIds || [];
 
@@ -268,10 +262,6 @@
       return '<label style="display:flex;align-items:center;gap:0.35rem;">' +
         '<input type="checkbox" class="job-staff-cb" value="' + s.id + '" ' + checked + '> ' +
         escHtml(s.name) + '</label>';
-    }).join('');
-
-    leaderSel.innerHTML = '<option value="">— None —</option>' + staff.map(function (s) {
-      return '<option value="' + s.id + '">' + escHtml(s.name) + '</option>';
     }).join('');
   }
 
@@ -348,23 +338,11 @@
     document.getElementById('job-time').value      = j.time         || '';
     document.getElementById('job-duration').value  = j.duration     || 2;
     document.getElementById('job-status').value    = j.status       || 'scheduled';
-    document.getElementById('job-recurring').value = j.recurring    || '';
-    document.getElementById('job-leader').value    = j.teamLeaderId || '';
     document.getElementById('job-type').value      = j.serviceType  || '';
     document.getElementById('job-price').value     = j.price        || '';
     document.getElementById('job-notes').value     = j.notes        || '';
     renderClientInfo(j.clientId, j.propertyId);
     MQ.ui.modal.open('modal-add-job');
-  }
-
-  // ── Recurring helper (uses local date to avoid UTC offset) ─
-  function nextRecurringDate(dateStr, recurring) {
-    var d = new Date(dateStr + 'T00:00:00');
-    if (recurring === 'daily')          d.setDate(d.getDate() + 1);
-    else if (recurring === 'weekly')    d.setDate(d.getDate() + 7);
-    else if (recurring === 'fortnightly') d.setDate(d.getDate() + 14);
-    else if (recurring === 'monthly')   d.setMonth(d.getMonth() + 1);
-    return localDateStr(d);
   }
 
   // ── Mark complete ─────────────────────────────────────────
@@ -373,32 +351,8 @@
     if (!j) return;
     j.status = 'completed';
     MQ.store.jobs.save(j);
-
-    var msg = 'Job completed';
-    if (j.recurring) {
-      var nextDate = nextRecurringDate(j.date, j.recurring);
-      var next = {
-        clientId:     j.clientId,
-        propertyId:   j.propertyId,
-        date:         nextDate,
-        time:         j.time,
-        duration:     j.duration,
-        serviceType:  j.serviceType,
-        price:        j.price,
-        status:       'scheduled',
-        recurring:    j.recurring,
-        teamLeaderId: j.teamLeaderId,
-        staffIds:     j.staffIds,
-        notes:        j.notes,
-      };
-      MQ.store.jobs.save(next);
-      var d = new Date(nextDate + 'T00:00:00');
-      msg = 'Job completed — next ' + j.recurring + ' job created for ' +
-        d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
-    }
-
     renderTable();
-    MQ.ui.toast(msg, 'success');
+    MQ.ui.toast('Job completed', 'success');
   }
 
   // ── Delete ────────────────────────────────────────────────
@@ -498,8 +452,6 @@
         status:       document.getElementById('job-status').value,
         serviceType:  document.getElementById('job-type').value        || null,
         price:        parseFloat(document.getElementById('job-price').value)  || null,
-        recurring:    document.getElementById('job-recurring').value   || null,
-        teamLeaderId: document.getElementById('job-leader').value      || null,
         staffIds:     staffIds,
         notes:        document.getElementById('job-notes').value.trim(),
       };
