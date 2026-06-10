@@ -586,39 +586,51 @@ textarea.form-input {
 
 .why-us__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-8);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
 }
 
 .why-card {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-4);
-  background: var(--color-soft-sage);
-  border: 1px solid rgba(45, 106, 79, 0.2);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-5);
+  background: white;
+  border: 1px solid rgba(45, 106, 79, 0.09);
   border-radius: var(--radius-md);
-  padding: var(--space-8) var(--space-6);
-  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
   transition:
     box-shadow var(--transition-base),
     transform var(--transition-base);
 }
 
 .why-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.09), 0 2px 6px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
 }
 
 .why-card__icon {
   flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+}
+
+.why-card__icon svg {
+  width: 60px;
+  height: 60px;
+}
+
+.why-card__body {
+  flex: 1;
+  min-width: 0;
 }
 
 .why-card__title {
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-dark);
+  margin-bottom: var(--space-2);
 }
 
 .why-card p {
@@ -838,11 +850,11 @@ textarea.form-input {
    RESPONSIVE — HOMEPAGE
    ============================================================ */
 
-@media (max-width: 1023px) {
-  .why-us__grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 540px) {
+  .why-card {
+    flex-direction: column;
+    align-items: flex-start;
   }
-
 }
 
 
