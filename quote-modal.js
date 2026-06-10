@@ -1,46 +1,40 @@
-/* Public site — 10-step quote request modal */
+/* Public site — 4-step quote request modal */
 (function () {
   'use strict';
 
   var state = {};
   var currentStep = 0;
-  var totalSteps  = 9;
+  var totalSteps  = 4;
   var submitting  = false;
   var stepDir     = 1;
 
-  // Single handlers — changed by switching these variables (avoids mixed addEventListener+onclick)
   var onNext = function () { next(); };
   var onBack = function () { back(); };
 
   var STEPS = [
-    { id: 'details',    title: 'Your Details' },
-    { id: 'address',    title: 'Property Address' },
-    { id: 'type',       title: 'Property Type' },
-    { id: 'propdetail', title: 'Property Details' },
-    { id: 'services',   title: 'Services Required' },
-    { id: 'frequency',  title: 'Frequency' },
-    { id: 'condition',  title: 'Property Condition' },
-    { id: 'schedule',   title: 'Preferred Schedule' },
-    { id: 'notes',      title: 'Anything Else?' },
+    { id: 'details',  title: 'Your Details'    },
+    { id: 'property', title: 'Your Property'   },
+    { id: 'clean',    title: 'The Clean'       },
+    { id: 'schedule', title: 'Schedule & Notes' },
   ];
 
   var PROPERTY_TYPES = [
-    { value: 'House',       label: 'House'      },
-    { value: 'Apartment',   label: 'Apartment'  },
-    { value: 'Townhouse',   label: 'Townhouse'  },
-    { value: 'Office',      label: 'Office'     },
-    { value: 'Retail',      label: 'Retail'     },
-    { value: 'Medical',     label: 'Medical'    },
-    { value: 'Warehouse',   label: 'Warehouse'  },
-    { value: 'Other',       label: 'Other'      },
+    { value: 'House',     label: 'House'     },
+    { value: 'Apartment', label: 'Apartment' },
+    { value: 'Townhouse', label: 'Townhouse' },
+    { value: 'Office',    label: 'Office'    },
+    { value: 'Retail',    label: 'Retail'    },
+    { value: 'Medical',   label: 'Medical'   },
+    { value: 'Warehouse', label: 'Warehouse' },
+    { value: 'Other',     label: 'Other'     },
   ];
 
   var SERVICES = [
     'General', 'Deep', 'Office', 'NDIS', 'Carpet', 'Window', 'Other (please specify)',
   ];
 
-  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  var AU_STATES = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
+  var DAYS       = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var AU_STATES  = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
 
   /* ─── Open / Close ───────────────────────────────────────────────────── */
 
@@ -93,7 +87,7 @@
       street_address: '', suburb: '', state: '', postcode: '', access_instructions: '',
       property_type: '',
       bedrooms: 1, bathrooms: 1, living_areas: 1,
-      services: [], frequency: '', condition: '',
+      services: [], other_service_detail: '', frequency: '', condition: '',
       preferred_days: [], preferred_time: '', flexible_schedule: false,
       notes: '',
     };
@@ -120,7 +114,16 @@
     var body = document.getElementById('qm-body');
     var html = buildStep(currentStep);
     body.innerHTML = html;
-    body.scrollTop  = 0;
+    body.scrollTop = 0;
+
+    // Step 0 fits without scrolling; steps 1-3 may need to scroll
+    if (currentStep === 0) {
+      body.style.overflowY = '';
+      body.style.webkitOverflowScrolling = '';
+    } else {
+      body.style.overflowY = 'auto';
+      body.style.webkitOverflowScrolling = 'touch';
+    }
 
     // Slide animation
     var stepEl = body.querySelector('.qm-step');
@@ -131,8 +134,8 @@
 
     // Back button
     var backBtn = document.getElementById('qm-back');
-    backBtn.style.display  = currentStep === 0 ? 'none' : '';
-    backBtn.textContent    = 'Back';
+    backBtn.style.display = currentStep === 0 ? 'none' : '';
+    backBtn.textContent   = 'Back';
 
     // Next button
     var nextBtn = document.getElementById('qm-next');
@@ -141,7 +144,7 @@
 
     wireStep(currentStep);
 
-    // Auto-focus first input on desktop only — prevents keyboard from covering the footer on mobile
+    // Auto-focus first input on desktop only — prevents keyboard covering footer on mobile
     if (window.innerWidth > 600) {
       var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
       if (firstInput) firstInput.focus();
@@ -151,14 +154,9 @@
   function buildStep(n) {
     switch (n) {
       case 0: return stepDetails();
-      case 1: return stepAddress();
-      case 2: return stepType();
-      case 3: return stepPropDetail();
-      case 4: return stepServices();
-      case 5: return stepFrequency();
-      case 6: return stepCondition();
-      case 7: return stepSchedule();
-      case 8: return stepNotes();
+      case 1: return stepProperty();
+      case 2: return stepClean();
+      case 3: return stepScheduleNotes();
     }
   }
 
@@ -180,8 +178,9 @@
     '</div>';
   }
 
-  function stepAddress() {
+  function stepProperty() {
     return '<div class="qm-step">' +
+      '<p class="qm-section-title">Address</p>' +
       field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St', false, 'address-line1') +
       '<div class="qm-row-2">' +
         field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb', false, 'address-level2') +
@@ -202,11 +201,7 @@
       '</div>' +
       field('Postcode', 'qm-postcode', 'text', state.postcode, '3000', false, 'postal-code', 'tel') +
       field('Access Instructions', 'qm-access', 'text', state.access_instructions, 'Gate code, key location…', false, 'off') +
-    '</div>';
-  }
-
-  function stepType() {
-    return '<div class="qm-step">' +
+      '<p class="qm-section-title">Property Type</p>' +
       '<div class="qm-grid-type">' +
         PROPERTY_TYPES.map(function (pt) {
           var sel = state.property_type === pt.value ? ' qm-tile--selected' : '';
@@ -215,12 +210,7 @@
           '</button>';
         }).join('') +
       '</div>' +
-    '</div>';
-  }
-
-
-  function stepPropDetail() {
-    return '<div class="qm-step qm-step--center">' +
+      '<p class="qm-section-title">Property Details</p>' +
       '<div class="qm-stepper-grid">' +
         stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
         stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
@@ -229,36 +219,33 @@
     '</div>';
   }
 
-  function stepServices() {
+  function stepClean() {
+    var hasOther = state.services.indexOf('Other (please specify)') !== -1;
     return '<div class="qm-step">' +
+      '<p class="qm-section-title">Services Required</p>' +
       '<div class="qm-grid-check qm-grid-check--big">' +
         SERVICES.map(function (s) {
           var checked = state.services.indexOf(s) !== -1;
           return checkTile(s, s, checked, 'qm-service');
         }).join('') +
       '</div>' +
-    '</div>';
-  }
-
-  function stepFrequency() {
-    return '<div class="qm-step">' +
+      '<div id="qm-other-service-wrap"' + (!hasOther ? ' hidden' : '') + '>' +
+        field('Please describe the service', 'qm-other-service', 'text', state.other_service_detail, 'Describe what you need…', false) +
+      '</div>' +
+      '<p class="qm-section-title">How Often?</p>' +
       radioCards('frequency', [
-        { value: 'One-Time',     label: 'One-Time',     desc: 'Single visit'             },
-        { value: 'Weekly',       label: 'Weekly',       desc: 'Every week'               },
-        { value: 'Fortnightly',  label: 'Fortnightly',  desc: 'Every two weeks'          },
-        { value: 'Monthly',      label: 'Monthly',      desc: 'Once a month'             },
-        { value: 'Unsure',       label: 'Not sure yet', desc: "I'll decide later"        },
+        { value: 'One-Time',    label: 'One-Time',     desc: 'Single visit'      },
+        { value: 'Weekly',      label: 'Weekly',       desc: 'Every week'        },
+        { value: 'Fortnightly', label: 'Fortnightly',  desc: 'Every two weeks'   },
+        { value: 'Monthly',     label: 'Monthly',      desc: 'Once a month'      },
+        { value: 'Unsure',      label: 'Not sure yet', desc: "I'll decide later" },
       ], state.frequency) +
-    '</div>';
-  }
-
-  function stepCondition() {
-    return '<div class="qm-step">' +
+      '<p class="qm-section-title">Property Condition</p>' +
       radioCards('condition', [
-        { value: 'Excellent',         label: 'Excellent',          desc: 'Clean and well maintained'   },
-        { value: 'Good',              label: 'Good',               desc: 'Some light cleaning needed'  },
-        { value: 'Average',           label: 'Average',            desc: 'Moderate cleaning required'  },
-        { value: 'Requires Deep Clean', label: 'Needs Deep Clean', desc: 'Heavy clean required'         },
+        { value: 'Excellent',           label: 'Excellent',       desc: 'Clean and well maintained'  },
+        { value: 'Good',                label: 'Good',            desc: 'Some light cleaning needed' },
+        { value: 'Average',             label: 'Average',         desc: 'Moderate cleaning required' },
+        { value: 'Requires Deep Clean', label: 'Needs Deep Clean',desc: 'Heavy clean required'       },
       ], state.condition) +
     '</div>';
   }
@@ -270,14 +257,16 @@
     { value: 'Flexible',             label: 'Flexible',  range: 'Any time'   },
   ];
 
-  function stepSchedule() {
+  function stepScheduleNotes() {
+    var wc = countWords(state.notes);
     return '<div class="qm-step">' +
+      '<p class="qm-section-title">Preferred Schedule</p>' +
       '<div class="qm-field">' +
         '<label class="qm-label">Preferred Days</label>' +
         '<div class="qm-day-row">' +
           DAYS.map(function (d) {
             var checked = state.preferred_days.indexOf(d) !== -1;
-            return '<label class="qm-day' + (checked ? ' qm-day--on' : '') + '" data-day="' + d + '">' +
+            return '<label class="qm-day' + (checked ? ' qm-day--on' : '') + '">' +
               '<input type="checkbox" class="qm-day__cb" value="' + d + '"' + (checked ? ' checked' : '') + '> ' + d +
             '</label>';
           }).join('') +
@@ -300,6 +289,12 @@
         '<input type="checkbox" id="qm-flexible"' + (state.flexible_schedule ? ' checked' : '') + '> ' +
         '<span>I\'m flexible — contact me to arrange</span>' +
       '</label>' +
+      '<p class="qm-section-title">Additional Notes</p>' +
+      '<div class="qm-field">' +
+        '<label class="qm-label" for="qm-notes">Optional — anything else we should know</label>' +
+        '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="Special requests, parking, pets, access details…" rows="4">' + escHtml(state.notes) + '</textarea>' +
+        '<div class="qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '') + '" id="qm-word-count"><span id="qm-wc-num">' + wc + '</span>/100 words</div>' +
+      '</div>' +
     '</div>';
   }
 
@@ -308,27 +303,14 @@
     return s ? s.split(/\s+/).length : 0;
   }
 
-  function stepNotes() {
-    var wc = countWords(state.notes);
-    return '<div class="qm-step">' +
-      '<div class="qm-field">' +
-        '<label class="qm-label" for="qm-notes">Additional Notes <span style="color:rgba(255,255,255,0.5);font-weight:400">(optional)</span></label>' +
-        '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="Anything else we should know — special requests, parking, pets, access details…" rows="5">' + escHtml(state.notes) + '</textarea>' +
-        '<div class="qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '') + '" id="qm-word-count"><span id="qm-wc-num">' + wc + '</span>/100 words</div>' +
-      '</div>' +
-    '</div>';
-  }
-
   /* ─── Review & Submit ─────────────────────────────────────────────────── */
 
   var REVIEW_STEP_MAP = {
     'Name': 0, 'Phone': 0, 'Email': 0, 'Preferred contact': 0,
-    'Address': 1, 'Access': 1,
-    'Property type': 2,
-    'Bedrooms': 3, 'Bathrooms': 3, 'Living areas': 3, 'Floor area': 3,
-    'Services': 4, 'Frequency': 5, 'Condition': 6, 'Extras': 7,
-    'Preferred days': 8, 'Preferred time': 8, 'Flexible schedule': 8,
-    'Notes': 9,
+    'Address': 1, 'Access': 1, 'Property type': 1,
+    'Bedrooms': 1, 'Bathrooms': 1, 'Living areas': 1,
+    'Services': 2, 'Frequency': 2, 'Condition': 2,
+    'Preferred days': 3, 'Preferred time': 3, 'Flexible schedule': 3, 'Notes': 3,
   };
 
   function renderReview() {
@@ -369,7 +351,13 @@
     r('Bedrooms', state.bedrooms);
     r('Bathrooms', state.bathrooms);
     r('Living areas', state.living_areas);
-    r('Services', state.services.join(', '));
+
+    var serviceDisplay = state.services.map(function (s) {
+      return s === 'Other (please specify)' && state.other_service_detail
+        ? 'Other: ' + state.other_service_detail : s;
+    }).join(', ');
+    r('Services', serviceDisplay);
+
     r('Frequency', state.frequency);
     r('Condition', state.condition);
     r('Preferred days', state.preferred_days.join(', '));
@@ -383,6 +371,8 @@
         '<div id="qm-submit-error" class="qm-error" style="display:none"></div>' +
       '</div>';
     body.scrollTop = 0;
+    body.style.overflowY = 'auto';
+    body.style.webkitOverflowScrolling = 'touch';
 
     var card = document.querySelector('.qm-card');
     if (card) card.classList.add('qm-card--review');
@@ -400,8 +390,8 @@
 
   function renderSuccess() {
     clearDraft();
-    var body    = document.getElementById('qm-body');
-    var footer  = document.getElementById('qm-footer');
+    var body   = document.getElementById('qm-body');
+    var footer = document.getElementById('qm-footer');
     footer.style.display = 'none';
     document.getElementById('qm-title').textContent = '';
     document.getElementById('qm-step-label').textContent = '';
@@ -437,8 +427,8 @@
     el.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.keyCode === 13) {
         e.preventDefault();
-        var next = document.getElementById(toId);
-        if (next) next.focus();
+        var nxt = document.getElementById(toId);
+        if (nxt) nxt.focus();
       }
     });
   }
@@ -448,8 +438,8 @@
     if (!el) return;
     el.addEventListener('input', function () {
       if (this.value.length >= len) {
-        var next = document.getElementById(toId);
-        if (next) next.focus();
+        var nxt = document.getElementById(toId);
+        if (nxt) nxt.focus();
       }
     });
   }
@@ -457,19 +447,20 @@
   function wireStep(n) {
     switch (n) {
       case 0:
-        bind('qm-name',  'input',  function () { state.full_name = this.value; });
-        bind('qm-phone', 'input',  function () { state.phone = this.value; });
-        bind('qm-email', 'input',  function () { state.email = this.value; });
+        bind('qm-name',  'input', function () { state.full_name = this.value; });
+        bind('qm-phone', 'input', function () { state.phone = this.value; });
+        bind('qm-email', 'input', function () { state.email = this.value; });
         bindRadios('preferred_contact', function (v) { state.preferred_contact = v; });
         advanceOnEnter('qm-name', 'qm-phone');
         advanceAfterLen('qm-phone', 'qm-email', 10);
         advanceOnEnter('qm-email', 'qm-phone');
         break;
+
       case 1:
-        bind('qm-street',  'input', function () {
+        // Address fields
+        bind('qm-street', 'input', function () {
           var prev = state.street_address;
           state.street_address = this.value;
-          // Value jumped by >4 chars = autofill or paste → advance to suburb immediately
           if (this.value.length - prev.length > 4) {
             var suburbEl = document.getElementById('qm-suburb');
             if (suburbEl) suburbEl.focus();
@@ -480,13 +471,13 @@
         bind('qm-access',  'input', function () { state.access_instructions = this.value; });
         advanceOnEnter('qm-suburb', 'qm-postcode');
         advanceAfterLen('qm-postcode', 'qm-access', 4);
+        // State dropdown
         (function () {
-          var dd     = document.getElementById('qm-state-dd');
+          var dd      = document.getElementById('qm-state-dd');
           var trigger = document.getElementById('qm-state-trigger');
-          var list   = document.getElementById('qm-state-list');
-          var valEl  = document.getElementById('qm-state-val');
+          var list    = document.getElementById('qm-state-list');
+          var valEl   = document.getElementById('qm-state-val');
           if (!dd || !trigger || !list || !valEl) return;
-
           function closeDropdown() {
             dd.classList.remove('qm-dropdown--open');
             document.removeEventListener('click', closeOnOutside, true);
@@ -494,7 +485,6 @@
           function closeOnOutside(e) {
             if (!dd.contains(e.target)) closeDropdown();
           }
-
           trigger.addEventListener('click', function (e) {
             e.stopPropagation();
             if (dd.classList.contains('qm-dropdown--open')) {
@@ -504,7 +494,6 @@
               document.addEventListener('click', closeOnOutside, true);
             }
           });
-
           list.querySelectorAll('.qm-dropdown__opt').forEach(function (opt) {
             opt.addEventListener('click', function (e) {
               e.stopPropagation();
@@ -517,8 +506,7 @@
             });
           });
         })();
-        break;
-      case 2:
+        // Property type tiles
         document.querySelectorAll('.qm-tile').forEach(function (tile) {
           tile.addEventListener('click', function () {
             document.querySelectorAll('.qm-tile').forEach(function (t) { t.classList.remove('qm-tile--selected'); });
@@ -526,13 +514,14 @@
             state.property_type = this.dataset.value;
           });
         });
-        break;
-      case 3:
+        // Room steppers
         wireStepperField('qm-beds',   'bedrooms',     20);
         wireStepperField('qm-baths',  'bathrooms',    20);
         wireStepperField('qm-living', 'living_areas', 10);
         break;
-      case 4:
+
+      case 2:
+        // Service checkboxes + Other reveal
         document.querySelectorAll('.qm-service').forEach(function (cb) {
           cb.addEventListener('change', function () {
             var tile = this.closest('.qm-ctile');
@@ -543,16 +532,54 @@
               state.services = state.services.filter(function (v) { return v !== cb.value; });
               if (tile) tile.classList.remove('qm-ctile--on');
             }
+            var wrap = document.getElementById('qm-other-service-wrap');
+            if (wrap) {
+              if (state.services.indexOf('Other (please specify)') !== -1) {
+                wrap.removeAttribute('hidden');
+                var inp = document.getElementById('qm-other-service');
+                if (inp) inp.focus();
+              } else {
+                wrap.setAttribute('hidden', '');
+                state.other_service_detail = '';
+              }
+            }
+            saveDraft();
+          });
+        });
+        bind('qm-other-service', 'input', function () {
+          state.other_service_detail = this.value;
+          saveDraft();
+        });
+        // Frequency — scoped deselect to avoid clearing condition cards
+        document.querySelectorAll('input[name="frequency"]').forEach(function (r) {
+          r.addEventListener('change', function () {
+            document.querySelectorAll('input[name="frequency"]').forEach(function (o) {
+              var c = o.closest('.qm-rcard');
+              if (c) c.classList.remove('qm-rcard--on');
+            });
+            var card = this.closest('.qm-rcard');
+            if (card) card.classList.add('qm-rcard--on');
+            state.frequency = this.value;
+            saveDraft();
+          });
+        });
+        // Condition — scoped deselect to avoid clearing frequency cards
+        document.querySelectorAll('input[name="condition"]').forEach(function (r) {
+          r.addEventListener('change', function () {
+            document.querySelectorAll('input[name="condition"]').forEach(function (o) {
+              var c = o.closest('.qm-rcard');
+              if (c) c.classList.remove('qm-rcard--on');
+            });
+            var card = this.closest('.qm-rcard');
+            if (card) card.classList.add('qm-rcard--on');
+            state.condition = this.value;
+            saveDraft();
           });
         });
         break;
-      case 5:
-        bindRadioCards('frequency', function (v) { state.frequency = v; });
-        break;
-      case 6:
-        bindRadioCards('condition', function (v) { state.condition = v; });
-        break;
-      case 7:
+
+      case 3:
+        // Days
         document.querySelectorAll('.qm-day__cb').forEach(function (cb) {
           cb.addEventListener('change', function () {
             var lbl = this.closest('.qm-day');
@@ -565,6 +592,7 @@
             }
           });
         });
+        // Time
         document.querySelectorAll('input[name="preferred_time"]').forEach(function (r) {
           r.addEventListener('change', function () {
             document.querySelectorAll('.qm-time-pill').forEach(function (l) { l.classList.remove('qm-time-pill--on'); });
@@ -573,21 +601,16 @@
           });
         });
         bind('qm-flexible', 'change', function () { state.flexible_schedule = this.checked; });
-        break;
-      case 8:
+        // Notes
         bind('qm-notes', 'input', function () {
           var words = (this.value.trim() === '') ? [] : this.value.trim().split(/\s+/);
-          if (words.length > 100) {
-            this.value = words.slice(0, 100).join(' ');
-          }
+          if (words.length > 100) this.value = words.slice(0, 100).join(' ');
           state.notes = this.value;
-          var wc = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
-          var numEl = document.getElementById('qm-wc-num');
-          var ctrEl = document.getElementById('qm-word-count');
+          var wc     = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
+          var numEl  = document.getElementById('qm-wc-num');
+          var ctrEl  = document.getElementById('qm-word-count');
           if (numEl) numEl.textContent = wc;
-          if (ctrEl) {
-            ctrEl.className = 'qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '');
-          }
+          if (ctrEl) ctrEl.className = 'qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '');
         });
         break;
     }
@@ -607,7 +630,6 @@
       saveDraft();
       renderStep();
     } else {
-      // Last step → show review
       saveDraft();
       onNext = submit;
       onBack = function () {
@@ -637,22 +659,15 @@
         if (!state.suburb.trim())         return 'Please enter your suburb.';
         if (!state.state)                 return 'Please select your state.';
         if (!state.postcode.trim())       return 'Please enter your postcode.';
+        if (!state.property_type)         return 'Please select a property type.';
         break;
       case 2:
-        if (!state.property_type) return 'Please select a property type.';
-        break;
-      case 3:
-        // steppers default to 1 — always valid
-        break;
-      case 4:
         if (!state.services.length) return 'Please select at least one service.';
-        break;
-      case 5:
+        if (state.services.indexOf('Other (please specify)') !== -1 && !state.other_service_detail.trim()) return 'Please describe the service.';
         if (!state.frequency) return 'Please select a cleaning frequency.';
-        break;
-      case 6:
         if (!state.condition) return 'Please select the property condition.';
         break;
+      // case 3: schedule and notes are all optional
     }
     return null;
   }
@@ -680,8 +695,10 @@
     if (payload.bedrooms)     payload.bedrooms     = parseInt(payload.bedrooms)     || null;
     if (payload.bathrooms)    payload.bathrooms    = parseInt(payload.bathrooms)    || null;
     if (payload.living_areas) payload.living_areas = parseInt(payload.living_areas) || null;
-    delete payload.floor_area_sqm;
-    delete payload.staff_count;
+    payload.services = state.services.map(function (s) {
+      return s === 'Other (please specify)' ? 'Other: ' + state.other_service_detail : s;
+    });
+    delete payload.other_service_detail;
 
     fetch('/api/submit-quote', {
       method: 'POST',
@@ -795,18 +812,11 @@
   function bindRadios(name, cb) {
     document.querySelectorAll('input[name="' + name + '"]').forEach(function (r) {
       r.addEventListener('change', function () {
-        document.querySelectorAll('.qm-radio-pill').forEach(function (l) { l.classList.remove('qm-radio-pill--on'); });
+        document.querySelectorAll('input[name="' + name + '"]').forEach(function (o) {
+          var pill = o.closest('.qm-radio-pill');
+          if (pill) pill.classList.remove('qm-radio-pill--on');
+        });
         this.closest('.qm-radio-pill').classList.add('qm-radio-pill--on');
-        cb(this.value);
-      });
-    });
-  }
-
-  function bindRadioCards(name, cb) {
-    document.querySelectorAll('input[name="' + name + '"]').forEach(function (r) {
-      r.addEventListener('change', function () {
-        document.querySelectorAll('.qm-rcard').forEach(function (l) { l.classList.remove('qm-rcard--on'); });
-        this.closest('.qm-rcard').classList.add('qm-rcard--on');
         cb(this.value);
       });
     });
@@ -819,25 +829,21 @@
   /* ─── Boot ────────────────────────────────────────────────────────────── */
 
   document.addEventListener('DOMContentLoaded', function () {
-    // Wire all open-modal buttons
     document.querySelectorAll('[data-open-quote]').forEach(function (btn) {
       btn.addEventListener('click', openModal);
     });
 
-    // Close button + overlay click
     document.addEventListener('click', function (e) {
       if (e.target.id === 'qm-close')    closeModal();
       if (e.target.id === 'quote-modal') closeModal();
     });
 
-    // Keyboard
     document.addEventListener('keydown', function (e) {
       var overlay = document.getElementById('quote-modal');
       if (!overlay || overlay.hidden) return;
       if (e.key === 'Escape') closeModal();
     });
 
-    // Footer nav — single listeners that delegate to onNext/onBack variables
     document.getElementById('qm-next').addEventListener('click', function () { onNext(); });
     document.getElementById('qm-back').addEventListener('click', function () { onBack(); });
   });

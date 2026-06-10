@@ -984,7 +984,7 @@ textarea.form-input {
   border-radius: 20px;
   width: 100%;
   max-width: min(72vw, 960px);
-  height: min(88vh, 600px);
+  height: min(88vh, 680px);
   display: flex;
   flex-direction: column;
   transform: translateY(18px);
@@ -1071,6 +1071,19 @@ textarea.form-input {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+.qm-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.qm-other-service-wrap[hidden] { display: none; }
 
 .qm-footer {
   display: flex;
@@ -1796,12 +1809,6 @@ textarea.form-input {
 
   .qm-body {
     padding: 14px 20px;
-    overflow: hidden;
-  }
-
-  .qm-card--review .qm-body {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   .qm-footer {
@@ -1982,28 +1989,28 @@ textarea.form-input {
   }
 }
 
-/* ---- Custom scrollbar — review step only ----------------- */
-.qm-card--review .qm-body {
+/* ---- Custom scrollbar — all scrollable steps -------------- */
+.qm-body {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.08);
 }
 
-.qm-card--review .qm-body::-webkit-scrollbar {
+.qm-body::-webkit-scrollbar {
   width: 6px;
 }
 
-.qm-card--review .qm-body::-webkit-scrollbar-track {
+.qm-body::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.07);
   border-radius: 9999px;
   margin-block: 4px;
 }
 
-.qm-card--review .qm-body::-webkit-scrollbar-thumb {
+.qm-body::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.35);
   border-radius: 9999px;
 }
 
-.qm-card--review .qm-body::-webkit-scrollbar-thumb:hover {
+.qm-body::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.65);
 }
 
