@@ -212,19 +212,11 @@
   }
 
   function stepPropDetail() {
-    if (isResidential()) {
-      return '<div class="qm-step">' +
-        '<div class="qm-row-3">' +
-          stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
-          stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
-          stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
-        '</div>' +
-      '</div>';
-    }
-    return '<div class="qm-step">' +
-      '<div class="qm-row-2">' +
-        field('Floor Area (sqm)', 'qm-sqm', 'text', state.floor_area_sqm, 'e.g. 150', false, null, 'tel') +
-        stepperField('Bathrooms', 'qm-baths', 'bathrooms', 20) +
+    return '<div class="qm-step qm-step--center">' +
+      '<div class="qm-stepper-grid">' +
+        stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
+        stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
+        stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
       '</div>' +
     '</div>';
   }
@@ -546,14 +538,9 @@
         });
         break;
       case 3:
-        if (isResidential()) {
-          wireStepperField('qm-beds',   'bedrooms',     20);
-          wireStepperField('qm-baths',  'bathrooms',    20);
-          wireStepperField('qm-living', 'living_areas', 10);
-        } else {
-          bind('qm-sqm', 'input', function () { state.floor_area_sqm = this.value; });
-          wireStepperField('qm-baths', 'bathrooms', 20);
-        }
+        wireStepperField('qm-beds',   'bedrooms',     20);
+        wireStepperField('qm-baths',  'bathrooms',    20);
+        wireStepperField('qm-living', 'living_areas', 10);
         break;
       case 4:
         document.querySelectorAll('.qm-service').forEach(function (cb) {

@@ -1112,6 +1112,69 @@ textarea.form-input {
   gap: 20px;
 }
 
+.qm-step--center {
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+}
+
+/* ---- Big stepper tiles (property details step) ----------- */
+.qm-stepper-grid {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+}
+
+.qm-stepper-grid .qm-field {
+  flex: 1;
+  max-width: 185px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 20px 12px 12px;
+  transition: border-color 0.15s;
+}
+
+.qm-stepper-grid .qm-field:focus-within {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.qm-stepper-grid .qm-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.qm-stepper-grid .qm-stepper {
+  background: transparent;
+  border: none;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0;
+  width: 100%;
+  height: 70px;
+}
+
+.qm-stepper-grid .qm-stepper__val {
+  font-size: 46px;
+  font-weight: 700;
+}
+
+.qm-stepper-grid .qm-stepper__btn {
+  font-size: 26px;
+  width: 44px;
+}
+
 .qm-field {
   display: flex;
   flex-direction: column;
