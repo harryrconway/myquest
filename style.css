@@ -476,7 +476,42 @@ textarea.form-input {
   margin-inline: auto;
 }
 
-/* ---- Services Grid ---------------------------------------- */
+/* ---- Services Icon Layout --------------------------------- */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0 var(--space-12);
+}
+
+.svc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+}
+
+.svc-item__icon {
+  color: var(--color-forest-green);
+  line-height: 0;
+}
+
+.svc-item__title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.svc-item__desc {
+  font-size: var(--text-sm);
+  color: var(--color-mid);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ---- Services Grid (legacy — unused) ---------------------- */
 .services-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -843,6 +878,15 @@ textarea.form-input {
     border-bottom: none;
   }
 
+  .svc-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .svc-item {
+    padding: var(--space-6) var(--space-4);
+  }
+
   .services-grid {
     grid-template-columns: 1fr;
   }
@@ -1080,6 +1124,114 @@ textarea.form-input {
 .qm-textarea {
   resize: vertical;
   min-height: 120px;
+}
+
+/* ---- Custom dropdown (State picker) ---------------------- */
+.qm-dropdown {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qm-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  min-height: 42px;
+}
+
+.qm-dropdown--placeholder .qm-dropdown__trigger {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.qm-dropdown__trigger svg {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.22s ease, color 0.2s;
+}
+
+.qm-dropdown:hover .qm-dropdown__trigger {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.qm-dropdown--open .qm-dropdown__trigger {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.qm-dropdown--open .qm-dropdown__trigger svg {
+  transform: rotate(180deg);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.qm-dropdown__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #163d2c;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.qm-dropdown--open .qm-dropdown__list {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.qm-dropdown__opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  transition: background 0.12s;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.qm-dropdown__opt:last-child {
+  border-bottom: none;
+}
+
+.qm-dropdown__opt:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.qm-dropdown__opt--sel {
+  color: #fff;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.qm-dropdown__opt--sel::after {
+  content: '✓';
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .qm-row-2 {
@@ -1538,4 +1690,63 @@ textarea.form-input {
   .qm-time-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* ---- Desktop sizing enhancements (601px+) ---------------- */
+@media (min-width: 601px) {
+  .qm-grid-type {
+    gap: 16px;
+  }
+
+  .qm-tile {
+    padding: 28px 12px;
+    font-size: 15px;
+  }
+
+  .qm-row-3 .qm-input,
+  .qm-row-2 .qm-input[type="number"] {
+    padding: 14px 16px;
+    font-size: 17px;
+    text-align: center;
+  }
+
+  .qm-grid-check {
+    gap: 10px;
+  }
+
+  .qm-ctile {
+    padding: 13px 22px;
+    font-size: 15px;
+  }
+
+  .qm-radio-cards {
+    gap: 10px;
+  }
+
+  .qm-rcard {
+    padding: 20px 24px;
+  }
+
+  .qm-rcard__label {
+    font-size: 16px;
+  }
+}
+
+/* ---- Custom scrollbar — review step only ----------------- */
+.qm-card--review .qm-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.qm-card--review .qm-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+.qm-card--review .qm-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 9999px;
+}
+
+.qm-card--review .qm-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.75);
 }

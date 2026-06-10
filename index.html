@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Redirect invite/recovery tokens that Supabase drops on the homepage back to set-password.html -->
-  <script>(function(){var h=window.location.hash;if(h.indexOf('access_token')!==-1&&(h.indexOf('type=invite')!==-1||h.indexOf('type=recovery')!==-1)){window.location.replace('set-password.html'+h);}})();</script>
+  <script>(function(){var h=window.location.hash;if(h.indexOf('access_token')!==-1&&(h.indexOf('type=invite')!==-1||h.indexOf('type=recovery')!==-1)){window.location.replace('set-password.html'+h);}else if(h.indexOf('error_code=')!==-1){window.location.replace('set-password.html'+h);}})();</script>
 
   <title>MyQuest | Professional Cleaning Services | Northern Rivers &amp; Gold Coast</title>
   <meta name="description" content="MyQuest delivers professional residential, commercial and deep cleaning services across the Northern Rivers and Gold Coast. Fully insured, police-checked staff. Get a free quote today.">
@@ -193,85 +193,52 @@
     </section>
 
     <!-- ======================================================
-         STATS BAR
-         ====================================================== -->
-    <section id="stats" class="stats" aria-label="Our commitments">
-      <div class="container stats__grid">
-        <div class="stats__item">
-          <span class="stats__number" style="font-size:clamp(1rem,2vw,1.3rem);">Fully Insured</span>
-          <span class="stats__label">Public liability on every job</span>
-        </div>
-        <div class="stats__item">
-          <span class="stats__number" style="font-size:clamp(1rem,2vw,1.3rem);">Police Checked</span>
-          <span class="stats__label">All staff vetted &amp; verified</span>
-        </div>
-        <div class="stats__item">
-          <span class="stats__number" style="font-size:clamp(1rem,2vw,1.3rem);">Eco-Friendly</span>
-          <span class="stats__label">Safe for your family &amp; pets</span>
-        </div>
-        <div class="stats__item">
-          <span class="stats__number" style="font-size:clamp(1rem,2vw,1.3rem);">100% Guaranteed</span>
-          <span class="stats__label">We'll make it right, every time</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================================================
          SERVICES
          ====================================================== -->
     <section id="services" class="section" aria-labelledby="services-heading">
       <div class="container">
-        <div class="section-intro">
+        <div class="section-intro section-intro--center">
           <span class="section-label">What We Offer</span>
           <h2 class="section-heading" id="services-heading">Our Cleaning Services</h2>
           <p class="section-sub">From regular home cleans to full commercial contracts, we have a service to suit every need.</p>
         </div>
 
-        <div class="services-grid">
+        <div class="svc-grid">
 
-          <article class="service-card animate-on-scroll">
-            <div class="service-card__icon-wrap" aria-hidden="true">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M8 42V22L24 8L40 22V42H30V30H18V42H8Z" stroke="#2d6a4f" stroke-width="2.5" stroke-linejoin="round"/>
-                <rect x="20" y="30" width="8" height="12" rx="1" stroke="#2d6a4f" stroke-width="2.5"/>
-                <path d="M4 24L24 6L44 24" stroke="#2d6a4f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="svc-item animate-on-scroll">
+            <div class="svc-item__icon" aria-hidden="true">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                <path d="M9 27L28 10L47 27V48H34V35H22V48H9V27Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
               </svg>
             </div>
-            <div class="service-card__body">
-              <h3 class="service-card__title">Residential Cleaning</h3>
-              <p class="service-card__desc">Regular home cleaning tailored to your schedule. We treat your home with care and attention to detail.</p>
-            </div>
-          </article>
+            <h3 class="svc-item__title">Residential Cleaning</h3>
+            <p class="svc-item__desc">Regular home cleaning tailored to your schedule. We treat your home with care and attention to detail.</p>
+          </div>
 
-          <article class="service-card animate-on-scroll">
-            <div class="service-card__icon-wrap" aria-hidden="true">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <rect x="6" y="16" width="36" height="28" rx="2" stroke="#2d6a4f" stroke-width="2.5"/>
-                <path d="M14 16V10C14 8.9 14.9 8 16 8H32C33.1 8 34 8.9 34 10V16" stroke="#2d6a4f" stroke-width="2.5"/>
-                <rect x="14" y="22" width="8" height="8" rx="1" stroke="#2d6a4f" stroke-width="2"/>
-                <rect x="26" y="22" width="8" height="8" rx="1" stroke="#2d6a4f" stroke-width="2"/>
-                <rect x="18" y="36" width="12" height="8" rx="1" stroke="#2d6a4f" stroke-width="2"/>
+          <div class="svc-item animate-on-scroll">
+            <div class="svc-item__icon" aria-hidden="true">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                <rect x="7" y="18" width="42" height="32" rx="2" stroke="currentColor" stroke-width="2.5"/>
+                <path d="M16 18V11a2 2 0 0 1 2-2h20a2 2 0 0 1 2 2v7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                <rect x="15" y="26" width="10" height="10" rx="1" stroke="currentColor" stroke-width="2"/>
+                <rect x="31" y="26" width="10" height="10" rx="1" stroke="currentColor" stroke-width="2"/>
+                <rect x="21" y="40" width="14" height="10" rx="1" stroke="currentColor" stroke-width="2"/>
               </svg>
             </div>
-            <div class="service-card__body">
-              <h3 class="service-card__title">Commercial Cleaning</h3>
-              <p class="service-card__desc">Offices, retail spaces, and commercial premises kept spotless. Flexible scheduling around your business hours.</p>
-            </div>
-          </article>
+            <h3 class="svc-item__title">Commercial Cleaning</h3>
+            <p class="svc-item__desc">Offices, retail spaces, and commercial premises kept spotless. Flexible scheduling around your business hours.</p>
+          </div>
 
-          <article class="service-card animate-on-scroll">
-            <div class="service-card__icon-wrap" aria-hidden="true">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M24 6L26.5 13.5H34.5L28.3 18.2L30.5 26L24 21.5L17.5 26L19.7 18.2L13.5 13.5H21.5L24 6Z" stroke="#2d6a4f" stroke-width="2.5" stroke-linejoin="round"/>
-                <circle cx="24" cy="32" r="8" stroke="#2d6a4f" stroke-width="2.5"/>
-                <path d="M20 32L23 35L28 29" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="svc-item animate-on-scroll">
+            <div class="svc-item__icon" aria-hidden="true">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="10" stroke="currentColor" stroke-width="2.5"/>
+                <path d="M28 6V16M28 40V50M6 28H16M40 28H50M13 13L20 20M36 36L43 43M43 13L36 20M20 36L13 43" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
               </svg>
             </div>
-            <div class="service-card__body">
-              <h3 class="service-card__title">Deep Cleaning</h3>
-              <p class="service-card__desc">A thorough top-to-bottom clean for when you need more than the usual. Perfect for spring cleans and new tenancies.</p>
-            </div>
-          </article>
+            <h3 class="svc-item__title">Deep Cleaning</h3>
+            <p class="svc-item__desc">A thorough top-to-bottom clean for when you need more than the usual. Perfect for spring cleans and new tenancies.</p>
+          </div>
 
         </div>
       </div>

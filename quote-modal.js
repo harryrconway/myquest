@@ -95,6 +95,8 @@
   }
 
   function renderStep() {
+    var card = document.querySelector('.qm-card');
+    if (card) card.classList.remove('qm-card--review');
     var body = document.getElementById('qm-body');
     var html = buildStep(currentStep);
     body.innerHTML = html;
@@ -154,14 +156,19 @@
       field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St') +
       '<div class="qm-row-2">' +
         field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb') +
-        '<div class="qm-field">' +
-          '<label class="qm-label" for="qm-state">State</label>' +
-          '<select class="qm-input" id="qm-state">' +
-            '<option value="">Select…</option>' +
-            AU_STATES.map(function (s) {
-              return '<option value="' + s + '"' + (state.state === s ? ' selected' : '') + '>' + s + '</option>';
-            }).join('') +
-          '</select>' +
+        '<div class="qm-field" style="position:relative">' +
+          '<label class="qm-label">State</label>' +
+          '<div class="qm-dropdown' + (state.state ? '' : ' qm-dropdown--placeholder') + '" id="qm-state-dd">' +
+            '<div class="qm-dropdown__trigger" id="qm-state-trigger">' +
+              '<span id="qm-state-val">' + (state.state ? escHtml(state.state) : 'Select…') + '</span>' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</div>' +
+            '<div class="qm-dropdown__list" id="qm-state-list">' +
+              AU_STATES.map(function (s) {
+                return '<div class="qm-dropdown__opt' + (state.state === s ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + s + '">' + s + '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
         '</div>' +
       '</div>' +
       field('Postcode', 'qm-postcode', 'text', state.postcode, '3000') +
@@ -377,6 +384,9 @@
       '</div>';
     body.scrollTop = 0;
 
+    var card = document.querySelector('.qm-card');
+    if (card) card.classList.add('qm-card--review');
+
     body.querySelectorAll('.qm-rv__row[data-step]').forEach(function (row) {
       row.addEventListener('click', function () {
         var step = parseInt(this.dataset.step);
@@ -421,9 +431,45 @@
       case 1:
         bind('qm-street',  'input', function () { state.street_address = this.value; });
         bind('qm-suburb',  'input', function () { state.suburb = this.value; });
-        bind('qm-state',   'change', function () { state.state = this.value; });
         bind('qm-postcode','input', function () { state.postcode = this.value; });
         bind('qm-access',  'input', function () { state.access_instructions = this.value; });
+        (function () {
+          var dd     = document.getElementById('qm-state-dd');
+          var trigger = document.getElementById('qm-state-trigger');
+          var list   = document.getElementById('qm-state-list');
+          var valEl  = document.getElementById('qm-state-val');
+          if (!dd || !trigger || !list || !valEl) return;
+
+          function closeDropdown() {
+            dd.classList.remove('qm-dropdown--open');
+            document.removeEventListener('click', closeOnOutside, true);
+          }
+          function closeOnOutside(e) {
+            if (!dd.contains(e.target)) closeDropdown();
+          }
+
+          trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (dd.classList.contains('qm-dropdown--open')) {
+              closeDropdown();
+            } else {
+              dd.classList.add('qm-dropdown--open');
+              document.addEventListener('click', closeOnOutside, true);
+            }
+          });
+
+          list.querySelectorAll('.qm-dropdown__opt').forEach(function (opt) {
+            opt.addEventListener('click', function (e) {
+              e.stopPropagation();
+              state.state = opt.dataset.val;
+              valEl.textContent = opt.dataset.val;
+              dd.classList.remove('qm-dropdown--placeholder');
+              list.querySelectorAll('.qm-dropdown__opt').forEach(function (o) { o.classList.remove('qm-dropdown__opt--sel'); });
+              opt.classList.add('qm-dropdown__opt--sel');
+              closeDropdown();
+            });
+          });
+        })();
         break;
       case 2:
         document.querySelectorAll('.qm-tile').forEach(function (tile) {
@@ -538,8 +584,31 @@
         if (!state.phone.trim())     return 'Please enter your phone number.';
         if (!state.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) return 'Please enter a valid email address.';
         break;
+      case 1:
+        if (!state.street_address.trim()) return 'Please enter your street address.';
+        if (!state.suburb.trim())         return 'Please enter your suburb.';
+        if (!state.state)                 return 'Please select your state.';
+        if (!state.postcode.trim())       return 'Please enter your postcode.';
+        break;
       case 2:
         if (!state.property_type) return 'Please select a property type.';
+        break;
+      case 3:
+        if (isResidential()) {
+          if (!state.bedrooms)  return 'Please enter the number of bedrooms.';
+          if (!state.bathrooms) return 'Please enter the number of bathrooms.';
+        } else {
+          if (!state.floor_area_sqm) return 'Please enter the floor area.';
+        }
+        break;
+      case 4:
+        if (!state.services.length) return 'Please select at least one service.';
+        break;
+      case 5:
+        if (!state.frequency) return 'Please select a cleaning frequency.';
+        break;
+      case 6:
+        if (!state.condition) return 'Please select the property condition.';
         break;
     }
     return null;
