@@ -7,6 +7,10 @@
   var totalSteps  = 10;
   var submitting  = false;
 
+  // Single handlers — changed by switching these variables (avoids mixed addEventListener+onclick)
+  var onNext = function () { next(); };
+  var onBack = function () { back(); };
+
   var STEPS = [
     { id: 'details',    title: 'Your Details' },
     { id: 'address',    title: 'Property Address' },
@@ -246,6 +250,13 @@
     '</div>';
   }
 
+  var TIME_OPTIONS = [
+    { value: 'Morning (7am–12pm)',   label: 'Morning',   range: '7am – 12pm' },
+    { value: 'Afternoon (12pm–5pm)', label: 'Afternoon', range: '12pm – 5pm' },
+    { value: 'Evening (5pm–8pm)',    label: 'Evening',   range: '5pm – 8pm'  },
+    { value: 'Flexible',             label: 'Flexible',  range: 'Any time'   },
+  ];
+
   function stepSchedule() {
     return '<div class="qm-step">' +
       '<div class="qm-field">' +
@@ -260,13 +271,17 @@
         '</div>' +
       '</div>' +
       '<div class="qm-field">' +
-        '<label class="qm-label" for="qm-time">Preferred Time</label>' +
-        '<select class="qm-input" id="qm-time">' +
-          '<option value="">No preference</option>' +
-          ['Morning (7am–12pm)', 'Afternoon (12pm–5pm)', 'Evening (5pm–8pm)', 'Flexible'].map(function (t) {
-            return '<option value="' + t + '"' + (state.preferred_time === t ? ' selected' : '') + '>' + t + '</option>';
+        '<label class="qm-label">Preferred Time</label>' +
+        '<div class="qm-time-grid">' +
+          TIME_OPTIONS.map(function (t) {
+            var sel = state.preferred_time === t.value ? ' qm-time-pill--on' : '';
+            return '<label class="qm-time-pill' + sel + '">' +
+              '<input type="radio" name="preferred_time" value="' + escHtml(t.value) + '"' + (state.preferred_time === t.value ? ' checked' : '') + '>' +
+              '<span class="qm-time-pill__label">' + escHtml(t.label) + '</span>' +
+              '<span class="qm-time-pill__range">' + escHtml(t.range) + '</span>' +
+            '</label>';
           }).join('') +
-        '</select>' +
+        '</div>' +
       '</div>' +
       '<label class="qm-check-row">' +
         '<input type="checkbox" id="qm-flexible"' + (state.flexible_schedule ? ' checked' : '') + '> ' +
@@ -275,11 +290,18 @@
     '</div>';
   }
 
+  function countWords(str) {
+    var s = (str || '').trim();
+    return s ? s.split(/\s+/).length : 0;
+  }
+
   function stepNotes() {
+    var wc = countWords(state.notes);
     return '<div class="qm-step">' +
       '<div class="qm-field">' +
-        '<label class="qm-label" for="qm-notes">Additional Notes <span style="color:#9ca3af;font-weight:400">(optional)</span></label>' +
+        '<label class="qm-label" for="qm-notes">Additional Notes <span style="color:rgba(255,255,255,0.5);font-weight:400">(optional)</span></label>' +
         '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="Anything else we should know — special requests, parking, pets, access details…" rows="5">' + escHtml(state.notes) + '</textarea>' +
+        '<div class="qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '') + '" id="qm-word-count"><span id="qm-wc-num">' + wc + '</span>/100 words</div>' +
       '</div>' +
     '</div>';
   }
@@ -359,9 +381,9 @@
       row.addEventListener('click', function () {
         var step = parseInt(this.dataset.step);
         currentStep = step;
+        onNext = function () { next(); };
+        onBack = function () { back(); };
         renderStep();
-        document.getElementById('qm-next').onclick = next;
-        document.getElementById('qm-back').onclick = back;
       });
     });
   }
@@ -453,11 +475,30 @@
             }
           });
         });
-        bind('qm-time',     'change', function () { state.preferred_time = this.value; });
+        document.querySelectorAll('input[name="preferred_time"]').forEach(function (r) {
+          r.addEventListener('change', function () {
+            document.querySelectorAll('.qm-time-pill').forEach(function (l) { l.classList.remove('qm-time-pill--on'); });
+            this.closest('.qm-time-pill').classList.add('qm-time-pill--on');
+            state.preferred_time = this.value;
+          });
+        });
         bind('qm-flexible', 'change', function () { state.flexible_schedule = this.checked; });
         break;
       case 9:
-        bind('qm-notes', 'input', function () { state.notes = this.value; });
+        bind('qm-notes', 'input', function () {
+          var words = (this.value.trim() === '') ? [] : this.value.trim().split(/\s+/);
+          if (words.length > 100) {
+            this.value = words.slice(0, 100).join(' ');
+          }
+          state.notes = this.value;
+          var wc = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
+          var numEl = document.getElementById('qm-wc-num');
+          var ctrEl = document.getElementById('qm-word-count');
+          if (numEl) numEl.textContent = wc;
+          if (ctrEl) {
+            ctrEl.className = 'qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '');
+          }
+        });
         break;
     }
   }
@@ -475,14 +516,14 @@
       renderStep();
     } else {
       // Last step → show review
-      renderReview();
-      document.getElementById('qm-next').onclick = submit;
-      document.getElementById('qm-back').onclick = function () {
+      onNext = submit;
+      onBack = function () {
         currentStep = totalSteps - 1;
+        onNext = function () { next(); };
+        onBack = function () { back(); };
         renderStep();
-        document.getElementById('qm-next').onclick = next;
-        document.getElementById('qm-back').onclick = back;
       };
+      renderReview();
     }
   }
 
@@ -653,9 +694,9 @@
       if (e.key === 'Escape') closeModal();
     });
 
-    // Footer nav
-    document.getElementById('qm-next').addEventListener('click', next);
-    document.getElementById('qm-back').addEventListener('click', back);
+    // Footer nav — single listeners that delegate to onNext/onBack variables
+    document.getElementById('qm-next').addEventListener('click', function () { onNext(); });
+    document.getElementById('qm-back').addEventListener('click', function () { onBack(); });
   });
 
   window.QuoteModal = { open: openModal, close: closeModal };
