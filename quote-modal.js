@@ -690,7 +690,7 @@
   function numberField(label, id, val, min, max) {
     return '<div class="qm-field">' +
       '<label class="qm-label" for="' + id + '">' + label + '</label>' +
-      '<input class="qm-input" type="number" inputmode="tel" id="' + id + '" value="' + (val || '') + '" min="' + min + '" max="' + max + '">' +
+      '<input class="qm-input" type="tel" id="' + id + '" value="' + (val || '') + '">' +
     '</div>';
   }
 
