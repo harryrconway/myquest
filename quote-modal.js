@@ -38,7 +38,8 @@
 
   /* ─── Open / Close ───────────────────────────────────────────────────── */
 
-  var _vpHandler = null;
+  var _vpHandler   = null;
+  var _savedScrollY = 0;
 
   function openModal() {
     resetState();
@@ -46,39 +47,71 @@
     currentStep = 0;
     stepDir = 1;
     renderStep();
+
     var overlay = document.getElementById('quote-modal');
     overlay.hidden = false;
     overlay.removeAttribute('aria-hidden');
-    document.body.style.overflow = 'hidden';
+
+    // Lock body scroll — position:fixed approach works on iOS (overflow:hidden alone doesn't)
+    _savedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position   = 'fixed';
+    document.body.style.top        = -_savedScrollY + 'px';
+    document.body.style.width      = '100%';
+
     requestAnimationFrame(function () {
       overlay.classList.add('qm--open');
     });
     document.getElementById('qm-close').focus();
 
-    // Keep footer visible when the software keyboard opens on mobile
-    if (window.visualViewport && window.innerWidth <= 600) {
+    // Keep overlay and card locked to the visual viewport on all devices.
+    // Covers: iOS keyboard scroll, iPad split-keyboard, Android resize.
+    if (window.visualViewport) {
       _vpHandler = function () {
-        var card = document.querySelector('.qm-card');
-        if (card) card.style.height = window.visualViewport.height + 'px';
+        var vv  = window.visualViewport;
+        var ov  = document.getElementById('quote-modal');
+        var crd = document.querySelector('.qm-card');
+        // Anchor overlay to the visible area (offsetTop shifts when iOS scrolls the page)
+        if (ov) {
+          ov.style.top    = vv.offsetTop + 'px';
+          ov.style.height = vv.height + 'px';
+        }
+        // Mobile fullscreen card fills visual viewport height
+        if (crd && window.innerWidth <= 600) {
+          crd.style.height = vv.height + 'px';
+        }
       };
       window.visualViewport.addEventListener('resize', _vpHandler);
+      window.visualViewport.addEventListener('scroll', _vpHandler);
+      _vpHandler(); // apply immediately so first render is correct
     }
   }
 
   function closeModal() {
     if (_vpHandler && window.visualViewport) {
       window.visualViewport.removeEventListener('resize', _vpHandler);
+      window.visualViewport.removeEventListener('scroll', _vpHandler);
       _vpHandler = null;
-      var card = document.querySelector('.qm-card');
-      if (card) card.style.height = '';
     }
+
+    // Clear inline styles set by the viewport handler
+    var card    = document.querySelector('.qm-card');
     var overlay = document.getElementById('quote-modal');
-    overlay.classList.remove('qm--open');
-    setTimeout(function () {
-      overlay.hidden = true;
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }, 280);
+    if (card)    card.style.height    = '';
+    if (overlay) { overlay.style.top = ''; overlay.style.height = ''; }
+
+    // Restore body scroll (reverse of position:fixed lock)
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.width    = '';
+    window.scrollTo(0, _savedScrollY);
+
+    if (overlay) {
+      overlay.classList.remove('qm--open');
+      setTimeout(function () {
+        overlay.hidden = true;
+        overlay.setAttribute('aria-hidden', 'true');
+      }, 280);
+    }
   }
 
   function resetState() {
@@ -114,15 +147,18 @@
     var body = document.getElementById('qm-body');
     var html = buildStep(currentStep);
     body.innerHTML = html;
-    body.scrollTop = 0;
 
     // Step 0 fits without scrolling; steps 1-3 may need to scroll
     if (currentStep === 0) {
       body.style.overflowY = '';
       body.style.webkitOverflowScrolling = '';
+      body.scrollTop = 0;
     } else {
       body.style.overflowY = 'auto';
       body.style.webkitOverflowScrolling = 'touch';
+      // Set after overflow is enabled so the reset actually takes effect
+      body.scrollTop = 0;
+      requestAnimationFrame(function () { body.scrollTop = 0; });
     }
 
     // Slide animation
