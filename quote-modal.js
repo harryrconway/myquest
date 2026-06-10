@@ -420,6 +420,29 @@
 
   /* ─── Wire interactivity ─────────────────────────────────────────────── */
 
+  function advanceOnEnter(fromId, toId) {
+    var el = document.getElementById(fromId);
+    if (!el) return;
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.keyCode === 13) {
+        e.preventDefault();
+        var next = document.getElementById(toId);
+        if (next) next.focus();
+      }
+    });
+  }
+
+  function advanceAfterLen(fromId, toId, len) {
+    var el = document.getElementById(fromId);
+    if (!el) return;
+    el.addEventListener('input', function () {
+      if (this.value.length >= len) {
+        var next = document.getElementById(toId);
+        if (next) next.focus();
+      }
+    });
+  }
+
   function wireStep(n) {
     switch (n) {
       case 0:
@@ -427,6 +450,9 @@
         bind('qm-phone', 'input',  function () { state.phone = this.value; });
         bind('qm-email', 'input',  function () { state.email = this.value; });
         bindRadios('preferred_contact', function (v) { state.preferred_contact = v; });
+        advanceOnEnter('qm-name', 'qm-phone');
+        advanceAfterLen('qm-phone', 'qm-email', 10);
+        advanceOnEnter('qm-email', 'qm-phone');
         break;
       case 1:
         bind('qm-street',  'input', function () {
@@ -441,6 +467,8 @@
         bind('qm-suburb',  'input', function () { state.suburb = this.value; });
         bind('qm-postcode','input', function () { state.postcode = this.value; });
         bind('qm-access',  'input', function () { state.access_instructions = this.value; });
+        advanceOnEnter('qm-suburb', 'qm-postcode');
+        advanceAfterLen('qm-postcode', 'qm-access', 4);
         (function () {
           var dd     = document.getElementById('qm-state-dd');
           var trigger = document.getElementById('qm-state-trigger');
