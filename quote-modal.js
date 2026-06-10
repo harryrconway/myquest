@@ -26,14 +26,14 @@
   ];
 
   var PROPERTY_TYPES = [
-    { value: 'House',       label: 'House',      emoji: '🏠' },
-    { value: 'Apartment',   label: 'Apartment',  emoji: '🏢' },
-    { value: 'Townhouse',   label: 'Townhouse',  emoji: '🏘️' },
-    { value: 'Office',      label: 'Office',     emoji: '💼' },
-    { value: 'Retail',      label: 'Retail',     emoji: '🛍️' },
-    { value: 'Medical',     label: 'Medical',    emoji: '🏥' },
-    { value: 'Warehouse',   label: 'Warehouse',  emoji: '🏭' },
-    { value: 'Other',       label: 'Other',      emoji: '⚙️' },
+    { value: 'House',       label: 'House'      },
+    { value: 'Apartment',   label: 'Apartment'  },
+    { value: 'Townhouse',   label: 'Townhouse'  },
+    { value: 'Office',      label: 'Office'     },
+    { value: 'Retail',      label: 'Retail'     },
+    { value: 'Medical',     label: 'Medical'    },
+    { value: 'Warehouse',   label: 'Warehouse'  },
+    { value: 'Other',       label: 'Other'      },
   ];
 
   var SERVICES = [
@@ -82,7 +82,7 @@
       full_name: '', phone: '', email: '', preferred_contact: '',
       street_address: '', suburb: '', state: '', postcode: '', access_instructions: '',
       property_type: '',
-      bedrooms: 1, bathrooms: 1, living_areas: 1, floor_area_sqm: '', staff_count: '',
+      bedrooms: '', bathrooms: '', living_areas: '', floor_area_sqm: '', staff_count: '',
       services: [], frequency: '', condition: '', extras: [],
       preferred_days: [], preferred_time: '', flexible_schedule: false,
       notes: '',
@@ -200,7 +200,6 @@
         PROPERTY_TYPES.map(function (pt) {
           var sel = state.property_type === pt.value ? ' qm-tile--selected' : '';
           return '<button type="button" class="qm-tile' + sel + '" data-value="' + pt.value + '">' +
-            '<span class="qm-tile__emoji" aria-hidden="true">' + pt.emoji + '</span>' +
             '<span class="qm-tile__label">' + pt.label + '</span>' +
           '</button>';
         }).join('') +
@@ -232,7 +231,7 @@
 
   function stepServices() {
     return '<div class="qm-step">' +
-      '<div class="qm-grid-check qm-grid-check--big">' +
+      '<div class="qm-grid-check">' +
         SERVICES.map(function (s) {
           var checked = state.services.indexOf(s) !== -1;
           return checkTile(s, s, checked, 'qm-service');
@@ -267,7 +266,7 @@
   function stepExtras() {
     return '<div class="qm-step">' +
       '<p class="qm-hint">Select anything that needs special attention:</p>' +
-      '<div class="qm-grid-check qm-grid-check--big">' +
+      '<div class="qm-grid-check">' +
         EXTRAS.map(function (e) {
           var checked = state.extras.indexOf(e) !== -1;
           return checkTile(e, e, checked, 'qm-extra');
@@ -432,22 +431,10 @@
         '<h3 class="qm-success__heading">Request submitted!</h3>' +
         '<p class="qm-success__body">We\'ve received your quote request. A member of our team will be in touch within <strong>2 hours</strong>.</p>' +
         '<p class="qm-success__sub">Check your inbox — we\'ve sent a confirmation to <strong>' + escHtml(state.email) + '</strong>.</p>' +
-        '<p class="qm-success__countdown">Returning to home in <span id="qm-countdown-num">3</span>…</p>' +
+        '<button class="btn-primary qm-success__btn" id="qm-done">Done</button>' +
       '</div>';
 
-    var count = 3;
-    var interval = setInterval(function () {
-      count--;
-      var numEl = document.getElementById('qm-countdown-num');
-      if (numEl) numEl.textContent = count;
-      if (count <= 0) {
-        clearInterval(interval);
-        closeModal();
-        setTimeout(function () {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 300);
-      }
-    }, 1000);
+    document.getElementById('qm-done').addEventListener('click', closeModal);
   }
 
   /* ─── Wire interactivity ─────────────────────────────────────────────── */
