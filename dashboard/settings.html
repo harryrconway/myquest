@@ -186,11 +186,11 @@
         </div>
         <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
           <div>
-            <p style="font-size:14px;font-weight:700;color:#1e293b;">Clear All Data</p>
-            <p style="font-size:12.5px;color:#94a3b8;margin-top:2px;">Permanently deletes all clients, jobs, staff, quotes and settings</p>
+            <p style="font-size:14px;font-weight:700;color:#1e293b;">Data Management</p>
+            <p style="font-size:12.5px;color:#94a3b8;margin-top:2px;">Selectively clear jobs, staff, or rates — or wipe everything at once</p>
           </div>
-          <button id="btn-clear" style="flex-shrink:0;padding:9px 18px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;font-family:var(--font-family);cursor:pointer;box-shadow:0 2px 8px rgba(220,38,38,0.28);transition:background 0.15s,box-shadow 0.15s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
-            Delete Everything
+          <button id="btn-clear" style="flex-shrink:0;padding:9px 18px;background:#fff;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;font-size:12.5px;font-weight:700;font-family:var(--font-family);cursor:pointer;transition:background 0.15s,border-color 0.15s;" onmouseover="this.style.background='#fff5f5';this.style.borderColor='#fca5a5'" onmouseout="this.style.background='#fff';this.style.borderColor='#fecaca'">
+            Clear Options
           </button>
         </div>
       </div>
@@ -266,8 +266,122 @@
     </div>
   </div>
 
+  <!-- Modal: Data Options -->
+  <div class="modal-overlay" id="modal-data-options" hidden>
+    <div class="modal-card" style="max-width:500px;">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Data Management</h2>
+          <p style="font-size:13px;color:#64748b;margin-top:3px;font-weight:500;">Choose what to clear. Each action is permanent.</p>
+        </div>
+        <button class="modal-close" data-modal-close="modal-data-options" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" style="gap:0;padding:0;">
+
+        <!-- Option rows -->
+        <div style="padding:6px 24px 6px;">
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
+            <div>
+              <p style="font-size:13.5px;font-weight:600;color:#1e293b;margin:0 0 2px;">Clear Unscheduled Jobs</p>
+              <p style="font-size:12px;color:#94a3b8;margin:0;">Removes all new quote requests waiting to be scheduled</p>
+            </div>
+            <button class="dz-btn-outline" onclick="SettingsPage.clearUnscheduled()">Clear</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
+            <div>
+              <p style="font-size:13.5px;font-weight:600;color:#1e293b;margin:0 0 2px;">Clear Scheduled Jobs</p>
+              <p style="font-size:12px;color:#94a3b8;margin:0;">Removes all jobs that have been accepted and scheduled</p>
+            </div>
+            <button class="dz-btn-outline" onclick="SettingsPage.clearScheduled()">Clear</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
+            <div>
+              <p style="font-size:13.5px;font-weight:600;color:#1e293b;margin:0 0 2px;">Clear Completed Jobs</p>
+              <p style="font-size:12px;color:#94a3b8;margin:0;">Removes all jobs that have been marked as complete</p>
+            </div>
+            <button class="dz-btn-outline" onclick="SettingsPage.clearCompleted()">Clear</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
+            <div>
+              <p style="font-size:13.5px;font-weight:600;color:#1e293b;margin:0 0 2px;">Delete Staff Records</p>
+              <p style="font-size:12px;color:#94a3b8;margin:0;">Clears locally stored staff roster data (not login accounts)</p>
+            </div>
+            <button class="dz-btn-outline" onclick="SettingsPage.clearStaff()">Delete</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;">
+            <div>
+              <p style="font-size:13.5px;font-weight:600;color:#1e293b;margin:0 0 2px;">Reset Quote Rates</p>
+              <p style="font-size:12px;color:#94a3b8;margin:0;">Restores all pricing rates back to their default values</p>
+            </div>
+            <button class="dz-btn-outline dz-btn-outline--amber" onclick="SettingsPage.resetRates()">Reset</button>
+          </div>
+
+        </div>
+
+        <!-- Delete everything row -->
+        <div style="padding:16px 24px;background:#fff5f5;border-top:1.5px solid #fecaca;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+            <div>
+              <p style="font-size:13.5px;font-weight:700;color:#991b1b;margin:0 0 2px;">Delete Everything</p>
+              <p style="font-size:12px;color:#f87171;margin:0;">Wipes all jobs, staff records, and settings. Cannot be undone.</p>
+            </div>
+            <button onclick="SettingsPage.openDeleteAll()" style="flex-shrink:0;padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;font-family:var(--font-family);cursor:pointer;white-space:nowrap;">Delete Everything</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Delete Everything — final confirmation -->
+  <div class="modal-overlay" id="modal-delete-all-confirm" hidden>
+    <div class="modal-card" style="max-width:440px;text-align:center;">
+      <div class="modal-body" style="align-items:center;gap:1.1rem;padding:2.5rem 2rem 1.5rem;">
+        <div style="width:60px;height:60px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto;flex-shrink:0;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+        <h2 style="font-size:1.2rem;font-weight:800;color:#991b1b;margin:0;letter-spacing:-0.02em;">Are you absolutely sure?</h2>
+        <p style="font-size:13.5px;color:#64748b;line-height:1.6;margin:0;">This will permanently delete <strong style="color:#1e293b;">all jobs, staff records, and settings</strong> from this dashboard. There is no way to recover this data.</p>
+        <div style="width:100%;margin-top:4px;">
+          <p style="font-size:12px;font-weight:600;color:#64748b;text-align:left;margin:0 0 6px;">Type <strong style="color:#dc2626;">DELETE</strong> to confirm</p>
+          <input id="delete-all-confirm-input" type="text" class="form-input" placeholder="DELETE" autocomplete="off" style="text-align:center;letter-spacing:0.08em;font-weight:700;">
+        </div>
+        <p id="delete-all-error" style="font-size:12px;color:#dc2626;margin:0;display:none;">Please type DELETE to confirm.</p>
+      </div>
+      <div class="modal-footer" style="justify-content:center;gap:.75rem;">
+        <button class="btn-outline" onclick="MQ.ui.modal.close('modal-delete-all-confirm');MQ.ui.modal.open('modal-data-options');">Go Back</button>
+        <button id="delete-all-confirm-btn" onclick="SettingsPage.confirmDeleteAll()" style="padding:10px 22px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;font-family:var(--font-family);cursor:pointer;">Delete Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .dz-btn-outline {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      background: #fff;
+      color: #dc2626;
+      border: 1.5px solid #fecaca;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-family);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .dz-btn-outline:hover { background: #fff5f5; border-color: #fca5a5; }
+    .dz-btn-outline--amber { color: #d97706; border-color: #fde68a; }
+    .dz-btn-outline--amber:hover { background: #fffbeb; border-color: #fcd34d; }
+  </style>
+
   <script src="js/ui.js?v=20260621" defer></script>
-  <script src="js/settings.js?v=20260621" defer></script>
+  <script src="js/settings.js?v=20260610" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">

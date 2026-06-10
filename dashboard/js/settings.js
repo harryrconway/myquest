@@ -301,19 +301,122 @@
     document.getElementById('save-rates-btn').addEventListener('click', saveRates);
 
     document.getElementById('btn-clear').addEventListener('click', function () {
-      MQ.ui.confirmDelete('This will permanently delete ALL local data — clients, jobs, staff and settings. This cannot be undone. Are you absolutely sure?', function () {
-        MQ.store.clearAll();
-        MQ.ui.toast('All data cleared', 'info');
-        setTimeout(function () { window.location.href = '../login.html'; }, 1200);
-      });
+      MQ.ui.modal.open('modal-data-options');
     });
   });
 
+  /* ══════════════════════════════════════════════════════════
+     DATA MANAGEMENT — CLEAR OPTIONS
+  ══════════════════════════════════════════════════════════ */
+
+  function closeOptionsModal() {
+    MQ.ui.modal.close('modal-data-options');
+  }
+
+  function clearUnscheduled() {
+    if (!window.confirm('Permanently delete all unscheduled quote requests? This cannot be undone.')) return;
+    closeOptionsModal();
+    MQ.supabase.from('quote_requests').delete().eq('status', 'unscheduled')
+      .then(function (res) {
+        if (res.error) { MQ.ui.toast('Error: ' + res.error.message, 'error'); return; }
+        MQ.ui.toast('Unscheduled jobs cleared');
+      });
+  }
+
+  function clearScheduled() {
+    if (!window.confirm('Permanently delete all scheduled jobs? This cannot be undone.')) return;
+    closeOptionsModal();
+    MQ.supabase.from('quote_requests').delete().eq('status', 'scheduled')
+      .then(function (res) {
+        if (res.error) { MQ.ui.toast('Error: ' + res.error.message, 'error'); return; }
+        MQ.ui.toast('Scheduled jobs cleared');
+      });
+  }
+
+  function clearCompleted() {
+    if (!window.confirm('Permanently delete all completed jobs? This cannot be undone.')) return;
+    closeOptionsModal();
+    MQ.supabase.from('quote_requests').delete().eq('status', 'completed')
+      .then(function (res) {
+        if (res.error) { MQ.ui.toast('Error: ' + res.error.message, 'error'); return; }
+        MQ.ui.toast('Completed jobs cleared');
+      });
+  }
+
+  function clearStaff() {
+    if (!window.confirm('Delete all locally stored staff records? This cannot be undone.')) return;
+    closeOptionsModal();
+    MQ.store.staff.clear();
+    MQ.ui.toast('Staff records deleted', 'info');
+  }
+
+  function resetRates() {
+    if (!window.confirm('Reset all quote rates back to their defaults?')) return;
+    closeOptionsModal();
+    MQ.store.rates.save(MQ.store.rates.defaults);
+    populateRates();
+    MQ.ui.toast('Rates reset to defaults');
+  }
+
+  function openDeleteAll() {
+    MQ.ui.modal.close('modal-data-options');
+    var input = document.getElementById('delete-all-confirm-input');
+    var errEl = document.getElementById('delete-all-error');
+    if (input) input.value = '';
+    if (errEl) errEl.style.display = 'none';
+    MQ.ui.modal.open('modal-delete-all-confirm');
+  }
+
+  async function confirmDeleteAll() {
+    var input = document.getElementById('delete-all-confirm-input');
+    var errEl = document.getElementById('delete-all-error');
+    if (!input || input.value.trim().toUpperCase() !== 'DELETE') {
+      if (errEl) errEl.style.display = '';
+      return;
+    }
+
+    var btn = document.getElementById('delete-all-confirm-btn');
+    btn.textContent = 'Deleting…';
+    btn.disabled = true;
+
+    try {
+      // Delete all Supabase job records across all statuses
+      await Promise.all([
+        MQ.supabase.from('quote_requests').delete().eq('status', 'unscheduled'),
+        MQ.supabase.from('quote_requests').delete().eq('status', 'scheduled'),
+        MQ.supabase.from('quote_requests').delete().eq('status', 'completed'),
+        MQ.supabase.from('quote_requests').delete().eq('status', 'archived'),
+      ]);
+
+      // Clear all local data except the auth session
+      var SESSION_KEYS = ['mq_session', 'mq_permissions'];
+      Object.keys(localStorage).forEach(function (k) {
+        if (SESSION_KEYS.indexOf(k) === -1) localStorage.removeItem(k);
+      });
+
+      MQ.ui.modal.close('modal-delete-all-confirm');
+      MQ.ui.toast('All data deleted', 'info');
+      populateRates();
+    } catch (err) {
+      MQ.ui.toast('Error: ' + err.message, 'error');
+    } finally {
+      btn.textContent = 'Delete Everything';
+      btn.disabled = false;
+    }
+  }
+
   window.SettingsPage = {
-    suspendAccount:  suspendAccount,
-    activateAccount: activateAccount,
-    deleteAccount:   deleteAccount,
-    resetPassword:   resetPassword,
+    suspendAccount:   suspendAccount,
+    activateAccount:  activateAccount,
+    deleteAccount:    deleteAccount,
+    resetPassword:    resetPassword,
+    clearUnscheduled: clearUnscheduled,
+    clearScheduled:   clearScheduled,
+    clearCompleted:   clearCompleted,
+    clearStaff:       clearStaff,
+    resetRates:       resetRates,
+    openDeleteAll:    openDeleteAll,
+    confirmDeleteAll: confirmDeleteAll,
   };
 
 })();
