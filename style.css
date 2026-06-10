@@ -882,11 +882,12 @@ textarea.form-input {
   }
 
   .hero__illustration {
-    display: none;
+    display: flex;
+    margin-top: var(--space-2);
   }
 
   .hero-svg {
-    max-width: 280px;
+    max-width: 300px;
   }
 
   /* ---- Stats ------------------------------------------------- */
