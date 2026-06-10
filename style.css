@@ -1099,7 +1099,7 @@ textarea.form-input {
   padding: 0.75rem 0.875rem;
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   color: #fff;
   background: rgba(255, 255, 255, 0.12);
@@ -1125,6 +1125,7 @@ textarea.form-input {
 .qm-textarea {
   resize: vertical;
   min-height: 120px;
+  font-size: 16px;
 }
 
 /* ---- Custom dropdown (State picker) ---------------------- */
@@ -1686,7 +1687,7 @@ textarea.form-input {
   .qm-step    { gap: 12px; }
   .qm-field   { gap: 4px; }
   .qm-label   { font-size: 13px; }
-  .qm-input   { padding: 8px 12px; font-size: 14px; }
+  .qm-input   { padding: 8px 12px; font-size: 16px; }
   .qm-textarea { min-height: 80px; }
 
   .qm-rcard        { padding: 12px 16px; }
