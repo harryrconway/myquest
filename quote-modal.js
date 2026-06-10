@@ -430,12 +430,12 @@
         break;
       case 1:
         bind('qm-street',  'input', function () {
+          var prev = state.street_address;
           state.street_address = this.value;
-          if (this.value) {
+          // Value jumped by >4 chars = autofill or paste → advance to suburb immediately
+          if (this.value.length - prev.length > 4) {
             var suburbEl = document.getElementById('qm-suburb');
-            setTimeout(function () {
-              if (suburbEl && !suburbEl.value) suburbEl.focus();
-            }, 150);
+            if (suburbEl) suburbEl.focus();
           }
         });
         bind('qm-suburb',  'input', function () { state.suburb = this.value; });
