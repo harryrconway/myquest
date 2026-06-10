@@ -859,9 +859,21 @@ textarea.form-input {
 
 
 @media (max-width: 767px) {
+  /* ---- Global section spacing -------------------------------- */
+  .section        { padding-block: var(--space-10); }
+  .section--lg    { padding-block: var(--space-10); }
+  .section-intro  { margin-bottom: var(--space-8);  }
+  .section-heading { margin-bottom: var(--space-3); }
+
+  /* ---- Hero -------------------------------------------------- */
+  .hero {
+    min-height: auto;
+    padding-block: var(--space-10);
+  }
+
   .hero__inner {
     grid-template-columns: 1fr;
-    gap: var(--space-10);
+    gap: var(--space-6);
     text-align: center;
   }
 
@@ -877,6 +889,7 @@ textarea.form-input {
     max-width: 280px;
   }
 
+  /* ---- Stats ------------------------------------------------- */
   .stats__grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -891,19 +904,21 @@ textarea.form-input {
     border-bottom: none;
   }
 
+  /* ---- Services ---------------------------------------------- */
   .svc-grid {
     grid-template-columns: 1fr;
     gap: 0;
   }
 
   .svc-item {
-    padding: var(--space-6) var(--space-4);
+    padding: var(--space-5) var(--space-4);
   }
 
   .services-grid {
     grid-template-columns: 1fr;
   }
 
+  /* ---- Process ----------------------------------------------- */
   .process__steps {
     flex-direction: column;
     align-items: center;
@@ -911,19 +926,21 @@ textarea.form-input {
 
   .process__connector {
     width: 2px;
-    height: 40px;
+    height: 32px;
     border-top: none;
     border-left: 2px dashed var(--color-sage);
     margin-top: 0;
     align-self: center;
   }
 
+  /* ---- Testimonials / Why Us --------------------------------- */
   .testimonials__grid {
     grid-template-columns: 1fr;
   }
 
   .why-us__grid {
     grid-template-columns: 1fr;
+    gap: var(--space-4);
   }
 }
 
