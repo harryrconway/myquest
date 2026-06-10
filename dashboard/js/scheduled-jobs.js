@@ -188,54 +188,49 @@
     var j = jobs.find(function (x) { return x.id === id; });
     if (!j) return;
 
-    MQ.ui.confirmDelete(
-      'Mark "' + (j.full_name || 'this job') + '" as complete? A thank-you email will be sent.',
-      async function () {
-        try {
-          var session = await MQ.supabase.auth.getSession();
-          var token   = session.data.session && session.data.session.access_token;
+    try {
+      var session = await MQ.supabase.auth.getSession();
+      var token   = session.data.session && session.data.session.access_token;
 
-          var res  = await fetch('/api/complete-job', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ jobId: id }),
-          });
-          var data = await res.json();
-          if (!data.success) throw new Error(data.error || 'Failed to mark complete.');
+      var res  = await fetch('/api/complete-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ jobId: id }),
+      });
+      var data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to mark complete.');
 
-          // If the view modal is currently open, show success inline
-          var viewModal = document.getElementById('modal-sj-view');
-          var isInView  = viewModal && !viewModal.hasAttribute('hidden');
+      // If the view modal is currently open, show success inline
+      var viewModal = document.getElementById('modal-sj-view');
+      var isInView  = viewModal && !viewModal.hasAttribute('hidden');
 
-          if (isInView) {
-            document.getElementById('sj-view-body').innerHTML =
-              '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:18px;">' +
-                '<div style="width:68px;height:68px;background:#d8edd9;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
-                  '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
-                '</div>' +
-                '<div>' +
-                  '<div style="font-size:19px;font-weight:700;color:#166534;margin-bottom:8px;">Job Complete!</div>' +
-                  '<div style="font-size:14px;color:#6b7280;line-height:1.55;">A thank-you email has been sent to<br><strong style="color:#374151;">' + escHtml(j.email || j.full_name) + '</strong>.</div>' +
-                '</div>' +
-              '</div>';
+      if (isInView) {
+        document.getElementById('sj-view-body').innerHTML =
+          '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:18px;">' +
+            '<div style="width:68px;height:68px;background:#d8edd9;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+              '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+            '</div>' +
+            '<div>' +
+              '<div style="font-size:19px;font-weight:700;color:#166534;margin-bottom:8px;">Job Complete!</div>' +
+              '<div style="font-size:14px;color:#6b7280;line-height:1.55;">A thank-you email has been sent to<br><strong style="color:#374151;">' + escHtml(j.email || j.full_name) + '</strong>.</div>' +
+            '</div>' +
+          '</div>';
 
-            var footer = viewModal.querySelector('.modal-footer');
-            if (footer) {
-              footer.innerHTML =
-                '<button class="btn-outline" onclick="MQ.ui.modal.close(\'modal-sj-view\');">Close</button>' +
-                '<a class="btn-primary" href="completed-jobs.html">View Completed Jobs</a>';
-            }
-            viewingId = null;
-            load();
-          } else {
-            MQ.ui.toast('Job marked complete — thank-you email sent');
-            window.location.href = 'completed-jobs.html';
-          }
-        } catch (err) {
-          MQ.ui.toast('Error: ' + err.message, 'error');
+        var footer = viewModal.querySelector('.modal-footer');
+        if (footer) {
+          footer.innerHTML =
+            '<button class="btn-outline" onclick="MQ.ui.modal.close(\'modal-sj-view\');">Close</button>' +
+            '<a class="btn-primary" href="completed-jobs.html">View Completed Jobs</a>';
         }
+        viewingId = null;
+        load();
+      } else {
+        MQ.ui.toast('Job marked complete — thank-you email sent');
+        window.location.href = 'completed-jobs.html';
       }
-    );
+    } catch (err) {
+      MQ.ui.toast('Error: ' + err.message, 'error');
+    }
   }
 
   /* ─── Edit Schedule ─────────────────────────────────────────── */
