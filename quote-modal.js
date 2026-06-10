@@ -6,6 +6,7 @@
   var currentStep = 0;
   var totalSteps  = 10;
   var submitting  = false;
+  var stepDir     = 1;
 
   // Single handlers — changed by switching these variables (avoids mixed addEventListener+onclick)
   var onNext = function () { next(); };
@@ -52,7 +53,9 @@
 
   function openModal() {
     resetState();
+    loadDraft();
     currentStep = 0;
+    stepDir = 1;
     renderStep();
     var overlay = document.getElementById('quote-modal');
     overlay.hidden = false;
@@ -86,6 +89,11 @@
     };
   }
 
+  var DRAFT_KEY = 'mq_quote_draft';
+  function saveDraft()  { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch(e){} }
+  function loadDraft()  { try { var s = localStorage.getItem(DRAFT_KEY); if (s) Object.assign(state, JSON.parse(s)); } catch(e){} }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch(e){} }
+
   /* ─── Render ──────────────────────────────────────────────────────────── */
 
   function setProgress(step) {
@@ -95,12 +103,18 @@
   }
 
   function renderStep() {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
     var card = document.querySelector('.qm-card');
     if (card) card.classList.remove('qm-card--review');
     var body = document.getElementById('qm-body');
     var html = buildStep(currentStep);
     body.innerHTML = html;
     body.scrollTop  = 0;
+
+    // Slide animation
+    var stepEl = body.querySelector('.qm-step');
+    if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
 
     setProgress(currentStep);
     document.getElementById('qm-title').textContent = STEPS[currentStep].title;
@@ -116,6 +130,10 @@
     nextBtn.disabled    = false;
 
     wireStep(currentStep);
+
+    // Auto-focus first text input on steps that have one
+    var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
+    if (firstInput) firstInput.focus();
   }
 
   function buildStep(n) {
@@ -197,16 +215,16 @@
     if (isResidential()) {
       return '<div class="qm-step">' +
         '<div class="qm-row-3">' +
-          numberField('Bedrooms', 'qm-beds', state.bedrooms, 1, 20) +
-          numberField('Bathrooms', 'qm-baths', state.bathrooms, 1, 20) +
-          numberField('Living Areas', 'qm-living', state.living_areas, 1, 10) +
+          stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
+          stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
+          stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
         '</div>' +
       '</div>';
     }
     return '<div class="qm-step">' +
       '<div class="qm-row-2">' +
-        numberField('Floor Area (sqm)', 'qm-sqm', state.floor_area_sqm, 1, 99999) +
-        numberField('Bathrooms', 'qm-baths', state.bathrooms, 1, 20) +
+        field('Floor Area (sqm)', 'qm-sqm', 'text', state.floor_area_sqm, 'e.g. 150', false, null, 'tel') +
+        stepperField('Bathrooms', 'qm-baths', 'bathrooms', 20) +
       '</div>' +
     '</div>';
   }
@@ -399,6 +417,7 @@
   }
 
   function renderSuccess() {
+    clearDraft();
     var body    = document.getElementById('qm-body');
     var footer  = document.getElementById('qm-footer');
     footer.style.display = 'none';
@@ -517,19 +536,14 @@
         });
         break;
       case 3:
-        bind('qm-beds', 'input', function () {
-          state.bedrooms = this.value;
-          if (this.value) document.getElementById('qm-baths') && document.getElementById('qm-baths').focus();
-        });
-        bind('qm-baths', 'input', function () {
-          state.bathrooms = this.value;
-          if (this.value) {
-            var next = document.getElementById('qm-living') || document.getElementById('qm-sqm');
-            if (next) next.focus();
-          }
-        });
-        bind('qm-living', 'input', function () { state.living_areas = this.value; });
-        bind('qm-sqm',    'input', function () { state.floor_area_sqm = this.value; });
+        if (isResidential()) {
+          wireStepperField('qm-beds',   'bedrooms',     20);
+          wireStepperField('qm-baths',  'bathrooms',    20);
+          wireStepperField('qm-living', 'living_areas', 10);
+        } else {
+          bind('qm-sqm', 'input', function () { state.floor_area_sqm = this.value; });
+          wireStepperField('qm-baths', 'bathrooms', 20);
+        }
         break;
       case 4:
         document.querySelectorAll('.qm-service').forEach(function (cb) {
@@ -602,13 +616,17 @@
     var err = validateStep(currentStep);
     if (err) { showStepError(err); return; }
 
+    stepDir = 1;
     if (currentStep < totalSteps - 1) {
       currentStep++;
+      saveDraft();
       renderStep();
     } else {
       // Last step → show review
+      saveDraft();
       onNext = submit;
       onBack = function () {
+        stepDir = -1;
         currentStep = totalSteps - 1;
         onNext = function () { next(); };
         onBack = function () { back(); };
@@ -619,7 +637,7 @@
   }
 
   function back() {
-    if (currentStep > 0) { currentStep--; renderStep(); }
+    if (currentStep > 0) { stepDir = -1; currentStep--; saveDraft(); renderStep(); }
   }
 
   function validateStep(n) {
@@ -724,11 +742,38 @@
     '</div>';
   }
 
-  function numberField(label, id, val, min, max) {
+  function stepperField(label, id, stateKey, max) {
+    var val = parseInt(state[stateKey]) || 0;
     return '<div class="qm-field">' +
-      '<label class="qm-label" for="' + id + '">' + label + '</label>' +
-      '<input class="qm-input" type="tel" id="' + id + '" value="' + (val || '') + '">' +
+      '<label class="qm-label">' + label + '</label>' +
+      '<div class="qm-stepper" id="' + id + '">' +
+        '<button type="button" class="qm-stepper__btn qm-stepper__btn--dec" aria-label="Decrease"' + (val <= 0 ? ' disabled' : '') + '>−</button>' +
+        '<span class="qm-stepper__val">' + val + '</span>' +
+        '<button type="button" class="qm-stepper__btn qm-stepper__btn--inc" aria-label="Increase">+</button>' +
+      '</div>' +
     '</div>';
+  }
+
+  function wireStepperField(id, stateKey, max) {
+    var container = document.getElementById(id);
+    if (!container) return;
+    var valEl  = container.querySelector('.qm-stepper__val');
+    var decBtn = container.querySelector('.qm-stepper__btn--dec');
+    var incBtn = container.querySelector('.qm-stepper__btn--inc');
+    function update() {
+      var v = parseInt(state[stateKey]) || 0;
+      valEl.textContent = v;
+      decBtn.disabled = v <= 0;
+      incBtn.disabled = v >= max;
+    }
+    incBtn.addEventListener('click', function () {
+      var v = parseInt(state[stateKey]) || 0;
+      if (v < max) { state[stateKey] = v + 1; update(); saveDraft(); }
+    });
+    decBtn.addEventListener('click', function () {
+      var v = parseInt(state[stateKey]) || 0;
+      if (v > 0) { state[stateKey] = v - 1; update(); saveDraft(); }
+    });
   }
 
   function radioRow(name, opts, current) {
