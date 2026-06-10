@@ -1059,13 +1059,17 @@ textarea.form-input {
 .qm-body {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: hidden;
   padding: 24px 32px 24px;
   max-width: 700px;
   width: 100%;
   align-self: center;
   box-sizing: border-box;
+}
+
+.qm-card--review .qm-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .qm-footer {
@@ -1695,6 +1699,12 @@ textarea.form-input {
   background: #f0fdf4;
 }
 
+.qm-success__countdown {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+}
+
 /* ---- Responsive ------------------------------------------ */
 @media (max-width: 600px) {
   /* Fullscreen modal — no bottom sheet, no scroll, fixed in place */
@@ -1776,12 +1786,12 @@ textarea.form-input {
 /* ---- Desktop sizing enhancements (601px+) ---------------- */
 @media (min-width: 601px) {
   .qm-grid-type {
-    gap: 16px;
+    gap: 14px;
   }
 
   .qm-tile {
-    padding: 28px 12px;
-    font-size: 15px;
+    padding: 32px 12px;
+    font-size: 17px;
   }
 
   .qm-row-3 .qm-input,
@@ -1791,13 +1801,20 @@ textarea.form-input {
     text-align: center;
   }
 
-  .qm-grid-check {
-    gap: 10px;
+  .qm-grid-check--big {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
   }
 
-  .qm-ctile {
-    padding: 13px 22px;
-    font-size: 15px;
+  .qm-grid-check--big .qm-ctile {
+    width: 100%;
+    padding: 20px 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    box-sizing: border-box;
+    justify-content: center;
   }
 
   .qm-radio-cards {
@@ -1811,25 +1828,46 @@ textarea.form-input {
   .qm-rcard__label {
     font-size: 16px;
   }
+
+  .qm-stepper {
+    height: 72px;
+    border-radius: 12px;
+  }
+
+  .qm-stepper__val {
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .qm-stepper__btn {
+    width: 68px;
+    font-size: 32px;
+  }
 }
 
 /* ---- Custom scrollbar — review step only ----------------- */
+.qm-card--review .qm-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.08);
+}
+
 .qm-card--review .qm-body::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .qm-card--review .qm-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
   border-radius: 9999px;
+  margin-block: 4px;
 }
 
 .qm-card--review .qm-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.35);
   border-radius: 9999px;
 }
 
 .qm-card--review .qm-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.65);
 }
 
 /* ---- Stepper component ------------------------------------ */

@@ -82,7 +82,7 @@
       full_name: '', phone: '', email: '', preferred_contact: '',
       street_address: '', suburb: '', state: '', postcode: '', access_instructions: '',
       property_type: '',
-      bedrooms: '', bathrooms: '', living_areas: '', floor_area_sqm: '', staff_count: '',
+      bedrooms: 1, bathrooms: 1, living_areas: 1, floor_area_sqm: '', staff_count: '',
       services: [], frequency: '', condition: '', extras: [],
       preferred_days: [], preferred_time: '', flexible_schedule: false,
       notes: '',
@@ -231,7 +231,7 @@
 
   function stepServices() {
     return '<div class="qm-step">' +
-      '<div class="qm-grid-check">' +
+      '<div class="qm-grid-check qm-grid-check--big">' +
         SERVICES.map(function (s) {
           var checked = state.services.indexOf(s) !== -1;
           return checkTile(s, s, checked, 'qm-service');
@@ -266,7 +266,7 @@
   function stepExtras() {
     return '<div class="qm-step">' +
       '<p class="qm-hint">Select anything that needs special attention:</p>' +
-      '<div class="qm-grid-check">' +
+      '<div class="qm-grid-check qm-grid-check--big">' +
         EXTRAS.map(function (e) {
           var checked = state.extras.indexOf(e) !== -1;
           return checkTile(e, e, checked, 'qm-extra');
@@ -431,10 +431,20 @@
         '<h3 class="qm-success__heading">Request submitted!</h3>' +
         '<p class="qm-success__body">We\'ve received your quote request. A member of our team will be in touch within <strong>2 hours</strong>.</p>' +
         '<p class="qm-success__sub">Check your inbox — we\'ve sent a confirmation to <strong>' + escHtml(state.email) + '</strong>.</p>' +
-        '<button class="btn-primary qm-success__btn" id="qm-done">Done</button>' +
+        '<p class="qm-success__countdown">Returning to home in <span id="qm-countdown-num">3</span>…</p>' +
       '</div>';
 
-    document.getElementById('qm-done').addEventListener('click', closeModal);
+    var count = 3;
+    var interval = setInterval(function () {
+      count--;
+      var numEl = document.getElementById('qm-countdown-num');
+      if (numEl) numEl.textContent = count;
+      if (count <= 0) {
+        clearInterval(interval);
+        closeModal();
+        setTimeout(function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);
+      }
+    }, 1000);
   }
 
   /* ─── Wire interactivity ─────────────────────────────────────────────── */
