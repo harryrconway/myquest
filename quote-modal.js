@@ -4,7 +4,7 @@
 
   var state = {};
   var currentStep = 0;
-  var totalSteps  = 10;
+  var totalSteps  = 9;
   var submitting  = false;
   var stepDir     = 1;
 
@@ -20,7 +20,6 @@
     { id: 'services',   title: 'Services Required' },
     { id: 'frequency',  title: 'Frequency' },
     { id: 'condition',  title: 'Property Condition' },
-    { id: 'extras',     title: 'Additional Requirements' },
     { id: 'schedule',   title: 'Preferred Schedule' },
     { id: 'notes',      title: 'Anything Else?' },
   ];
@@ -36,27 +35,9 @@
     { value: 'Other',       label: 'Other'      },
   ];
 
-  var SERVICES_RESIDENTIAL = [
-    'Regular Cleaning', 'Deep Cleaning', 'End of Lease',
-    'Airbnb', 'Move In', 'Move Out', 'Custom Request',
+  var SERVICES = [
+    'General', 'Deep', 'Office', 'NDIS', 'Carpet', 'Window', 'Other (please specify)',
   ];
-
-  var SERVICES_COMMERCIAL = [
-    'Regular Cleaning', 'Deep Cleaning', 'End of Lease',
-    'Commercial', 'Office', 'Move In', 'Move Out', 'Construction', 'Custom Request',
-  ];
-
-  var EXTRAS_RESIDENTIAL = [
-    'Inside Windows', 'Oven', 'Fridge', 'Garage',
-    'Balcony', 'Laundry', 'Carpet Cleaning', 'Pet Hair Removal',
-  ];
-
-  var EXTRAS_COMMERCIAL = [
-    'Inside Windows', 'Carpet Cleaning',
-  ];
-
-  function getServices() { return isResidential() ? SERVICES_RESIDENTIAL : SERVICES_COMMERCIAL; }
-  function getExtras()   { return isResidential() ? EXTRAS_RESIDENTIAL   : EXTRAS_COMMERCIAL;   }
 
   var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var AU_STATES = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
@@ -111,8 +92,8 @@
       full_name: '', phone: '', email: '', preferred_contact: '',
       street_address: '', suburb: '', state: '', postcode: '', access_instructions: '',
       property_type: '',
-      bedrooms: 1, bathrooms: 1, living_areas: 1, floor_area_sqm: '', staff_count: '',
-      services: [], frequency: '', condition: '', extras: [],
+      bedrooms: 1, bathrooms: 1, living_areas: 1,
+      services: [], frequency: '', condition: '',
       preferred_days: [], preferred_time: '', flexible_schedule: false,
       notes: '',
     };
@@ -176,9 +157,8 @@
       case 4: return stepServices();
       case 5: return stepFrequency();
       case 6: return stepCondition();
-      case 7: return stepExtras();
-      case 8: return stepSchedule();
-      case 9: return stepNotes();
+      case 7: return stepSchedule();
+      case 8: return stepNotes();
     }
   }
 
@@ -238,9 +218,6 @@
     '</div>';
   }
 
-  function isResidential() {
-    return ['House', 'Apartment', 'Townhouse'].indexOf(state.property_type) !== -1;
-  }
 
   function stepPropDetail() {
     return '<div class="qm-step qm-step--center">' +
@@ -253,11 +230,9 @@
   }
 
   function stepServices() {
-    var list = getServices();
-    state.services = state.services.filter(function (s) { return list.indexOf(s) !== -1; });
     return '<div class="qm-step">' +
       '<div class="qm-grid-check qm-grid-check--big">' +
-        list.map(function (s) {
+        SERVICES.map(function (s) {
           var checked = state.services.indexOf(s) !== -1;
           return checkTile(s, s, checked, 'qm-service');
         }).join('') +
@@ -285,20 +260,6 @@
         { value: 'Average',           label: 'Average',            desc: 'Moderate cleaning required'  },
         { value: 'Requires Deep Clean', label: 'Needs Deep Clean', desc: 'Heavy clean required'         },
       ], state.condition) +
-    '</div>';
-  }
-
-  function stepExtras() {
-    var list = getExtras();
-    state.extras = state.extras.filter(function (e) { return list.indexOf(e) !== -1; });
-    return '<div class="qm-step">' +
-      '<p class="qm-hint">Select anything that needs special attention:</p>' +
-      '<div class="qm-grid-check qm-grid-check--big">' +
-        list.map(function (e) {
-          var checked = state.extras.indexOf(e) !== -1;
-          return checkTile(e, e, checked, 'qm-extra');
-        }).join('') +
-      '</div>' +
     '</div>';
   }
 
@@ -405,18 +366,12 @@
     r('Address', [state.street_address, state.suburb, state.state, state.postcode].filter(Boolean).join(', '));
     r('Access', state.access_instructions);
     r('Property type', state.property_type);
-    if (isResidential()) {
-      r('Bedrooms', state.bedrooms);
-      r('Bathrooms', state.bathrooms);
-      r('Living areas', state.living_areas);
-    } else {
-      r('Floor area', state.floor_area_sqm ? state.floor_area_sqm + ' sqm' : '');
-      r('Bathrooms', state.bathrooms);
-    }
+    r('Bedrooms', state.bedrooms);
+    r('Bathrooms', state.bathrooms);
+    r('Living areas', state.living_areas);
     r('Services', state.services.join(', '));
     r('Frequency', state.frequency);
     r('Condition', state.condition);
-    r('Extras', state.extras.join(', '));
     r('Preferred days', state.preferred_days.join(', '));
     r('Preferred time', state.preferred_time);
     r('Flexible schedule', state.flexible_schedule ? 'Yes' : '');
@@ -598,20 +553,6 @@
         bindRadioCards('condition', function (v) { state.condition = v; });
         break;
       case 7:
-        document.querySelectorAll('.qm-extra').forEach(function (cb) {
-          cb.addEventListener('change', function () {
-            var tile = this.closest('.qm-ctile');
-            if (this.checked) {
-              if (state.extras.indexOf(this.value) === -1) state.extras.push(this.value);
-              if (tile) tile.classList.add('qm-ctile--on');
-            } else {
-              state.extras = state.extras.filter(function (v) { return v !== cb.value; });
-              if (tile) tile.classList.remove('qm-ctile--on');
-            }
-          });
-        });
-        break;
-      case 8:
         document.querySelectorAll('.qm-day__cb').forEach(function (cb) {
           cb.addEventListener('change', function () {
             var lbl = this.closest('.qm-day');
@@ -633,7 +574,7 @@
         });
         bind('qm-flexible', 'change', function () { state.flexible_schedule = this.checked; });
         break;
-      case 9:
+      case 8:
         bind('qm-notes', 'input', function () {
           var words = (this.value.trim() === '') ? [] : this.value.trim().split(/\s+/);
           if (words.length > 100) {
@@ -741,8 +682,6 @@
     if (payload.living_areas) payload.living_areas = parseInt(payload.living_areas) || null;
     delete payload.floor_area_sqm;
     delete payload.staff_count;
-    payload.services = state.services.filter(function (s) { return getServices().indexOf(s) !== -1; });
-    payload.extras   = state.extras.filter(function (e) { return getExtras().indexOf(e) !== -1; });
 
     fetch('/api/submit-quote', {
       method: 'POST',
