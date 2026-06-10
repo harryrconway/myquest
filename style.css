@@ -1908,6 +1908,80 @@ textarea.form-input {
   }
 }
 
+/* ---- Vertical stepper layout — mobile + iPad (≤900px) ---- */
+@media (max-width: 900px) {
+  .qm-step--center { gap: 0; }
+
+  .qm-stepper-grid {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 420px;
+    margin: 0 auto;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .qm-stepper-grid .qm-field {
+    flex-direction: row;
+    align-items: center;
+    max-width: 100%;
+    padding: 14px 18px;
+    gap: 16px;
+    border-radius: 14px;
+  }
+
+  .qm-stepper-grid .qm-label {
+    flex: 1;
+    text-align: left;
+    margin-bottom: 0;
+    font-size: 15px;
+  }
+
+  .qm-stepper-grid .qm-stepper {
+    flex: 0 0 auto;
+    width: 180px;
+    height: 52px;
+    border-top: none;
+    border-left: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+  }
+
+  .qm-stepper-grid .qm-stepper__val {
+    font-size: 28px;
+  }
+
+  .qm-stepper-grid .qm-stepper__btn {
+    width: 52px;
+    font-size: 22px;
+  }
+}
+
+/* Mobile overrides within vertical stepper layout */
+@media (max-width: 600px) {
+  .qm-stepper-grid {
+    gap: 8px;
+    max-width: 100%;
+  }
+
+  .qm-stepper-grid .qm-field {
+    padding: 12px 14px;
+  }
+
+  .qm-stepper-grid .qm-stepper {
+    width: 160px;
+    height: 46px;
+  }
+
+  .qm-stepper-grid .qm-stepper__val {
+    font-size: 24px;
+  }
+
+  .qm-stepper-grid .qm-stepper__btn {
+    width: 44px;
+    font-size: 20px;
+  }
+}
+
 /* ---- Custom scrollbar — review step only ----------------- */
 .qm-card--review .qm-body {
   scrollbar-width: thin;

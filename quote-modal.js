@@ -36,20 +36,34 @@
     { value: 'Other',       label: 'Other'      },
   ];
 
-  var SERVICES = [
-    'Regular Cleaning', 'Deep Cleaning', 'End of Lease', 'Commercial',
-    'Office', 'Airbnb', 'Move In', 'Move Out', 'Construction', 'Custom Request',
+  var SERVICES_RESIDENTIAL = [
+    'Regular Cleaning', 'Deep Cleaning', 'End of Lease',
+    'Airbnb', 'Move In', 'Move Out', 'Custom Request',
   ];
 
-  var EXTRAS = [
+  var SERVICES_COMMERCIAL = [
+    'Regular Cleaning', 'Deep Cleaning', 'End of Lease',
+    'Commercial', 'Office', 'Move In', 'Move Out', 'Construction', 'Custom Request',
+  ];
+
+  var EXTRAS_RESIDENTIAL = [
     'Inside Windows', 'Oven', 'Fridge', 'Garage',
     'Balcony', 'Laundry', 'Carpet Cleaning', 'Pet Hair Removal',
   ];
+
+  var EXTRAS_COMMERCIAL = [
+    'Inside Windows', 'Carpet Cleaning',
+  ];
+
+  function getServices() { return isResidential() ? SERVICES_RESIDENTIAL : SERVICES_COMMERCIAL; }
+  function getExtras()   { return isResidential() ? EXTRAS_RESIDENTIAL   : EXTRAS_COMMERCIAL;   }
 
   var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var AU_STATES = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
 
   /* ─── Open / Close ───────────────────────────────────────────────────── */
+
+  var _vpHandler = null;
 
   function openModal() {
     resetState();
@@ -65,9 +79,24 @@
       overlay.classList.add('qm--open');
     });
     document.getElementById('qm-close').focus();
+
+    // Keep footer visible when the software keyboard opens on mobile
+    if (window.visualViewport && window.innerWidth <= 600) {
+      _vpHandler = function () {
+        var card = document.querySelector('.qm-card');
+        if (card) card.style.height = window.visualViewport.height + 'px';
+      };
+      window.visualViewport.addEventListener('resize', _vpHandler);
+    }
   }
 
   function closeModal() {
+    if (_vpHandler && window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', _vpHandler);
+      _vpHandler = null;
+      var card = document.querySelector('.qm-card');
+      if (card) card.style.height = '';
+    }
     var overlay = document.getElementById('quote-modal');
     overlay.classList.remove('qm--open');
     setTimeout(function () {
@@ -131,9 +160,11 @@
 
     wireStep(currentStep);
 
-    // Auto-focus first text input on steps that have one
-    var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
-    if (firstInput) firstInput.focus();
+    // Auto-focus first input on desktop only — prevents keyboard from covering the footer on mobile
+    if (window.innerWidth > 600) {
+      var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
+      if (firstInput) firstInput.focus();
+    }
   }
 
   function buildStep(n) {
@@ -222,9 +253,11 @@
   }
 
   function stepServices() {
+    var list = getServices();
+    state.services = state.services.filter(function (s) { return list.indexOf(s) !== -1; });
     return '<div class="qm-step">' +
       '<div class="qm-grid-check qm-grid-check--big">' +
-        SERVICES.map(function (s) {
+        list.map(function (s) {
           var checked = state.services.indexOf(s) !== -1;
           return checkTile(s, s, checked, 'qm-service');
         }).join('') +
@@ -256,10 +289,12 @@
   }
 
   function stepExtras() {
+    var list = getExtras();
+    state.extras = state.extras.filter(function (e) { return list.indexOf(e) !== -1; });
     return '<div class="qm-step">' +
       '<p class="qm-hint">Select anything that needs special attention:</p>' +
       '<div class="qm-grid-check qm-grid-check--big">' +
-        EXTRAS.map(function (e) {
+        list.map(function (e) {
           var checked = state.extras.indexOf(e) !== -1;
           return checkTile(e, e, checked, 'qm-extra');
         }).join('') +
@@ -666,12 +701,7 @@
         if (!state.property_type) return 'Please select a property type.';
         break;
       case 3:
-        if (isResidential()) {
-          if (!state.bedrooms)  return 'Please enter the number of bedrooms.';
-          if (!state.bathrooms) return 'Please enter the number of bathrooms.';
-        } else {
-          if (!state.floor_area_sqm) return 'Please enter the floor area.';
-        }
+        // steppers default to 1 — always valid
         break;
       case 4:
         if (!state.services.length) return 'Please select at least one service.';
@@ -706,11 +736,13 @@
     btn.disabled    = true;
 
     var payload = Object.assign({}, state);
-    if (payload.bedrooms)      payload.bedrooms      = parseInt(payload.bedrooms)      || null;
-    if (payload.bathrooms)     payload.bathrooms     = parseInt(payload.bathrooms)     || null;
-    if (payload.living_areas)  payload.living_areas  = parseInt(payload.living_areas)  || null;
-    if (payload.floor_area_sqm) payload.floor_area_sqm = parseInt(payload.floor_area_sqm) || null;
-    if (payload.staff_count)   payload.staff_count   = parseInt(payload.staff_count)   || null;
+    if (payload.bedrooms)     payload.bedrooms     = parseInt(payload.bedrooms)     || null;
+    if (payload.bathrooms)    payload.bathrooms    = parseInt(payload.bathrooms)    || null;
+    if (payload.living_areas) payload.living_areas = parseInt(payload.living_areas) || null;
+    delete payload.floor_area_sqm;
+    delete payload.staff_count;
+    payload.services = state.services.filter(function (s) { return getServices().indexOf(s) !== -1; });
+    payload.extras   = state.extras.filter(function (e) { return getExtras().indexOf(e) !== -1; });
 
     fetch('/api/submit-quote', {
       method: 'POST',
