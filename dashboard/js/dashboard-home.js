@@ -1,9 +1,19 @@
 (function () {
   'use strict';
 
+  async function reload() {
+    await Promise.all([renderStats(), renderUpcomingJobs()]);
+  }
+
   document.addEventListener('mq:ready', async function () {
     renderGreeting();
-    await Promise.all([renderStats(), renderUpcomingJobs()]);
+    await reload();
+
+    MQ.supabase
+      .channel('home-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' },
+        function () { reload(); })
+      .subscribe();
   });
 
   function renderGreeting() {

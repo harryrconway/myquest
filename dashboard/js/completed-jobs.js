@@ -171,6 +171,12 @@
 
     var searchEl = document.getElementById('cj-search');
     if (searchEl) searchEl.addEventListener('input', function () { filterAndRender(this.value); });
+
+    MQ.supabase
+      .channel('cj-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' },
+        function () { load(); })
+      .subscribe();
   });
 
   window.CJPage = { view: view };

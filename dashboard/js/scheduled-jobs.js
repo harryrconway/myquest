@@ -404,6 +404,12 @@
 
     initDatePicker('sj-edit');
     initTimePicker();
+
+    MQ.supabase
+      .channel('sj-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' },
+        function () { load(); })
+      .subscribe();
   });
 
   window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete };
