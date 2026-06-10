@@ -153,9 +153,9 @@
 
   function stepAddress() {
     return '<div class="qm-step">' +
-      field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St') +
+      field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St', false, 'address-line1') +
       '<div class="qm-row-2">' +
-        field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb') +
+        field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb', false, 'address-level2') +
         '<div class="qm-field" style="position:relative">' +
           '<label class="qm-label">State</label>' +
           '<div class="qm-dropdown' + (state.state ? '' : ' qm-dropdown--placeholder') + '" id="qm-state-dd">' +
@@ -171,8 +171,8 @@
           '</div>' +
         '</div>' +
       '</div>' +
-      field('Postcode', 'qm-postcode', 'text', state.postcode, '3000') +
-      field('Access Instructions', 'qm-access', 'text', state.access_instructions, 'Gate code, key location…') +
+      field('Postcode', 'qm-postcode', 'text', state.postcode, '3000', false, 'postal-code', 'tel') +
+      field('Access Instructions', 'qm-access', 'text', state.access_instructions, 'Gate code, key location…', false, 'off') +
     '</div>';
   }
 
@@ -668,17 +668,21 @@
 
   /* ─── HTML helpers ────────────────────────────────────────────────────── */
 
-  function field(label, id, type, val, placeholder, required) {
+  function field(label, id, type, val, placeholder, required, autocomplete, inputmode) {
     return '<div class="qm-field">' +
       '<label class="qm-label" for="' + id + '">' + label + (required ? ' <span class="qm-req">*</span>' : '') + '</label>' +
-      '<input class="qm-input" type="' + type + '" id="' + id + '" value="' + escHtml(val || '') + '" placeholder="' + escHtml(placeholder || '') + '"' + (required ? ' required' : '') + '>' +
+      '<input class="qm-input" type="' + type + '" id="' + id + '" value="' + escHtml(val || '') + '" placeholder="' + escHtml(placeholder || '') + '"' +
+      (required ? ' required' : '') +
+      (autocomplete ? ' autocomplete="' + autocomplete + '"' : '') +
+      (inputmode ? ' inputmode="' + inputmode + '"' : '') +
+      '>' +
     '</div>';
   }
 
   function numberField(label, id, val, min, max) {
     return '<div class="qm-field">' +
       '<label class="qm-label" for="' + id + '">' + label + '</label>' +
-      '<input class="qm-input" type="number" inputmode="numeric" id="' + id + '" value="' + (val || '') + '" min="' + min + '" max="' + max + '">' +
+      '<input class="qm-input" type="number" inputmode="tel" id="' + id + '" value="' + (val || '') + '" min="' + min + '" max="' + max + '">' +
     '</div>';
   }
 

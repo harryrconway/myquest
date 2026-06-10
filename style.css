@@ -1679,6 +1679,11 @@ textarea.form-input {
     overflow: hidden;
   }
 
+  .qm-card--review .qm-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .qm-footer {
     padding: 10px 20px max(14px, env(safe-area-inset-bottom));
   }
