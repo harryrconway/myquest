@@ -39,10 +39,6 @@
     return c ? c.name : '—';
   }
 
-  function getClientAddress(clientId) {
-    var c = MQ.store.clients.getById(clientId);
-    return c ? (c.address || '—') : '—';
-  }
 
   function getStaffNames(ids) {
     if (!ids || !ids.length) return '—';
@@ -119,7 +115,7 @@
     html += '<div>';
     if (client) {
       var clientRows = [];
-      if (client.address)         clientRows.push(['Address',  client.address]);
+      if (j.address)               clientRows.push(['Address',  j.address]);
       if (client.phone)           clientRows.push(['Phone',    client.phone]);
       if (client.cleaningType)    clientRows.push(['Type',     client.cleaningType]);
       if (client.accessNotes)     clientRows.push(['Access',   client.accessNotes]);
@@ -215,7 +211,7 @@
       return '<tr style="cursor:pointer;" onclick="JobsPage.view(\'' + j.id + '\')">' +
         '<td>' + dateCell + '</td>' +
         '<td>' + clientCell + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--color-mid);">' + escHtml(getClientAddress(j.clientId)) + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--color-mid);">' + escHtml(j.address || '—') + '</td>' +
         '<td>' + escHtml(getStaffNames(j.staffIds)) + '</td>' +
         '<td>' + MQ.ui.statusBadge(j.status) + '</td>' +
         '<td class="table-actions" onclick="event.stopPropagation()">' + actions + '</td>' +
@@ -276,7 +272,6 @@
     var p    = propertyId ? MQ.store.properties.getById(propertyId) : null;
     var rows = [];
 
-    if (c.address)         rows.push(['Address',  c.address]);
     if (c.cleaningType)    rows.push(['Type',      c.cleaningType]);
     if (c.accessNotes)     rows.push(['Access',    c.accessNotes]);
     if (c.alarmInfo)       rows.push(['Alarm',     c.alarmInfo]);
@@ -334,6 +329,7 @@
     populateJobClientDropdown(j.clientId);
     populateJobPropertyDropdown(j.clientId, j.propertyId);
     populateStaffCheckboxes(j.staffIds || []);
+    document.getElementById('job-address').value  = j.address       || '';
     document.getElementById('job-date').value      = j.date         || '';
     document.getElementById('job-time').value      = j.time         || '';
     document.getElementById('job-duration').value  = j.duration     || 2;
@@ -434,10 +430,11 @@
     document.getElementById('job-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var clientId = document.getElementById('job-client').value;
+      var address  = document.getElementById('job-address').value.trim();
       var date     = document.getElementById('job-date').value;
       var time     = document.getElementById('job-time').value;
-      if (!clientId || !date || !time) {
-        MQ.ui.toast('Client, date and time are required', 'error');
+      if (!clientId || !address || !date || !time) {
+        MQ.ui.toast('Client, address, date and time are required', 'error');
         return;
       }
 
@@ -445,6 +442,7 @@
 
       var obj = {
         clientId:     clientId,
+        address:      address,
         propertyId:   document.getElementById('job-property').value   || null,
         date:         date,
         time:         time,

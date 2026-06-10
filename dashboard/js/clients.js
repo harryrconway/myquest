@@ -84,7 +84,6 @@
       var contactLines = [];
       if (c.phone)   contactLines.push('<a class="client-card__contact-line" href="tel:' + escHtml(c.phone) + '">' + IPHONE + escHtml(c.phone) + '</a>');
       if (c.email)   contactLines.push('<a class="client-card__contact-line" href="mailto:' + escHtml(c.email) + '">' + IMAIL + escHtml(c.email) + '</a>');
-      if (c.address) contactLines.push('<span class="client-card__contact-line">' + IPIN + escHtml(c.address) + '</span>');
 
       // Property rows
       var propRows = props.map(function (p) {
@@ -189,7 +188,6 @@
     document.getElementById('client-name').value = c.name || '';
     document.getElementById('client-phone').value = c.phone || '';
     document.getElementById('client-email').value = c.email || '';
-    document.getElementById('client-address').value = c.address || '';
     MQ.ui.modal.open('modal-add-client');
   }
 
@@ -618,7 +616,6 @@
         name:    name,
         phone:   document.getElementById('client-phone').value.trim(),
         email:   document.getElementById('client-email').value.trim(),
-        address: document.getElementById('client-address').value.trim(),
       };
       if (editingClientId) obj.id = editingClientId;
 
