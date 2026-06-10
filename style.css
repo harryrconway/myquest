@@ -1059,19 +1059,13 @@ textarea.form-input {
 .qm-body {
   flex: 1;
   min-height: 0;
-  overflow-y: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 24px 32px 24px;
   max-width: 700px;
   width: 100%;
   align-self: center;
   box-sizing: border-box;
-}
-
-.qm-card--review .qm-body {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.45) rgba(255,255,255,0.08);
 }
 
 .qm-footer {
@@ -1779,6 +1773,65 @@ textarea.form-input {
   }
 }
 
+/* ---- Desktop sizing enhancements (601px+) ---------------- */
+@media (min-width: 601px) {
+  .qm-grid-type {
+    gap: 16px;
+  }
+
+  .qm-tile {
+    padding: 28px 12px;
+    font-size: 15px;
+  }
+
+  .qm-row-3 .qm-input,
+  .qm-row-2 .qm-input[type="number"] {
+    padding: 14px 16px;
+    font-size: 17px;
+    text-align: center;
+  }
+
+  .qm-grid-check {
+    gap: 10px;
+  }
+
+  .qm-ctile {
+    padding: 13px 22px;
+    font-size: 15px;
+  }
+
+  .qm-radio-cards {
+    gap: 10px;
+  }
+
+  .qm-rcard {
+    padding: 20px 24px;
+  }
+
+  .qm-rcard__label {
+    font-size: 16px;
+  }
+}
+
+/* ---- Custom scrollbar — review step only ----------------- */
+.qm-card--review .qm-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.qm-card--review .qm-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+.qm-card--review .qm-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 9999px;
+}
+
+.qm-card--review .qm-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
 /* ---- Stepper component ------------------------------------ */
 .qm-stepper {
   display: flex;
@@ -1837,127 +1890,6 @@ textarea.form-input {
   color: #fff;
   pointer-events: none;
   user-select: none;
-}
-
-/* ---- Property tile emoji icon ----------------------------- */
-.qm-tile__emoji {
-  font-size: 22px;
-  line-height: 1;
-  display: block;
-}
-
-/* ---- Big check-tile grid (services / extras) -------------- */
-.qm-grid-check--big {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* ---- Success countdown ------------------------------------ */
-.qm-success__countdown {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 4px;
-}
-
-/* ---- Desktop sizing enhancements (601px+) ---------------- */
-@media (min-width: 601px) {
-  .qm-grid-type {
-    gap: 14px;
-  }
-
-  .qm-tile {
-    padding: 32px 14px;
-    font-size: 17px;
-    gap: 10px;
-  }
-
-  .qm-tile__emoji {
-    font-size: 30px;
-  }
-
-  .qm-row-3 .qm-input,
-  .qm-row-2 .qm-input[type="number"] {
-    padding: 14px 16px;
-    font-size: 17px;
-    text-align: center;
-  }
-
-  .qm-grid-check {
-    gap: 10px;
-  }
-
-  .qm-ctile {
-    padding: 13px 22px;
-    font-size: 15px;
-  }
-
-  /* Bigger tiles for services / extras on desktop */
-  .qm-grid-check--big {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .qm-grid-check--big .qm-ctile {
-    display: flex;
-    width: 100%;
-    padding: 22px 16px;
-    font-size: 16px;
-    border-radius: 12px;
-    border-width: 1.5px;
-    box-sizing: border-box;
-    justify-content: center;
-    font-weight: 600;
-  }
-
-  .qm-radio-cards {
-    gap: 10px;
-  }
-
-  .qm-rcard {
-    padding: 18px 24px;
-  }
-
-  .qm-rcard__label {
-    font-size: 16px;
-  }
-
-  /* Larger steppers on desktop */
-  .qm-stepper {
-    height: 80px;
-    border-radius: 14px;
-  }
-
-  .qm-stepper__val {
-    font-size: 40px;
-    font-weight: 700;
-  }
-
-  .qm-stepper__btn {
-    width: 72px;
-    font-size: 36px;
-  }
-}
-
-/* ---- Custom scrollbar — review step only ----------------- */
-.qm-card--review .qm-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.qm-card--review .qm-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.07);
-  border-radius: 9999px;
-  margin-block: 4px;
-}
-
-.qm-card--review .qm-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 9999px;
-}
-
-.qm-card--review .qm-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.65);
 }
 
 /* ---- Step slide animations -------------------------------- */
