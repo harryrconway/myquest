@@ -83,29 +83,44 @@
       return;
     }
 
-    // Subscribe to auth changes — Supabase processes the invite token from the URL
-    // and fires SIGNED_IN once the session is established
-    sb.auth.onAuthStateChange(function (event, session) {
-      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+    // Guard: prevent initForm from being called more than once
+    var done = false;
+    function resolve(fn) {
+      if (done) return;
+      done = true;
+      fn();
+    }
+
+    // Handle Supabase PKCE flow — invite redirect arrives as ?code=xxx
+    var code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      var ex = await sb.auth.exchangeCodeForSession(code);
+      if (ex.error || !ex.data || !ex.data.session) {
+        show('state-invalid');
+      } else {
         initForm(sb);
       }
-    });
-
-    // Also check if the session was already established before this listener
-    var result = await sb.auth.getSession();
-    if (result.data && result.data.session) {
-      initForm(sb);
       return;
     }
 
-    // If no token params in URL at all, there's nothing to do here
-    if (!hash.includes('access_token') && !hash.includes('type=invite')) {
-      // Give Supabase a moment to process — if still nothing, show invalid
-      setTimeout(async function () {
-        var r = await sb.auth.getSession();
-        if (!r.data || !r.data.session) show('state-invalid');
-      }, 3000);
+    // Listen for auth state changes (handles implicit / hash-fragment flow)
+    sb.auth.onAuthStateChange(function (event, session) {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') && session) {
+        resolve(function () { initForm(sb); });
+      }
+    });
+
+    // Session may already be established before the listener registered
+    var result = await sb.auth.getSession();
+    if (result.data && result.data.session) {
+      resolve(function () { initForm(sb); });
+      return;
     }
+
+    // Universal fallback — show invalid if nothing resolves within 10 s
+    setTimeout(function () {
+      resolve(function () { show('state-invalid'); });
+    }, 10000);
   }
 
   if (document.readyState === 'loading') {
