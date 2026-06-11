@@ -40,19 +40,26 @@ export async function onRequestPost(context) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
 
-  const { jobId, scheduledDate, scheduledTime, assignedStaffIds, internalNotes } = body;
+  const { jobId, scheduledDate, scheduledTime, assignedStaffIds, internalNotes, recurrence, checklistTemplate } = body;
   if (!jobId || !scheduledDate || !scheduledTime) {
     return json({ error: 'jobId, scheduledDate and scheduledTime are required.' }, 400);
   }
 
-  // Fetch job to get customer email
+  // Fetch job to get customer email and details
   const jobRes = await fetch(
-    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=full_name,email,services,suburb`,
+    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=full_name,email,services,service_type,suburb,street_address,state,postcode,bedrooms,bathrooms`,
     { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
   );
   const jobs = await jobRes.json();
   if (!jobs || !jobs[0]) return json({ error: 'Job not found.' }, 404);
   const job = jobs[0];
+
+  // Build checklist from template (sent by client from localStorage) or use built-in default
+  const defaultItems = checklistTemplate && Array.isArray(checklistTemplate) && checklistTemplate.length > 0
+    ? checklistTemplate
+    : ['Vacuum all floors', 'Mop hard floors', 'Clean kitchen benches', 'Wipe stovetop', 'Clean sinks',
+       'Scrub toilets', 'Clean shower/bath', 'Dust surfaces', 'Empty bins', 'Wipe mirrors', 'Wipe door handles'];
+  const checklist = defaultItems.map(text => ({ id: crypto.randomUUID(), text, done: false }));
 
   // Update Supabase
   const updateRes = await fetch(
@@ -71,6 +78,8 @@ export async function onRequestPost(context) {
         scheduled_time:     scheduledTime,
         assigned_staff_ids: assignedStaffIds || [],
         internal_notes:     internalNotes || null,
+        recurrence:         recurrence || 'none',
+        checklist:          checklist,
         job_accepted_at:    new Date().toISOString(),
         updated_at:         new Date().toISOString(),
       }),

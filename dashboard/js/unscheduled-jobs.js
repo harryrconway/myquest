@@ -189,6 +189,8 @@
     document.getElementById('uj-time').value  = '';
     document.getElementById('uj-notes').value = '';
     document.getElementById('uj-accept-error').style.display = 'none';
+    var recurrenceEl = document.getElementById('uj-recurrence');
+    if (recurrenceEl) recurrenceEl.value = 'none';
 
     var displayEl = document.getElementById('uj-date-display');
     if (displayEl) { displayEl.textContent = 'Select a date'; displayEl.classList.add('cdp-display--placeholder'); }
@@ -222,6 +224,9 @@
     var staffIds = Array.from(document.querySelectorAll('#uj-staff-checkboxes input:checked'))
       .map(function (cb) { return cb.value; });
 
+    var recurrence = (document.getElementById('uj-recurrence') || {}).value || 'none';
+    var checklistTemplate = (MQ.store.rates.get().checklist || []);
+
     var btn = document.getElementById('uj-accept-submit');
     btn.disabled = true; btn.textContent = 'Scheduling…';
 
@@ -232,7 +237,7 @@
       var res  = await fetch('/api/accept-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ jobId: id, scheduledDate: date, scheduledTime: time, assignedStaffIds: staffIds, internalNotes: notes }),
+        body: JSON.stringify({ jobId: id, scheduledDate: date, scheduledTime: time, assignedStaffIds: staffIds, internalNotes: notes, recurrence: recurrence, checklistTemplate: checklistTemplate }),
       });
       var data = await res.json();
       if (!data.success) throw new Error(data.error || 'Failed to schedule job.');

@@ -284,6 +284,70 @@
   }
 
   /* ══════════════════════════════════════════════════════════
+     CHECKLIST TEMPLATE
+  ══════════════════════════════════════════════════════════ */
+
+  var DEFAULT_CHECKLIST = [
+    'Vacuum all floors', 'Mop hard floors', 'Clean kitchen benches', 'Wipe stovetop',
+    'Clean sinks', 'Scrub toilets', 'Clean shower/bath', 'Dust surfaces',
+    'Empty bins', 'Wipe mirrors', 'Wipe door handles',
+  ];
+
+  function getChecklistTemplate() {
+    var r = MQ.store.rates.get();
+    return Array.isArray(r.checklist) && r.checklist.length ? r.checklist : DEFAULT_CHECKLIST.slice();
+  }
+
+  function renderChecklistTemplate() {
+    var items = getChecklistTemplate();
+    var ul = document.getElementById('checklist-template-list');
+    if (!ul) return;
+    ul.innerHTML = items.map(function(text, i) {
+      return '<li class="checklist-template-item">' +
+        '<input type="text" class="form-input" value="' + escHtml(text) + '" data-idx="' + i + '" style="flex:1;min-width:0;">' +
+        '<button type="button" class="checklist-template-item__remove" data-idx="' + i + '" aria-label="Remove">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+        '</li>';
+    }).join('');
+    ul.querySelectorAll('.checklist-template-item__remove').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.getAttribute('data-idx'));
+        var items2 = getChecklistTemplate();
+        items2.splice(idx, 1);
+        var r = MQ.store.rates.get();
+        r.checklist = items2;
+        MQ.store.rates.save(r);
+        renderChecklistTemplate();
+      });
+    });
+  }
+
+  function saveChecklistTemplate() {
+    var inputs = document.querySelectorAll('#checklist-template-list input[type="text"]');
+    var items = [];
+    inputs.forEach(function(inp) {
+      var v = inp.value.trim();
+      if (v) items.push(v);
+    });
+    var r = MQ.store.rates.get();
+    r.checklist = items;
+    MQ.store.rates.save(r);
+    MQ.ui.toast('Checklist template saved');
+  }
+
+  function addChecklistItem() {
+    var r = MQ.store.rates.get();
+    var items = getChecklistTemplate();
+    items.push('');
+    r.checklist = items;
+    MQ.store.rates.save(r);
+    renderChecklistTemplate();
+    var inputs = document.querySelectorAll('#checklist-template-list input[type="text"]');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }
+
+  /* ══════════════════════════════════════════════════════════
      INIT
   ══════════════════════════════════════════════════════════ */
 
@@ -295,10 +359,13 @@
 
     renderAccounts();
     populateRates();
+    renderChecklistTemplate();
     initCreateAccountForm();
 
     document.getElementById('btn-create-account').addEventListener('click', openCreateModal);
     document.getElementById('save-rates-btn').addEventListener('click', saveRates);
+    document.getElementById('save-checklist-template-btn').addEventListener('click', saveChecklistTemplate);
+    document.getElementById('btn-add-checklist-item').addEventListener('click', addChecklistItem);
 
     document.getElementById('btn-clear').addEventListener('click', function () {
       MQ.ui.modal.open('modal-data-options');

@@ -33,7 +33,7 @@ export async function onRequestPost(context) {
       'Authorization': `Bearer ${SERVICE_KEY}`,
       'apikey': SERVICE_KEY,
       'Content-Type': 'application/json',
-      'Prefer': 'return=minimal',
+      'Prefer': 'return=representation',
     },
     body: JSON.stringify({
       full_name:           full_name,
@@ -64,6 +64,55 @@ export async function onRequestPost(context) {
 
   if (!insertRes.ok) {
     return json({ error: 'Failed to save quote request. Please try again.' }, 500);
+  }
+
+  const insertedRows = await insertRes.json().catch(() => []);
+  const newJobId = insertedRows && insertedRows[0] ? insertedRows[0].id : null;
+
+  // Upsert client record by email (fire and forget)
+  if (newJobId && email) {
+    (async () => {
+      try {
+        const existingRes = await fetch(`${SUPABASE_URL}/rest/v1/clients?email=eq.${encodeURIComponent(email)}&select=id`, {
+          headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY },
+        });
+        const existing = await existingRes.json().catch(() => []);
+        const clientBody = {
+          full_name: full_name,
+          email: email,
+          phone: body.phone || null,
+          street_address: body.street_address || null,
+          suburb: body.suburb || null,
+          state: body.state || null,
+          postcode: body.postcode || null,
+          updated_at: new Date().toISOString(),
+        };
+        let clientId;
+        if (existing && existing[0]) {
+          clientId = existing[0].id;
+          await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify(clientBody),
+          });
+        } else {
+          const createRes = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+            body: JSON.stringify({ ...clientBody, created_at: new Date().toISOString() }),
+          });
+          const created = await createRes.json().catch(() => []);
+          clientId = created && created[0] ? created[0].id : null;
+        }
+        if (clientId) {
+          await fetch(`${SUPABASE_URL}/rest/v1/quote_requests?id=eq.${newJobId}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ client_id: clientId }),
+          });
+        }
+      } catch (e) { /* client upsert failure doesn't block response */ }
+    })();
   }
 
   // Send emails (fire and forget — don't fail the response if email fails)

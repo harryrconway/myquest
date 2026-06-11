@@ -43,9 +43,9 @@ export async function onRequestPost(context) {
   const { jobId } = body;
   if (!jobId) return json({ error: 'jobId is required.' }, 400);
 
-  // Fetch job
+  // Fetch full job
   const jobRes = await fetch(
-    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=full_name,email,services`,
+    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=*`,
     { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
   );
   const jobs = await jobRes.json();
@@ -71,6 +71,62 @@ export async function onRequestPost(context) {
     }
   );
   if (!updateRes.ok) return json({ error: 'Failed to update job.' }, 500);
+
+  // Auto-clone if recurring
+  if (job.recurrence && job.recurrence !== 'none' && job.scheduled_date) {
+    try {
+      const daysMap = { weekly: 7, fortnightly: 14, monthly: 30 };
+      const daysAhead = daysMap[job.recurrence] || 7;
+      const base = new Date(job.scheduled_date + 'T00:00:00');
+      base.setDate(base.getDate() + daysAhead);
+      const nextDateStr = base.toISOString().split('T')[0];
+
+      const cloneBody = {
+        full_name:           job.full_name,
+        phone:               job.phone,
+        email:               job.email,
+        preferred_contact:   job.preferred_contact,
+        street_address:      job.street_address,
+        suburb:              job.suburb,
+        state:               job.state,
+        postcode:            job.postcode,
+        access_instructions: job.access_instructions,
+        property_type:       job.property_type,
+        bedrooms:            job.bedrooms,
+        bathrooms:           job.bathrooms,
+        living_areas:        job.living_areas,
+        floor_area_sqm:      job.floor_area_sqm,
+        staff_count:         job.staff_count,
+        services:            job.services,
+        service_type:        job.service_type,
+        frequency:           job.frequency,
+        condition:           job.condition,
+        extras:              job.extras,
+        preferred_days:      job.preferred_days,
+        preferred_time:      job.preferred_time,
+        flexible_schedule:   job.flexible_schedule,
+        notes:               job.notes,
+        client_id:           job.client_id,
+        status:              'unscheduled',
+        recurrence:          job.recurrence,
+        recurrence_parent_id: job.recurrence_parent_id || job.id,
+        checklist:           [],
+        created_at:          new Date().toISOString(),
+        updated_at:          new Date().toISOString(),
+      };
+
+      await fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SERVICE_KEY}`,
+          'apikey': SERVICE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(cloneBody),
+      }).catch(() => {});
+    } catch (e) { /* clone failure doesn't block complete */ }
+  }
 
   // Send thank-you email to customer
   if (RESEND_KEY && job.email) {

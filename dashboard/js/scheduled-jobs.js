@@ -8,6 +8,7 @@
   var filteredJobs = [];
   var editingId    = null;
   var viewingId    = null;
+  var checklistTimer = null;
 
   function escHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -114,6 +115,17 @@
           return '<span class="req-chip req-chip--blue">' + escHtml(s) + '</span>';
         }).join('');
 
+        var checklist = j.checklist;
+        if (typeof checklist === 'string') { try { checklist = JSON.parse(checklist); } catch(e) { checklist = []; } }
+        var checklistArr = Array.isArray(checklist) ? checklist : [];
+        var checkDone = checklistArr.filter(function(x){ return x.done; }).length;
+        var checkBadge = checklistArr.length > 0
+          ? '<span style="font-size:10px;font-weight:700;color:' + (checkDone === checklistArr.length ? '#2d6a4f' : '#64748b') + ';background:' + (checkDone === checklistArr.length ? '#d1fae5' : '#f1f5f9') + ';padding:2px 7px;border-radius:20px;margin-left:4px;">' + checkDone + '/' + checklistArr.length + '</span>'
+          : '';
+        var recurBadge = (j.recurrence && j.recurrence !== 'none')
+          ? '<span class="recurrence-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> ' + j.recurrence + '</span>'
+          : '';
+
         return '<div class="job-card job-card--scheduled">' +
           '<div class="job-card__time">' +
             '<span class="job-card__hour">' + escHtml(fmtTime(j.scheduled_time)) + '</span>' +
@@ -123,6 +135,7 @@
             '<div class="req-card__row1">' +
               '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
               (j.property_type ? '<span class="badge badge--blue" style="font-size:11px;">' + escHtml(j.property_type) + '</span>' : '') +
+              recurBadge + checkBadge +
             '</div>' +
             (location ? '<div class="req-card__meta"><span>' + escHtml(location) + '</span></div>' : '') +
             (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
@@ -162,6 +175,31 @@
 
     var address = [j.street_address, j.suburb, j.state, j.postcode].filter(Boolean).join(', ');
 
+    var checklist = j.checklist;
+    if (typeof checklist === 'string') { try { checklist = JSON.parse(checklist); } catch(e) { checklist = []; } }
+    if (!Array.isArray(checklist)) checklist = [];
+
+    var checklistHtml = '';
+    if (checklist.length > 0) {
+      var done = checklist.filter(function(item){ return item.done; }).length;
+      var pct  = Math.round(done / checklist.length * 100);
+      checklistHtml =
+        '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;">' +
+          '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:10px;">Checklist</div>' +
+          '<div class="checklist-progress">' +
+            '<div class="checklist-progress__bar"><div class="checklist-progress__fill" id="sj-progress-fill" style="width:' + pct + '%"></div></div>' +
+            '<span class="checklist-progress__label" id="sj-progress-label">' + done + ' / ' + checklist.length + '</span>' +
+          '</div>' +
+          '<ul class="checklist-items" id="sj-checklist-items">' +
+          checklist.map(function(item) {
+            return '<li class="checklist-item' + (item.done ? ' is-done' : '') + '">' +
+              '<label><input type="checkbox" value="' + escHtml(item.id) + '"' + (item.done ? ' checked' : '') + '> ' + escHtml(item.text) + '</label>' +
+              '</li>';
+          }).join('') +
+          '</ul>' +
+        '</div>';
+    }
+
     document.getElementById('sj-view-body').innerHTML =
       '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
         row('Name',           escHtml(j.full_name)) +
@@ -175,9 +213,35 @@
         row('Frequency',      escHtml(j.frequency)) +
         row('Scheduled date', escHtml(fmtDate(j.scheduled_date))) +
         row('Scheduled time', escHtml(fmtTime(j.scheduled_time))) +
+        (j.recurrence && j.recurrence !== 'none' ? row('Repeat', escHtml(j.recurrence)) : '') +
         row('Notes',          escHtml(j.notes)) +
         row('Internal notes', escHtml(j.internal_notes)) +
-      '</table>';
+      '</table>' + checklistHtml;
+
+    // Bind checklist checkboxes
+    if (checklist.length > 0) {
+      document.querySelectorAll('#sj-checklist-items input[type="checkbox"]').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+          var itemId = cb.value;
+          checklist = checklist.map(function(item) {
+            return item.id === itemId ? Object.assign({}, item, { done: cb.checked }) : item;
+          });
+          // Update is-done class
+          var li = cb.closest('li');
+          if (li) li.classList.toggle('is-done', cb.checked);
+          // Update progress
+          var nowDone = checklist.filter(function(item){ return item.done; }).length;
+          var nowPct  = Math.round(nowDone / checklist.length * 100);
+          var fillEl = document.getElementById('sj-progress-fill');
+          var labelEl = document.getElementById('sj-progress-label');
+          if (fillEl)  fillEl.style.width  = nowPct + '%';
+          if (labelEl) labelEl.textContent  = nowDone + ' / ' + checklist.length;
+          // Debounced save
+          clearTimeout(checklistTimer);
+          checklistTimer = setTimeout(function() { saveChecklist(id, checklist); }, 600);
+        });
+      });
+    }
 
     MQ.ui.modal.open('modal-sj-view');
   }
@@ -231,6 +295,20 @@
     } catch (err) {
       MQ.ui.toast('Error: ' + err.message, 'error');
     }
+  }
+
+  /* ─── Save Checklist ────────────────────────────────────────── */
+
+  function saveChecklist(jobId, checklist) {
+    sb.auth.getSession().then(function(r) {
+      var token = r.data && r.data.session && r.data.session.access_token;
+      if (!token) return;
+      fetch('/api/save-checklist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ jobId: jobId, checklist: checklist }),
+      }).catch(function(){});
+    });
   }
 
   /* ─── Edit Schedule ─────────────────────────────────────────── */
