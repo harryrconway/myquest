@@ -31,6 +31,8 @@
     q = q.trim().toLowerCase();
 
     var all = MQ.store.staff.getAll();
+    var countEl = document.getElementById('staff-count');
+    if (countEl) countEl.textContent = all.length;
     var members = q
       ? all.filter(function (s) { return (s.name || '').toLowerCase().indexOf(q) > -1; })
       : all;
