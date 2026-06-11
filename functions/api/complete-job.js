@@ -1,4 +1,4 @@
-/* POST /api/complete-job — manager+ auth required */
+/* POST /api/complete-job — staff+ auth required */
 const ORIGIN = 'https://myquest.au';
 
 export async function onRequestOptions() {
@@ -34,7 +34,7 @@ export async function onRequestPost(context) {
   );
   const profiles = await profileRes.json();
   const role = profiles && profiles[0] && profiles[0].role;
-  if (role !== 'manager' && role !== 'owner') return json({ error: 'Forbidden.' }, 403);
+  if (role !== 'staff' && role !== 'manager' && role !== 'owner') return json({ error: 'Forbidden.' }, 403);
 
   // Body
   let body;
