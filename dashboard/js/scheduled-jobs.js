@@ -110,7 +110,7 @@
 
       var cards = g.jobs.map(function (j) {
         var initial  = (j.full_name || '?')[0].toUpperCase();
-        var location = [j.suburb, j.state].filter(Boolean).join(', ');
+        var address  = [j.street_address, j.suburb, j.state].filter(Boolean).join(', ');
         var chips    = (j.services || []).slice(0, 3).map(function (s) {
           return '<span class="req-chip req-chip--blue">' + escHtml(s) + '</span>';
         }).join('');
@@ -137,7 +137,8 @@
               (j.property_type ? '<span class="badge badge--blue" style="font-size:11px;">' + escHtml(j.property_type) + '</span>' : '') +
               recurBadge + checkBadge +
             '</div>' +
-            (location ? '<div class="req-card__meta"><span>' + escHtml(location) + '</span></div>' : '') +
+            (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
+            (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +
             (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
           '</div>' +
           '<div class="req-card__actions">' +

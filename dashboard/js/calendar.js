@@ -9,6 +9,24 @@
   var selectedDate = null;
   var allJobs = [];
 
+  var STAFF_PALETTE = [
+    { bg: '#dbeafe', text: '#1e40af' },
+    { bg: '#fce7f3', text: '#9d174d' },
+    { bg: '#fef3c7', text: '#92400e' },
+    { bg: '#d1fae5', text: '#065f46' },
+    { bg: '#ede9fe', text: '#5b21b6' },
+    { bg: '#fee2e2', text: '#991b1b' },
+    { bg: '#e0f2fe', text: '#075985' },
+    { bg: '#ecfccb', text: '#3f6212' },
+  ];
+  function staffColor(job) {
+    var ids = job.assigned_staff_ids;
+    if (!ids || !ids.length) return null;
+    var staff = MQ.store.staff.getAll();
+    var idx = staff.findIndex(function (s) { return s.id === ids[0]; });
+    return STAFF_PALETTE[(idx >= 0 ? idx : 0) % STAFF_PALETTE.length];
+  }
+
   function startOfWeek(d) {
     var dt = new Date(d); dt.setHours(0, 0, 0, 0);
     var day = dt.getDay();
@@ -38,7 +56,7 @@
 
   async function loadJobs(from, to) {
     var res = await sb.from('quote_requests')
-      .select('id, first_name, last_name, suburb, service_type, scheduled_date, scheduled_time, bedrooms, bathrooms, recurrence')
+      .select('id, full_name, suburb, services, assigned_staff_ids, scheduled_date, scheduled_time, bedrooms, bathrooms, recurrence')
       .eq('status', 'scheduled')
       .gte('scheduled_date', from)
       .lte('scheduled_date', to)
@@ -85,7 +103,9 @@
       if (!isMobile) {
         var max = 3;
         dayJobs.slice(0, max).forEach(function (j) {
-          html += '<span class="cal-job-chip" data-id="' + j.id + '">' + fmtTime(j.scheduled_time) + ' ' + escHtml(j.first_name || '') + '</span>';
+          var c = staffColor(j);
+          var chipStyle = c ? 'background:' + c.bg + ';color:' + c.text + ';' : '';
+          html += '<span class="cal-job-chip" data-id="' + j.id + '" style="' + chipStyle + '">' + fmtTime(j.scheduled_time) + ' ' + escHtml(j.full_name || '') + '</span>';
         });
         if (dayJobs.length > max) {
           html += '<span class="cal-job-chip cal-job-chip--more">+' + (dayJobs.length - max) + ' more</span>';
@@ -149,8 +169,10 @@
         var jh = parseInt(tp[0]), jm = parseInt(tp[1]);
         if (jh < 7 || jh > 19) return;
         var top = (jh - 7) * 56 + (jm / 60 * 56);
-        html += '<div class="cal-week__job-block" data-id="' + job.id + '" style="top:' + top + 'px;height:52px;">' +
-          fmtTime(job.scheduled_time) + ' · ' + escHtml((job.first_name || '') + ' ' + (job.last_name || '')) + '</div>';
+        var c = staffColor(job);
+        var blockStyle = 'top:' + top + 'px;height:52px;' + (c ? 'background:' + c.bg + ';color:' + c.text + ';' : '');
+        html += '<div class="cal-week__job-block" data-id="' + job.id + '" style="' + blockStyle + '">' +
+          fmtTime(job.scheduled_time) + ' · ' + escHtml(job.full_name || '') + '</div>';
       });
       html += '</div>';
     }
@@ -179,8 +201,8 @@
       body.innerHTML = jobs.map(function (j) {
         return '<div class="cal-panel-job" data-id="' + j.id + '">' +
           '<div class="cal-panel-job__time">' + fmtTime(j.scheduled_time) + '</div>' +
-          '<div class="cal-panel-job__name">' + escHtml((j.first_name || '') + ' ' + (j.last_name || '')) + '</div>' +
-          '<div class="cal-panel-job__meta">' + escHtml(j.suburb || '') + (j.service_type ? ' · ' + escHtml(j.service_type) : '') + '</div>' +
+          '<div class="cal-panel-job__name">' + escHtml(j.full_name || '') + '</div>' +
+          '<div class="cal-panel-job__meta">' + escHtml(j.suburb || '') + (j.services && j.services.length ? ' · ' + escHtml(j.services[0]) : '') + '</div>' +
           '</div>';
       }).join('');
       body.querySelectorAll('.cal-panel-job').forEach(function (el) {
