@@ -75,7 +75,7 @@
         '</div>' +
 
         '<div class="staff-row__badges">' +
-          '<span class="level-badge level-badge--' + (s.level || 1) + '">L' + (s.level || 1) + '</span>' +
+          '<span class="level-badge level-badge--' + (s.level || 1) + '">' + (LEVEL_NAMES[s.level || 1] || 'L' + (s.level || 1)) + '</span>' +
           roleBadge(s.role) +
           (inactive
             ? '<span class="badge badge--grey">Inactive</span>'
@@ -95,11 +95,7 @@
     }).join('');
   }
 
-  var LEVEL_NAMES = {
-    1:'Trainee', 2:'Cleaner', 3:'Mid Cleaner', 4:'Senior Cleaner',
-    5:'Team Leader', 6:'Supervisor', 7:'Senior Supervisor',
-    8:'Operations Lead', 9:'Area Manager', 10:'Regional Manager', 11:'Director'
-  };
+  var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
 
   function getAvailableAccounts() {
     var existingEmails = MQ.store.staff.getAll().map(function (s) { return s.email.toLowerCase(); });

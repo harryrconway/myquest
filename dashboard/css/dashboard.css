@@ -1592,17 +1592,9 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   white-space: nowrap;
   flex-shrink: 0;
 }
-.level-badge--1 { background: #f5e6d3; color: #8b4513; }
-.level-badge--2 { background: #f0f0f0; color: #5a6472; }
-.level-badge--3 { background: #fef9c3; color: #92400e; }
-.level-badge--4 { background: #e8f0fe; color: #3730a3; }
-.level-badge--5  { background: #e0f2fe; color: #0369a1; }
-.level-badge--6  { background: #d1fae5; color: #047857; }
-.level-badge--7  { background: #fef3c7; color: #b45309; }
-.level-badge--8  { background: #ede9fe; color: #7c3aed; }
-.level-badge--9  { background: #fce7f3; color: #db2777; }
-.level-badge--10 { background: #fee2e2; color: #dc2626; }
-.level-badge--11 { background: #fde68a; color: #78350f; }
+.level-badge--1 { background: #e0f2fe; color: #0369a1; } /* Junior */
+.level-badge--2 { background: #ede9fe; color: #7c3aed; } /* Mid Level */
+.level-badge--3 { background: #fef3c7; color: #92400e; } /* Senior */
 
 /* ---- Quote Extra Chips ------------------------------------ */
 .quote-extra-chip {
@@ -4348,22 +4340,45 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   line-height: 1.55;
 }
 
-/* ── Settings inline role dropdown ───────────────────────────── */
-.settings-role-select {
+/* ── Settings inline role / level dropdowns ──────────────────── */
+.settings-role-select,
+.settings-level-select {
   appearance: none;
   -webkit-appearance: none;
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  background: #f1f5f9;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 3px 22px 3px 8px;
+  font-weight: 700;
+  border: none;
+  border-radius: 20px;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 5px center;
+  transition: opacity 0.12s;
 }
-.settings-role-select:hover { border-color: #2d6a4f; background-color: #fff; }
-.settings-role-select:focus { outline: 2px solid #2d6a4f; outline-offset: 1px; border-color: #2d6a4f; }
+.settings-role-select:hover,
+.settings-level-select:hover { opacity: 0.8; }
+.settings-role-select:focus,
+.settings-level-select:focus { outline: 2px solid #2d6a4f; outline-offset: 2px; }
+
+.settings-role-select {
+  font-size: 12px;
+  padding: 3px 20px 3px 9px;
+  background-position: right 5px center;
+  background-size: 9px;
+}
+.settings-level-select {
+  font-size: 11px;
+  padding: 2px 17px 2px 7px;
+  background-position: right 4px center;
+  background-size: 8px;
+  margin-left: 5px;
+}
+
+/* Role colors */
+.settings-role-select[data-role="owner"]   { background-color: #fef3c7; color: #92400e; }
+.settings-role-select[data-role="manager"] { background-color: #dbeafe; color: #1d4ed8; }
+.settings-role-select[data-role="staff"]   { background-color: #f1f5f9; color: #475569; }
+
+/* Level colors */
+.settings-level-select[data-level="1"] { background-color: #e0f2fe; color: #0369a1; }
+.settings-level-select[data-level="2"] { background-color: #ede9fe; color: #7c3aed; }
+.settings-level-select[data-level="3"] { background-color: #fef3c7; color: #92400e; }

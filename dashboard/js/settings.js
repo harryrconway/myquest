@@ -15,10 +15,7 @@
     return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' });
   }
 
-  var LEVEL_NAMES = {
-    1: 'Trainee', 2: 'Cleaner', 3: 'Mid Cleaner', 4: 'Senior Cleaner',
-    5: 'Team Leader',
-  };
+  var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
 
   async function getJwt() {
     var result = await MQ.supabase.auth.getSession();
@@ -75,10 +72,14 @@
           ? '<span class="badge badge--amber">Invited</span>'
           : '<span class="badge badge--grey">Suspended</span>';
 
-      var levelName = p.cleaning_level ? (LEVEL_NAMES[parseInt(p.cleaning_level)] || 'Level ' + p.cleaning_level) : null;
-      var levelTag  = levelName
-        ? ' <span style="font-size:11px;color:#64748b;font-weight:500;">· ' + escHtml(levelName) + '</span>'
-        : '';
+      var lvl = parseInt(p.cleaning_level) || 1;
+      var levelTag = (p.role === 'staff' && !isMe)
+        ? ' <select class="settings-level-select" data-level="' + lvl + '" onchange="SettingsPage.setLevel(\'' + escHtml(p.id) + '\', this.value); this.dataset.level=this.value;">' +
+            [1, 2, 3].map(function (n) {
+              return '<option value="' + n + '"' + (lvl === n ? ' selected' : '') + '>' + (LEVEL_NAMES[n] || 'Level ' + n) + '</option>';
+            }).join('') +
+          '</select>'
+        : (p.cleaning_level ? ' <span style="font-size:11px;color:#64748b;font-weight:500;">· ' + escHtml(LEVEL_NAMES[lvl] || 'Level ' + lvl) + '</span>' : '');
 
       var actions = '';
 
@@ -123,7 +124,7 @@
         '<td>' + escHtml(p.email) + '</td>' +
         '<td>' + (isMe
           ? '<span class="badge ' + roleBadge + '">' + escHtml(p.role) + '</span>'
-          : '<select class="settings-role-select" onchange="SettingsPage.setRole(\'' + escHtml(p.id) + '\', this.value)">' +
+          : '<select class="settings-role-select" data-role="' + escHtml(p.role) + '" onchange="SettingsPage.setRole(\'' + escHtml(p.id) + '\', this.value); this.dataset.role=this.value;">' +
               ['staff', 'manager', 'owner'].map(function (r) {
                 return '<option value="' + r + '"' + (p.role === r ? ' selected' : '') + '>' + r.charAt(0).toUpperCase() + r.slice(1) + '</option>';
               }).join('') +
@@ -178,6 +179,12 @@
     var result = await callApi('/api/update-profile', { userId: userId, role: newRole });
     if (result.error) { MQ.ui.toast(result.error, 'error'); renderAccounts(); }
     else { MQ.ui.toast('Role updated to ' + newRole); }
+  }
+
+  async function setLevel(userId, newLevel) {
+    var result = await callApi('/api/update-profile', { userId: userId, cleaning_level: parseInt(newLevel) });
+    if (result.error) { MQ.ui.toast(result.error, 'error'); renderAccounts(); }
+    else { MQ.ui.toast('Level updated to ' + (LEVEL_NAMES[parseInt(newLevel)] || newLevel)); }
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -519,6 +526,7 @@
     deleteAccount:    deleteAccount,
     resetPassword:    resetPassword,
     setRole:          setRole,
+    setLevel:         setLevel,
     clearUnscheduled: clearUnscheduled,
     clearScheduled:   clearScheduled,
     clearCompleted:   clearCompleted,
