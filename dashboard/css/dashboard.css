@@ -3045,6 +3045,12 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   margin-top: 3px;
 }
 
+@media (max-width: 599px) {
+  .jobs-hero        { padding: 14px 16px; }
+  .jobs-hero__sub   { display: none; }
+  .jobs-hero__stat  { display: none; }
+}
+
 /* ---- Search bar below hero -------------------------------- */
 .jobs-searchbar {
   position: relative;
