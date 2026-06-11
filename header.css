@@ -239,16 +239,18 @@ body.menu-open .mobile-menu-backdrop {
 }
 
 .mobile-menu__login {
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: var(--font-weight-medium);
+  background: white;
+  color: var(--color-forest-green);
+  font-weight: var(--font-weight-semibold);
   font-size: var(--text-base);
   text-align: center;
-  padding: var(--space-3);
-  transition: color var(--transition-fast);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
 }
 
 .mobile-menu__login:hover {
-  color: white;
+  background: var(--color-sand);
 }
 
 .mobile-menu__footer .btn-primary {
