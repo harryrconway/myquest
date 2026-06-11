@@ -40,6 +40,18 @@
      ACCOUNTS TABLE
   ══════════════════════════════════════════════════════════ */
 
+  function timeAgo(iso) {
+    var d = new Date(iso), now = new Date();
+    var days = Math.floor((now - d) / 86400000);
+    if (days === 0) return 'Today';
+    if (days === 1) return '1 day ago';
+    if (days < 30)  return days + ' days ago';
+    var months = Math.floor(days / 30.44);
+    if (months < 12) return months + ' month' + (months !== 1 ? 's' : '') + ' ago';
+    var years = Math.floor(months / 12);
+    return years + ' year' + (years !== 1 ? 's' : '') + ' ago';
+  }
+
   async function renderAccounts() {
     var tbody        = document.getElementById('accounts-tbody');
     var currentEmail = MQ.session ? MQ.session.email : '';
@@ -76,7 +88,14 @@
         '</button>';
 
       if (!isMe) {
-        if (p.status === 'active' || !p.status || p.status === 'invited') {
+        if (p.status === 'invited') {
+          actions += ' <button class="btn-icon" title="Mark as active" onclick="SettingsPage.activateAccount(\'' + escHtml(p.id) + '\',\'' + escHtml(p.name || p.email) + '\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+            '</button>';
+          actions += ' <button class="btn-icon" title="Suspend account" onclick="SettingsPage.suspendAccount(\'' + escHtml(p.id) + '\',\'' + escHtml(p.name || p.email) + '\')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>' +
+            '</button>';
+        } else if (p.status === 'active' || !p.status) {
           actions += ' <button class="btn-icon" title="Suspend account" onclick="SettingsPage.suspendAccount(\'' + escHtml(p.id) + '\',\'' + escHtml(p.name || p.email) + '\')">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>' +
             '</button>';
@@ -90,12 +109,21 @@
           '</button>';
       }
 
+      var joinTooltip = p.created_at
+        ? '<span class="mq-date-tip" tabindex="0">' + fmtDate(p.created_at) +
+            '<span class="mq-date-tip__popup">' +
+              '<span class="mq-date-tip__full">' + new Date(p.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }) + '</span>' +
+              '<span class="mq-date-tip__ago">' + timeAgo(p.created_at) + '</span>' +
+            '</span>' +
+          '</span>'
+        : '—';
+
       return '<tr>' +
         '<td>' + escHtml(p.name || '—') + levelTag + (isMe ? ' <span style="font-size:11px;color:#94a3b8;font-weight:500;">(you)</span>' : '') + '</td>' +
         '<td>' + escHtml(p.email) + '</td>' +
         '<td><span class="badge ' + roleBadge + '">' + escHtml(p.role) + '</span></td>' +
         '<td>' + statusBadge + '</td>' +
-        '<td style="font-size:12.5px;color:#94a3b8;">' + fmtDate(p.created_at) + '</td>' +
+        '<td style="font-size:12.5px;color:#94a3b8;">' + joinTooltip + '</td>' +
         '<td class="table-actions">' + actions + '</td>' +
         '</tr>';
     }).join('');

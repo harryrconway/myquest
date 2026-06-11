@@ -4175,3 +4175,49 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   .cal-header__title { min-width: unset; }
   .cal-month__dow { font-size: 9px; padding: 7px 0; }
 }
+
+/* ── Join date tooltip ─────────────────────────────────────── */
+.mq-date-tip {
+  position: relative;
+  display: inline-block;
+  cursor: default;
+  border-bottom: 1px dashed #cbd5e1;
+}
+.mq-date-tip__popup {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  z-index: 300;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  pointer-events: none;
+  flex-direction: column;
+  gap: 3px;
+}
+.mq-date-tip__popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #0f172a;
+}
+.mq-date-tip:hover .mq-date-tip__popup,
+.mq-date-tip:focus .mq-date-tip__popup {
+  display: flex;
+}
+.mq-date-tip__full {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+.mq-date-tip__ago {
+  font-size: 11px;
+  color: #94a3b8;
+}

@@ -274,16 +274,34 @@
       return;
     }
 
-    MQ.store.seed();
-    syncAllStaffFromAccounts();
-    renderList();
-    updateAddButton();
-
+    // Wire up listeners immediately (don't wait for profiles fetch)
     var search = document.getElementById('staff-search');
     if (search) search.addEventListener('input', renderList);
-
     var addBtn = document.getElementById('btn-add-staff');
     if (addBtn) addBtn.addEventListener('click', openAddModal);
+
+    // Seed MQ.store.accounts from Supabase profiles, then render
+    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status').then(function (result) {
+      (result.data || []).forEach(function (p) {
+        MQ.store.accounts.save({
+          id:            p.id,
+          name:          p.name          || '',
+          email:         p.email         || '',
+          role:          p.role          || 'staff',
+          cleaningLevel: p.cleaning_level || 1,
+          status:        p.status === 'suspended' ? 'suspended' : 'active',
+        });
+      });
+      MQ.store.seed();
+      syncAllStaffFromAccounts();
+      renderList();
+      updateAddButton();
+    }).catch(function () {
+      MQ.store.seed();
+      syncAllStaffFromAccounts();
+      renderList();
+      updateAddButton();
+    });
 
     document.getElementById('staff-form').addEventListener('submit', function (e) {
       e.preventDefault();
