@@ -190,7 +190,14 @@
     document.getElementById('uj-notes').value = '';
     document.getElementById('uj-accept-error').style.display = 'none';
     var recurrenceEl = document.getElementById('uj-recurrence');
-    if (recurrenceEl) recurrenceEl.value = 'none';
+    if (recurrenceEl) {
+      var jForFreq = jobs.find(function (x) { return x.id === id; });
+      var freq = jForFreq && jForFreq.frequency ? jForFreq.frequency.toLowerCase() : '';
+      recurrenceEl.value = freq.indexOf('fort') > -1 ? 'fortnightly'
+                         : freq.indexOf('weekly') > -1 ? 'weekly'
+                         : freq.indexOf('month') > -1 ? 'monthly'
+                         : 'none';
+    }
 
     var displayEl = document.getElementById('uj-date-display');
     if (displayEl) { displayEl.textContent = 'Select a date'; displayEl.classList.add('cdp-display--placeholder'); }

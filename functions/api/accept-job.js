@@ -47,9 +47,10 @@ export async function onRequestPost(context) {
 
   // Fetch job to get customer email and details
   const jobRes = await fetch(
-    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=full_name,email,services,service_type,suburb,street_address,state,postcode,bedrooms,bathrooms`,
+    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=full_name,email,services,suburb,street_address,state,postcode,bedrooms,bathrooms`,
     { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
   );
+  if (!jobRes.ok) return json({ error: 'Failed to fetch job.' }, 500);
   const jobs = await jobRes.json();
   if (!jobs || !jobs[0]) return json({ error: 'Job not found.' }, 404);
   const job = jobs[0];
