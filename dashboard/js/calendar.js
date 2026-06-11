@@ -216,6 +216,10 @@
       to = isoDate(addDays(weekCursor, 6));
     }
     allJobs = await loadJobs(from, to);
+    var countEl = document.getElementById('cal-count');
+    var labelEl = document.getElementById('cal-count-label');
+    if (countEl) countEl.textContent = allJobs.length;
+    if (labelEl) labelEl.textContent = view === 'month' ? 'this month' : 'this week';
     view === 'month' ? renderMonth() : renderWeek();
   }
 

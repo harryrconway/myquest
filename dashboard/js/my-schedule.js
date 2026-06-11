@@ -61,6 +61,8 @@
     document.getElementById('ms-greeting').textContent = greeting() + (first && first !== 'Loading…' ? ', ' + first : '') + '.';
     document.getElementById('ms-sub').textContent = weekJobs.length === 0
       ? 'No jobs scheduled this week.' : 'You have ' + weekJobs.length + ' job' + (weekJobs.length !== 1 ? 's' : '') + ' this week.';
+    var msCount = document.getElementById('ms-count');
+    if (msCount) msCount.textContent = weekJobs.length;
     document.getElementById('ms-week-label').textContent =
       weekStart.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) + ' — ' +
       addDays(weekStart, 6).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
