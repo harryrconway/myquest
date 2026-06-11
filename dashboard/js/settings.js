@@ -121,7 +121,13 @@
       return '<tr>' +
         '<td>' + escHtml(p.name || '—') + levelTag + (isMe ? ' <span style="font-size:11px;color:#94a3b8;font-weight:500;">(you)</span>' : '') + '</td>' +
         '<td>' + escHtml(p.email) + '</td>' +
-        '<td><span class="badge ' + roleBadge + '">' + escHtml(p.role) + '</span></td>' +
+        '<td>' + (isMe
+          ? '<span class="badge ' + roleBadge + '">' + escHtml(p.role) + '</span>'
+          : '<select class="settings-role-select" onchange="SettingsPage.setRole(\'' + escHtml(p.id) + '\', this.value)">' +
+              ['staff', 'manager', 'owner'].map(function (r) {
+                return '<option value="' + r + '"' + (p.role === r ? ' selected' : '') + '>' + r.charAt(0).toUpperCase() + r.slice(1) + '</option>';
+              }).join('') +
+            '</select>') + '</td>' +
         '<td>' + statusBadge + '</td>' +
         '<td style="font-size:12.5px;color:#94a3b8;">' + joinTooltip + '</td>' +
         '<td class="table-actions">' + actions + '</td>' +
@@ -166,6 +172,12 @@
       MQ.ui.toast('Account deleted', 'info');
       renderAccounts();
     });
+  }
+
+  async function setRole(userId, newRole) {
+    var result = await callApi('/api/update-profile', { userId: userId, role: newRole });
+    if (result.error) { MQ.ui.toast(result.error, 'error'); renderAccounts(); }
+    else { MQ.ui.toast('Role updated to ' + newRole); }
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -506,6 +518,7 @@
     activateAccount:  activateAccount,
     deleteAccount:    deleteAccount,
     resetPassword:    resetPassword,
+    setRole:          setRole,
     clearUnscheduled: clearUnscheduled,
     clearScheduled:   clearScheduled,
     clearCompleted:   clearCompleted,

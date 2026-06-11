@@ -83,20 +83,6 @@
         '</div>' +
 
         '<div class="staff-row__actions">' +
-          '<select class="form-input" style="padding:0.25rem 0.4rem;font-size:0.72rem;height:auto;width:auto;min-width:7rem;" ' +
-            'title="Level" onchange="StaffPage.setLevel(\'' + s.id + '\', this.value)">' +
-            [1,2,3,4,5,6,7,8,9,10,11].map(function (n) {
-              var labels = {1:'Trainee',2:'Cleaner',3:'Mid Cleaner',4:'Senior',5:'Team Leader',6:'Supervisor',7:'Sr Supervisor',8:'Ops Lead',9:'Area Manager',10:'Regional Mgr',11:'Director'};
-              return '<option value="' + n + '"' + (s.level === n ? ' selected' : '') + '>' + n + ' — ' + labels[n] + '</option>';
-            }).join('') +
-          '</select>' +
-          '<select class="form-input" style="padding:0.25rem 0.4rem;font-size:0.72rem;height:auto;width:auto;min-width:6rem;" ' +
-            'title="Role" onchange="StaffPage.setRole(\'' + s.id + '\', this.value)">' +
-            ['staff','manager','owner'].map(function (r) {
-              var lbl = r.charAt(0).toUpperCase() + r.slice(1);
-              return '<option value="' + r + '"' + (s.role === r ? ' selected' : '') + '>' + lbl + '</option>';
-            }).join('') +
-          '</select>' +
           '<button class="btn-outline" style="padding:0.375rem 0.75rem;font-size:0.75rem;white-space:nowrap;" ' +
             'onclick="StaffPage.toggleActive(\'' + s.id + '\')">' + toggleLabel + '</button>' +
           '<button class="btn-icon" onclick="StaffPage.edit(\'' + s.id + '\')" title="Edit">' + ICON_EDIT + '</button>' +
@@ -231,34 +217,6 @@
     MQ.ui.toast(s.active ? 'Staff member activated' : 'Staff member deactivated', 'info');
   }
 
-  function syncAccountFromStaff(s) {
-    var acc = MQ.store.accounts.getAll().find(function (a) {
-      return a.email.toLowerCase() === (s.email || '').toLowerCase();
-    });
-    if (!acc) return;
-    acc.role          = s.role;
-    acc.cleaningLevel = s.level;
-    MQ.store.accounts.save(acc);
-  }
-
-  function setLevel(id, val) {
-    var s = MQ.store.staff.getById(id);
-    if (!s) return;
-    s.level = parseInt(val) || 1;
-    MQ.store.staff.save(s);
-    syncAccountFromStaff(s);
-    renderList();
-  }
-
-  function setRole(id, val) {
-    var s = MQ.store.staff.getById(id);
-    if (!s) return;
-    s.role = val;
-    MQ.store.staff.save(s);
-    syncAccountFromStaff(s);
-    renderList();
-  }
-
   function syncAllStaffFromAccounts() {
     MQ.store.staff.getAll().forEach(function (s) {
       var acc = MQ.store.accounts.getAll().find(function (a) {
@@ -345,5 +303,5 @@
     });
   });
 
-  window.StaffPage = { edit: edit, remove: remove, toggleActive: toggleActive, setLevel: setLevel, setRole: setRole, addFromAccount: addFromAccount };
+  window.StaffPage = { edit: edit, remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount };
 })();
