@@ -182,4 +182,9 @@
     if (el) el.textContent = val;
   }
 
+  // Re-run stats when page is restored from bfcache (back-button after completing a job)
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) { reload(); }
+  });
+
 })();

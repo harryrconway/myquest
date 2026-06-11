@@ -9,6 +9,7 @@
   var editingId    = null;
   var viewingId    = null;
   var checklistTimer = null;
+  var hashHandled  = false;
 
   function escHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -74,6 +75,17 @@
       jobs = data || [];
       var searchEl = document.getElementById('sj-search');
       filterAndRender(searchEl ? searchEl.value : '');
+      if (!hashHandled) {
+        hashHandled = true;
+        var hash = window.location.hash;
+        if (hash && hash.slice(0, 6) === '#view:') {
+          var autoId = hash.slice(6);
+          history.replaceState(null, '', window.location.pathname);
+          if (jobs.find(function (j) { return j.id === autoId; })) {
+            setTimeout(function () { view(autoId); }, 80);
+          }
+        }
+      }
     } catch (err) {
       wrap.innerHTML = '<div style="padding:60px;text-align:center;color:var(--color-error);">Failed to load: ' + escHtml(err.message) + '</div>';
     }
@@ -168,31 +180,45 @@
     if (!j) return;
     viewingId = id;
 
-    function row(label, val) {
-      if (!val && val !== 0) return '';
-      return '<tr><td style="padding:8px 14px 8px 0;font-weight:600;color:#6b7280;width:160px;white-space:nowrap;vertical-align:top;">' +
-        escHtml(label) + '</td><td style="padding:8px 0;color:#111827;">' + val + '</td></tr>';
-    }
-
+    var initial = (j.full_name || '?').charAt(0).toUpperCase();
     var address = [j.street_address, j.suburb, j.state, j.postcode].filter(Boolean).join(', ');
 
     var checklist = j.checklist;
     if (typeof checklist === 'string') { try { checklist = JSON.parse(checklist); } catch(e) { checklist = []; } }
     if (!Array.isArray(checklist)) checklist = [];
 
+    function field(label, val, full) {
+      if (!val && val !== 0) return '';
+      return '<div class="job-detail__field' + (full ? ' job-detail__field--full' : '') + '">' +
+        '<div class="job-detail__label">' + label + '</div>' +
+        '<div class="job-detail__value">' + val + '</div>' +
+        '</div>';
+    }
+
+    var chips = (j.services || []).map(function (s) {
+      return '<span class="req-chip req-chip--blue">' + escHtml(s) + '</span>';
+    }).join('');
+
+    var phoneIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>';
+    var emailIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
+
+    var contactsHtml = '';
+    if (j.phone) contactsHtml += '<a href="tel:' + escHtml(j.phone) + '">' + phoneIcon + ' ' + escHtml(j.phone) + '</a>';
+    if (j.email) contactsHtml += '<a href="mailto:' + escHtml(j.email) + '">' + emailIcon + ' ' + escHtml(j.email) + '</a>';
+
     var checklistHtml = '';
     if (checklist.length > 0) {
-      var done = checklist.filter(function(item){ return item.done; }).length;
+      var done = checklist.filter(function (item) { return item.done; }).length;
       var pct  = Math.round(done / checklist.length * 100);
       checklistHtml =
-        '<div style="margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;">' +
-          '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:10px;">Checklist</div>' +
+        '<div class="job-detail__section" style="margin-top:4px;">' +
+          '<div class="job-detail__section-title">Checklist</div>' +
           '<div class="checklist-progress">' +
             '<div class="checklist-progress__bar"><div class="checklist-progress__fill" id="sj-progress-fill" style="width:' + pct + '%"></div></div>' +
             '<span class="checklist-progress__label" id="sj-progress-label">' + done + ' / ' + checklist.length + '</span>' +
           '</div>' +
           '<ul class="checklist-items" id="sj-checklist-items">' +
-          checklist.map(function(item) {
+          checklist.map(function (item) {
             return '<li class="checklist-item' + (item.done ? ' is-done' : '') + '">' +
               '<label><input type="checkbox" value="' + escHtml(item.id) + '"' + (item.done ? ' checked' : '') + '> ' + escHtml(item.text) + '</label>' +
               '</li>';
@@ -202,44 +228,71 @@
     }
 
     document.getElementById('sj-view-body').innerHTML =
-      '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
-        row('Name',           escHtml(j.full_name)) +
-        row('Phone',          '<a href="tel:' + escHtml(j.phone) + '">' + escHtml(j.phone) + '</a>') +
-        row('Email',          '<a href="mailto:' + escHtml(j.email) + '">' + escHtml(j.email) + '</a>') +
-        row('Address',        escHtml(address)) +
-        row('Property type',  escHtml(j.property_type)) +
-        row('Bedrooms',       j.bedrooms) +
-        row('Bathrooms',      j.bathrooms) +
-        row('Services',       escHtml(fmtServices(j.services))) +
-        row('Frequency',      escHtml(j.frequency)) +
-        row('Scheduled date', escHtml(fmtDate(j.scheduled_date))) +
-        row('Scheduled time', escHtml(fmtTime(j.scheduled_time))) +
-        (j.recurrence && j.recurrence !== 'none' ? row('Repeat', escHtml(j.recurrence)) : '') +
-        row('Notes',          escHtml(j.notes)) +
-        row('Internal notes', escHtml(j.internal_notes)) +
-      '</table>' + checklistHtml;
+      '<div class="job-detail">' +
+        '<div class="job-detail__hero">' +
+          '<div class="job-detail__hero-avatar">' + initial + '</div>' +
+          '<div class="job-detail__hero-body">' +
+            '<div class="job-detail__hero-name">' + escHtml(j.full_name || '') + '</div>' +
+            (contactsHtml ? '<div class="job-detail__hero-contacts">' + contactsHtml + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="job-detail__section">' +
+          '<div class="job-detail__section-title">Property</div>' +
+          '<div class="job-detail__grid">' +
+            (address ? field('Address', escHtml(address), true) : '') +
+            field('Type', escHtml(j.property_type)) +
+            (j.bedrooms  ? field('Bedrooms',  j.bedrooms)  : '') +
+            (j.bathrooms ? field('Bathrooms', j.bathrooms) : '') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="job-detail__section">' +
+          '<div class="job-detail__section-title">Service</div>' +
+          (chips ? '<div class="job-detail__chips">' + chips + '</div>' : '') +
+          '<div class="job-detail__grid" style="margin-top:' + (chips ? '10px' : '0') + ';">' +
+            field('Frequency', escHtml(j.frequency)) +
+            (j.recurrence && j.recurrence !== 'none' ? field('Repeat', escHtml(j.recurrence)) : '') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="job-detail__section">' +
+          '<div class="job-detail__section-title">Schedule</div>' +
+          '<div class="job-detail__grid">' +
+            field('Date', escHtml(fmtDate(j.scheduled_date))) +
+            field('Time', escHtml(fmtTime(j.scheduled_time))) +
+          '</div>' +
+        '</div>' +
+
+        ((j.notes || j.internal_notes) ?
+          '<div class="job-detail__section">' +
+            '<div class="job-detail__section-title">Notes</div>' +
+            (j.notes ? '<div class="job-detail__note">' + escHtml(j.notes) + '</div>' : '') +
+            (j.internal_notes ? '<div class="job-detail__note" style="margin-top:6px;border-left:3px solid #2d6a4f;">' + escHtml(j.internal_notes) + '</div>' : '') +
+          '</div>'
+        : '') +
+
+        checklistHtml +
+      '</div>';
 
     // Bind checklist checkboxes
     if (checklist.length > 0) {
-      document.querySelectorAll('#sj-checklist-items input[type="checkbox"]').forEach(function(cb) {
-        cb.addEventListener('change', function() {
+      document.querySelectorAll('#sj-checklist-items input[type="checkbox"]').forEach(function (cb) {
+        cb.addEventListener('change', function () {
           var itemId = cb.value;
-          checklist = checklist.map(function(item) {
+          checklist = checklist.map(function (item) {
             return item.id === itemId ? Object.assign({}, item, { done: cb.checked }) : item;
           });
-          // Update is-done class
           var li = cb.closest('li');
           if (li) li.classList.toggle('is-done', cb.checked);
-          // Update progress
-          var nowDone = checklist.filter(function(item){ return item.done; }).length;
+          var nowDone = checklist.filter(function (item) { return item.done; }).length;
           var nowPct  = Math.round(nowDone / checklist.length * 100);
-          var fillEl = document.getElementById('sj-progress-fill');
+          var fillEl  = document.getElementById('sj-progress-fill');
           var labelEl = document.getElementById('sj-progress-label');
           if (fillEl)  fillEl.style.width  = nowPct + '%';
           if (labelEl) labelEl.textContent  = nowDone + ' / ' + checklist.length;
-          // Debounced save
           clearTimeout(checklistTimer);
-          checklistTimer = setTimeout(function() { saveChecklist(id, checklist); }, 600);
+          checklistTimer = setTimeout(function () { saveChecklist(id, checklist); }, 600);
         });
       });
     }
@@ -301,7 +354,7 @@
   /* ─── Save Checklist ────────────────────────────────────────── */
 
   function saveChecklist(jobId, checklist) {
-    sb.auth.getSession().then(function(r) {
+    MQ.supabase.auth.getSession().then(function(r) {
       var token = r.data && r.data.session && r.data.session.access_token;
       if (!token) return;
       fetch('/api/save-checklist', {

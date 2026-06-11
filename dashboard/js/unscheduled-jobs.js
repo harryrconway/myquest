@@ -143,39 +143,88 @@
     if (!j) return;
     viewingId = id;
 
-    function row(label, val) {
-      if (!val && val !== 0) return '';
-      return '<tr><td style="padding:8px 14px 8px 0;font-weight:600;color:#6b7280;width:160px;white-space:nowrap;vertical-align:top;">' +
-        escHtml(label) + '</td><td style="padding:8px 0;color:#111827;">' + val + '</td></tr>';
-    }
-
+    var initial = (j.full_name || '?').charAt(0).toUpperCase();
     var address = [j.street_address, j.suburb, j.state, j.postcode].filter(Boolean).join(', ');
     var extras  = j.extras && j.extras.length ? j.extras.join(', ') : null;
     var days    = j.preferred_days && j.preferred_days.length ? j.preferred_days.join(', ') : null;
 
+    function field(label, val, full) {
+      if (!val && val !== 0) return '';
+      return '<div class="job-detail__field' + (full ? ' job-detail__field--full' : '') + '">' +
+        '<div class="job-detail__label">' + label + '</div>' +
+        '<div class="job-detail__value">' + val + '</div>' +
+        '</div>';
+    }
+
+    var chips = (j.services || []).map(function (s) {
+      return '<span class="req-chip">' + escHtml(s) + '</span>';
+    }).join('');
+
+    var phoneIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>';
+    var emailIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
+
+    var contactsHtml = '';
+    if (j.phone) contactsHtml += '<a href="tel:' + escHtml(j.phone) + '">' + phoneIcon + ' ' + escHtml(j.phone) + '</a>';
+    if (j.email) contactsHtml += '<a href="mailto:' + escHtml(j.email) + '">' + emailIcon + ' ' + escHtml(j.email) + '</a>';
+
     document.getElementById('uj-view-body').innerHTML =
-      '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
-        row('Name',             escHtml(j.full_name)) +
-        row('Phone',            '<a href="tel:' + escHtml(j.phone) + '">' + escHtml(j.phone) + '</a>') +
-        row('Email',            '<a href="mailto:' + escHtml(j.email) + '">' + escHtml(j.email) + '</a>') +
-        row('Preferred contact', escHtml(j.preferred_contact)) +
-        row('Address',          escHtml(address)) +
-        row('Access notes',     escHtml(j.access_instructions)) +
-        row('Property type',    escHtml(j.property_type)) +
-        row('Bedrooms',         j.bedrooms) +
-        row('Bathrooms',        j.bathrooms) +
-        row('Living areas',     j.living_areas) +
-        row('Floor area',       j.floor_area_sqm ? j.floor_area_sqm + ' sqm' : null) +
-        row('Services',         escHtml(fmtServices(j.services))) +
-        row('Frequency',        escHtml(j.frequency)) +
-        row('Condition',        escHtml(j.condition)) +
-        row('Extras',           extras ? escHtml(extras) : null) +
-        row('Preferred days',   days   ? escHtml(days)   : null) +
-        row('Preferred time',   escHtml(j.preferred_time)) +
-        row('Flexible',         j.flexible_schedule ? 'Yes' : null) +
-        row('Notes',            escHtml(j.notes)) +
-        row('Submitted',        escHtml(fmtDate(j.created_at))) +
-      '</table>';
+      '<div class="job-detail">' +
+        '<div class="job-detail__hero">' +
+          '<div class="job-detail__hero-avatar">' + initial + '</div>' +
+          '<div class="job-detail__hero-body">' +
+            '<div class="job-detail__hero-name">' + escHtml(j.full_name || '') + '</div>' +
+            (contactsHtml ? '<div class="job-detail__hero-contacts">' + contactsHtml + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="job-detail__section">' +
+          '<div class="job-detail__section-title">Property</div>' +
+          '<div class="job-detail__grid">' +
+            (address ? field('Address', escHtml(address), true) : '') +
+            field('Type', escHtml(j.property_type)) +
+            (j.bedrooms      ? field('Bedrooms',    j.bedrooms) : '') +
+            (j.bathrooms     ? field('Bathrooms',   j.bathrooms) : '') +
+            (j.living_areas  ? field('Living areas', j.living_areas) : '') +
+            (j.floor_area_sqm ? field('Floor area', j.floor_area_sqm + ' sqm') : '') +
+            (j.access_instructions ? field('Access notes', escHtml(j.access_instructions), true) : '') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="job-detail__section">' +
+          '<div class="job-detail__section-title">Service</div>' +
+          (chips ? '<div class="job-detail__chips">' + chips + '</div>' : '') +
+          '<div class="job-detail__grid" style="margin-top:' + (chips ? '10px' : '0') + ';">' +
+            field('Frequency', escHtml(j.frequency)) +
+            field('Condition', escHtml(j.condition)) +
+            (extras ? field('Extras', escHtml(extras), true) : '') +
+          '</div>' +
+        '</div>' +
+
+        ((days || j.preferred_time || j.flexible_schedule || j.preferred_contact) ?
+          '<div class="job-detail__section">' +
+            '<div class="job-detail__section-title">Preferences</div>' +
+            '<div class="job-detail__grid">' +
+              (j.preferred_contact ? field('Contact via', escHtml(j.preferred_contact)) : '') +
+              (days ? field('Preferred days', escHtml(days), !j.preferred_contact) : '') +
+              (j.preferred_time ? field('Preferred time', escHtml(j.preferred_time)) : '') +
+              (j.flexible_schedule ? field('Flexible schedule', 'Yes') : '') +
+            '</div>' +
+          '</div>'
+        : '') +
+
+        (j.notes ?
+          '<div class="job-detail__section">' +
+            '<div class="job-detail__section-title">Notes</div>' +
+            '<div class="job-detail__note">' + escHtml(j.notes) + '</div>' +
+          '</div>'
+        : '') +
+
+        '<div class="job-detail__section" style="margin-bottom:0;">' +
+          '<div class="job-detail__grid">' +
+            field('Submitted', escHtml(fmtDate(j.created_at))) +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
     MQ.ui.modal.open('modal-uj-view');
   }

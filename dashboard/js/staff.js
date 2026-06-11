@@ -129,7 +129,23 @@
     btn.title = '';
   }
 
-  function openAddModal() {
+  async function openAddModal() {
+    // On-demand fetch if store not yet populated (mobile/iPad timing)
+    if (!MQ.store.accounts.getAll().length) {
+      try {
+        var r = await MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status');
+        (r.data || []).forEach(function (p) {
+          MQ.store.accounts.save({
+            id:            p.id,
+            name:          p.name          || '',
+            email:         p.email         || '',
+            role:          p.role          || 'staff',
+            cleaningLevel: p.cleaning_level || 1,
+            status:        p.status === 'suspended' ? 'suspended' : 'active',
+          });
+        });
+      } catch (e) {}
+    }
     var available = getAvailableAccounts();
     var list = document.getElementById('staff-account-list');
 
