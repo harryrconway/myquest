@@ -289,4 +289,8 @@
   }
 
   document.addEventListener('mq:ready', function () { init(); });
+
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) { refresh(); }
+  });
 })();

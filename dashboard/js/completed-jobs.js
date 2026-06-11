@@ -222,5 +222,9 @@
       .subscribe();
   });
 
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) { load(); }
+  });
+
   window.CJPage = { view: view };
 })();

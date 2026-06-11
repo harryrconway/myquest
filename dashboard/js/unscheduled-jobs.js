@@ -429,5 +429,9 @@
       .subscribe();
   });
 
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) { load(); }
+  });
+
   window.UJPage = { view: view, openAccept: openAccept, archive: archive };
 })();

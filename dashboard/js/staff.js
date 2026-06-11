@@ -250,6 +250,10 @@
     var addBtn = document.getElementById('btn-add-staff');
     if (addBtn) addBtn.addEventListener('click', openAddModal);
 
+    // Show cached staff immediately; Supabase fetch will sync roles/levels then re-render
+    renderList();
+    updateAddButton();
+
     // Seed MQ.store.accounts from Supabase profiles, then render
     MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status').then(function (result) {
       (result.data || []).forEach(function (p) {
@@ -297,6 +301,10 @@
       updateAddButton();
       MQ.ui.toast(editingId ? 'Staff member updated' : 'Staff member added');
     });
+  });
+
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) { renderList(); }
   });
 
   window.StaffPage = { edit: edit, remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount };

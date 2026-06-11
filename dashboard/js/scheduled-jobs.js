@@ -544,5 +544,9 @@
       .subscribe();
   });
 
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) { load(); }
+  });
+
   window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete };
 })();
