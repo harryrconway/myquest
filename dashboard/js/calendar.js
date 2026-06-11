@@ -261,6 +261,9 @@
     document.getElementById('cal-panel-close').addEventListener('click', closePanel);
 
     refresh();
+    sb.channel('cal-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' }, function () { refresh(); })
+      .subscribe();
   }
 
   document.addEventListener('mq:ready', function () { init(); });

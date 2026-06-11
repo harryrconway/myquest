@@ -171,6 +171,9 @@
       renderGrid(filterClients(this.value));
     });
     load();
+    sb.channel('clients-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, function () { load(); })
+      .subscribe();
   }
 
   document.addEventListener('mq:ready', function () { init(); });

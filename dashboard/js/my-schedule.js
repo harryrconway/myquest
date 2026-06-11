@@ -174,6 +174,10 @@
     document.getElementById('ms-btn-next').addEventListener('click', function () {
       weekStart = addDays(weekStart, 7); load();
     });
+
+    sb.channel('ms-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' }, function () { load(); })
+      .subscribe();
   }
 
   document.addEventListener('mq:ready', function () { init(); });

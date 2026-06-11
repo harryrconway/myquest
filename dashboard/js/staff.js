@@ -125,18 +125,27 @@
   function updateAddButton() {
     var btn = document.getElementById('btn-add-staff');
     if (!btn) return;
-    var available = getAvailableAccounts();
-    btn.disabled = available.length === 0;
-    btn.title    = available.length === 0 ? 'No accounts available — create one in Settings first' : '';
+    btn.disabled = false;
+    btn.title = '';
   }
 
   function openAddModal() {
     var available = getAvailableAccounts();
-    if (!available.length) return;
+    var list = document.getElementById('staff-account-list');
+
+    if (!available.length) {
+      list.innerHTML = '<div style="text-align:center;padding:20px 16px;">' +
+        '<div style="font-size:32px;margin-bottom:12px;">👤</div>' +
+        '<p style="font-size:14px;font-weight:600;color:#0f172a;margin:0 0 6px;">No accounts available</p>' +
+        '<p style="font-size:13px;color:#64748b;margin:0 0 16px;">Create a staff account in Settings first, then come back here to add them to the team.</p>' +
+        '<a href="settings.html" style="display:inline-block;background:#2d6a4f;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
+        '</div>';
+      MQ.ui.modal.open('modal-add-staff');
+      return;
+    }
 
     var ROLE_COLOR = { owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8', staff: 'background:#f1f5f9;color:#475569' };
 
-    var list = document.getElementById('staff-account-list');
     list.innerHTML = available.map(function (acc) {
       var initial   = (acc.name || acc.email).charAt(0).toUpperCase();
       var levelName = LEVEL_NAMES[parseInt(acc.cleaningLevel)] || '';
