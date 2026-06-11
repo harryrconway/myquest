@@ -175,6 +175,7 @@
     var acc = MQ.store.accounts.getById(accountId);
     if (!acc) return;
     MQ.store.staff.save({
+      id:        acc.id,
       name:      acc.name  || '',
       email:     acc.email || '',
       phone:     '',

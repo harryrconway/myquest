@@ -8,6 +8,7 @@
   var view = 'month';
   var selectedDate = null;
   var allJobs = [];
+  var staffColorMap = {};
 
   var STAFF_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
@@ -22,6 +23,7 @@
   function staffColor(job) {
     var ids = job.assigned_staff_ids;
     if (!ids || !ids.length) return null;
+    if (staffColorMap[ids[0]]) return staffColorMap[ids[0]];
     var staff = MQ.store.staff.getAll();
     var idx = staff.findIndex(function (s) { return s.id === ids[0]; });
     return STAFF_PALETTE[(idx >= 0 ? idx : 0) % STAFF_PALETTE.length];
@@ -246,7 +248,7 @@
   }
 
   /* ── Init ──────────────────────────────────────────────────── */
-  function init() {
+  async function init() {
     sb = MQ.supabase;
 
     document.getElementById('cal-btn-month').addEventListener('click', function () {
@@ -281,6 +283,13 @@
       refresh();
     });
     document.getElementById('cal-panel-close').addEventListener('click', closePanel);
+
+    try {
+      var r = await sb.from('profiles').select('id').order('created_at', { ascending: true });
+      (r.data || []).forEach(function (p, i) {
+        staffColorMap[p.id] = STAFF_PALETTE[i % STAFF_PALETTE.length];
+      });
+    } catch (e) {}
 
     refresh();
     sb.channel('cal-realtime')

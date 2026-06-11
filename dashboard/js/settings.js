@@ -168,8 +168,16 @@
 
   function deleteAccount(userId, displayName) {
     MQ.ui.confirmDelete('Permanently delete ' + displayName + '\'s login account? This cannot be undone.', async function () {
+      var acc = MQ.store.accounts.getById(userId);
       var result = await callApi('/api/delete-account', { userId: userId });
       if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
+      MQ.store.accounts.delete(userId);
+      if (acc && acc.email) {
+        var staffRec = MQ.store.staff.getAll().find(function (s) {
+          return (s.email || '').toLowerCase() === acc.email.toLowerCase();
+        });
+        if (staffRec) MQ.store.staff.delete(staffRec.id);
+      }
       MQ.ui.toast('Account deleted', 'info');
       renderAccounts();
     });
