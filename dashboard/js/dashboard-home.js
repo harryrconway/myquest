@@ -148,7 +148,7 @@
 
       container.innerHTML = '<div class="job-groups">' + html + '</div>';
     } catch (err) {
-      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--color-error);">Failed to load upcoming jobs</div>';
+      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--color-error);">Failed to load upcoming jobs: ' + escHtml(err.message || String(err)) + '</div>';
     }
   }
 

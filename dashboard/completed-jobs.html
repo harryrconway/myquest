@@ -96,7 +96,26 @@
     </div>
   </div>
 
+  <!-- Modal: Mark Invoice Sent -->
+  <div class="modal-overlay" id="modal-cj-invoice" hidden>
+    <div class="modal-card" style="max-width:420px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Mark Invoice Sent</h2>
+        <button class="modal-close" data-modal-close="modal-cj-invoice" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Invoice Reference <span style="color:#6b7280;font-weight:400;">(e.g. INV-0042)</span></label>
+        <input id="cj-invoice-ref" type="text" class="form-input" placeholder="Enter Xero invoice number…" style="width:100%;">
+        <p id="cj-invoice-error" style="display:none;color:var(--color-error);font-size:13px;margin-top:6px;"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" data-modal-close="modal-cj-invoice">Cancel</button>
+        <button class="btn-primary" id="cj-invoice-submit">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/ui.js?v=20260611a" defer></script>
-  <script src="js/completed-jobs.js?v=20260626" defer></script>
+  <script src="js/completed-jobs.js?v=20260627" defer></script>
 </body>
 </html>

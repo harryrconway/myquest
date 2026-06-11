@@ -6,6 +6,7 @@
 
   var jobs         = [];
   var filteredJobs = [];
+  var invoicingId  = null;
 
   function escHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -204,6 +205,60 @@
       '</div>';
 
     MQ.ui.modal.open('modal-cj-view');
+
+    var footer = document.querySelector('#modal-cj-view .modal-footer');
+    if (footer && MQ.hasRole('owner')) {
+      if (j.invoice_sent_at) {
+        footer.innerHTML =
+          '<div style="display:flex;align-items:center;gap:8px;flex:1;">' +
+            '<span style="background:#d1fae5;color:#065f46;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;">' +
+              '✓ Invoice Sent' + (j.invoice_reference ? ' · ' + escHtml(j.invoice_reference) : '') +
+            '</span>' +
+          '</div>' +
+          '<button class="btn-outline" data-modal-close="modal-cj-view">Close</button>';
+      } else {
+        footer.innerHTML =
+          '<button class="btn-outline" style="margin-right:auto;" onclick="CJPage.openInvoice(\'' + escHtml(j.id) + '\')">Mark Invoice Sent</button>' +
+          '<button class="btn-outline" data-modal-close="modal-cj-view">Close</button>';
+      }
+    } else if (footer) {
+      footer.innerHTML = '<button class="btn-outline" data-modal-close="modal-cj-view">Close</button>';
+    }
+  }
+
+  /* ─── Invoice ───────────────────────────────────────────────── */
+
+  function openInvoice(id) {
+    invoicingId = id;
+    document.getElementById('cj-invoice-ref').value = '';
+    document.getElementById('cj-invoice-error').style.display = 'none';
+    MQ.ui.modal.close('modal-cj-view');
+    MQ.ui.modal.open('modal-cj-invoice');
+  }
+
+  async function saveInvoice() {
+    var ref   = document.getElementById('cj-invoice-ref').value.trim();
+    var errEl = document.getElementById('cj-invoice-error');
+    if (!ref) { errEl.textContent = 'Please enter an invoice reference.'; errEl.style.display = ''; return; }
+
+    var btn = document.getElementById('cj-invoice-submit');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    try {
+      var { error } = await MQ.supabase
+        .from('quote_requests')
+        .update({ invoice_reference: ref, invoice_sent_at: new Date().toISOString() })
+        .eq('id', invoicingId);
+      if (error) throw error;
+
+      MQ.ui.modal.close('modal-cj-invoice');
+      MQ.ui.toast('Invoice marked as sent · ' + ref);
+      load();
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = '';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save';
+    }
   }
 
   /* ─── Init ──────────────────────────────────────────────────── */
@@ -211,6 +266,7 @@
   document.addEventListener('mq:ready', function () {
     load();
     document.getElementById('btn-refresh').addEventListener('click', load);
+    document.getElementById('cj-invoice-submit').addEventListener('click', saveInvoice);
 
     var searchEl = document.getElementById('cj-search');
     if (searchEl) searchEl.addEventListener('input', function () { filterAndRender(this.value); });
@@ -226,5 +282,5 @@
     if (event.persisted) { load(); }
   });
 
-  window.CJPage = { view: view };
+  window.CJPage = { view: view, openInvoice: openInvoice };
 })();
