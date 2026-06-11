@@ -2222,13 +2222,21 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
   .quick-actions { grid-template-columns: repeat(2, 1fr); }
-  .req-card { flex-wrap: wrap; }
+}
+
+@media (max-width: 599px) {
+  .req-card,
+  .job-card--scheduled,
+  .job-card--completed {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    gap: 10px;
+  }
   .req-card__actions {
-    flex-direction: row;
     flex-basis: 100%;
     border-top: 1px solid #f3f4f6;
     padding-top: 10px;
-    margin-top: 4px;
+    margin-top: 0;
   }
   .req-card > .req-card__avatar { display: none; }
 }
@@ -2737,9 +2745,9 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .action-btn {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   border: 1.5px solid transparent;
@@ -3196,7 +3204,8 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 
 .req-card__actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 6px;
   flex-shrink: 0;
   align-self: center;
