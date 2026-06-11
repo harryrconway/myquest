@@ -95,7 +95,34 @@
       return;
     }
 
-    // Check Supabase session
+    // Fast path: cached session → instant render, background token check
+    var cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch (e) {}
+    if (cached && cached.role) {
+      MQ.session = cached;
+      MQ.hasRole = function (minRole) { return roleLevel(cached.role) >= roleLevel(minRole); };
+      function fastReady() {
+        applyRoleGating(cached);
+        populateUserInfo(cached);
+        initLogout(sb);
+        startIdleMonitor(sb);
+        document.dispatchEvent(new CustomEvent('mq:ready'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fastReady, { once: true });
+      } else {
+        fastReady();
+      }
+      sb.auth.getSession().then(function (r) {
+        if (!r.data || !r.data.session) {
+          sessionStorage.removeItem(SESSION_KEY);
+          window.location.href = '../login.html';
+        }
+      });
+      return;
+    }
+
+    // Slow path: full auth + profile fetch (first load / after logout)
     var result = await sb.auth.getSession();
     if (!result.data || !result.data.session) {
       sessionStorage.removeItem(SESSION_KEY);
