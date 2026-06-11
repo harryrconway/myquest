@@ -8,13 +8,18 @@
   window.MQ = window.MQ || {};
 
   /* ---- Modal ----------------------------------------------- */
+  var _scrollY = 0;
+
   const modal = {
     open: function (id) {
       const el = document.getElementById(id);
       if (!el) return;
       el.classList.add('is-open');
       el.removeAttribute('hidden');
-      document.body.style.overflow = 'hidden';
+      _scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + _scrollY + 'px';
+      document.body.style.width = '100%';
       const firstInput = el.querySelector('input, select, textarea, button');
       if (firstInput) setTimeout(function () { firstInput.focus(); }, 50);
       el.addEventListener('keydown', modal._trapFocus);
@@ -27,7 +32,10 @@
       if (!el) return;
       el.classList.remove('is-open');
       el.setAttribute('hidden', '');
-      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, _scrollY);
       el.removeEventListener('keydown', modal._trapFocus);
     },
     closeAll: function () {

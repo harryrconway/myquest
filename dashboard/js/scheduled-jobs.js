@@ -226,7 +226,7 @@
         load();
       } else {
         MQ.ui.toast('Job marked complete — thank-you email sent');
-        window.location.href = 'completed-jobs.html';
+        load();
       }
     } catch (err) {
       MQ.ui.toast('Error: ' + err.message, 'error');
