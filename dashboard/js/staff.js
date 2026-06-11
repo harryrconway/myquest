@@ -70,7 +70,7 @@
         '</div>' +
 
         '<div class="staff-row__info">' +
-          '<div class="staff-row__name"><a href="profile.html?id=' + s.id + '" style="color:inherit;text-decoration:none;" onmouseover="this.style.color=\'var(--color-forest-green)\'" onmouseout="this.style.color=\'inherit\'">' + esc(s.name || '—') + '</a></div>' +
+          '<div class="staff-row__name" style="cursor:pointer;" onclick="StaffPage.edit(\'' + s.id + '\')">' + esc(s.name || '—') + '</div>' +
           '<div class="staff-row__meta">' + metaItems.join('<span style="opacity:.3">·</span>') + '</div>' +
         '</div>' +
 

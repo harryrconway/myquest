@@ -135,13 +135,16 @@
     var email     = sbSession.user.email;
 
     // Load profile (name + role)
-    var profileResult = await sb.from('profiles').select('name, role').eq('id', userId).single();
+    var profileResult = await sb.from('profiles').select('name, role, status').eq('id', userId).single();
 
     var name = email;
     var role = 'staff';
     if (profileResult.data) {
       name = profileResult.data.name || email;
       role = profileResult.data.role || 'staff';
+      if (profileResult.data.status === 'invited') {
+        sb.from('profiles').update({ status: 'active' }).eq('id', userId).then(function () {});
+      }
     }
 
     // Build / refresh MQ.session (same shape as before)
