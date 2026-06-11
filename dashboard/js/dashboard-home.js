@@ -40,17 +40,15 @@
       var monthStart = today.slice(0, 7) + '-01';
       var monthEnd   = today.slice(0, 7) + '-' + new Date(new Date(today).getFullYear(), new Date(today).getMonth() + 1, 0).getDate();
 
-      var [unscheduled, scheduledToday, thisWeek, completedMonth] = await Promise.all([
+      var [unscheduled, scheduled, completed] = await Promise.all([
         MQ.supabase.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'unscheduled'),
-        MQ.supabase.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'scheduled').eq('scheduled_date', today),
-        MQ.supabase.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'scheduled').gte('scheduled_date', weekStart).lte('scheduled_date', weekEnd),
-        MQ.supabase.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'completed').gte('job_completed_at', monthStart + 'T00:00:00Z').lte('job_completed_at', monthEnd + 'T23:59:59Z'),
+        MQ.supabase.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'scheduled'),
+        MQ.supabase.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'completed'),
       ]);
 
-      setText('stat-new-requests',    unscheduled.count   || 0);
-      setText('stat-today-jobs',      scheduledToday.count || 0);
-      setText('stat-week-jobs',       thisWeek.count       || 0);
-      setText('stat-completed-month', completedMonth.count || 0);
+      setText('stat-new-requests', unscheduled.count || 0);
+      setText('stat-today-jobs',   scheduled.count   || 0);
+      setText('stat-week-jobs',    completed.count   || 0);
     } catch (err) {
       console.error('Stats error:', err);
     }
