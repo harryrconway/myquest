@@ -2821,59 +2821,51 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .action-btn {
   display: inline-flex;
   align-items: center;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 12.5px;
+  justify-content: center;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   border: 1.5px solid transparent;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
   font-family: inherit;
   white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+              transform 0.15s ease, box-shadow 0.15s ease;
 }
+.action-btn:active { transform: translateY(0) !important; box-shadow: none !important; }
 
 .action-btn--view {
   background: #f1f5f9;
-  color: #374151;
+  color: #475569;
   border-color: #e2e8f0;
 }
-
 .action-btn--view:hover {
   background: #e2e8f0;
-  border-color: #cbd5e1;
+  color: #1e293b;
 }
 
-.action-btn--accept {
-  background: #2d6a4f;
-  color: #fff;
-  border-color: #2d6a4f;
-}
-
-.action-btn--accept:hover {
-  background: #1e5236;
-  border-color: #1e5236;
-}
-
+.action-btn--accept,
 .action-btn--complete {
   background: #2d6a4f;
   color: #fff;
-  border-color: #2d6a4f;
+  border-color: transparent;
 }
-
+.action-btn--accept:hover,
 .action-btn--complete:hover {
   background: #1e5236;
-  border-color: #1e5236;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
 }
 
 .action-btn--edit {
-  background: #f1f5f9;
-  color: #374151;
-  border-color: #e2e8f0;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
 }
-
 .action-btn--edit:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #dbeafe;
 }
 
 .action-btn--archive {
@@ -2881,11 +2873,10 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   color: #9ca3af;
   border-color: #e5e7eb;
 }
-
 .action-btn--archive:hover {
-  color: #ef4444;
-  border-color: #ef4444;
   background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 /* ============================================================
