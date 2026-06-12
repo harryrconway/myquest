@@ -161,10 +161,34 @@
         '</div>';
       }).join('');
 
-      return '<div class="job-group">' +
+      var todayStr    = new Date().toISOString().slice(0, 10);
+      var tomorrowStr = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+      var isGrpToday    = g.date === todayStr;
+      var isGrpTomorrow = g.date === tomorrowStr;
+      var grpDateBlock;
+      if (g.date === 'unset') {
+        grpDateBlock = '<div class="job-group__date-block"><span class="job-group__day-name">No date</span></div>';
+      } else if (isGrpToday) {
+        grpDateBlock = '<div class="job-group__date-block job-group__date-block--today"><span class="job-group__day-name">Today</span></div>';
+      } else if (isGrpTomorrow) {
+        grpDateBlock = '<div class="job-group__date-block"><span class="job-group__day-name">Tmrw</span></div>';
+      } else {
+        var gd = new Date(g.date + 'T00:00:00');
+        var gdName  = gd.toLocaleDateString('en-AU', { weekday: 'short' }).toUpperCase();
+        var gdNum   = gd.getDate();
+        var gdMonth = gd.toLocaleDateString('en-AU', { month: 'short' }).toUpperCase();
+        grpDateBlock = '<div class="job-group__date-block">' +
+          '<span class="job-group__day-name">' + gdName + '</span>' +
+          '<span class="job-group__day-num">' + gdNum + '</span>' +
+          '<span class="job-group__month">' + gdMonth + '</span>' +
+        '</div>';
+      }
+
+      return '<div class="job-group' + (isGrpToday ? ' job-group--today' : '') + '">' +
         '<div class="job-group__header">' +
-          '<span class="job-group__date">' + dateLabel + '</span>' +
-          '<span class="job-group__badge">' + g.jobs.length + ' job' + (g.jobs.length === 1 ? '' : 's') + '</span>' +
+          grpDateBlock +
+          '<div class="job-group__divider"></div>' +
+          '<span class="job-group__count">' + g.jobs.length + ' job' + (g.jobs.length === 1 ? '' : 's') + '</span>' +
         '</div>' +
         '<div class="job-group__cards">' + cards + '</div>' +
       '</div>';

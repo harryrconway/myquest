@@ -130,6 +130,7 @@
               return '<span>' + escHtml(c) + '</span>';
             }).join('');
             return '<div class="job-card__staff-row">' +
+              '<svg class="job-card__staff-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' +
               '<span class="job-card__staff-name">' + escHtml(s.name) + '</span>' +
               (contacts ? '<span class="job-card__staff-contact">' + contacts + '</span>' : '') +
             '</div>';
@@ -149,10 +150,27 @@
           '</div>';
         }).join('');
 
+        var dateBlockHtml;
+        if (isToday) {
+          dateBlockHtml = '<div class="job-group__date-block job-group__date-block--today"><span class="job-group__day-name">Today</span></div>';
+        } else if (isTomorrow) {
+          dateBlockHtml = '<div class="job-group__date-block"><span class="job-group__day-name">Tmrw</span></div>';
+        } else {
+          var d = new Date(date + 'T00:00:00');
+          var dName  = d.toLocaleDateString('en-AU', { weekday: 'short' }).toUpperCase();
+          var dNum   = d.getDate();
+          var dMonth = d.toLocaleDateString('en-AU', { month: 'short' }).toUpperCase();
+          dateBlockHtml = '<div class="job-group__date-block">' +
+            '<span class="job-group__day-name">' + dName + '</span>' +
+            '<span class="job-group__day-num">' + dNum + '</span>' +
+            '<span class="job-group__month">' + dMonth + '</span>' +
+          '</div>';
+        }
+
         return '<div class="job-group' + (isToday ? ' job-group--today' : '') + '">' +
           '<div class="job-group__header">' +
-            '<span class="job-group__label' + (isToday ? ' job-group__label--today' : '') + '">' + groupLabel + '</span>' +
-            '<span class="job-group__date">' + groupDate + '</span>' +
+            dateBlockHtml +
+            '<div class="job-group__divider"></div>' +
             '<span class="job-group__count">' + count + ' job' + (count !== 1 ? 's' : '') + '</span>' +
           '</div>' +
           '<div class="job-group__cards">' + cardsHtml + '</div>' +
