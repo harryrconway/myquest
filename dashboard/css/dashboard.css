@@ -4316,6 +4316,27 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   }
 }
 
+/* ─── View modals: floating card on mobile & iPad ─────────────── */
+@media (min-width: 600px) and (max-width: 900px) {
+  .modal-card--view {
+    max-width: min(580px, 88vw);
+    max-height: 82vh;
+  }
+}
+
+@media (max-width: 599px) {
+  .modal-overlay--view {
+    padding: 20px;
+    align-items: center;
+  }
+  .modal-overlay--view .modal-card {
+    border-radius: 16px;
+    max-height: 80vh;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
 /* ── Join date tooltip ─────────────────────────────────────── */
 .mq-date-tip {
   position: relative;
