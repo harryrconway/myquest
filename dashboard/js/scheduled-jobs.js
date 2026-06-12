@@ -147,7 +147,10 @@
           '</span>';
         }
 
-        return '<div class="job-card job-card--scheduled">' +
+        var staffColour = j.assigned_staff_colour || '';
+        var staffName   = j.assigned_staff_name   || '';
+        return '<div class="job-card job-card--scheduled"' +
+            (staffColour ? ' style="border-left:4px solid ' + staffColour + ';"' : '') + '>' +
           '<div class="job-card__time">' +
             '<span class="job-card__hour">' + escHtml(fmtTime(j.scheduled_time)) + '</span>' +
           '</div>' +
@@ -155,6 +158,7 @@
           '<div class="req-card__body">' +
             '<div class="req-card__row1">' +
               '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
+              (staffName ? '<span class="req-chip" style="background:' + (staffColour || '#f1f5f9') + ';color:#0f172a;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;">' + escHtml(staffName) + '</span>' : '') +
             '</div>' +
             (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
             (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +

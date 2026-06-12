@@ -40,7 +40,7 @@ export async function onRequestPost(context) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
 
-  const { jobId, scheduledDate, scheduledTime, assignedStaffIds, internalNotes, recurrence, checklistTemplate } = body;
+  const { jobId, scheduledDate, scheduledTime, assignedStaffIds, assignedStaffColour, assignedStaffName, internalNotes, recurrence, checklistTemplate } = body;
   if (!jobId || !scheduledDate || !scheduledTime) {
     return json({ error: 'jobId, scheduledDate and scheduledTime are required.' }, 400);
   }
@@ -74,15 +74,17 @@ export async function onRequestPost(context) {
         'Prefer': 'return=minimal',
       },
       body: JSON.stringify({
-        status:             'scheduled',
-        scheduled_date:     scheduledDate,
-        scheduled_time:     scheduledTime,
-        assigned_staff_ids: assignedStaffIds || [],
-        internal_notes:     internalNotes || null,
-        recurrence:         recurrence || 'none',
-        checklist:          checklist,
-        job_accepted_at:    new Date().toISOString(),
-        updated_at:         new Date().toISOString(),
+        status:                 'scheduled',
+        scheduled_date:         scheduledDate,
+        scheduled_time:         scheduledTime,
+        assigned_staff_ids:     assignedStaffIds || [],
+        assigned_staff_colour:  assignedStaffColour || '',
+        assigned_staff_name:    assignedStaffName   || '',
+        internal_notes:         internalNotes || null,
+        recurrence:             recurrence || 'none',
+        checklist:              checklist,
+        job_accepted_at:        new Date().toISOString(),
+        updated_at:             new Date().toISOString(),
       }),
     }
   );

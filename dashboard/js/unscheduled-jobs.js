@@ -260,6 +260,7 @@
     var cbWrap = document.getElementById('uj-staff-checkboxes');
     cbWrap.innerHTML = staff.length ? staff.map(function (s) {
       return '<label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 12px;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;">' +
+        (s.colour ? '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + escHtml(s.colour) + ';flex-shrink:0;"></span>' : '') +
         '<input type="checkbox" value="' + escHtml(s.id) + '"> ' + escHtml(s.name) +
       '</label>';
     }).join('') : '<span style="font-size:13px;color:#9ca3af;">No staff added yet</span>';
@@ -280,6 +281,10 @@
     var staffIds = Array.from(document.querySelectorAll('#uj-staff-checkboxes input:checked'))
       .map(function (cb) { return cb.value; });
 
+    var staffMembers        = staffIds.map(function (id) { return MQ.store.staff.getById(id); }).filter(Boolean);
+    var assignedStaffColour = staffMembers.length ? (staffMembers[0].colour || '') : '';
+    var assignedStaffName   = staffMembers.map(function (s) { return s.name; }).join(', ');
+
     var recurrence = (document.getElementById('uj-recurrence') || {}).value || 'none';
     var checklistTemplate = (MQ.store.rates.get().checklist || []);
 
@@ -293,7 +298,7 @@
       var res  = await fetch('/api/accept-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ jobId: id, scheduledDate: date, scheduledTime: time, assignedStaffIds: staffIds, internalNotes: notes, recurrence: recurrence, checklistTemplate: checklistTemplate }),
+        body: JSON.stringify({ jobId: id, scheduledDate: date, scheduledTime: time, assignedStaffIds: staffIds, assignedStaffColour: assignedStaffColour, assignedStaffName: assignedStaffName, internalNotes: notes, recurrence: recurrence, checklistTemplate: checklistTemplate }),
       });
       var data = await res.json();
       if (!data.success) throw new Error(data.error || 'Failed to schedule job.');

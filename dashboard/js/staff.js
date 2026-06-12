@@ -82,7 +82,10 @@
         '</div>' +
 
         '<div class="staff-row__info">' +
-          '<div class="staff-row__name" style="cursor:pointer;" onclick="StaffPage.edit(\'' + s.id + '\')">' + esc(s.name || '—') + '</div>' +
+          '<div class="staff-row__name" style="cursor:pointer;display:flex;align-items:center;gap:8px;" onclick="StaffPage.edit(\'' + s.id + '\')">' +
+            (s.colour ? '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + s.colour + ';flex-shrink:0;"></span>' : '') +
+            esc(s.name || '—') +
+          '</div>' +
           '<div class="staff-row__meta">' + metaItems.join('<span style="opacity:.3">·</span>') + '</div>' +
         '</div>' +
 
@@ -108,6 +111,17 @@
   }
 
   var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
+
+  var STAFF_PALETTE = [
+    '#fee2e2','#ffedd5','#fef9c3','#dcfce7','#d1fae5',
+    '#e0f2fe','#e0e7ff','#ede9fe','#fce7f3','#f1f5f9',
+  ];
+
+  function pickStaffColour() {
+    var used = MQ.store.staff.getAll().map(function (s) { return s.colour; }).filter(Boolean);
+    return STAFF_PALETTE.find(function (c) { return !used.includes(c); }) ||
+           STAFF_PALETTE[used.length % STAFF_PALETTE.length];
+  }
 
   function getAvailableAccounts() {
     var existingEmails = MQ.store.staff.getAll().map(function (s) { return s.email.toLowerCase(); });
@@ -186,6 +200,7 @@
   function addFromAccount(accountId) {
     var acc = MQ.store.accounts.getById(accountId);
     if (!acc) return;
+    var colour = pickStaffColour();
     MQ.store.staff.save({
       id:        acc.id,
       name:      acc.name  || '',
@@ -195,7 +210,9 @@
       level:     parseInt(acc.cleaningLevel) || 1,
       startDate: '',
       active:    true,
+      colour:    colour,
     });
+    callApi('/api/update-profile', { userId: acc.id, colour: colour }).catch(function () {});
     MQ.ui.modal.close('modal-add-staff');
     renderList();
     updateAddButton();
@@ -269,7 +286,7 @@
     updateAddButton();
 
     // Seed MQ.store.accounts from Supabase profiles, then render
-    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status, phone').then(function (result) {
+    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status, phone, colour').then(function (result) {
       (result.data || []).forEach(function (p) {
         MQ.store.accounts.save({
           id:            p.id,
@@ -279,11 +296,13 @@
           cleaningLevel: p.cleaning_level || 1,
           status:        p.status === 'suspended' ? 'suspended' : 'active',
         });
-        // Keep phone in local staff record in sync with Supabase
+        // Keep phone and colour in local staff record in sync with Supabase
         var staffRec = MQ.store.staff.getById(p.id);
-        if (staffRec && p.phone !== undefined && p.phone !== staffRec.phone) {
-          staffRec.phone = p.phone || '';
-          MQ.store.staff.save(staffRec);
+        if (staffRec) {
+          var changed = false;
+          if (p.phone !== undefined && p.phone !== staffRec.phone) { staffRec.phone = p.phone || ''; changed = true; }
+          if (p.colour !== undefined && p.colour !== staffRec.colour) { staffRec.colour = p.colour || ''; changed = true; }
+          if (changed) MQ.store.staff.save(staffRec);
         }
       });
       MQ.store.seed();

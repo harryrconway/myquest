@@ -23,12 +23,13 @@ export async function onRequestPost(context) {
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
-  const { userId, role, cleaning_level, status, phone } = body;
+  const { userId, role, cleaning_level, status, phone, colour } = body;
   if (!userId) return json({ error: 'userId is required.' }, 400);
 
   const updates = {};
-  // Any manager or owner can update phone
-  if (phone !== undefined) updates.phone = String(phone || '').trim().slice(0, 30) || null;
+  // Any manager or owner can update phone and colour
+  if (phone  !== undefined) updates.phone  = String(phone  || '').trim().slice(0, 30) || null;
+  if (colour !== undefined) updates.colour = String(colour || '').trim().slice(0, 20);
   // Only owners can change role, level, or account status
   if (callerRole === 'owner') {
     if (role !== undefined) {
