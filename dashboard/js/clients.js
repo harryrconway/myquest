@@ -4,7 +4,9 @@
   var sb;
   var clients = [];
   var selectedClientId = null;
-  var editingClientId = null;
+  var editingClientId  = null;
+  var importSourceId   = null;
+  var pastSearchTimer  = null;
 
   function initials(name) {
     return (name || '').split(' ').filter(Boolean).map(function (p) { return p[0]; }).join('').toUpperCase().slice(0, 2) || '?';
@@ -43,7 +45,7 @@
   }
 
   function renderGrid(list) {
-    var grid = document.getElementById('clients-grid');
+    var grid  = document.getElementById('clients-grid');
     var empty = document.getElementById('clients-empty');
 
     if (list.length === 0) {
@@ -54,7 +56,7 @@
     empty.style.display = 'none';
 
     grid.innerHTML = list.map(function (c) {
-      var location = [c.suburb, c.state].filter(Boolean).join(', ');
+      var location  = [c.suburb, c.state].filter(Boolean).join(', ');
       var lastLabel = c.last_date ? 'Last: ' + fmtDate(c.last_date) : '';
       return '<div class="client-card' + (c.id === selectedClientId ? ' is-selected' : '') + '" data-id="' + c.id + '">' +
         '<div class="client-card__top">' +
@@ -82,9 +84,9 @@
     q = q.toLowerCase();
     return clients.filter(function (c) {
       return (c.full_name || '').toLowerCase().includes(q) ||
-        (c.email || '').toLowerCase().includes(q) ||
-        (c.suburb || '').toLowerCase().includes(q) ||
-        (c.phone || '').toLowerCase().includes(q);
+        (c.email    || '').toLowerCase().includes(q) ||
+        (c.suburb   || '').toLowerCase().includes(q) ||
+        (c.phone    || '').toLowerCase().includes(q);
     });
   }
 
@@ -96,14 +98,14 @@
     renderGrid(filterClients(document.getElementById('clients-search').value));
 
     document.getElementById('cd-avatar').textContent = initials(c.full_name);
-    document.getElementById('cd-name').textContent = c.full_name;
+    document.getElementById('cd-name').textContent   = c.full_name;
 
     var subParts = [];
     if (c.email) subParts.push('<a href="mailto:' + escHtml(c.email) + '">' + escHtml(c.email) + '</a>');
-    if (c.phone) subParts.push('<a href="tel:' + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a>');
+    if (c.phone) subParts.push('<a href="tel:'    + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a>');
     document.getElementById('cd-sub').innerHTML = subParts.join(' · ') || 'No contact info';
 
-    var body = document.getElementById('cd-body');
+    var body    = document.getElementById('cd-body');
     var address = [c.street_address, c.suburb, c.state, c.postcode].filter(Boolean).join(', ');
 
     var rows = '<div class="client-detail__section-title">Contact</div>';
@@ -130,14 +132,14 @@
     document.getElementById('clients-layout').classList.remove('no-panel');
 
     var jobRes = await sb.from('quote_requests')
-      .select('id, service_type, suburb, bedrooms, bathrooms, status, scheduled_date, created_at')
+      .select('id, service_type, suburb, bedrooms, bathrooms, status, scheduled_date, created_at, invoice_reference')
       .eq('client_id', id)
       .order('created_at', { ascending: false });
     var cJobs = jobRes.data || [];
 
     var statusColor = { completed: '#2d6a4f', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
     var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
-    var statusLabel = { completed: 'Done', scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
+    var statusLabel = { completed: 'Done',    scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
 
     var jobHtml = '<div class="client-detail__section-title">Job History (' + cJobs.length + ')</div>';
     if (cJobs.length === 0) {
@@ -152,7 +154,10 @@
           '<div class="client-detail__job-date">' + fmtDate(dateStr) + badge + '</div>' +
           '<div class="client-detail__job-name">' + escHtml(j.service_type || 'Cleaning') + '</div>' +
           '<div class="client-detail__job-meta">' + escHtml(j.suburb || '') +
-          (j.bedrooms ? ' · ' + j.bedrooms + 'BR' : '') + (j.bathrooms ? ' / ' + j.bathrooms + 'BA' : '') + '</div>' +
+            (j.bedrooms  ? ' · ' + j.bedrooms  + 'BR' : '') +
+            (j.bathrooms ? ' / ' + j.bathrooms + 'BA' : '') +
+          '</div>' +
+          (j.invoice_reference ? '<div style="font-size:11px;color:#64748b;margin-top:3px;">Invoice: <span style="font-weight:600;">' + escHtml(j.invoice_reference) + '</span></div>' : '') +
           '</div>';
       });
     }
@@ -171,12 +176,18 @@
 
   function openAddModal() {
     editingClientId = null;
+    importSourceId  = null;
     document.getElementById('client-form-title').textContent = 'Add Client';
     ['cf-name','cf-email','cf-phone','cf-street','cf-suburb','cf-state','cf-postcode'].forEach(function (id) {
       document.getElementById(id).value = '';
     });
     document.getElementById('cf-notes').value = '';
-    document.getElementById('client-form-error').style.display = 'none';
+    document.getElementById('client-form-error').style.display  = 'none';
+    document.getElementById('cf-past-search').value             = '';
+    document.getElementById('cf-past-results').style.display    = 'none';
+    document.getElementById('cf-past-tag').style.display        = 'none';
+    document.getElementById('cf-past-tag').innerHTML            = '';
+    document.getElementById('cf-past-section').style.display    = '';
     MQ.ui.modal.open('modal-client-form');
   }
 
@@ -184,16 +195,18 @@
     var c = clients.find(function (x) { return x.id === id; });
     if (!c) return;
     editingClientId = id;
+    importSourceId  = null;
     document.getElementById('client-form-title').textContent = 'Edit Client';
-    document.getElementById('cf-name').value    = c.full_name || '';
-    document.getElementById('cf-email').value   = c.email || '';
-    document.getElementById('cf-phone').value   = c.phone || '';
-    document.getElementById('cf-street').value  = c.street_address || '';
-    document.getElementById('cf-suburb').value  = c.suburb || '';
-    document.getElementById('cf-state').value   = c.state || '';
+    document.getElementById('cf-name').value     = c.full_name || '';
+    document.getElementById('cf-email').value    = c.email || '';
+    document.getElementById('cf-phone').value    = c.phone || '';
+    document.getElementById('cf-street').value   = c.street_address || '';
+    document.getElementById('cf-suburb').value   = c.suburb || '';
+    document.getElementById('cf-state').value    = c.state || '';
     document.getElementById('cf-postcode').value = c.postcode || '';
-    document.getElementById('cf-notes').value   = c.notes || '';
+    document.getElementById('cf-notes').value    = c.notes || '';
     document.getElementById('client-form-error').style.display = 'none';
+    document.getElementById('cf-past-section').style.display   = 'none';
     MQ.ui.modal.open('modal-client-form');
   }
 
@@ -207,13 +220,13 @@
 
     var payload = {
       full_name:      name,
-      email:          document.getElementById('cf-email').value.trim()   || null,
-      phone:          document.getElementById('cf-phone').value.trim()   || null,
-      street_address: document.getElementById('cf-street').value.trim()  || null,
-      suburb:         document.getElementById('cf-suburb').value.trim()  || null,
-      state:          document.getElementById('cf-state').value.trim()   || null,
+      email:          document.getElementById('cf-email').value.trim()    || null,
+      phone:          document.getElementById('cf-phone').value.trim()    || null,
+      street_address: document.getElementById('cf-street').value.trim()   || null,
+      suburb:         document.getElementById('cf-suburb').value.trim()   || null,
+      state:          document.getElementById('cf-state').value.trim()    || null,
       postcode:       document.getElementById('cf-postcode').value.trim() || null,
-      notes:          document.getElementById('cf-notes').value.trim()   || null,
+      notes:          document.getElementById('cf-notes').value.trim()    || null,
     };
 
     try {
@@ -221,9 +234,14 @@
       if (editingClientId) {
         result = await sb.from('clients').update(payload).eq('id', editingClientId);
       } else {
-        result = await sb.from('clients').insert(payload);
+        result = await sb.from('clients').insert(payload).select('id').single();
       }
       if (result.error) throw result.error;
+
+      if (!editingClientId && importSourceId && result.data && result.data.id) {
+        await sb.from('quote_requests').update({ client_id: result.data.id }).eq('id', importSourceId);
+      }
+
       MQ.ui.modal.close('modal-client-form');
       MQ.ui.toast(editingClientId ? 'Client updated' : 'Client added');
       load();
@@ -248,6 +266,88 @@
     });
   }
 
+  /* ─── Past work search ───────────────────────────────────────── */
+
+  function onPastSearchInput() {
+    clearTimeout(pastSearchTimer);
+    var query = document.getElementById('cf-past-search').value.trim();
+    if (!query || query.length < 2) {
+      document.getElementById('cf-past-results').style.display = 'none';
+      return;
+    }
+    pastSearchTimer = setTimeout(function () { searchPastJobs(query); }, 280);
+  }
+
+  async function searchPastJobs(query) {
+    var resultsEl = document.getElementById('cf-past-results');
+    resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">Searching…</div>';
+    resultsEl.style.display = '';
+
+    var { data } = await sb.from('quote_requests')
+      .select('id, full_name, email, phone, street_address, suburb, state, postcode, services, scheduled_date, invoice_reference')
+      .or('full_name.ilike.%' + query + '%,suburb.ilike.%' + query + '%')
+      .not('full_name', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(8);
+
+    var jobs = data || [];
+    if (!jobs.length) {
+      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">No past jobs found</div>';
+      return;
+    }
+
+    resultsEl.innerHTML = jobs.map(function (j, i) {
+      var location  = [j.suburb, j.state].filter(Boolean).join(', ');
+      var dateLabel = j.scheduled_date ? fmtDate(j.scheduled_date) : '';
+      var inv       = j.invoice_reference
+        ? '<span class="cf-past-result__inv">INV: ' + escHtml(j.invoice_reference) + '</span>' : '';
+      var services  = (j.services || []).slice(0, 2).join(', ');
+      return '<div class="cf-past-result" data-idx="' + i + '">' +
+        '<div class="cf-past-result__name">' + escHtml(j.full_name) + inv + '</div>' +
+        '<div class="cf-past-result__meta">' +
+          (location  ? escHtml(location)  : '') +
+          (dateLabel ? ' · ' + dateLabel  : '') +
+          (services  ? ' · ' + escHtml(services) : '') +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    resultsEl.querySelectorAll('.cf-past-result').forEach(function (el) {
+      el.addEventListener('click', function () { prefillFromJob(jobs[parseInt(el.dataset.idx)]); });
+    });
+  }
+
+  function prefillFromJob(job) {
+    importSourceId = job.id;
+    document.getElementById('cf-name').value     = job.full_name     || '';
+    document.getElementById('cf-email').value    = job.email         || '';
+    document.getElementById('cf-phone').value    = job.phone         || '';
+    document.getElementById('cf-street').value   = job.street_address || '';
+    document.getElementById('cf-suburb').value   = job.suburb        || '';
+    document.getElementById('cf-state').value    = job.state         || '';
+    document.getElementById('cf-postcode').value = job.postcode      || '';
+
+    document.getElementById('cf-past-results').style.display = 'none';
+    document.getElementById('cf-past-search').value          = '';
+
+    var dateLabel = job.scheduled_date ? fmtDate(job.scheduled_date) : '';
+    var inv       = job.invoice_reference ? ' · ' + escHtml(job.invoice_reference) : '';
+    var tag = document.getElementById('cf-past-tag');
+    tag.innerHTML =
+      '<span style="display:inline-flex;align-items:center;gap:8px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;">' +
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+      'Imported: ' + escHtml(job.full_name) + (dateLabel ? ' · ' + dateLabel : '') + inv +
+      '<button type="button" onclick="ClientsPage.clearImport()" style="background:none;border:none;cursor:pointer;color:#1e40af;font-size:16px;line-height:1;padding:0 2px;margin-left:2px;">&times;</button>' +
+      '</span>';
+    tag.style.display = '';
+  }
+
+  function clearImport() {
+    importSourceId = null;
+    document.getElementById('cf-past-tag').style.display = 'none';
+    document.getElementById('cf-past-tag').innerHTML     = '';
+  }
+
   /* ─── Init ───────────────────────────────────────────────────── */
 
   function init() {
@@ -259,6 +359,9 @@
       renderGrid(filterClients(this.value));
     });
     document.getElementById('cf-submit').addEventListener('click', saveClient);
+
+    var pastSearch = document.getElementById('cf-past-search');
+    if (pastSearch) pastSearch.addEventListener('input', onPastSearchInput);
 
     if (MQ.hasRole('manager')) {
       var addBtn = document.getElementById('btn-add-client');
@@ -278,5 +381,5 @@
     if (event.persisted) { load(); }
   });
 
-  window.ClientsPage = { editClient: openEditModal, deleteClient: deleteClient };
+  window.ClientsPage = { editClient: openEditModal, deleteClient: deleteClient, clearImport: clearImport };
 })();

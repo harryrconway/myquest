@@ -4388,3 +4388,16 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .settings-level-select[data-level="1"] { background-color: #e0f2fe; color: #0369a1; }
 .settings-level-select[data-level="2"] { background-color: #ede9fe; color: #7c3aed; }
 .settings-level-select[data-level="3"] { background-color: #fef3c7; color: #92400e; }
+
+/* Client past-work search results */
+.cf-past-result {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.12s;
+}
+.cf-past-result:last-child { border-bottom: none; }
+.cf-past-result:hover { background: #f8fafc; }
+.cf-past-result__name { font-size: 13px; font-weight: 600; color: #1e293b; }
+.cf-past-result__meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+.cf-past-result__inv  { display: inline-block; font-size: 10px; font-weight: 700; color: #065f46; background: #d1fae5; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
