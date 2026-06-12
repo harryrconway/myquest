@@ -307,6 +307,13 @@
       });
       MQ.store.seed();
       syncAllStaffFromAccounts();
+      // Backfill colours for any staff that don't have one yet
+      var uncoloured = MQ.store.staff.getAll().filter(function (s) { return !s.colour; });
+      uncoloured.forEach(function (s) {
+        s.colour = pickStaffColour();
+        MQ.store.staff.save(s);
+        callApi('/api/update-profile', { userId: s.id, colour: s.colour }).catch(function () {});
+      });
       renderList();
       updateAddButton();
     }).catch(function () {
