@@ -36,6 +36,7 @@ export async function onRequestPost(context) {
       'Prefer': 'return=representation',
     },
     body: JSON.stringify({
+      status:              'unscheduled',
       full_name:           full_name,
       phone:               phone,
       email:               email,
