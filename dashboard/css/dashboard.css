@@ -4326,14 +4326,24 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 
 @media (max-width: 599px) {
   .modal-overlay--view {
-    padding: 20px;
+    padding: 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
     align-items: center;
   }
   .modal-overlay--view .modal-card {
     border-radius: 16px;
-    max-height: 80vh;
+    /* dvh accounts for iPhone address bar; vh as fallback */
+    max-height: 82vh;
+    max-height: calc(100dvh - 48px - env(safe-area-inset-bottom));
     max-width: 100%;
     width: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Remove nested scroll — the card is the single scroll container */
+  .modal-overlay--view .modal-body {
+    max-height: none !important;
+    overflow-y: visible !important;
   }
 }
 
