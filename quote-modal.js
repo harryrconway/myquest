@@ -214,7 +214,7 @@
   function stepDetails() {
     return '<div class="qm-step">' +
       field('Full Name', 'qm-name', 'text', state.full_name, 'Your name', true) +
-      field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true) +
+      field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel', 'Australian mobile or landline') +
       field('Email', 'qm-email', 'email', state.email, 'you@example.com', true) +
       '<div class="qm-field">' +
         '<label class="qm-label">Preferred Contact Method</label>' +
@@ -265,6 +265,7 @@
         stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
         stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
       '</div>' +
+      '<p class="qm-helper">Lounges, dining rooms, studies, etc.</p>' +
     '</div>';
   }
 
@@ -416,6 +417,7 @@
 
     body.innerHTML =
       '<div class="qm-step qm-review">' +
+        '<p class="qm-rv__hint">Tap any row to edit</p>' +
         '<table class="qm-rv">' + rows.join('') + '</table>' +
         '<div id="qm-submit-error" class="qm-error" style="display:none"></div>' +
       '</div>';
@@ -452,10 +454,11 @@
         '<h3 class="qm-success__heading">Request submitted!</h3>' +
         '<p class="qm-success__body">We\'ve received your quote request. A member of our team will be in touch within <strong>2 hours</strong>.</p>' +
         '<p class="qm-success__sub">Check your inbox — we\'ve sent a confirmation to <strong>' + escHtml(state.email) + '</strong>.</p>' +
-        '<p class="qm-success__countdown">Returning to home in <span id="qm-countdown-num">3</span>…</p>' +
+        '<button class="btn-outline qm-success__btn" id="qm-success-close">Close</button>' +
+        '<p class="qm-success__countdown">Closing in <span id="qm-countdown-num">5</span>…</p>' +
       '</div>';
 
-    var count = 3;
+    var count = 5;
     var interval = setInterval(function () {
       count--;
       var numEl = document.getElementById('qm-countdown-num');
@@ -466,6 +469,13 @@
         setTimeout(function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);
       }
     }, 1000);
+
+    var closeSuccessBtn = document.getElementById('qm-success-close');
+    if (closeSuccessBtn) closeSuccessBtn.addEventListener('click', function () {
+      clearInterval(interval);
+      closeModal();
+      setTimeout(function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);
+    });
   }
 
   /* ─── Wire interactivity ─────────────────────────────────────────────── */
@@ -737,8 +747,8 @@
     if (submitting) return;
     submitting = true;
     var btn = document.getElementById('qm-next');
-    btn.textContent = 'Submitting…';
-    btn.disabled    = true;
+    btn.innerHTML = '<span class="qm-spinner"></span>Submitting…';
+    btn.disabled  = true;
 
     var payload = Object.assign({}, state);
     if (payload.bedrooms)     payload.bedrooms     = parseInt(payload.bedrooms)     || null;
@@ -760,8 +770,8 @@
       if (data.success) {
         renderSuccess();
       } else {
-        btn.textContent = 'Submit Quote Request';
-        btn.disabled    = false;
+        btn.innerHTML = 'Submit Quote Request';
+        btn.disabled  = false;
         var errEl = document.getElementById('qm-submit-error');
         if (errEl) { errEl.textContent = data.error || 'Something went wrong. Please try again.'; errEl.style.display = ''; }
       }
@@ -777,7 +787,7 @@
 
   /* ─── HTML helpers ────────────────────────────────────────────────────── */
 
-  function field(label, id, type, val, placeholder, required, autocomplete, inputmode) {
+  function field(label, id, type, val, placeholder, required, autocomplete, inputmode, helper) {
     return '<div class="qm-field">' +
       '<label class="qm-label" for="' + id + '">' + label + (required ? ' <span class="qm-req">*</span>' : '') + '</label>' +
       '<input class="qm-input" type="' + type + '" id="' + id + '" value="' + escHtml(val || '') + '" placeholder="' + escHtml(placeholder || '') + '"' +
@@ -785,6 +795,7 @@
       (autocomplete ? ' autocomplete="' + autocomplete + '"' : '') +
       (inputmode ? ' inputmode="' + inputmode + '"' : '') +
       '>' +
+      (helper ? '<p class="qm-helper">' + helper + '</p>' : '') +
     '</div>';
   }
 

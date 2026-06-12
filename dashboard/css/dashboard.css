@@ -4155,10 +4155,16 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
     z-index: 100;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
   }
+  /* Client grid: single column on iPad and below */
+  .client-grid { grid-template-columns: 1fr; }
+  /* Hero right: allow buttons to wrap on narrow screens */
+  .jobs-hero__right { flex-wrap: wrap; justify-content: flex-end; gap: 8px; flex-shrink: 1; }
 }
 
 @media (max-width: 599px) {
   .client-grid { grid-template-columns: 1fr; }
+  /* Allow long client names to wrap instead of truncating */
+  .client-card__name { white-space: normal; }
   .cal-cell { min-height: 44px; padding: 5px; }
   .cal-job-chip { display: none; }
   .cal-cell__dot { display: block; }
@@ -4172,6 +4178,32 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   .cal-header { flex-direction: column; align-items: flex-start; gap: 10px; }
   .cal-header__title { min-width: unset; }
   .cal-month__dow { font-size: 9px; padding: 7px 0; }
+}
+
+/* ─── Bottom-sheet modals on mobile ──────────────────────────── */
+@media (max-width: 599px) {
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-card,
+  .modal-overlay .modal {
+    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+  }
+  .modal-header { padding: 14px 18px 12px; }
+  .modal-body   { padding: 14px 18px; }
+  .modal-footer {
+    padding: 12px 18px 18px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .modal-title { font-size: 16px; }
+  .modal-footer .btn-primary,
+  .modal-footer .btn-outline {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 /* ── Join date tooltip ─────────────────────────────────────── */
@@ -4388,6 +4420,13 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .settings-level-select[data-level="1"] { background-color: #e0f2fe; color: #0369a1; }
 .settings-level-select[data-level="2"] { background-color: #ede9fe; color: #7c3aed; }
 .settings-level-select[data-level="3"] { background-color: #fef3c7; color: #92400e; }
+
+/* Client form address row — stacks on small mobile */
+.cf-addr-row { display: flex; gap: 10px; }
+@media (max-width: 480px) {
+  .cf-addr-row { flex-direction: column; gap: 0; }
+  .cf-addr-row .form-group { flex: unset !important; }
+}
 
 /* Client past-work search results */
 .cf-past-result {

@@ -1782,6 +1782,40 @@ textarea.form-input {
   margin-top: 4px;
 }
 
+/* ---- Submit spinner ------------------------------------- */
+@keyframes qm-spin { to { transform: rotate(360deg); } }
+.qm-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(45, 106, 79, 0.25);
+  border-top-color: #2d6a4f;
+  border-radius: 50%;
+  animation: qm-spin 0.65s linear infinite;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+
+/* ---- Helper text ---------------------------------------- */
+.qm-helper {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+/* ---- Review: tap-to-edit hint --------------------------- */
+.qm-rv__hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 10px;
+  text-align: right;
+}
+
+/* ---- Review: edit chevron contrast ---------------------- */
+.qm-rv__edit { color: rgba(255, 255, 255, 0.45); }
+.qm-rv__row:hover .qm-rv__edit { color: rgba(255, 255, 255, 0.9); }
+
 /* ---- Responsive ------------------------------------------ */
 @media (max-width: 600px) {
   /* Fullscreen modal on mobile — JS drives height and padding-top via visualViewport */
