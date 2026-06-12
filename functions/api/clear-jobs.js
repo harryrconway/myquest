@@ -51,7 +51,7 @@ export async function onRequestPost(context) {
     : [target];
 
   try {
-    await Promise.all(statuses.map(function (status) {
+    const responses = await Promise.all(statuses.map(function (status) {
       return fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests?status=eq.${status}`, {
         method: 'DELETE',
         headers: {
@@ -61,6 +61,12 @@ export async function onRequestPost(context) {
         },
       });
     }));
+
+    const failed = responses.filter(function (r) { return !r.ok; });
+    if (failed.length) {
+      const detail = await Promise.all(failed.map(function (r) { return r.text(); }));
+      return json({ error: 'Delete failed: ' + detail.join(' | ') }, 500);
+    }
     return json({ success: true });
   } catch (err) {
     return json({ error: 'Delete failed: ' + err.message }, 500);
