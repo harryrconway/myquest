@@ -101,12 +101,8 @@
     if (cached && cached.role) {
       MQ.session = cached;
       MQ.hasRole = function (minRole) { return roleLevel(cached.role) >= roleLevel(minRole); };
-      sb.auth.getSession().then(function (r) {
-        if (!r.data || !r.data.session) {
-          sessionStorage.removeItem(SESSION_KEY);
-          window.location.href = '../login.html';
-          return;
-        }
+      var fastCheck = await sb.auth.getSession();
+      if (fastCheck.data && fastCheck.data.session) {
         function doReady() {
           applyRoleGating(cached);
           populateUserInfo(cached);
@@ -119,8 +115,10 @@
         } else {
           doReady();
         }
-      });
-      return;
+        return;
+      }
+      // getSession() null — Supabase still initialising from localStorage; fall to slow path.
+      sessionStorage.removeItem(SESSION_KEY);
     }
 
     // Slow path: full auth + profile fetch (first load / after logout)
