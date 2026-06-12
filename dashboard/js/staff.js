@@ -8,6 +8,18 @@
   var ICON_EMAIL  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
   var ICON_PHONE  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>';
 
+  function callApi(path, body) {
+    return MQ.supabase.auth.getSession().then(function (r) {
+      var token = r.data && r.data.session && r.data.session.access_token;
+      if (!token) return Promise.reject(new Error('Not authenticated'));
+      return fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body),
+      }).then(function (res) { return res.json(); });
+    });
+  }
+
   function esc(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -212,6 +224,7 @@
     MQ.store.staff.save(s);
     renderList();
     MQ.ui.toast(s.active ? 'Staff member activated' : 'Staff member deactivated', 'info');
+    callApi('/api/update-profile', { userId: s.id, status: s.active ? 'active' : 'suspended' }).catch(function () {});
   }
 
   function syncAllStaffFromAccounts() {
@@ -256,7 +269,7 @@
     updateAddButton();
 
     // Seed MQ.store.accounts from Supabase profiles, then render
-    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status').then(function (result) {
+    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status, phone').then(function (result) {
       (result.data || []).forEach(function (p) {
         MQ.store.accounts.save({
           id:            p.id,
@@ -266,6 +279,12 @@
           cleaningLevel: p.cleaning_level || 1,
           status:        p.status === 'suspended' ? 'suspended' : 'active',
         });
+        // Keep phone in local staff record in sync with Supabase
+        var staffRec = MQ.store.staff.getById(p.id);
+        if (staffRec && p.phone !== undefined && p.phone !== staffRec.phone) {
+          staffRec.phone = p.phone || '';
+          MQ.store.staff.save(staffRec);
+        }
       });
       MQ.store.seed();
       syncAllStaffFromAccounts();
@@ -297,6 +316,10 @@
       };
       if (editingId) obj.id = editingId;
       MQ.store.staff.save(obj);
+      // Sync phone to Supabase profile when editing an existing staff member
+      if (editingId) {
+        callApi('/api/update-profile', { userId: editingId, phone: obj.phone || '' }).catch(function () {});
+      }
       MQ.ui.modal.close('modal-edit-staff');
       renderList();
       updateAddButton();

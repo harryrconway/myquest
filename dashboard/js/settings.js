@@ -335,6 +335,7 @@
     current.com.baseRatePerSqm  = parseFloat(document.getElementById('rate-com-sqm').value)    || 0.12;
     current.com.hourlyRate      = parseFloat(document.getElementById('rate-com-hourly').value)  || 50;
     MQ.store.rates.save(current);
+    callApi('/api/save-settings', { key: 'rates', value: current }).catch(function () {});
     MQ.ui.toast('Rates saved');
   }
 
@@ -373,6 +374,7 @@
         var r = MQ.store.rates.get();
         r.checklist = items2;
         MQ.store.rates.save(r);
+        callApi('/api/save-settings', { key: 'checklist_template', value: items2 }).catch(function () {});
         renderChecklistTemplate();
       });
     });
@@ -388,6 +390,7 @@
     var r = MQ.store.rates.get();
     r.checklist = items;
     MQ.store.rates.save(r);
+    callApi('/api/save-settings', { key: 'checklist_template', value: items }).catch(function () {});
     MQ.ui.toast('Checklist template saved');
   }
 
@@ -406,6 +409,24 @@
      INIT
   ══════════════════════════════════════════════════════════ */
 
+  async function loadSettingsFromSupabase() {
+    var result = await MQ.supabase.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']);
+    if (!result.data) return;
+    result.data.forEach(function (row) {
+      if (row.key === 'rates' && row.value && typeof row.value === 'object') {
+        var current = MQ.store.rates.get();
+        // Merge top-level keys from Supabase into localStorage defaults
+        Object.assign(current, row.value);
+        MQ.store.rates.save(current);
+      }
+      if (row.key === 'checklist_template' && Array.isArray(row.value)) {
+        var r = MQ.store.rates.get();
+        r.checklist = row.value;
+        MQ.store.rates.save(r);
+      }
+    });
+  }
+
   document.addEventListener('mq:ready', function () {
     if (!MQ.hasRole('owner')) {
       window.location.href = 'index.html';
@@ -416,6 +437,12 @@
     populateRates();
     renderChecklistTemplate();
     initCreateAccountForm();
+
+    // Load authoritative settings from Supabase and re-render forms
+    loadSettingsFromSupabase().then(function () {
+      populateRates();
+      renderChecklistTemplate();
+    }).catch(function () {});
 
     document.getElementById('btn-create-account').addEventListener('click', openCreateModal);
     document.getElementById('save-rates-btn').addEventListener('click', saveRates);

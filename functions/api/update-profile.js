@@ -18,22 +18,28 @@ export async function onRequestPost(context) {
     headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
   });
   const profiles = await profileRes.json();
-  if (!profiles.length || profiles[0].role !== 'owner') return json({ error: 'Only owners can update profiles.' }, 403);
+  const callerRole = profiles && profiles[0] && profiles[0].role;
+  if (!['owner', 'manager'].includes(callerRole)) return json({ error: 'Insufficient permissions.' }, 403);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
-  const { userId, role, cleaning_level, status } = body;
+  const { userId, role, cleaning_level, status, phone } = body;
   if (!userId) return json({ error: 'userId is required.' }, 400);
 
   const updates = {};
-  if (role !== undefined) {
-    if (!['owner','manager','staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
-    updates.role = role;
-  }
-  if (cleaning_level !== undefined) updates.cleaning_level = Number(cleaning_level) || 1;
-  if (status !== undefined) {
-    if (!['active','suspended'].includes(status)) return json({ error: 'Invalid status.' }, 400);
-    updates.status = status;
+  // Any manager or owner can update phone
+  if (phone !== undefined) updates.phone = String(phone || '').trim().slice(0, 30) || null;
+  // Only owners can change role, level, or account status
+  if (callerRole === 'owner') {
+    if (role !== undefined) {
+      if (!['owner','manager','staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
+      updates.role = role;
+    }
+    if (cleaning_level !== undefined) updates.cleaning_level = Number(cleaning_level) || 1;
+    if (status !== undefined) {
+      if (!['active','suspended'].includes(status)) return json({ error: 'Invalid status.' }, 400);
+      updates.status = status;
+    }
   }
   if (!Object.keys(updates).length) return json({ error: 'No fields to update.' }, 400);
 

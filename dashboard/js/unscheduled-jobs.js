@@ -409,7 +409,19 @@
 
   /* ─── Init ──────────────────────────────────────────────────── */
 
+  // Fetch checklist template from Supabase and update localStorage cache
+  function syncChecklistTemplate() {
+    return MQ.supabase.from('company_settings').select('value').eq('key', 'checklist_template').single().then(function (result) {
+      if (result.data && Array.isArray(result.data.value)) {
+        var r = MQ.store.rates.get();
+        r.checklist = result.data.value;
+        MQ.store.rates.save(r);
+      }
+    }).catch(function () {});
+  }
+
   document.addEventListener('mq:ready', function () {
+    syncChecklistTemplate();
     load();
     document.getElementById('btn-refresh').addEventListener('click', load);
     document.getElementById('uj-accept-submit').addEventListener('click', submitAccept);
