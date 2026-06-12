@@ -2116,6 +2116,41 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   letter-spacing: 0.04em;
 }
 
+/* ─── Job card staff list ───────────────────────────────── */
+.job-card__staff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.job-card__staff-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.job-card__staff-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.job-card__staff-contact {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.job-card__staff-contact span {
+  font-size: 11px;
+  color: #64748b;
+}
+
 @media (max-width: 767px) {
   .dash-welcome {
     flex-direction: column;

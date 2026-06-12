@@ -63,18 +63,23 @@
       var now = new Date();
       var monthEndStr = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
 
-      var { data, error } = await MQ.supabase
-        .from('quote_requests')
-        .select('id, full_name, suburb, state, services, scheduled_date, scheduled_time, assigned_staff_ids, property_type')
-        .eq('status', 'scheduled')
-        .gte('scheduled_date', today)
-        .lte('scheduled_date', monthEndStr)
-        .order('scheduled_date', { ascending: true })
-        .order('scheduled_time', { ascending: true });
+      var [jobsRes, staffRes] = await Promise.all([
+        MQ.supabase
+          .from('quote_requests')
+          .select('id, full_name, street_address, suburb, state, postcode, scheduled_date, scheduled_time, assigned_staff_ids')
+          .eq('status', 'scheduled')
+          .gte('scheduled_date', today)
+          .lte('scheduled_date', monthEndStr)
+          .order('scheduled_date', { ascending: true })
+          .order('scheduled_time', { ascending: true }),
+        MQ.supabase
+          .from('profiles')
+          .select('id, name, phone, email'),
+      ]);
 
-      if (error) throw error;
+      if (jobsRes.error) throw jobsRes.error;
 
-      var jobs = data || [];
+      var jobs = jobsRes.data || [];
 
       if (!jobs.length) {
         container.innerHTML =
@@ -86,7 +91,7 @@
       }
 
       var staffMap = {};
-      MQ.store.staff.getAll().forEach(function (s) { staffMap[s.id] = s; });
+      (staffRes.data || []).forEach(function (s) { staffMap[s.id] = s; });
 
       var todayDate = today;
       var tomorrowDate = new Date();
@@ -109,12 +114,25 @@
         var count      = groups[date].length;
 
         var cardsHtml = groups[date].map(function (j) {
-          var timeStr  = j.scheduled_time ? fmtTime(j.scheduled_time) : '—';
-          var location = [j.suburb, j.state].filter(Boolean).join(', ');
-          var services = j.services && j.services.length ? j.services.slice(0, 2).join(', ') : '—';
-          var staffNames = (j.assigned_staff_ids || []).slice(0, 3).map(function (id) {
+          var timeStr = j.scheduled_time ? fmtTime(j.scheduled_time) : '—';
+
+          var addrParts = [
+            j.street_address,
+            j.suburb,
+            (j.state && j.postcode) ? j.state + ' ' + j.postcode : (j.state || j.postcode),
+          ].filter(Boolean);
+          var location = addrParts.join(', ');
+
+          var staffHtml = (j.assigned_staff_ids || []).map(function (id) {
             var s = staffMap[id];
-            return s ? '<span class="job-card__avatar" title="' + s.name + '">' + s.name.charAt(0) + '</span>' : '';
+            if (!s) return '';
+            var contacts = [s.phone, s.email].filter(Boolean).map(function (c) {
+              return '<span>' + escHtml(c) + '</span>';
+            }).join('');
+            return '<div class="job-card__staff-row">' +
+              '<span class="job-card__staff-name">' + escHtml(s.name) + '</span>' +
+              (contacts ? '<span class="job-card__staff-contact">' + contacts + '</span>' : '') +
+            '</div>';
           }).filter(Boolean).join('');
 
           return '<div class="job-card job-card--scheduled">' +
@@ -124,13 +142,9 @@
             '<div class="job-card__body">' +
               '<div class="job-card__top">' +
                 '<span class="job-card__client">' + escHtml(j.full_name) + '</span>' +
-                '<span class="badge badge--green" style="font-size:11px;">Scheduled</span>' +
               '</div>' +
               (location ? '<div class="job-card__addr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escHtml(location) + '</div>' : '') +
-              '<div class="job-card__footer">' +
-                (staffNames ? '<div class="job-card__avatars">' + staffNames + '</div>' : '<div></div>') +
-                '<span class="job-card__chip">' + escHtml(services) + '</span>' +
-              '</div>' +
+              (staffHtml ? '<div class="job-card__staff-list">' + staffHtml + '</div>' : '') +
             '</div>' +
           '</div>';
         }).join('');
