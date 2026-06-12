@@ -273,16 +273,23 @@
   async function loadPastJobs() {
     if (pastJobs.length) return;
     var { data } = await sb.from('quote_requests')
-      .select('id, full_name, email, phone, street_address, suburb, state, postcode, services, scheduled_date, invoice_reference')
-      .eq('status', 'completed')
-      .order('updated_at', { ascending: false });
-    pastJobs = (data || []).filter(function (j) { return j.full_name; });
+      .select('id, full_name, email, phone, street_address, suburb, state, postcode, services, scheduled_date, invoice_reference, status')
+      .not('full_name', 'is', null)
+      .order('created_at', { ascending: false });
+    pastJobs = data || [];
   }
 
   function onPastSearchInput() {
     var query = document.getElementById('cf-past-search').value.trim().toLowerCase();
     if (!query || query.length < 2) {
       document.getElementById('cf-past-results').style.display = 'none';
+      return;
+    }
+    if (!pastJobs.length) {
+      var resultsEl = document.getElementById('cf-past-results');
+      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">Loading…</div>';
+      resultsEl.style.display = '';
+      loadPastJobs().then(function () { renderPastResults(query); });
       return;
     }
     renderPastResults(query);
@@ -300,19 +307,25 @@
     }).slice(0, 8);
 
     if (!matched.length) {
-      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">No completed jobs found</div>';
+      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">No past jobs found</div>';
       resultsEl.style.display = '';
       return;
     }
+
+    var statusLabel = { completed: 'Done', scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
+    var statusColor = { completed: '#065f46', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
+    var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
 
     resultsEl.innerHTML = matched.map(function (j, i) {
       var location  = [j.suburb, j.state].filter(Boolean).join(', ');
       var dateLabel = j.scheduled_date ? fmtDate(j.scheduled_date) : '';
       var inv       = j.invoice_reference
         ? '<span class="cf-past-result__inv">INV: ' + escHtml(j.invoice_reference) + '</span>' : '';
+      var statusTag = j.status
+        ? '<span style="font-size:10px;font-weight:700;color:' + (statusColor[j.status] || '#64748b') + ';background:' + (statusBg[j.status] || '#f1f5f9') + ';padding:1px 6px;border-radius:4px;margin-left:6px;">' + (statusLabel[j.status] || j.status) + '</span>' : '';
       var services  = (j.services || []).slice(0, 2).join(', ');
       return '<div class="cf-past-result" data-idx="' + i + '">' +
-        '<div class="cf-past-result__name">' + escHtml(j.full_name) + inv + '</div>' +
+        '<div class="cf-past-result__name">' + escHtml(j.full_name) + statusTag + inv + '</div>' +
         '<div class="cf-past-result__meta">' +
           (location  ? escHtml(location)         : '') +
           (j.phone   ? ' · ' + escHtml(j.phone)  : '') +
