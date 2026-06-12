@@ -3281,10 +3281,42 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .req-card__actions {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
   flex-shrink: 0;
   align-self: center;
+}
+.job-card__side-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.job-card__side-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.job-card__side-pill--checklist {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.job-card__side-pill--done {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+.job-card__side-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 /* ---- Job card footer actions for scheduled/completed ------ */

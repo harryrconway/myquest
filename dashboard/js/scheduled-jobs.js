@@ -131,12 +131,21 @@
         if (typeof checklist === 'string') { try { checklist = JSON.parse(checklist); } catch(e) { checklist = []; } }
         var checklistArr = Array.isArray(checklist) ? checklist : [];
         var checkDone = checklistArr.filter(function(x){ return x.done; }).length;
-        var checkBadge = checklistArr.length > 0
-          ? '<span style="font-size:10px;font-weight:700;color:' + (checkDone === checklistArr.length ? '#2d6a4f' : '#64748b') + ';background:' + (checkDone === checklistArr.length ? '#d1fae5' : '#f1f5f9') + ';padding:2px 7px;border-radius:20px;margin-left:4px;">' + checkDone + '/' + checklistArr.length + '</span>'
-          : '';
-        var recurBadge = (j.recurrence && j.recurrence !== 'none')
-          ? '<span class="recurrence-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> ' + j.recurrence + '</span>'
-          : '';
+        var allDone = checklistArr.length > 0 && checkDone === checklistArr.length;
+
+        var sideInfoHtml = '';
+        if (j.property_type) {
+          sideInfoHtml += '<span class="job-card__side-pill">' + escHtml(j.property_type) + '</span>';
+        }
+        if (j.frequency) {
+          sideInfoHtml += '<span class="job-card__side-pill">' + escHtml(j.frequency) + '</span>';
+        }
+        if (checklistArr.length > 0) {
+          sideInfoHtml += '<span class="job-card__side-pill job-card__side-pill--checklist' + (allDone ? ' job-card__side-pill--done' : '') + '">' +
+            '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+            checkDone + '/' + checklistArr.length +
+          '</span>';
+        }
 
         return '<div class="job-card job-card--scheduled">' +
           '<div class="job-card__time">' +
@@ -146,17 +155,18 @@
           '<div class="req-card__body">' +
             '<div class="req-card__row1">' +
               '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
-              (j.property_type ? '<span class="badge badge--blue" style="font-size:11px;">' + escHtml(j.property_type) + '</span>' : '') +
-              recurBadge + checkBadge +
             '</div>' +
             (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
             (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +
             (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
           '</div>' +
           '<div class="req-card__actions">' +
-            '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">View</button>'     +
-            '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">Edit</button>'     +
-            '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">Complete</button>' +
+            (sideInfoHtml ? '<div class="job-card__side-info">' + sideInfoHtml + '</div>' : '') +
+            '<div class="job-card__side-btns">' +
+              '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">View</button>'     +
+              '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">Edit</button>'     +
+              '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">Complete</button>' +
+            '</div>' +
           '</div>' +
         '</div>';
       }).join('');
