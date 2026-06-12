@@ -215,14 +215,14 @@
               '✓ Invoice Sent' + (j.invoice_reference ? ' · ' + escHtml(j.invoice_reference) : '') +
             '</span>' +
           '</div>' +
-          '<button class="btn-outline" data-modal-close="modal-cj-view">Close</button>';
+          '<button class="btn-outline" onclick="MQ.ui.modal.close(\'modal-cj-view\')">Close</button>';
       } else {
         footer.innerHTML =
           '<button class="btn-outline" style="margin-right:auto;" onclick="CJPage.openInvoice(\'' + escHtml(j.id) + '\')">Mark Invoice Sent</button>' +
-          '<button class="btn-outline" data-modal-close="modal-cj-view">Close</button>';
+          '<button class="btn-outline" onclick="MQ.ui.modal.close(\'modal-cj-view\')">Close</button>';
       }
     } else if (footer) {
-      footer.innerHTML = '<button class="btn-outline" data-modal-close="modal-cj-view">Close</button>';
+      footer.innerHTML = '<button class="btn-outline" onclick="MQ.ui.modal.close(\'modal-cj-view\')">Close</button>';
     }
   }
 
