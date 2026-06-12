@@ -278,9 +278,7 @@
       .subscribe();
   });
 
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted) { load(); }
-  });
+  document.addEventListener('mq:pageshow', function () { load(); });
 
   window.CJPage = { view: view, openInvoice: openInvoice };
 })();

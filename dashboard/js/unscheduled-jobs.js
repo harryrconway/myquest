@@ -445,5 +445,7 @@
     if (event.persisted) { load(); }
   });
 
+  document.addEventListener('mq:pageshow', function () { load(); });
+
   window.UJPage = { view: view, openAccept: openAccept, archive: archive };
 })();

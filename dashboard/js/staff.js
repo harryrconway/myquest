@@ -327,9 +327,7 @@
     });
   });
 
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted) { renderList(); }
-  });
+  document.addEventListener('mq:pageshow', function () { renderList(); });
 
   window.StaffPage = { edit: edit, remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount };
 })();

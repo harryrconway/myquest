@@ -234,7 +234,5 @@
 
   document.addEventListener('mq:ready', function () { init(); });
 
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted) { load(); }
-  });
+  document.addEventListener('mq:pageshow', function () { load(); });
 })();

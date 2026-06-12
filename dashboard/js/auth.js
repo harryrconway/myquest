@@ -95,28 +95,29 @@
       return;
     }
 
-    // Fast path: cached session → instant render, background token check
+    // Fast path: cached session — confirm Supabase client has live session, then fire mq:ready
     var cached = null;
     try { cached = JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch (e) {}
     if (cached && cached.role) {
       MQ.session = cached;
       MQ.hasRole = function (minRole) { return roleLevel(cached.role) >= roleLevel(minRole); };
-      function fastReady() {
-        applyRoleGating(cached);
-        populateUserInfo(cached);
-        initLogout(sb);
-        startIdleMonitor(sb);
-        document.dispatchEvent(new CustomEvent('mq:ready'));
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', fastReady, { once: true });
-      } else {
-        fastReady();
-      }
       sb.auth.getSession().then(function (r) {
         if (!r.data || !r.data.session) {
           sessionStorage.removeItem(SESSION_KEY);
           window.location.href = '../login.html';
+          return;
+        }
+        function doReady() {
+          applyRoleGating(cached);
+          populateUserInfo(cached);
+          initLogout(sb);
+          startIdleMonitor(sb);
+          document.dispatchEvent(new CustomEvent('mq:ready'));
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', doReady, { once: true });
+        } else {
+          doReady();
         }
       });
       return;
@@ -178,5 +179,20 @@
   }
 
   init();
+
+  // On bfcache restoration, confirm session is still live then let pages reload data
+  window.addEventListener('pageshow', function (event) {
+    if (!event.persisted) return;
+    var sb = window.MQ && MQ.supabase;
+    if (!sb) return;
+    sb.auth.getSession().then(function (r) {
+      if (!r.data || !r.data.session) {
+        sessionStorage.removeItem(SESSION_KEY);
+        window.location.href = '../login.html';
+        return;
+      }
+      document.dispatchEvent(new CustomEvent('mq:pageshow'));
+    });
+  });
 
 })();
