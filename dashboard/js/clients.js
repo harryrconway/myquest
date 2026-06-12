@@ -2,11 +2,11 @@
   'use strict';
 
   var sb;
-  var clients = [];
+  var clients        = [];
+  var pastJobs       = [];
   var selectedClientId = null;
   var editingClientId  = null;
   var importSourceId   = null;
-  var pastSearchTimer  = null;
 
   function initials(name) {
     return (name || '').split(' ').filter(Boolean).map(function (p) { return p[0]; }).join('').toUpperCase().slice(0, 2) || '?';
@@ -83,10 +83,10 @@
     if (!q) return clients;
     q = q.toLowerCase();
     return clients.filter(function (c) {
-      return (c.full_name || '').toLowerCase().includes(q) ||
-        (c.email    || '').toLowerCase().includes(q) ||
-        (c.suburb   || '').toLowerCase().includes(q) ||
-        (c.phone    || '').toLowerCase().includes(q);
+      return (c.full_name || '').toLowerCase().indexOf(q) !== -1 ||
+        (c.email    || '').toLowerCase().indexOf(q) !== -1 ||
+        (c.suburb   || '').toLowerCase().indexOf(q) !== -1 ||
+        (c.phone    || '').toLowerCase().indexOf(q) !== -1;
     });
   }
 
@@ -188,6 +188,7 @@
     document.getElementById('cf-past-tag').style.display        = 'none';
     document.getElementById('cf-past-tag').innerHTML            = '';
     document.getElementById('cf-past-section').style.display    = '';
+    loadPastJobs();
     MQ.ui.modal.open('modal-client-form');
   }
 
@@ -244,6 +245,7 @@
 
       MQ.ui.modal.close('modal-client-form');
       MQ.ui.toast(editingClientId ? 'Client updated' : 'Client added');
+      pastJobs = [];
       load();
     } catch (err) {
       errEl.textContent = err.message; errEl.style.display = '';
@@ -266,37 +268,44 @@
     });
   }
 
-  /* ─── Past work search ───────────────────────────────────────── */
+  /* ─── Past work search (client-side) ────────────────────────── */
+
+  async function loadPastJobs() {
+    if (pastJobs.length) return;
+    var { data } = await sb.from('quote_requests')
+      .select('id, full_name, email, phone, street_address, suburb, state, postcode, services, scheduled_date, invoice_reference')
+      .eq('status', 'completed')
+      .order('updated_at', { ascending: false });
+    pastJobs = (data || []).filter(function (j) { return j.full_name; });
+  }
 
   function onPastSearchInput() {
-    clearTimeout(pastSearchTimer);
-    var query = document.getElementById('cf-past-search').value.trim();
+    var query = document.getElementById('cf-past-search').value.trim().toLowerCase();
     if (!query || query.length < 2) {
       document.getElementById('cf-past-results').style.display = 'none';
       return;
     }
-    pastSearchTimer = setTimeout(function () { searchPastJobs(query); }, 280);
+    renderPastResults(query);
   }
 
-  async function searchPastJobs(query) {
+  function renderPastResults(query) {
     var resultsEl = document.getElementById('cf-past-results');
-    resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">Searching…</div>';
-    resultsEl.style.display = '';
 
-    var { data } = await sb.from('quote_requests')
-      .select('id, full_name, email, phone, street_address, suburb, state, postcode, services, scheduled_date, invoice_reference')
-      .or('full_name.ilike.%' + query + '%,suburb.ilike.%' + query + '%')
-      .not('full_name', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(8);
+    var matched = pastJobs.filter(function (j) {
+      return (j.full_name         || '').toLowerCase().indexOf(query) !== -1 ||
+             (j.phone             || '').toLowerCase().indexOf(query) !== -1 ||
+             (j.street_address    || '').toLowerCase().indexOf(query) !== -1 ||
+             (j.suburb            || '').toLowerCase().indexOf(query) !== -1 ||
+             (j.invoice_reference || '').toLowerCase().indexOf(query) !== -1;
+    }).slice(0, 8);
 
-    var jobs = data || [];
-    if (!jobs.length) {
-      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">No past jobs found</div>';
+    if (!matched.length) {
+      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">No completed jobs found</div>';
+      resultsEl.style.display = '';
       return;
     }
 
-    resultsEl.innerHTML = jobs.map(function (j, i) {
+    resultsEl.innerHTML = matched.map(function (j, i) {
       var location  = [j.suburb, j.state].filter(Boolean).join(', ');
       var dateLabel = j.scheduled_date ? fmtDate(j.scheduled_date) : '';
       var inv       = j.invoice_reference
@@ -305,27 +314,29 @@
       return '<div class="cf-past-result" data-idx="' + i + '">' +
         '<div class="cf-past-result__name">' + escHtml(j.full_name) + inv + '</div>' +
         '<div class="cf-past-result__meta">' +
-          (location  ? escHtml(location)  : '') +
-          (dateLabel ? ' · ' + dateLabel  : '') +
-          (services  ? ' · ' + escHtml(services) : '') +
+          (location  ? escHtml(location)         : '') +
+          (j.phone   ? ' · ' + escHtml(j.phone)  : '') +
+          (dateLabel ? ' · ' + dateLabel          : '') +
+          (services  ? ' · ' + escHtml(services)  : '') +
         '</div>' +
         '</div>';
     }).join('');
 
     resultsEl.querySelectorAll('.cf-past-result').forEach(function (el) {
-      el.addEventListener('click', function () { prefillFromJob(jobs[parseInt(el.dataset.idx)]); });
+      el.addEventListener('click', function () { prefillFromJob(matched[parseInt(el.dataset.idx)]); });
     });
+    resultsEl.style.display = '';
   }
 
   function prefillFromJob(job) {
     importSourceId = job.id;
-    document.getElementById('cf-name').value     = job.full_name     || '';
-    document.getElementById('cf-email').value    = job.email         || '';
-    document.getElementById('cf-phone').value    = job.phone         || '';
+    document.getElementById('cf-name').value     = job.full_name      || '';
+    document.getElementById('cf-email').value    = job.email          || '';
+    document.getElementById('cf-phone').value    = job.phone          || '';
     document.getElementById('cf-street').value   = job.street_address || '';
-    document.getElementById('cf-suburb').value   = job.suburb        || '';
-    document.getElementById('cf-state').value    = job.state         || '';
-    document.getElementById('cf-postcode').value = job.postcode      || '';
+    document.getElementById('cf-suburb').value   = job.suburb         || '';
+    document.getElementById('cf-state').value    = job.state          || '';
+    document.getElementById('cf-postcode').value = job.postcode       || '';
 
     document.getElementById('cf-past-results').style.display = 'none';
     document.getElementById('cf-past-search').value          = '';
