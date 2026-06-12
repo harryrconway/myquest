@@ -68,6 +68,7 @@
             <span class="jobs-hero__count" id="clients-count">—</span>
             <div class="jobs-hero__count-label">clients</div>
           </div>
+          <button class="btn-primary" id="btn-add-client" style="display:none;">+ Add Client</button>
           <button class="btn-outline" id="btn-refresh">Refresh</button>
         </div>
       </div>
@@ -84,7 +85,7 @@
           </div>
           <div id="clients-empty" class="empty-state" style="padding:4rem;display:none;">
             <p class="empty-state__title">No clients yet</p>
-            <p class="empty-state__sub">Clients are created automatically when quotes are submitted</p>
+            <p class="empty-state__sub">Clients are created automatically when quotes are submitted, or add one manually.</p>
           </div>
         </div>
 
@@ -106,7 +107,58 @@
     </div></div>
   </div>
 
+  <!-- Add / Edit Client Modal -->
+  <div class="modal-overlay" id="modal-client-form" role="dialog" aria-modal="true" hidden>
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <span class="modal-title" id="client-form-title">Add Client</span>
+        <button class="modal-close" onclick="MQ.ui.modal.close('modal-client-form')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="client-form-error" class="form-error" style="display:none;margin-bottom:12px;color:var(--color-error);font-size:13px;"></div>
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" id="cf-name" class="form-input" placeholder="e.g. Jane Smith">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="cf-email" class="form-input" placeholder="jane@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" id="cf-phone" class="form-input" placeholder="04xx xxx xxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Street Address</label>
+          <input type="text" id="cf-street" class="form-input" placeholder="123 Main St">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <div class="form-group" style="flex:2">
+            <label class="form-label">Suburb</label>
+            <input type="text" id="cf-suburb" class="form-input">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">State</label>
+            <input type="text" id="cf-state" class="form-input" placeholder="VIC">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label class="form-label">Postcode</label>
+            <input type="text" id="cf-postcode" class="form-input" placeholder="3000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea id="cf-notes" class="form-input" rows="3" placeholder="Any notes…" style="resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" onclick="MQ.ui.modal.close('modal-client-form')">Cancel</button>
+        <button class="btn-primary" id="cf-submit">Save Client</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/ui.js?v=20260612" defer></script>
-  <script src="js/clients.js?v=20260626" defer></script>
+  <script src="js/clients.js?v=20260612" defer></script>
 </body>
 </html>

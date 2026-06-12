@@ -4,6 +4,7 @@
   var sb;
   var clients = [];
   var selectedClientId = null;
+  var editingClientId = null;
 
   function initials(name) {
     return (name || '').split(' ').filter(Boolean).map(function (p) { return p[0]; }).join('').toUpperCase().slice(0, 2) || '?';
@@ -94,36 +95,40 @@
 
     renderGrid(filterClients(document.getElementById('clients-search').value));
 
-    // Populate header
     document.getElementById('cd-avatar').textContent = initials(c.full_name);
     document.getElementById('cd-name').textContent = c.full_name;
-    document.getElementById('cd-sub').textContent = [c.email, c.phone].filter(Boolean).join(' · ') || 'No contact info';
+
+    var subParts = [];
+    if (c.email) subParts.push('<a href="mailto:' + escHtml(c.email) + '">' + escHtml(c.email) + '</a>');
+    if (c.phone) subParts.push('<a href="tel:' + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a>');
+    document.getElementById('cd-sub').innerHTML = subParts.join(' · ') || 'No contact info';
 
     var body = document.getElementById('cd-body');
-
-    // Build contact rows
     var address = [c.street_address, c.suburb, c.state, c.postcode].filter(Boolean).join(', ');
-    var rows = [
-      ['Email', c.email || '—'],
-      ['Phone', c.phone || '—'],
-      ['Address', address || '—'],
-    ];
-    if (c.notes) rows.push(['Notes', c.notes]);
 
-    var html = '<div class="client-detail__section-title">Contact</div>';
-    rows.forEach(function (r) {
-      html += '<div class="client-detail-row"><span class="client-detail-row__label">' + r[0] + '</span>' +
-        '<span class="client-detail-row__val">' + escHtml(r[1]) + '</span></div>';
-    });
-    html += '<div class="client-detail__section-title">Job History</div>' +
+    var rows = '<div class="client-detail__section-title">Contact</div>';
+    if (c.email) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Email</span>' +
+      '<span class="client-detail-row__val"><a href="mailto:' + escHtml(c.email) + '">' + escHtml(c.email) + '</a></span></div>';
+    if (c.phone) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Phone</span>' +
+      '<span class="client-detail-row__val"><a href="tel:' + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a></span></div>';
+    if (address) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Address</span>' +
+      '<span class="client-detail-row__val">' + escHtml(address) + '</span></div>';
+    if (!c.email && !c.phone && !address) rows += '<div class="client-detail-row"><span class="client-detail-row__val" style="color:#94a3b8;font-style:italic;">No contact info</span></div>';
+    if (c.notes) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Notes</span>' +
+      '<span class="client-detail-row__val">' + escHtml(c.notes) + '</span></div>';
+
+    var actions = '';
+    if (MQ.hasRole('manager')) actions += '<button class="btn-outline" style="font-size:13px;padding:6px 14px;" onclick="ClientsPage.editClient(\'' + escHtml(c.id) + '\')">Edit</button>';
+    if (MQ.hasRole('owner'))   actions += '<button class="btn-outline" style="font-size:13px;padding:6px 14px;color:var(--color-error);border-color:var(--color-error);" onclick="ClientsPage.deleteClient(\'' + escHtml(c.id) + '\')">Delete</button>';
+    if (actions) rows += '<div style="display:flex;gap:8px;padding:12px 0 4px;">' + actions + '</div>';
+
+    rows += '<div class="client-detail__section-title">Job History</div>' +
       '<p style="font-size:13px;color:#94a3b8;padding:6px 0;">Loading…</p>';
-    body.innerHTML = html;
+    body.innerHTML = rows;
 
-    // Show detail panel
     document.getElementById('client-detail').hidden = false;
     document.getElementById('clients-layout').classList.remove('no-panel');
 
-    // Load jobs async
     var jobRes = await sb.from('quote_requests')
       .select('id, service_type, suburb, bedrooms, bathrooms, status, scheduled_date, created_at')
       .eq('client_id', id)
@@ -131,7 +136,7 @@
     var cJobs = jobRes.data || [];
 
     var statusColor = { completed: '#2d6a4f', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
-    var statusBg = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
+    var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
     var statusLabel = { completed: 'Done', scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
 
     var jobHtml = '<div class="client-detail__section-title">Job History (' + cJobs.length + ')</div>';
@@ -152,8 +157,7 @@
       });
     }
 
-    // Re-build body with jobs
-    body.innerHTML = html.replace(/<div class="client-detail__section-title">Job History<\/div>.*$/s, '') + jobHtml;
+    body.innerHTML = rows.replace(/<div class="client-detail__section-title">Job History<\/div>.*$/s, '') + jobHtml;
   }
 
   function closeDetail() {
@@ -163,14 +167,106 @@
     renderGrid(filterClients(document.getElementById('clients-search').value));
   }
 
+  /* ─── Add / Edit Modal ───────────────────────────────────────── */
+
+  function openAddModal() {
+    editingClientId = null;
+    document.getElementById('client-form-title').textContent = 'Add Client';
+    ['cf-name','cf-email','cf-phone','cf-street','cf-suburb','cf-state','cf-postcode'].forEach(function (id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('cf-notes').value = '';
+    document.getElementById('client-form-error').style.display = 'none';
+    MQ.ui.modal.open('modal-client-form');
+  }
+
+  function openEditModal(id) {
+    var c = clients.find(function (x) { return x.id === id; });
+    if (!c) return;
+    editingClientId = id;
+    document.getElementById('client-form-title').textContent = 'Edit Client';
+    document.getElementById('cf-name').value    = c.full_name || '';
+    document.getElementById('cf-email').value   = c.email || '';
+    document.getElementById('cf-phone').value   = c.phone || '';
+    document.getElementById('cf-street').value  = c.street_address || '';
+    document.getElementById('cf-suburb').value  = c.suburb || '';
+    document.getElementById('cf-state').value   = c.state || '';
+    document.getElementById('cf-postcode').value = c.postcode || '';
+    document.getElementById('cf-notes').value   = c.notes || '';
+    document.getElementById('client-form-error').style.display = 'none';
+    MQ.ui.modal.open('modal-client-form');
+  }
+
+  async function saveClient() {
+    var name  = document.getElementById('cf-name').value.trim();
+    var errEl = document.getElementById('client-form-error');
+    if (!name) { errEl.textContent = 'Full name is required.'; errEl.style.display = ''; return; }
+
+    var btn = document.getElementById('cf-submit');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    var payload = {
+      full_name:      name,
+      email:          document.getElementById('cf-email').value.trim()   || null,
+      phone:          document.getElementById('cf-phone').value.trim()   || null,
+      street_address: document.getElementById('cf-street').value.trim()  || null,
+      suburb:         document.getElementById('cf-suburb').value.trim()  || null,
+      state:          document.getElementById('cf-state').value.trim()   || null,
+      postcode:       document.getElementById('cf-postcode').value.trim() || null,
+      notes:          document.getElementById('cf-notes').value.trim()   || null,
+    };
+
+    try {
+      var result;
+      if (editingClientId) {
+        result = await sb.from('clients').update(payload).eq('id', editingClientId);
+      } else {
+        result = await sb.from('clients').insert(payload);
+      }
+      if (result.error) throw result.error;
+      MQ.ui.modal.close('modal-client-form');
+      MQ.ui.toast(editingClientId ? 'Client updated' : 'Client added');
+      load();
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = '';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save Client';
+    }
+  }
+
+  /* ─── Delete ─────────────────────────────────────────────────── */
+
+  function deleteClient(id) {
+    var c = clients.find(function (x) { return x.id === id; });
+    if (!c) return;
+    MQ.ui.confirmDelete('Delete "' + escHtml(c.full_name || 'client') + '"? This cannot be undone.', async function () {
+      var { error } = await sb.from('clients').delete().eq('id', id);
+      if (error) { MQ.ui.toast(error.message, 'error'); return; }
+      MQ.ui.toast('Client deleted', 'info');
+      closeDetail();
+      load();
+    });
+  }
+
+  /* ─── Init ───────────────────────────────────────────────────── */
+
   function init() {
     sb = MQ.supabase;
+
     document.getElementById('cd-close').addEventListener('click', closeDetail);
     document.getElementById('btn-refresh').addEventListener('click', load);
     document.getElementById('clients-search').addEventListener('input', function () {
       renderGrid(filterClients(this.value));
     });
+    document.getElementById('cf-submit').addEventListener('click', saveClient);
+
+    if (MQ.hasRole('manager')) {
+      var addBtn = document.getElementById('btn-add-client');
+      if (addBtn) { addBtn.style.display = ''; addBtn.addEventListener('click', openAddModal); }
+    }
+
     load();
+
     sb.channel('clients-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, function () { load(); })
       .subscribe();
@@ -181,4 +277,6 @@
   window.addEventListener('pageshow', function (event) {
     if (event.persisted) { load(); }
   });
+
+  window.ClientsPage = { editClient: openEditModal, deleteClient: deleteClient };
 })();

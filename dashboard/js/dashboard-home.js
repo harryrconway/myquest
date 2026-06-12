@@ -60,16 +60,15 @@
 
     try {
       var today = new Date().toISOString().slice(0, 10);
-      var in7   = new Date();
-      in7.setDate(in7.getDate() + 7);
-      var in7Str = in7.toISOString().slice(0, 10);
+      var now = new Date();
+      var monthEndStr = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
 
       var { data, error } = await MQ.supabase
         .from('quote_requests')
         .select('id, full_name, suburb, state, services, scheduled_date, scheduled_time, assigned_staff_ids, property_type')
         .eq('status', 'scheduled')
         .gte('scheduled_date', today)
-        .lte('scheduled_date', in7Str)
+        .lte('scheduled_date', monthEndStr)
         .order('scheduled_date', { ascending: true })
         .order('scheduled_time', { ascending: true });
 
@@ -81,7 +80,7 @@
         container.innerHTML =
           '<div class="empty-state" style="padding:3rem">' +
             '<p class="empty-state__title">No upcoming jobs</p>' +
-            '<p class="empty-state__sub">Nothing scheduled in the next 7 days</p>' +
+            '<p class="empty-state__sub">Nothing scheduled this month</p>' +
           '</div>';
         return;
       }
@@ -105,7 +104,7 @@
         var isToday    = date === todayDate;
         var isTomorrow = date === tomorrowStr;
         var groupLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow'
-          : new Date(date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long' });
+          : new Date(date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' });
         var groupDate  = new Date(date + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'long' });
         var count      = groups[date].length;
 
