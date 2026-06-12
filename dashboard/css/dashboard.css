@@ -3471,6 +3471,12 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .cal-job-chip--more {
   background: #f1f5f9;
   color: #64748b;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+.cal-job-chip--more:hover {
+  background: #e2e8f0;
+  color: #475569;
 }
 .cal-cell__dot {
   width: 8px;

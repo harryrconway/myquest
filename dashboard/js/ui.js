@@ -66,15 +66,14 @@
   };
 
   function initModalTriggers() {
-    document.querySelectorAll('[data-modal-open]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        modal.open(btn.dataset.modalOpen);
-      });
-    });
-    document.querySelectorAll('[data-modal-close]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        modal.close(btn.dataset.modalClose || btn.closest('.modal-overlay').id);
-      });
+    document.addEventListener('click', function (e) {
+      var openBtn = e.target.closest('[data-modal-open]');
+      if (openBtn) { modal.open(openBtn.dataset.modalOpen); return; }
+      var closeBtn = e.target.closest('[data-modal-close]');
+      if (closeBtn) {
+        var id = closeBtn.dataset.modalClose || (closeBtn.closest('.modal-overlay') || {}).id;
+        if (id) modal.close(id);
+      }
     });
   }
 

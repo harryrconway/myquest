@@ -5,6 +5,7 @@
   var today = new Date(); today.setHours(0, 0, 0, 0);
   var weekStart = startOfWeek(today);
   var weekJobs = [];
+  var viewingJobId = null;
 
   function startOfWeek(d) {
     var dt = new Date(d); dt.setHours(0, 0, 0, 0);
@@ -92,7 +93,7 @@
           html += '<div class="myschedule-job" data-id="' + j.id + '">' +
             '<div class="myschedule-job__time">' + fmtTime(j.scheduled_time) + '</div>' +
             '<div class="myschedule-job__body">' +
-              '<div class="myschedule-job__name">' + escHtml((j.first_name || '') + ' ' + (j.last_name || '')) + '</div>' +
+              '<div class="myschedule-job__name">' + escHtml(j.full_name || '') + '</div>' +
               (address ? '<div class="myschedule-job__address">' + escHtml(address) + '</div>' : '') +
               (meta ? '<div class="myschedule-job__chips"><span class="badge badge--blue" style="font-size:11px;padding:2px 8px;border-radius:20px;background:#dbeafe;color:#1e40af;font-weight:600;">' + escHtml(meta) + '</span></div>' : '') +
             '</div></div>';
@@ -111,6 +112,7 @@
   function openJobView(id) {
     var j = weekJobs.find(function (x) { return x.id === id; });
     if (!j) return;
+    viewingJobId = id;
 
     var address = [j.street_address, j.suburb, j.state, j.postcode].filter(Boolean).join(', ');
     var staffNames = (j.assigned_staff_ids || []).map(function (sid) {
@@ -119,11 +121,11 @@
     }).filter(Boolean).join(', ');
 
     var rows = [
-      ['Client', (j.first_name || '') + ' ' + (j.last_name || '')],
+      ['Client', j.full_name || '—'],
       ['Date', j.scheduled_date ? new Date(j.scheduled_date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—'],
       ['Time', j.scheduled_time ? fmtTime(j.scheduled_time) : '—'],
       ['Address', address || '—'],
-      ['Service', j.service_type || '—'],
+      ['Service', j.service_type || (j.services && j.services.length ? j.services.join(', ') : '—')],
       ['Rooms', j.bedrooms ? j.bedrooms + ' bed / ' + (j.bathrooms || '?') + ' bath' : '—'],
       ['Phone', j.phone || '—'],
       ['Email', j.email || '—'],
@@ -139,22 +141,72 @@
     // Checklist
     var checklist = j.checklist;
     if (typeof checklist === 'string') { try { checklist = JSON.parse(checklist); } catch (e) { checklist = []; } }
-    if (Array.isArray(checklist) && checklist.length > 0) {
-      var done = checklist.filter(function (item) { return item.done; }).length;
+    var checklistItems = Array.isArray(checklist) ? checklist : [];
+
+    if (checklistItems.length > 0) {
+      var done = checklistItems.filter(function (item) { return item.done; }).length;
       html += '<div class="mform-section" style="margin-top:16px;border-top:1px solid #f1f5f9;padding-top:16px;">' +
         '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:10px;">Checklist</div>' +
-        '<div class="checklist-progress"><div class="checklist-progress__bar"><div class="checklist-progress__fill" style="width:' + Math.round(done / checklist.length * 100) + '%"></div></div>' +
-        '<span class="checklist-progress__label">' + done + ' / ' + checklist.length + '</span></div>' +
+        '<div class="checklist-progress"><div class="checklist-progress__bar"><div class="checklist-progress__fill" style="width:' + Math.round(done / checklistItems.length * 100) + '%"></div></div>' +
+        '<span class="checklist-progress__label">' + done + ' / ' + checklistItems.length + '</span></div>' +
         '<ul class="checklist-items">' +
-        checklist.map(function (item) {
+        checklistItems.map(function (item, idx) {
           return '<li class="checklist-item' + (item.done ? ' is-done' : '') + '">' +
-            '<label><input type="checkbox"' + (item.done ? ' checked' : '') + ' disabled> ' + escHtml(item.text) + '</label></li>';
+            '<label><input type="checkbox" data-idx="' + idx + '"' + (item.done ? ' checked' : '') + '> ' + escHtml(item.text) + '</label></li>';
         }).join('') +
         '</ul></div>';
     }
 
     document.getElementById('ms-view-body').innerHTML = html;
+
+    // Wire up interactive checklist
+    document.querySelectorAll('#ms-view-body .checklist-item input[type="checkbox"]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var idx = parseInt(cb.dataset.idx);
+        checklistItems[idx].done = cb.checked;
+        cb.closest('.checklist-item').classList.toggle('is-done', cb.checked);
+        var totalDone = checklistItems.filter(function (x) { return x.done; }).length;
+        var fill = document.querySelector('#ms-view-body .checklist-progress__fill');
+        var label = document.querySelector('#ms-view-body .checklist-progress__label');
+        if (fill) fill.style.width = Math.round(totalDone / checklistItems.length * 100) + '%';
+        if (label) label.textContent = totalDone + ' / ' + checklistItems.length;
+        var job = weekJobs.find(function (x) { return x.id === viewingJobId; });
+        if (job) job.checklist = checklistItems;
+        sb.from('quote_requests').update({ checklist: checklistItems }).eq('id', viewingJobId).then(function () {});
+      });
+    });
+
     MQ.ui.modal.open('modal-ms-view');
+
+    // Update footer with Mark Complete button
+    var footer = document.querySelector('#modal-ms-view .modal-footer');
+    if (footer) {
+      footer.innerHTML =
+        '<button class="btn-outline" data-modal-close="modal-ms-view">Close</button>' +
+        '<button class="btn-primary" id="ms-complete-btn">Mark Complete</button>';
+      document.getElementById('ms-complete-btn').addEventListener('click', markComplete);
+    }
+  }
+
+  async function markComplete() {
+    var btn = document.getElementById('ms-complete-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Completing…'; }
+    try {
+      var session = (await sb.auth.getSession()).data.session;
+      var res = await fetch('/api/complete-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ jobId: viewingJobId }),
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+      MQ.ui.modal.close('modal-ms-view');
+      MQ.ui.toast('Job marked as complete');
+      load();
+    } catch (err) {
+      MQ.ui.toast(err.message || 'Failed to complete job', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Mark Complete'; }
+    }
   }
 
   function init() {
