@@ -15,8 +15,9 @@ export async function onRequestPost(context) {
   const user = await userRes.json();
 
   const profileRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${user.id}&select=role`, {
-    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
+    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': (env.SUPABASE_ANON_KEY || SVC_KEY) },
   });
+  if (!profileRes.ok) return json({ error: 'Profile lookup failed (' + profileRes.status + ').' }, 500);
   const profiles = await profileRes.json();
   const callerRole = profiles && profiles[0] && profiles[0].role;
   if (!['owner', 'manager'].includes(callerRole)) return json({ error: 'Insufficient permissions.' }, 403);

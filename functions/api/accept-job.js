@@ -30,11 +30,13 @@ export async function onRequestPost(context) {
 
   const profileRes = await fetch(
     `${SUPABASE_URL_BASE}/rest/v1/profiles?id=eq.${user.id}&select=role`,
-    { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
+    { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': env.SUPABASE_ANON_KEY } }
   );
+  if (!profileRes.ok) return json({ error: 'Profile lookup failed (' + profileRes.status + '). Check SUPABASE_SERVICE_KEY in Cloudflare.' }, 500);
   const profiles = await profileRes.json();
   const role = profiles && profiles[0] && profiles[0].role;
-  if (role !== 'manager' && role !== 'owner') return json({ error: 'Forbidden.' }, 403);
+  if (!role) return json({ error: 'No profile found for this user. Ensure your profile exists in Supabase.' }, 403);
+  if (role !== 'manager' && role !== 'owner') return json({ error: 'Forbidden — role is ' + role }, 403);
 
   // Body
   let body;
