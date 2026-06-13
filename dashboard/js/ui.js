@@ -315,6 +315,43 @@
     initLogoLink();
   });
 
+  /* ---- Save overlay ---------------------------------------- */
+  var _saveOverlay = (function () {
+    var el = document.createElement('div');
+    el.className = 'mq-save-overlay';
+    el.id        = 'mq-save-overlay';
+    el.innerHTML =
+      '<div class="mq-save-card">' +
+        '<div class="mq-spinner-ring"></div>' +
+        '<span class="mq-save-text">Saving</span>' +
+      '</div>';
+    document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(el); });
+    return el;
+  }());
+
+  var _saveTimerDone = false;
+  var _saveOpDone    = false;
+
+  function _hideSaveOverlay() {
+    _saveOverlay.classList.remove('is-visible');
+  }
+
+  function saving(minMs) {
+    minMs = (minMs === undefined) ? 1500 : minMs;
+    _saveTimerDone = false;
+    _saveOpDone    = false;
+    _saveOverlay.classList.add('is-visible');
+    setTimeout(function () {
+      _saveTimerDone = true;
+      if (_saveOpDone) _hideSaveOverlay();
+    }, minMs);
+  }
+
+  function saved() {
+    _saveOpDone = true;
+    if (_saveTimerDone) _hideSaveOverlay();
+  }
+
   /* ---- Public API ------------------------------------------ */
   MQ.ui = {
     modal: modal,
@@ -329,6 +366,8 @@
     statusBadge: statusBadge,
     el: el,
     emptyState: emptyState,
+    saving: saving,
+    saved: saved,
   };
 
 })();

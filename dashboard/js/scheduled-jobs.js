@@ -469,6 +469,7 @@
 
     var btn = document.getElementById('sj-edit-submit');
     btn.disabled = true; btn.textContent = 'Saving…';
+    MQ.ui.saving();
 
     try {
       var { error } = await MQ.supabase
@@ -491,6 +492,7 @@
       errEl.textContent = err.message; errEl.style.display = '';
     } finally {
       btn.disabled = false; btn.textContent = 'Save Changes';
+      MQ.ui.saved();
     }
   }
 

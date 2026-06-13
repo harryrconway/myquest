@@ -243,6 +243,7 @@
 
     var btn = document.getElementById('cj-invoice-submit');
     btn.disabled = true; btn.textContent = 'Saving…';
+    MQ.ui.saving();
 
     try {
       var { error } = await MQ.supabase
@@ -258,6 +259,7 @@
       errEl.textContent = err.message; errEl.style.display = '';
     } finally {
       btn.disabled = false; btn.textContent = 'Save';
+      MQ.ui.saved();
     }
   }
 

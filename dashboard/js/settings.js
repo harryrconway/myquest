@@ -347,7 +347,9 @@
     current.com.baseRatePerSqm  = parseFloat(document.getElementById('rate-com-sqm').value)    || 0.12;
     current.com.hourlyRate      = parseFloat(document.getElementById('rate-com-hourly').value)  || 50;
     MQ.store.rates.save(current);
+    MQ.ui.saving();
     callApi('/api/save-settings', { key: 'rates', value: current }).catch(function () {});
+    MQ.ui.saved();
     MQ.ui.toast('Rates saved');
   }
 
@@ -402,7 +404,9 @@
     var r = MQ.store.rates.get();
     r.checklist = items;
     MQ.store.rates.save(r);
+    MQ.ui.saving();
     callApi('/api/save-settings', { key: 'checklist_template', value: items }).catch(function () {});
+    MQ.ui.saved();
     MQ.ui.toast('Checklist template saved');
   }
 
@@ -539,7 +543,9 @@
         cleaning_level: parseInt(document.getElementById('team-level').value) || 1,
         status:         document.getElementById('team-status').value,
       };
+      MQ.ui.saving();
       var result = await callApi('/api/update-profile', updates);
+      MQ.ui.saved();
       if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
       MQ.ui.toast('Changes saved');
       var s = MQ.store.staff.getById(selectedStaffId);

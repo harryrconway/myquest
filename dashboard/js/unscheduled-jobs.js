@@ -290,6 +290,7 @@
 
     var btn = document.getElementById('uj-accept-submit');
     btn.disabled = true; btn.textContent = 'Scheduling…';
+    MQ.ui.saving();
 
     try {
       var session = await MQ.supabase.auth.getSession();
@@ -310,6 +311,7 @@
       errEl.textContent = err.message; errEl.style.display = '';
     } finally {
       btn.disabled = false; btn.textContent = 'Confirm Schedule';
+      MQ.ui.saved();
     }
   }
 
