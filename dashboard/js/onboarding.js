@@ -2,11 +2,9 @@
 (function () {
   'use strict';
 
-  var TOTAL_STEPS   = 7;
+  var TOTAL_STEPS   = 6;
   var ALLOWED_EXTS  = ['pdf', 'jpg', 'jpeg', 'png'];
   var MAX_FILE_BYTES = 5 * 1024 * 1024;
-
-  var TIMES = ['Morning', 'Afternoon', 'Evening', 'Flexible'];
 
   /* ── state ───────────────────────────────────────────────── */
 
@@ -15,7 +13,6 @@
     firstName: '', lastName: '', phone: '', dob: '',
     address: '', suburb: '', stateVal: '', postcode: '',
     emergencyName: '', emergencyPhone: '', emergencyRel: '',
-    availStart: '', availEnd: '',
     photoFile: null,   photoUrl:   null,
     policeFile: null,  policeUrl:  null,
     licenceFile: null, licenceUrl: null,
@@ -140,7 +137,6 @@
     { title: 'Personal details',  subtitle: 'Tell us a bit about yourself.',              render: renderS1, collect: collectS1, validate: validateS1 },
     { title: 'Address',           subtitle: 'Where are you currently living?',            render: renderS2, collect: collectS2, validate: validateS2 },
     { title: 'Emergency contact', subtitle: 'Who should we contact in an emergency?',     render: renderS3, collect: collectS3, validate: validateS3 },
-    { title: 'Availability',      subtitle: 'When do you prefer to work?',                render: renderS4, collect: function(){}, validate: validateS4 },
     { title: 'Profile photo',     subtitle: 'Add a photo so your team can recognise you.',render: renderS5, collect: function(){}, validate: function(){ return null; } },
     { title: 'Documents',         subtitle: 'Upload your compliance documents.',          render: renderS6, collect: function(){}, validate: validateS6 },
     { title: 'Agreements',        subtitle: 'Please review and agree to the following.',  render: renderS7, collect: collectS7, validate: validateS7 },
@@ -252,45 +248,6 @@
     if (!state.emergencyName)  return 'Please enter an emergency contact name.';
     if (!state.emergencyPhone) return 'Please enter their phone number.';
     if (!state.emergencyRel)   return 'Please enter your relationship to them.';
-    return null;
-  }
-
-  function renderS4() {
-    var startPills = TIMES.map(function (t) {
-      var sel = state.availStart === t ? ' selected' : '';
-      return '<button type="button" class="ob-pill' + sel + '" data-time-type="start" data-time="' + esc(t) + '">' + esc(t) + '</button>';
-    }).join('');
-    var endPills = TIMES.map(function (t) {
-      var sel = state.availEnd === t ? ' selected' : '';
-      return '<button type="button" class="ob-pill' + sel + '" data-time-type="end" data-time="' + esc(t) + '">' + esc(t) + '</button>';
-    }).join('');
-    return [
-      '<p class="ob-section-label">Preferred start time</p>',
-      '<div class="ob-time-pills">' + startPills + '</div>',
-      '<hr class="ob-divider">',
-      '<p class="ob-section-label">Preferred end time</p>',
-      '<div class="ob-time-pills">' + endPills + '</div>',
-    ].join('');
-  }
-  function wireS4() {
-    document.querySelectorAll('.ob-pill[data-time-type="start"]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        state.availStart = btn.dataset.time;
-        document.querySelectorAll('.ob-pill[data-time-type="start"]').forEach(function (b) { b.classList.remove('selected'); });
-        btn.classList.add('selected');
-      });
-    });
-    document.querySelectorAll('.ob-pill[data-time-type="end"]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        state.availEnd = btn.dataset.time;
-        document.querySelectorAll('.ob-pill[data-time-type="end"]').forEach(function (b) { b.classList.remove('selected'); });
-        btn.classList.add('selected');
-      });
-    });
-  }
-  function validateS4() {
-    if (!state.availStart) return 'Please select a preferred start time.';
-    if (!state.availEnd)   return 'Please select a preferred end time.';
     return null;
   }
 
@@ -451,7 +408,7 @@
 
     var backBtn   = n > 1 ? '<button type="button" class="btn-outline" id="ob-back">Back</button>' : '<span></span>';
     var nextLabel = n < TOTAL_STEPS ? 'Continue' : 'Complete setup';
-    var skipNote  = n === 5 ? '<button type="button" class="btn-skip" id="ob-skip-photo">Skip for now</button>' : '';
+    var skipNote  = n === 4 ? '<button type="button" class="btn-skip" id="ob-skip-photo">Skip for now</button>' : '';
     var adminBar  = isAdmin()
       ? '<div class="ob-admin-bar"><span class="ob-admin-label">&#9889; Dev / Testing</span><button type="button" class="ob-admin-skip" id="ob-admin-fwd">Skip step</button></div>'
       : '';
@@ -478,10 +435,9 @@
     ].join('');
 
     if (n === 1) wireDOB();
-    if (n === 4) wireS4();
-    if (n === 5) wireS5();
-    if (n === 6) wireS6();
-    if (n === 7) wireS7();
+    if (n === 4) wireS5();
+    if (n === 5) wireS6();
+    if (n === 6) wireS7();
 
     var backEl = document.getElementById('ob-back');
     if (backEl) backEl.addEventListener('click', function () { showStep(n - 1); });
@@ -583,9 +539,6 @@
         emergency_contact_name:   state.emergencyName,
         emergency_contact_number: state.emergencyPhone,
         emergency_relation:       state.emergencyRel,
-        available_start:          state.availStart,
-        available_end:            state.availEnd,
-        availability:             { start: state.availStart, end: state.availEnd },
         profile_photo_url:        state.photoUrl   || null,
         police_check_url:         state.policeUrl  || null,
         drivers_licence_url:      state.licenceUrl || null,
