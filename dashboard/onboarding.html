@@ -14,6 +14,7 @@
   <script src="js/auth.js?v=20260621"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
@@ -22,114 +23,135 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 24px 16px 48px;
+      padding: 24px 16px 56px;
     }
+
     .ob-logo {
       display: flex; align-items: center; gap: 10px;
-      margin-bottom: 28px; margin-top: 8px;
+      margin: 12px 0 24px;
     }
+
+    /* Card */
     .ob-card {
       background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
-      width: 100%; max-width: 560px;
+      border-radius: 24px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.08);
+      width: 100%; max-width: 640px;
       overflow: hidden;
     }
-    .ob-progress-bar {
-      height: 4px; background: #e2e8f0;
-    }
+
+    /* Progress bar */
+    .ob-progress-bar { height: 4px; background: #e2e8f0; }
     .ob-progress-fill {
-      height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a);
-      transition: width 0.4s ease;
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      transition: width 0.45s ease;
     }
-    .ob-header {
-      padding: 28px 32px 0;
+
+    /* Step dots */
+    .ob-dots-row { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+    .ob-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #e2e8f0;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
     }
+    .ob-dot--done { background: #16a34a; }
+    .ob-dot--active { width: 22px; border-radius: 4px; background: #16a34a; }
+
+    /* Header */
+    .ob-header { padding: 28px 36px 0; }
     .ob-step-label {
-      font-size: 12px; font-weight: 600; color: #94a3b8;
-      text-transform: uppercase; letter-spacing: 0.06em;
-      margin-bottom: 6px;
+      font-size: 11px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 8px;
     }
     .ob-title {
-      font-size: 22px; font-weight: 800; color: #0f172a;
-      margin-bottom: 6px;
+      font-size: 24px; font-weight: 800; color: #0f172a;
+      letter-spacing: -0.02em; margin-bottom: 6px;
     }
-    .ob-subtitle {
-      font-size: 14px; color: #64748b; line-height: 1.5;
-    }
-    .ob-body { padding: 24px 32px; }
-    .ob-footer {
-      padding: 16px 32px 28px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      border-top: 1px solid #f1f5f9;
-    }
+    .ob-subtitle { font-size: 14px; color: #64748b; line-height: 1.6; }
+
+    /* Body */
+    .ob-body { padding: 26px 36px; }
+
+    /* Fields */
     .ob-field { margin-bottom: 18px; }
     .ob-label {
       display: block; font-size: 13px; font-weight: 600; color: #374151;
-      margin-bottom: 6px;
+      margin-bottom: 7px;
     }
-    .ob-label span { font-weight: 400; color: #94a3b8; margin-left: 4px; }
+    .ob-label span, .ob-label-opt { font-weight: 400; color: #94a3b8; margin-left: 4px; font-size: 12px; }
     .ob-input {
-      width: 100%; padding: 10px 14px;
+      width: 100%; padding: 11px 14px;
       border: 1.5px solid #e2e8f0; border-radius: 10px;
       font-family: inherit; font-size: 14px; color: #0f172a;
-      background: #fff; outline: none; transition: border-color 0.15s;
+      background: #fff; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .ob-input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.12); }
-    .ob-input::placeholder { color: #94a3b8; }
+    .ob-input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.10); }
+    .ob-input::placeholder { color: #cbd5e1; }
     .ob-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .ob-section-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px; }
+
+    /* Upload area — uses <label> wrapping so click reliably opens file picker */
     .ob-upload-area {
-      border: 2px dashed #e2e8f0; border-radius: 12px;
-      padding: 20px 16px; text-align: center; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 2px dashed #e2e8f0; border-radius: 14px;
+      padding: 32px 20px; text-align: center; cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
-      position: relative;
+      gap: 6px; min-height: 130px;
     }
-    .ob-upload-area:hover { border-color: #22c55e; background: #f0fdf4; }
-    .ob-upload-area.has-file { border-color: #22c55e; background: #f0fdf4; }
-    .ob-upload-area input[type="file"] {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      opacity: 0; cursor: pointer;
-    }
-    .ob-upload-icon { margin-bottom: 8px; color: #94a3b8; }
-    .ob-upload-text { font-size: 13px; color: #64748b; }
-    .ob-upload-filename { font-size: 13px; font-weight: 600; color: #16a34a; margin-top: 4px; }
-    .ob-photo-wrap {
-      display: flex; align-items: center; gap: 20px; margin-bottom: 4px;
-    }
+    .ob-upload-area:hover,
+    .ob-upload-area.drag-over { border-color: #22c55e; background: #f0fdf4; }
+    .ob-upload-area.has-file  { border-color: #22c55e; background: #f0fdf4; border-style: solid; }
+    .ob-upload-icon { color: #94a3b8; line-height: 0; }
+    .ob-upload-area.has-file .ob-upload-icon { color: #16a34a; }
+    .ob-upload-text { font-size: 13.5px; font-weight: 600; color: #475569; }
+    .ob-upload-hint { font-size: 11.5px; color: #94a3b8; }
+    .ob-upload-filename { font-size: 13px; font-weight: 600; color: #16a34a; }
+
+    /* Photo */
+    .ob-photo-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
     .ob-photo-preview {
-      width: 72px; height: 72px; border-radius: 18px;
-      background: #334155; display: flex; align-items: center; justify-content: center;
-      font-size: 24px; font-weight: 800; color: #fff; flex-shrink: 0;
-      overflow: hidden; position: relative;
+      width: 80px; height: 80px; border-radius: 20px;
+      background: linear-gradient(135deg, #334155, #1e293b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800; color: #fff;
+      flex-shrink: 0; overflow: hidden;
     }
     .ob-photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .ob-check-group { display: flex; flex-direction: column; gap: 10px; }
-    .ob-check-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-      cursor: pointer; transition: border-color 0.15s, background 0.15s;
-      user-select: none;
+    .ob-photo-name { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+
+    /* Day grid */
+    .ob-day-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    .ob-day-btn {
+      aspect-ratio: 1; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11.5px; font-weight: 700; color: #64748b;
+      cursor: pointer; transition: all 0.15s; user-select: none; background: #fff;
     }
-    .ob-check-item:hover { border-color: #22c55e; background: #f0fdf4; }
-    .ob-check-item.selected { border-color: #22c55e; background: #f0fdf4; }
-    .ob-check-item input[type="checkbox"] { accent-color: #16a34a; width: 16px; height: 16px; flex-shrink: 0; }
-    .ob-check-item label { font-size: 14px; font-weight: 500; color: #0f172a; cursor: pointer; flex: 1; }
+    .ob-day-btn:hover  { border-color: #22c55e; color: #16a34a; }
+    .ob-day-btn.selected { border-color: #22c55e; background: #f0fdf4; color: #16a34a; }
+
+    /* Time pills */
     .ob-time-pills { display: flex; gap: 8px; flex-wrap: wrap; }
     .ob-pill {
-      padding: 8px 16px; border: 1.5px solid #e2e8f0; border-radius: 99px;
+      padding: 9px 18px; border: 1.5px solid #e2e8f0; border-radius: 99px;
       font-size: 13px; font-weight: 500; color: #64748b; cursor: pointer;
-      transition: all 0.15s; user-select: none;
+      transition: all 0.15s; user-select: none; background: #fff;
     }
-    .ob-pill:hover { border-color: #22c55e; color: #16a34a; }
+    .ob-pill:hover   { border-color: #22c55e; color: #16a34a; background: #f0fdf4; }
     .ob-pill.selected { border-color: #22c55e; background: #f0fdf4; color: #16a34a; font-weight: 600; }
+
+    /* Agreements */
     .ob-agreement-box {
       border: 1.5px solid #e2e8f0; border-radius: 12px;
       padding: 16px; max-height: 160px; overflow-y: auto;
       font-size: 13px; color: #475569; line-height: 1.7;
-      background: #fafafa; margin-bottom: 12px;
+      background: #fafafa; margin-bottom: 10px;
     }
     .ob-agreement-box h4 { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-    .ob-agreement-box p { margin-bottom: 8px; }
+    .ob-agreement-box p { margin-bottom: 6px; }
     .ob-agreement-box p:last-child { margin-bottom: 0; }
     .ob-agree-row {
       display: flex; align-items: flex-start; gap: 10px;
@@ -139,37 +161,70 @@
     }
     .ob-agree-row.checked { border-color: #22c55e; background: #f0fdf4; }
     .ob-agree-row input[type="checkbox"] { accent-color: #16a34a; width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
-    .ob-agree-row label { font-size: 13.5px; color: #374151; cursor: pointer; line-height: 1.5; }
+    .ob-agree-row span { font-size: 13.5px; color: #374151; line-height: 1.5; flex: 1; }
     .ob-agree-row a { color: #16a34a; text-decoration: underline; }
+
+    /* Error */
+    .ob-error {
+      font-size: 13px; color: #dc2626; margin-top: 10px;
+      padding: 10px 14px; background: #fef2f2; border-radius: 8px;
+      border: 1px solid #fecaca; display: none; line-height: 1.5;
+    }
+
+    /* Divider */
+    .ob-divider { border: none; border-top: 1px solid #f1f5f9; margin: 22px 0; }
+
+    /* Footer */
+    .ob-footer {
+      padding: 16px 36px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .ob-footer-right { display: flex; align-items: center; gap: 10px; }
+
+    /* Admin testing bar */
+    .ob-admin-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 36px 16px;
+      background: #fffbeb;
+      border-top: 1.5px dashed #fde68a;
+    }
+    .ob-admin-label {
+      font-size: 11px; font-weight: 700; color: #d97706;
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .ob-admin-skip {
+      background: transparent; border: 1.5px solid #fbbf24;
+      border-radius: 8px; padding: 6px 14px;
+      font-family: inherit; font-size: 12px; font-weight: 700;
+      color: #b45309; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .ob-admin-skip:hover { background: #fde68a; border-color: #f59e0b; }
+
+    /* Buttons */
     .btn-primary {
       padding: 11px 24px; background: #16a34a; color: #fff;
       border: none; border-radius: 10px; font-family: inherit;
       font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: background 0.15s; min-width: 100px;
+      transition: background 0.15s; min-width: 110px; white-space: nowrap;
     }
-    .btn-primary:hover { background: #15803d; }
+    .btn-primary:hover    { background: #15803d; }
     .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
     .btn-outline {
       padding: 11px 20px; background: transparent; color: #475569;
       border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: all 0.15s;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .btn-outline:hover { border-color: #94a3b8; color: #0f172a; }
     .btn-skip {
       background: none; border: none; font-family: inherit;
       font-size: 13px; color: #94a3b8; cursor: pointer;
-      padding: 8px 4px; text-decoration: underline;
+      padding: 4px 2px; text-decoration: underline; white-space: nowrap;
     }
     .btn-skip:hover { color: #64748b; }
-    .ob-error {
-      font-size: 13px; color: #dc2626; margin-top: 8px;
-      padding: 8px 12px; background: #fef2f2; border-radius: 8px;
-      display: none;
-    }
-    .ob-success {
-      padding: 48px 32px; text-align: center;
-    }
+
+    /* Success */
+    .ob-success { padding: 52px 36px; text-align: center; }
     .ob-success__icon {
       width: 80px; height: 80px;
       background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -179,32 +234,39 @@
       animation: ob-pop 0.45s cubic-bezier(0.22,1.25,0.36,1) both;
     }
     @keyframes ob-pop {
-      0% { transform: scale(0) rotate(-30deg); opacity: 0; }
-      75% { transform: scale(1.1) rotate(4deg); }
+      0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+      75%  { transform: scale(1.1) rotate(4deg); }
       100% { transform: scale(1) rotate(0); opacity: 1; }
     }
-    @keyframes ob-spin { to { transform: rotate(360deg); } }
-    .ob-day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-    .ob-day-btn {
-      aspect-ratio: 1; border: 1.5px solid #e2e8f0; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 600; color: #64748b;
-      cursor: pointer; transition: all 0.15s; user-select: none;
-      background: #fff;
+
+    /* Responsive */
+    @media (max-width: 680px) {
+      .ob-card    { border-radius: 18px; }
+      .ob-header  { padding: 22px 24px 0; }
+      .ob-body    { padding: 22px 24px; }
+      .ob-footer  { padding: 14px 24px 22px; }
+      .ob-admin-bar { padding: 10px 24px 14px; }
+      .ob-success { padding: 40px 24px; }
+      .ob-title   { font-size: 21px; }
     }
-    .ob-day-btn:hover { border-color: #22c55e; color: #16a34a; }
-    .ob-day-btn.selected { border-color: #22c55e; background: #f0fdf4; color: #16a34a; }
-    .ob-divider {
-      border: none; border-top: 1px solid #f1f5f9; margin: 20px 0;
+    @media (max-width: 480px) {
+      body { padding: 14px 10px 48px; }
+      .ob-row-2   { grid-template-columns: 1fr; }
+      .ob-title   { font-size: 19px; }
+      .ob-dots-row { gap: 5px; }
+      .ob-dot     { width: 7px; height: 7px; }
+      .ob-dot--active { width: 18px; }
+      .btn-primary { min-width: 90px; font-size: 13.5px; padding: 10px 18px; }
+      .btn-outline { font-size: 13.5px; padding: 10px 14px; }
+      .ob-time-pills { gap: 6px; }
+      .ob-pill { padding: 8px 13px; font-size: 12.5px; }
     }
-    @media (max-width: 600px) {
-      .ob-card { border-radius: 16px; }
-      .ob-header { padding: 20px 20px 0; }
-      .ob-body { padding: 20px 20px; }
-      .ob-footer { padding: 14px 20px 24px; }
-      .ob-title { font-size: 19px; }
-      .ob-row-2 { grid-template-columns: 1fr; }
-      .ob-day-grid { gap: 6px; }
+    @media (max-width: 360px) {
+      .ob-day-grid { gap: 5px; }
+      .ob-day-btn  { font-size: 10px; border-radius: 8px; }
+      .ob-header   { padding: 18px 18px 0; }
+      .ob-body     { padding: 18px 18px; }
+      .ob-footer   { padding: 12px 18px 18px; }
     }
   </style>
 </head>
@@ -229,12 +291,12 @@
       <div class="ob-success__icon">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:8px;">You're all set!</h2>
-      <p style="font-size:14.5px;color:#64748b;line-height:1.6;max-width:320px;margin:0 auto 4px;">Your profile is complete. Taking you to the dashboard…</p>
+      <h2 style="font-size:23px;font-weight:800;color:#0f172a;margin-bottom:8px;">You're all set!</h2>
+      <p style="font-size:14.5px;color:#64748b;line-height:1.6;max-width:320px;margin:0 auto;">Your profile is complete. Taking you to the dashboard…</p>
     </div>
   </div>
 
   <script src="js/ui.js?v=20260616" defer></script>
-  <script src="js/onboarding.js?v=20260613" defer></script>
+  <script src="js/onboarding.js?v=20260615" defer></script>
 </body>
 </html>
