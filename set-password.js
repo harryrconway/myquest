@@ -97,7 +97,9 @@
 
     // Listen for auth state changes (handles implicit / hash-fragment flow)
     sb.auth.onAuthStateChange(function (event, session) {
-      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') && session) {
+      if (event === 'PASSWORD_RECOVERY' && session) {
+        resolve(function () { initForm(sb); });
+      } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') && session) {
         resolve(function () { initForm(sb); });
       }
     });
