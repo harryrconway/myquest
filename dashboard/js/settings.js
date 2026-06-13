@@ -474,6 +474,29 @@
 
     renderAvatarGrid();
 
+    // Sync any Supabase accounts not yet in localStorage so the Team card
+    // shows all members on every device, not just the device where they were added
+    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status').then(function (r) {
+      if (!r.data) return;
+      var changed = false;
+      r.data.forEach(function (p) {
+        MQ.store.accounts.save({
+          id: p.id, name: p.name || '', email: p.email || '',
+          role: p.role || 'staff', cleaningLevel: p.cleaning_level || 1,
+          status: p.status === 'suspended' ? 'suspended' : 'active',
+        });
+        if (!MQ.store.staff.getById(p.id)) {
+          MQ.store.staff.save({
+            id: p.id, name: p.name || '', email: p.email || '', phone: '',
+            role: p.role || 'staff', level: parseInt(p.cleaning_level) || 1,
+            startDate: '', active: p.status !== 'suspended', colour: p.colour || pickStaffColour(),
+          });
+          changed = true;
+        }
+      });
+      if (changed) renderAvatarGrid();
+    }).catch(function () {});
+
     document.getElementById('team-save-btn').addEventListener('click', async function () {
       if (!selectedStaffId) return;
       var updates = {
