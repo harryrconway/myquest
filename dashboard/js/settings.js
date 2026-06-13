@@ -400,65 +400,41 @@
   ══════════════════════════════════════════════════════════ */
 
   function initTeamSettings() {
-    var picker   = document.getElementById('team-staff-picker');
-    var trigger  = document.getElementById('team-staff-trigger');
-    var dot      = document.getElementById('team-staff-dot');
-    var label    = document.getElementById('team-staff-label');
-    var dropdown = document.getElementById('team-staff-dropdown');
-    var searchEl = document.getElementById('team-staff-search');
-    var listEl   = document.getElementById('team-staff-list');
-    var form     = document.getElementById('team-staff-form');
-    var swatchEl = document.getElementById('team-colour-swatches');
-    if (!picker || !trigger) return;
+    var avatarsEl = document.getElementById('team-staff-avatars');
+    var form      = document.getElementById('team-staff-form');
+    var swatchEl  = document.getElementById('team-colour-swatches');
+    if (!avatarsEl) return;
 
     var selectedStaffId = '';
     var selectedColour  = '';
-    var allStaff = MQ.store.staff.getAll()
-      .sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
 
     function staffInitials(name) {
       return (name || '').split(' ').map(function (w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase() || '?';
     }
 
-    function renderPickerList(q) {
-      var items = q
-        ? allStaff.filter(function (s) { return (s.name || '').toLowerCase().indexOf(q.toLowerCase()) > -1; })
-        : allStaff;
-      if (!items.length) {
-        listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;text-align:center;padding:14px 0;">No staff found</p>';
+    function renderAvatarGrid() {
+      var allStaff = MQ.store.staff.getAll()
+        .sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+      avatarsEl.innerHTML = '';
+      if (!allStaff.length) {
+        avatarsEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">No staff members found.</p>';
         return;
       }
-      listEl.innerHTML = items.map(function (s) {
-        var active = s.id === selectedStaffId;
-        var bg     = s.colour || '#334155';
-        var init   = staffInitials(s.name);
-        return '<button type="button" class="ts-picker__item' + (active ? ' ts-picker__item--active' : '') + '" data-id="' + s.id + '">' +
-          '<span class="ts-picker__item-dot" style="background:' + bg + ';">' + init + '</span>' +
-          '<span class="ts-picker__item-info">' +
-            '<span class="ts-picker__item-name">' + (s.name || s.email || 'Unknown') + '</span>' +
-            '<span class="ts-picker__item-role">' + (s.role || 'staff') + '</span>' +
+      allStaff.forEach(function (s) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ts-avatar-item' +
+          (s.id === selectedStaffId ? ' ts-avatar-item--active' : '') +
+          (s.active === false ? ' ts-avatar-item--inactive' : '');
+        btn.dataset.id = s.id;
+        btn.innerHTML =
+          '<span class="ts-avatar-item__circle" style="background:' + (s.colour || '#334155') + ';">' +
+            staffInitials(s.name) +
           '</span>' +
-          '<svg class="ts-picker__item-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' +
-        '</button>';
-      }).join('');
-      listEl.querySelectorAll('.ts-picker__item').forEach(function (btn) {
-        btn.addEventListener('click', function () { selectStaff(btn.dataset.id); });
+          '<span class="ts-avatar-item__name">' + escHtml((s.name || s.email || '?').split(' ')[0]) + '</span>';
+        btn.addEventListener('click', function () { selectStaff(s.id); });
+        avatarsEl.appendChild(btn);
       });
-    }
-
-    function openPicker() {
-      dropdown.hidden = false;
-      picker.classList.add('ts-picker--open');
-      trigger.setAttribute('aria-expanded', 'true');
-      renderPickerList('');
-      searchEl.value = '';
-      searchEl.focus();
-    }
-
-    function closePicker() {
-      dropdown.hidden = true;
-      picker.classList.remove('ts-picker--open');
-      trigger.setAttribute('aria-expanded', 'false');
     }
 
     function renderSwatches(current) {
@@ -478,11 +454,9 @@
       if (!s) return;
       selectedStaffId = id;
       selectedColour  = s.colour || '';
-      dot.style.display    = '';
-      dot.style.background = s.colour || '#334155';
-      label.textContent    = s.name || s.email || id;
-      label.classList.remove('ts-picker__label--placeholder');
-      closePicker();
+      avatarsEl.querySelectorAll('.ts-avatar-item').forEach(function (btn) {
+        btn.classList.toggle('ts-avatar-item--active', btn.dataset.id === id);
+      });
       renderSwatches(selectedColour);
       document.getElementById('team-name').value   = s.name      || '';
       document.getElementById('team-phone').value  = s.phone     || '';
@@ -493,18 +467,7 @@
       form.style.display = '';
     }
 
-    trigger.addEventListener('click', function () {
-      if (dropdown.hidden) openPicker(); else closePicker();
-    });
-    searchEl.addEventListener('input', function () { renderPickerList(searchEl.value); });
-    document.addEventListener('click', function (e) {
-      if (!picker.contains(e.target)) closePicker();
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closePicker();
-    });
-
-    label.classList.add('ts-picker__label--placeholder');
+    renderAvatarGrid();
 
     document.getElementById('team-save-btn').addEventListener('click', async function () {
       if (!selectedStaffId) return;
@@ -533,8 +496,7 @@
         s.startDate = document.getElementById('team-start').value;
         MQ.store.staff.save(s);
       }
-      dot.style.background = selectedColour || '#334155';
-      if (updates.name) label.textContent = updates.name;
+      renderAvatarGrid();
     });
   }
 

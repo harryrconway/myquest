@@ -3112,6 +3112,66 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 }
 .ts-picker__item--active .ts-picker__item-check { opacity: 1; }
 
+/* ---- Team Settings avatar grid ---------------------------- */
+.ts-avatar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0 16px;
+}
+.ts-avatar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 6px 6px;
+  border-radius: 16px;
+  transition: background 0.15s;
+  width: 72px;
+}
+.ts-avatar-item:hover { background: #f1f5f9; }
+.ts-avatar-item--inactive { opacity: 0.4; }
+.ts-avatar-item__circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  transition: box-shadow 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  user-select: none;
+}
+.ts-avatar-item:hover .ts-avatar-item__circle {
+  transform: scale(1.07);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+}
+.ts-avatar-item--active .ts-avatar-item__circle {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #2d6a4f, 0 4px 16px rgba(0,0,0,0.22);
+  transform: scale(1.07);
+}
+.ts-avatar-item__name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+  transition: color 0.15s;
+}
+.ts-avatar-item--active .ts-avatar-item__name { color: #2d6a4f; font-weight: 700; }
+
 /* ---- Custom select ---------------------------------------- */
 .mq-select-wrap {
   position: relative;

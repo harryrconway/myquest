@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260611b">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260618">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260619">
   <script src="js/supabase.js?v=20260621"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260621"></script>
@@ -108,23 +108,7 @@
           </div>
         </div>
         <div class="dash-card__body" style="padding:20px 24px;">
-          <div class="form-group">
-            <label class="form-label">Staff member</label>
-            <div class="ts-picker" id="team-staff-picker">
-              <button type="button" class="ts-picker__trigger" id="team-staff-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="ts-picker__dot" id="team-staff-dot" style="display:none;"></span>
-                <span class="ts-picker__label" id="team-staff-label">Select a staff member…</span>
-                <svg class="ts-picker__chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div class="ts-picker__dropdown" id="team-staff-dropdown" hidden>
-                <div class="ts-picker__search-wrap">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;color:#94a3b8;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <input type="text" class="ts-picker__search" id="team-staff-search" placeholder="Search…" autocomplete="off">
-                </div>
-                <div class="ts-picker__list" id="team-staff-list" role="listbox"></div>
-              </div>
-            </div>
-          </div>
+          <div id="team-staff-avatars" class="ts-avatar-grid"></div>
           <div id="team-staff-form" style="display:none;margin-top:20px;">
             <div class="form-grid form-grid--2" style="margin-bottom:12px;">
               <div class="form-group">
@@ -496,7 +480,7 @@
   </style>
 
   <script src="js/ui.js?v=20260616" defer></script>
-  <script src="js/settings.js?v=20260617" defer></script>
+  <script src="js/settings.js?v=20260618" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
