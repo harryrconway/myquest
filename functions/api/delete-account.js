@@ -26,6 +26,26 @@ export async function onRequestPost(context) {
   if (!userId) return json({ error: 'userId is required.' }, 400);
   if (userId === user.id) return json({ error: 'You cannot delete your own account.' }, 400);
 
+  // Delete Storage files — list then bulk-delete; skip silently if bucket missing or empty
+  try {
+    const listRes = await fetch(`${URL_BASE}/storage/v1/object/list/staff-documents`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prefix: `${userId}/`, limit: 100 }),
+    });
+    if (listRes.ok) {
+      const files = await listRes.json();
+      if (Array.isArray(files) && files.length) {
+        const prefixes = files.map(f => `${userId}/${f.name}`);
+        await fetch(`${URL_BASE}/storage/v1/object/staff-documents`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefixes }),
+        });
+      }
+    }
+  } catch (_) { /* storage cleanup failure must not block account deletion */ }
+
   // Delete profile row first (auth delete may not cascade depending on DB setup)
   await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${userId}`, {
     method: 'DELETE',
