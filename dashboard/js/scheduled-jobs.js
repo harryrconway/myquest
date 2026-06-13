@@ -147,8 +147,10 @@
           '</span>';
         }
 
-        var staffColour = j.assigned_staff_colour || '';
-        var staffName   = j.assigned_staff_name   || '';
+        var assignedIds = Array.isArray(j.assigned_staff_ids) ? j.assigned_staff_ids : [];
+        var liveStaff   = assignedIds.map(function (id) { return MQ.store.staff.getById(id); }).filter(Boolean);
+        var staffColour = liveStaff.length && liveStaff[0].colour ? liveStaff[0].colour : (j.assigned_staff_colour || '');
+        var staffName   = liveStaff.length ? liveStaff.map(function (s) { return s.name; }).join(', ') : (j.assigned_staff_name || '');
         return '<div class="job-card job-card--scheduled"' +
             (staffColour ? ' style="border-left:4px solid ' + staffColour + ';"' : '') + '>' +
           '<div class="job-card__time">' +
@@ -442,6 +444,7 @@
     cbWrap.innerHTML = staff.length ? staff.map(function (s) {
       var checked = assigned.indexOf(s.id) !== -1 ? ' checked' : '';
       return '<label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 12px;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;">' +
+        (s.colour ? '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + escHtml(s.colour) + ';flex-shrink:0;"></span>' : '') +
         '<input type="checkbox" value="' + escHtml(s.id) + '"' + checked + '> ' + escHtml(s.name) +
       '</label>';
     }).join('') : '<span style="font-size:13px;color:#9ca3af;">No staff added yet</span>';
@@ -458,8 +461,11 @@
 
     if (!date || !time) { errEl.textContent = 'Date and time are required.'; errEl.style.display = ''; return; }
 
-    var staffIds = Array.from(document.querySelectorAll('#sj-edit-staff-checkboxes input:checked'))
+    var staffIds    = Array.from(document.querySelectorAll('#sj-edit-staff-checkboxes input:checked'))
       .map(function (cb) { return cb.value; });
+    var liveMembers = staffIds.map(function (id) { return MQ.store.staff.getById(id); }).filter(Boolean);
+    var newColour   = liveMembers.length && liveMembers[0].colour ? liveMembers[0].colour : '';
+    var newName     = liveMembers.map(function (s) { return s.name; }).join(', ');
 
     var btn = document.getElementById('sj-edit-submit');
     btn.disabled = true; btn.textContent = 'Saving…';
@@ -467,7 +473,14 @@
     try {
       var { error } = await MQ.supabase
         .from('quote_requests')
-        .update({ scheduled_date: date, scheduled_time: time, assigned_staff_ids: staffIds, updated_at: new Date().toISOString() })
+        .update({
+          scheduled_date:        date,
+          scheduled_time:        time,
+          assigned_staff_ids:    staffIds,
+          assigned_staff_colour: newColour,
+          assigned_staff_name:   newName,
+          updated_at:            new Date().toISOString(),
+        })
         .eq('id', id);
       if (error) throw error;
 
@@ -565,6 +578,19 @@
 
   document.addEventListener('mq:ready', function () {
     load();
+
+    // Sync fresh staff colours from Supabase so card rendering uses live values
+    MQ.supabase.from('profiles').select('id, colour, name').then(function (result) {
+      (result.data || []).forEach(function (p) {
+        var s = MQ.store.staff.getById(p.id);
+        if (!s) return;
+        var changed = false;
+        if (p.colour !== undefined && p.colour !== s.colour) { s.colour = p.colour || ''; changed = true; }
+        if (p.name   !== undefined && p.name   !== s.name)   { s.name   = p.name   || ''; changed = true; }
+        if (changed) MQ.store.staff.save(s);
+      });
+    }).catch(function () {});
+
     document.getElementById('btn-refresh').addEventListener('click', load);
     document.getElementById('sj-edit-submit').addEventListener('click', submitEdit);
     document.getElementById('sj-view-complete-btn').addEventListener('click', function () { if (viewingId) markComplete(viewingId); });
