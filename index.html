@@ -584,7 +584,7 @@
   <script src="header.js?v=20260621" defer></script>
   <script src="footer.js?v=20260621" defer></script>
   <script src="main.js?v=20260621" defer></script>
-  <script src="quote-modal.js?v=20260611c" defer></script>
+  <script src="quote-modal.js?v=20260613" defer></script>
 
   <!-- ── Quote modal ───────────────────────────────────────── -->
   <div class="qm-overlay" id="quote-modal" hidden role="dialog" aria-modal="true" aria-labelledby="qm-title">
@@ -605,6 +605,7 @@
 
   <!-- ── Policy modal styles ─────────────────────────────── -->
   <style>
+    .pac-container { z-index: 10000 !important; }
     .policy-overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.55);
@@ -757,5 +758,7 @@
     });
   </script>
 
+  <!-- Google Maps Places — replace YOUR_API_KEY_HERE with your key once created -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&callback=initGoogleMaps" async defer></script>
 </body>
 </html>
