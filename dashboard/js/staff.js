@@ -90,7 +90,6 @@
         '</div>' +
 
         '<div class="staff-row__badges">' +
-          '<span class="level-badge level-badge--' + (s.level || 1) + '">' + (LEVEL_NAMES[s.level || 1] || 'L' + (s.level || 1)) + '</span>' +
           roleBadge(s.role) +
           (inactive
             ? '<span class="badge badge--grey">Inactive</span>'
