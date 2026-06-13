@@ -115,6 +115,16 @@
             </select>
           </div>
           <div id="team-staff-form" style="display:none;margin-top:20px;">
+            <div class="form-grid form-grid--2" style="margin-bottom:12px;">
+              <div class="form-group">
+                <label class="form-label" for="team-name">Full name</label>
+                <input type="text" id="team-name" class="form-input" placeholder="Jane Smith">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="team-phone">Phone</label>
+                <input type="tel" id="team-phone" class="form-input" placeholder="0400 000 000">
+              </div>
+            </div>
             <div class="form-grid form-grid--2">
               <div class="form-group">
                 <label class="form-label">Role</label>
@@ -127,9 +137,17 @@
               <div class="form-group">
                 <label class="form-label">Cleaning level</label>
                 <select id="team-level" class="form-input">
-                  <option value="1">1 – Junior</option>
-                  <option value="2">2 – Mid Level</option>
-                  <option value="3">3 – Senior</option>
+                  <option value="1">1 — Trainee</option>
+                  <option value="2">2 — Cleaner</option>
+                  <option value="3">3 — Mid Cleaner</option>
+                  <option value="4">4 — Senior Cleaner</option>
+                  <option value="5">5 — Team Leader</option>
+                  <option value="6">6 — Supervisor</option>
+                  <option value="7">7 — Senior Supervisor</option>
+                  <option value="8">8 — Operations Lead</option>
+                  <option value="9">9 — Area Manager</option>
+                  <option value="10">10 — Regional Manager</option>
+                  <option value="11">11 — Director</option>
                 </select>
               </div>
               <div class="form-group">
@@ -139,8 +157,12 @@
                   <option value="suspended">Suspended</option>
                 </select>
               </div>
+              <div class="form-group">
+                <label class="form-label" for="team-start">Start date</label>
+                <input type="date" id="team-start" class="form-input">
+              </div>
             </div>
-            <div class="form-group" style="margin-top:4px;">
+            <div class="form-group" style="margin-top:12px;">
               <label class="form-label" style="margin-bottom:8px;">Colour</label>
               <div id="team-colour-swatches" class="colour-swatches"></div>
             </div>
@@ -457,7 +479,7 @@
   </style>
 
   <script src="js/ui.js?v=20260612" defer></script>
-  <script src="js/settings.js?v=20260613" defer></script>
+  <script src="js/settings.js?v=20260614" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">

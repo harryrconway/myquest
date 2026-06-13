@@ -18,8 +18,10 @@
   var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
 
   var STAFF_PALETTE = [
-    '#fee2e2','#ffedd5','#fef9c3','#dcfce7','#d1fae5',
-    '#e0f2fe','#e0e7ff','#ede9fe','#fce7f3','#f1f5f9',
+    '#1b4332','#2d6a4f','#40916c','#52b788',
+    '#92400e','#c2410c','#d97706','#ca8a04',
+    '#1e3a5f','#1e40af','#0369a1','#0891b2',
+    '#4f46e5','#7c3aed','#be185d','#334155',
   ];
 
   async function getJwt() {
@@ -452,9 +454,12 @@
       if (!s) { form.style.display = 'none'; return; }
       selectedColour = s.colour || '';
       renderSwatches(selectedColour);
-      document.getElementById('team-role').value   = s.role   || 'staff';
-      document.getElementById('team-level').value  = s.level  || 1;
+      document.getElementById('team-name').value   = s.name      || '';
+      document.getElementById('team-phone').value  = s.phone     || '';
+      document.getElementById('team-role').value   = s.role      || 'staff';
+      document.getElementById('team-level').value  = s.level     || 1;
       document.getElementById('team-status').value = s.active !== false ? 'active' : 'suspended';
+      document.getElementById('team-start').value  = s.startDate || '';
       form.style.display = '';
     });
 
@@ -463,6 +468,8 @@
       if (!staffId) return;
       var updates = {
         userId:         staffId,
+        name:           document.getElementById('team-name').value.trim(),
+        phone:          document.getElementById('team-phone').value.trim(),
         colour:         selectedColour,
         role:           document.getElementById('team-role').value,
         cleaning_level: parseInt(document.getElementById('team-level').value) || 1,
@@ -474,12 +481,18 @@
       // Update local staff record
       var s = MQ.store.staff.getById(staffId);
       if (s) {
-        s.colour = selectedColour;
-        s.role   = updates.role;
-        s.level  = updates.cleaning_level;
-        s.active = updates.status === 'active';
+        s.name      = updates.name;
+        s.phone     = updates.phone;
+        s.colour    = selectedColour;
+        s.role      = updates.role;
+        s.level     = updates.cleaning_level;
+        s.active    = updates.status === 'active';
+        s.startDate = document.getElementById('team-start').value;
         MQ.store.staff.save(s);
       }
+      // Refresh dropdown label if name changed
+      var opt = select.querySelector('option[value="' + staffId + '"]');
+      if (opt && updates.name) opt.textContent = updates.name;
     });
   }
 

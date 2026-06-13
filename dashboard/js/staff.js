@@ -82,7 +82,7 @@
         '</div>' +
 
         '<div class="staff-row__info">' +
-          '<div class="staff-row__name" style="cursor:pointer;display:flex;align-items:center;gap:8px;" onclick="StaffPage.edit(\'' + s.id + '\')">' +
+          '<div class="staff-row__name" style="display:flex;align-items:center;gap:8px;">' +
             (s.colour ? '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + s.colour + ';flex-shrink:0;"></span>' : '') +
             esc(s.name || '—') +
           '</div>' +
@@ -100,7 +100,6 @@
         '<div class="staff-row__actions">' +
           '<button class="btn-outline" style="padding:0.375rem 0.75rem;font-size:0.75rem;white-space:nowrap;" ' +
             'onclick="StaffPage.toggleActive(\'' + s.id + '\')">' + toggleLabel + '</button>' +
-          '<button class="btn-icon" onclick="StaffPage.edit(\'' + s.id + '\')" title="Edit">' + ICON_EDIT + '</button>' +
           (isOwner
             ? '<button class="btn-icon btn-icon--danger" onclick="StaffPage.remove(\'' + s.id + '\')" title="Delete">' + ICON_DELETE + '</button>'
             : '') +
@@ -113,8 +112,10 @@
   var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
 
   var STAFF_PALETTE = [
-    '#fee2e2','#ffedd5','#fef9c3','#dcfce7','#d1fae5',
-    '#e0f2fe','#e0e7ff','#ede9fe','#fce7f3','#f1f5f9',
+    '#1b4332','#2d6a4f','#40916c','#52b788',
+    '#92400e','#c2410c','#d97706','#ca8a04',
+    '#1e3a5f','#1e40af','#0369a1','#0891b2',
+    '#4f46e5','#7c3aed','#be185d','#334155',
   ];
 
   function pickStaffColour() {
@@ -323,37 +324,9 @@
       updateAddButton();
     });
 
-    document.getElementById('staff-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var name  = document.getElementById('staff-name').value.trim();
-      var email = document.getElementById('staff-email').value.trim();
-      if (!name || !email) {
-        MQ.ui.toast('Name and email are required', 'error');
-        return;
-      }
-      var obj = {
-        name:      name,
-        email:     email,
-        phone:     document.getElementById('staff-phone').value.trim(),
-        role:      document.getElementById('staff-role').value,
-        level:     parseInt(document.getElementById('staff-level').value) || 1,
-        startDate: document.getElementById('staff-start').value,
-        active:    document.getElementById('staff-active').value === 'true',
-      };
-      if (editingId) obj.id = editingId;
-      MQ.store.staff.save(obj);
-      // Sync phone to Supabase profile when editing an existing staff member
-      if (editingId) {
-        callApi('/api/update-profile', { userId: editingId, phone: obj.phone || '' }).catch(function () {});
-      }
-      MQ.ui.modal.close('modal-edit-staff');
-      renderList();
-      updateAddButton();
-      MQ.ui.toast(editingId ? 'Staff member updated' : 'Staff member added');
-    });
   });
 
   document.addEventListener('mq:pageshow', function () { renderList(); });
 
-  window.StaffPage = { edit: edit, remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount };
+  window.StaffPage = { remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount };
 })();
