@@ -335,7 +335,7 @@
       agreeRow('ob-row-co', 'ob-chk-co', 'I have read and agree to the <strong>Company Policies</strong>', state.agreedCompany),
 
       agreeRow('ob-row-priv', 'ob-chk-priv',
-        'I have read and agree to the <a href="https://myquest.au/privacy" target="_blank" rel="noopener">Privacy Policy</a>',
+        'I have read and agree to the <a href="https://myquest.au/privacy" target="_blank" rel="noopener" style="color:#16a34a;">Privacy Policy</a>',
         state.agreedPrivacy),
     ].join('');
   }
