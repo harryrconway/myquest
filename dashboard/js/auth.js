@@ -142,7 +142,7 @@
       name = profileResult.data.name || email;
       role = profileResult.data.role || 'staff';
       if (profileResult.data.status === 'invited' && role !== 'owner') {
-        if (!window.location.pathname.includes('onboarding.html')) {
+        if (!window.location.pathname.includes('onboarding')) {
           window.location.href = 'onboarding.html';
           return;
         }
