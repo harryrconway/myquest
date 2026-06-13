@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260611b">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260620">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260613">
   <script src="js/supabase.js?v=20260621"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260621"></script>
@@ -158,92 +158,6 @@
         </div>
       </div>
 
-      <!-- Add Team Member Modal -->
-      <div class="modal-overlay" id="modal-add-team-member" hidden style="align-items:flex-start;padding-top:clamp(16px,5vh,64px);">
-        <div class="modal-card" style="max-width:520px;">
-          <div class="modal-header">
-            <div>
-              <h2 class="modal-title">Add Team Member</h2>
-              <p style="font-size:13px;color:#64748b;margin-top:3px;font-weight:500;">Add an existing account or create a new one.</p>
-            </div>
-            <button class="modal-close" data-modal-close="modal-add-team-member" aria-label="Close">&times;</button>
-          </div>
-          <div id="at-main-content">
-            <div style="gap:0;padding:0;">
-              <!-- Existing accounts section -->
-              <div style="padding:16px 20px 0;">
-                <p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin:0 0 10px;">Available accounts</p>
-                <div id="add-team-existing-list" style="display:flex;flex-direction:column;gap:8px;min-height:40px;max-height:200px;overflow-y:auto;"></div>
-              </div>
-              <!-- Divider -->
-              <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;">
-                <div style="flex:1;height:1px;background:#f1f5f9;"></div>
-                <span style="font-size:12px;color:#94a3b8;font-weight:500;white-space:nowrap;">or create a new account</span>
-                <div style="flex:1;height:1px;background:#f1f5f9;"></div>
-              </div>
-              <!-- New account form -->
-              <form id="add-team-form" novalidate autocomplete="off" style="padding:0 20px 20px;">
-                <div class="login-error-block" id="add-team-error" hidden style="margin-bottom:10px;"></div>
-                <div class="form-grid form-grid--2">
-                  <div class="form-group">
-                    <label class="form-label" for="at-name">Full Name</label>
-                    <input class="form-input" type="text" id="at-name" placeholder="Jane Smith" required autocomplete="off">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="at-email">Email Address</label>
-                    <input class="form-input" type="email" id="at-email" placeholder="jane@example.com" required autocomplete="off">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="at-role">Role</label>
-                    <div class="mq-select-wrap">
-                      <select id="at-role" class="mq-select">
-                        <option value="staff">Staff</option>
-                        <option value="manager">Manager</option>
-                        <option value="owner">Owner</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group" id="at-level-group">
-                    <label class="form-label" for="at-level">Cleaning Level</label>
-                    <div class="mq-select-wrap">
-                      <select id="at-level" class="mq-select">
-                        <option value="1">1 — Trainee</option>
-                        <option value="2">2 — Cleaner</option>
-                        <option value="3">3 — Mid Cleaner</option>
-                        <option value="4">4 — Senior Cleaner</option>
-                        <option value="5">5 — Team Leader</option>
-                        <option value="6">6 — Supervisor</option>
-                        <option value="7">7 — Senior Supervisor</option>
-                        <option value="8">8 — Operations Lead</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div style="display:flex;justify-content:flex-end;padding-top:14px;border-top:1px solid #f1f5f9;margin-top:6px;gap:8px;">
-                  <button type="button" class="btn-secondary" data-modal-close="modal-add-team-member">Cancel</button>
-                  <button type="submit" class="btn-primary" id="at-submit">Send Invitation</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <!-- Success state -->
-          <div id="at-success-panel" hidden>
-            <div style="text-align:center;padding:3rem 2rem 2.5rem;">
-              <div style="width:72px;height:72px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;box-shadow:0 6px 28px rgba(34,197,94,.32);animation:ca-pop .45s cubic-bezier(.22,1.25,.36,1) both;">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <h2 style="font-size:1.35rem;font-weight:700;color:#0f172a;margin:0 0 .45rem;">Invitation sent!</h2>
-              <p style="font-size:14px;color:#64748b;margin:0 0 .3rem;">An invite email has been sent to</p>
-              <p id="at-success-email" style="font-size:15px;font-weight:600;color:#0f172a;margin:0 0 2rem;word-break:break-all;"></p>
-              <div style="display:flex;gap:.75rem;justify-content:center;">
-                <button type="button" class="btn-secondary" id="at-success-another">Add Another</button>
-                <button type="button" class="btn-primary" id="at-success-done">Done</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Quote Rates -->
       <div class="dash-card mb-8">
         <div class="dash-card__header" style="padding:20px 24px;border-bottom:1px solid #f1f5f9;">
@@ -367,6 +281,92 @@
       </div>
 
     </div></div>
+  </div>
+
+  <!-- Add Team Member Modal -->
+  <div class="modal-overlay" id="modal-add-team-member" hidden style="align-items:flex-start;padding-top:clamp(16px,5vh,64px);">
+    <div class="modal-card" style="max-width:520px;">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Add Team Member</h2>
+          <p style="font-size:13px;color:#64748b;margin-top:3px;font-weight:500;">Add an existing account or create a new one.</p>
+        </div>
+        <button class="modal-close" data-modal-close="modal-add-team-member" aria-label="Close">&times;</button>
+      </div>
+      <div id="at-main-content">
+        <div style="gap:0;padding:0;">
+          <!-- Existing accounts section -->
+          <div style="padding:16px 20px 0;">
+            <p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin:0 0 10px;">Available accounts</p>
+            <div id="add-team-existing-list" style="display:flex;flex-direction:column;gap:8px;min-height:40px;max-height:200px;overflow-y:auto;"></div>
+          </div>
+          <!-- Divider -->
+          <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;">
+            <div style="flex:1;height:1px;background:#f1f5f9;"></div>
+            <span style="font-size:12px;color:#94a3b8;font-weight:500;white-space:nowrap;">or create a new account</span>
+            <div style="flex:1;height:1px;background:#f1f5f9;"></div>
+          </div>
+          <!-- New account form -->
+          <form id="add-team-form" novalidate autocomplete="off" style="padding:0 20px 20px;">
+            <div class="login-error-block" id="add-team-error" hidden style="margin-bottom:10px;"></div>
+            <div class="form-grid form-grid--2">
+              <div class="form-group">
+                <label class="form-label" for="at-name">Full Name</label>
+                <input class="form-input" type="text" id="at-name" placeholder="Jane Smith" required autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="at-email">Email Address</label>
+                <input class="form-input" type="email" id="at-email" placeholder="jane@example.com" required autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="at-role">Role</label>
+                <div class="mq-select-wrap">
+                  <select id="at-role" class="mq-select">
+                    <option value="staff">Staff</option>
+                    <option value="manager">Manager</option>
+                    <option value="owner">Owner</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" id="at-level-group">
+                <label class="form-label" for="at-level">Cleaning Level</label>
+                <div class="mq-select-wrap">
+                  <select id="at-level" class="mq-select">
+                    <option value="1">1 — Trainee</option>
+                    <option value="2">2 — Cleaner</option>
+                    <option value="3">3 — Mid Cleaner</option>
+                    <option value="4">4 — Senior Cleaner</option>
+                    <option value="5">5 — Team Leader</option>
+                    <option value="6">6 — Supervisor</option>
+                    <option value="7">7 — Senior Supervisor</option>
+                    <option value="8">8 — Operations Lead</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;padding-top:14px;border-top:1px solid #f1f5f9;margin-top:6px;gap:8px;">
+              <button type="button" class="btn-secondary" data-modal-close="modal-add-team-member">Cancel</button>
+              <button type="submit" class="btn-primary" id="at-submit">Send Invitation</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Success state -->
+      <div id="at-success-panel" hidden>
+        <div style="text-align:center;padding:3rem 2rem 2.5rem;">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;box-shadow:0 6px 28px rgba(34,197,94,.32);animation:ca-pop .45s cubic-bezier(.22,1.25,.36,1) both;">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 style="font-size:1.35rem;font-weight:700;color:#0f172a;margin:0 0 .45rem;">Invitation sent!</h2>
+          <p style="font-size:14px;color:#64748b;margin:0 0 .3rem;">An invite email has been sent to</p>
+          <p id="at-success-email" style="font-size:15px;font-weight:600;color:#0f172a;margin:0 0 2rem;word-break:break-all;"></p>
+          <div style="display:flex;gap:.75rem;justify-content:center;">
+            <button type="button" class="btn-secondary" id="at-success-another">Add Another</button>
+            <button type="button" class="btn-primary" id="at-success-done">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Modal: Data Options -->
