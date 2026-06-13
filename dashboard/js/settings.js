@@ -417,7 +417,7 @@
       });
       renderSwatches(selectedColour);
       document.getElementById('team-name').value   = s.name      || '';
-      document.getElementById('team-phone').value  = s.phone     || '';
+      document.getElementById('team-phone').value  = s.mobile || s.phone || '';
       document.getElementById('team-role').value   = s.role      || 'staff';
       document.getElementById('team-level').value  = s.level     || 1;
       document.getElementById('team-status').value = s.active !== false ? 'active' : 'suspended';
@@ -501,7 +501,7 @@
 
     // Sync any Supabase accounts not yet in localStorage so the Team card
     // shows all members on every device, not just the device where they were added
-    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status').then(function (r) {
+    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status, phone, mobile').then(function (r) {
       if (!r.data) return;
       var changed = false;
       r.data.forEach(function (p) {
