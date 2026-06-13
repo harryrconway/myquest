@@ -3176,25 +3176,16 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .mq-select-wrap {
   position: relative;
 }
-.mq-select-wrap::after {
-  content: '';
-  position: absolute;
-  right: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 15px;
-  height: 15px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-size: contain;
-  pointer-events: none;
-}
 .mq-select {
   width: 100%;
   appearance: none;
   -webkit-appearance: none;
-  padding: 10px 36px 10px 14px;
-  background: #fff;
+  padding: 10px 38px 10px 14px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
   border: 1.5px solid #e2e8f0;
   border-radius: 12px;
   font-family: inherit;
@@ -3203,6 +3194,7 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   color: #1e293b;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.4;
 }
 .mq-select:hover {
   border-color: #94a3b8;
