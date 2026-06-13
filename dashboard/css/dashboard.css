@@ -2951,7 +2951,7 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   border: 1.5px solid #e2e8f0;
   border-radius: 14px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
-  z-index: 120;
+  z-index: 500;
   overflow: hidden;
 }
 
