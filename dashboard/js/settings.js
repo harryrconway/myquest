@@ -267,7 +267,7 @@
     }
 
     /* ── Add Member ──────────────────────────────────────── */
-    async function openUnifiedAddModal() {
+    function openUnifiedAddModal() {
       var formEl    = document.getElementById('add-team-form');
       var successEl = document.getElementById('at-success-panel');
       var errorEl   = document.getElementById('add-team-error');
@@ -275,49 +275,7 @@
       if (formEl)    { formEl.reset(); formEl.style.display = ''; }
       if (successEl) successEl.hidden = true;
       if (errorEl)   errorEl.hidden = true;
-      if (submitBtn) { submitBtn.textContent = 'Send Invitation'; submitBtn.disabled = false; }
-
-      // Always refresh from Supabase so we have the latest accounts
-      try {
-        var r = await MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status');
-        (r.data || []).forEach(function (p) {
-          MQ.store.accounts.save({
-            id: p.id, name: p.name || '', email: p.email || '',
-            role: p.role || 'staff', cleaningLevel: p.cleaning_level || 1,
-            status: p.status === 'suspended' ? 'suspended' : 'active',
-          });
-        });
-      } catch (e) {}
-
-      var existingEmails = MQ.store.staff.getAll().map(function (s) { return (s.email || '').toLowerCase(); });
-      var available = MQ.store.accounts.getAll().filter(function (a) {
-        return a.status !== 'suspended' && !existingEmails.includes((a.email || '').toLowerCase());
-      });
-      var listEl = document.getElementById('add-team-existing-list');
-      if (!available.length) {
-        listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;padding:4px 0;">All active accounts are already on the team.</p>';
-      } else {
-        var ROLE_COLOR = { owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8', staff: 'background:#f1f5f9;color:#475569' };
-        listEl.innerHTML = available.map(function (acc) {
-          var initial   = (acc.name || acc.email || '?').charAt(0).toUpperCase();
-          var roleStyle = ROLE_COLOR[acc.role] || ROLE_COLOR.staff;
-          return '<button type="button" onclick="SettingsPage.addMember(\'' + escHtml(acc.id) + '\')" ' +
-            'style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;' +
-            'background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;cursor:pointer;' +
-            'font-family:inherit;text-align:left;transition:border-color 0.15s,background 0.15s;" ' +
-            'onmouseover="this.style.borderColor=\'#2d6a4f\';this.style.background=\'#fff\'" ' +
-            'onmouseout="this.style.borderColor=\'#e2e8f0\';this.style.background=\'#f8fafc\'">' +
-            '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1b4332,#2d6a4f);' +
-            'display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;">' +
-            escHtml(initial) + '</div>' +
-            '<div style="flex:1;min-width:0;">' +
-              '<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px;">' + escHtml(acc.name || acc.email) + '</div>' +
-              '<div style="font-size:12px;color:#94a3b8;">' + escHtml(acc.email) + '</div>' +
-            '</div>' +
-            '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;flex-shrink:0;' + roleStyle + ';">' + escHtml(acc.role) + '</span>' +
-            '</button>';
-        }).join('');
-      }
+      if (submitBtn) { submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false; }
 
       var roleEl   = document.getElementById('at-role');
       var levelGrp = document.getElementById('at-level-group');
