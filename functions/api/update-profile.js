@@ -1,4 +1,4 @@
-/* POST /api/update-profile — update role, status or cleaning_level */
+/* POST /api/update-profile — update profile fields including onboarding data */
 export async function onRequestPost(context) {
   const { request, env } = context;
   const URL_BASE = env.SUPABASE_URL;
@@ -20,18 +20,51 @@ export async function onRequestPost(context) {
   if (!profileRes.ok) return json({ error: 'Profile lookup failed (' + profileRes.status + ').' }, 500);
   const profiles = await profileRes.json();
   const callerRole = profiles && profiles[0] && profiles[0].role;
-  if (!['owner', 'manager'].includes(callerRole)) return json({ error: 'Insufficient permissions.' }, 403);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
-  const { userId, role, cleaning_level, status, phone, colour, name } = body;
+  const {
+    userId, role, cleaning_level, status, phone, colour, name,
+    // Onboarding fields — any authenticated user can update their own profile
+    mobile, residential_address, emergency_contact_name, emergency_contact_number,
+    profile_photo_url, police_check_url, drivers_licence_url,
+    vehicle_make, vehicle_model, vehicle_registration, right_to_work_url,
+    availability, employment_agreement_signed_at, privacy_policy_signed_at,
+    company_policy_signed_at, onboarding_complete,
+  } = body;
   if (!userId) return json({ error: 'userId is required.' }, 400);
+
+  // Allow staff to update their own onboarding data; managers/owners can update others
+  const isSelf = userId === user.id;
+  if (!isSelf && !['owner', 'manager'].includes(callerRole)) {
+    return json({ error: 'Insufficient permissions.' }, 403);
+  }
 
   const updates = {};
   // Any manager or owner can update name, phone and colour
   if (name   !== undefined) updates.name   = String(name   || '').trim().slice(0, 100) || null;
   if (phone  !== undefined) updates.phone  = String(phone  || '').trim().slice(0, 30)  || null;
   if (colour !== undefined) updates.colour = String(colour || '').trim().slice(0, 20);
+
+  // Onboarding fields (self or manager+)
+  const textField = (v, max) => v !== undefined ? (String(v || '').trim().slice(0, max) || null) : undefined;
+  if (mobile                    !== undefined) updates.mobile                    = textField(mobile, 30);
+  if (residential_address       !== undefined) updates.residential_address       = textField(residential_address, 200);
+  if (emergency_contact_name    !== undefined) updates.emergency_contact_name    = textField(emergency_contact_name, 100);
+  if (emergency_contact_number  !== undefined) updates.emergency_contact_number  = textField(emergency_contact_number, 30);
+  if (profile_photo_url         !== undefined) updates.profile_photo_url         = textField(profile_photo_url, 500);
+  if (police_check_url          !== undefined) updates.police_check_url          = textField(police_check_url, 500);
+  if (drivers_licence_url       !== undefined) updates.drivers_licence_url       = textField(drivers_licence_url, 500);
+  if (vehicle_make              !== undefined) updates.vehicle_make              = textField(vehicle_make, 50);
+  if (vehicle_model             !== undefined) updates.vehicle_model             = textField(vehicle_model, 50);
+  if (vehicle_registration      !== undefined) updates.vehicle_registration      = textField(vehicle_registration, 20);
+  if (right_to_work_url         !== undefined) updates.right_to_work_url         = textField(right_to_work_url, 500);
+  if (availability              !== undefined) updates.availability              = availability;
+  if (employment_agreement_signed_at !== undefined) updates.employment_agreement_signed_at = employment_agreement_signed_at;
+  if (privacy_policy_signed_at  !== undefined) updates.privacy_policy_signed_at  = privacy_policy_signed_at;
+  if (company_policy_signed_at  !== undefined) updates.company_policy_signed_at  = company_policy_signed_at;
+  if (onboarding_complete       !== undefined) updates.onboarding_complete       = Boolean(onboarding_complete);
+
   // Only owners can change role, level, or account status
   if (callerRole === 'owner') {
     if (role !== undefined) {

@@ -46,8 +46,43 @@
   }
 
   /* ══════════════════════════════════════════════════════════
-     ACCOUNTS TABLE
+     DELETE CONFIRMATION MODAL
   ══════════════════════════════════════════════════════════ */
+
+  function openDeleteConfirm(title, message, onConfirm) {
+    var modal    = document.getElementById('modal-delete-confirm');
+    var idleEl   = document.getElementById('mdc-idle');
+    var loadEl   = document.getElementById('mdc-loading');
+    var titleEl  = document.getElementById('mdc-title');
+    var msgEl    = document.getElementById('mdc-message');
+    var confirmBtn = document.getElementById('mdc-confirm');
+    var cancelBtn  = document.getElementById('mdc-cancel');
+    if (!modal) return;
+
+    titleEl.textContent = title;
+    msgEl.textContent   = message;
+    idleEl.hidden   = false;
+    loadEl.hidden   = true;
+    MQ.ui.modal.open('modal-delete-confirm');
+
+    function cleanup() {
+      confirmBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+    }
+    async function onOk() {
+      cleanup();
+      idleEl.hidden = true;
+      loadEl.hidden = false;
+      try { await onConfirm(); } catch (e) { MQ.ui.toast('Delete failed: ' + e.message, 'error'); }
+      MQ.ui.modal.close('modal-delete-confirm');
+    }
+    function onCancel() {
+      cleanup();
+      MQ.ui.modal.close('modal-delete-confirm');
+    }
+    confirmBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  }
 
   /* ══════════════════════════════════════════════════════════
      ACCOUNT ACTIONS
@@ -422,23 +457,40 @@
       document.getElementById('team-email').value  = (acc && acc.email) || s.email || '';
       if (toggleBtn) toggleBtn.textContent = s.active !== false ? 'Deactivate' : 'Activate';
       populateHero(s);
+      renderStaffDocuments(id);
       form.style.display = '';
     }
 
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', function () {
-        if (!selectedStaffId) return;
-        var s = MQ.store.staff.getById(selectedStaffId);
-        if (!s) return;
-        s.active = s.active === false ? true : false;
-        MQ.store.staff.save(s);
-        toggleBtn.textContent = s.active ? 'Deactivate' : 'Activate';
-        document.getElementById('team-status').value = s.active ? 'active' : 'suspended';
-        populateHero(s);
-        callApi('/api/update-profile', { userId: s.id, status: s.active ? 'active' : 'suspended' }).catch(function () {});
-        renderAvatarGrid();
-        MQ.ui.toast(s.active ? (s.name || 'Staff member') + ' activated' : (s.name || 'Staff member') + ' deactivated', 'info');
-      });
+    function renderStaffDocuments(staffId) {
+      var listEl = document.getElementById('team-docs-list');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">Loading documents…</p>';
+      MQ.supabase
+        .from('profiles')
+        .select('police_check_url, drivers_licence_url, right_to_work_url, onboarding_complete')
+        .eq('id', staffId)
+        .single()
+        .then(function (r) {
+          if (!r.data) { listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">No data.</p>'; return; }
+          var p = r.data;
+          var docs = [
+            { label: 'Police Check',        url: p.police_check_url },
+            { label: 'Driver\'s Licence',   url: p.drivers_licence_url },
+            { label: 'Right to Work',        url: p.right_to_work_url },
+          ];
+          var html = docs.map(function (d) {
+            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8fafc;border-radius:8px;font-size:13px;">' +
+              '<span style="font-weight:600;color:#374151;">' + d.label + '</span>' +
+              (d.url
+                ? '<a href="' + d.url + '" target="_blank" rel="noopener" style="color:#16a34a;font-weight:600;text-decoration:none;">View &rarr;</a>'
+                : '<span style="color:#94a3b8;">Not uploaded</span>') +
+            '</div>';
+          }).join('');
+          if (!p.onboarding_complete) {
+            html += '<p style="font-size:12px;color:#f59e0b;margin-top:8px;">Onboarding not yet complete.</p>';
+          }
+          listEl.innerHTML = html;
+        });
     }
 
     var resetPwdBtn = document.getElementById('team-reset-pwd-btn');
@@ -458,17 +510,21 @@
         var id   = selectedStaffId;
         var s    = MQ.store.staff.getById(id);
         var name = (s && s.name) || 'this team member';
-        MQ.ui.confirmDelete('Permanently delete ' + name + '\'s account? This cannot be undone.', async function () {
-          var result = await callApi('/api/delete-account', { userId: id });
-          if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
-          MQ.store.accounts.delete(id);
-          MQ.store.staff.delete(id);
-          selectedStaffId = '';
-          selectedColour  = '';
-          form.style.display = 'none';
-          renderAvatarGrid();
-          MQ.ui.toast(name + '\'s account deleted', 'info');
-        });
+        openDeleteConfirm(
+          'Delete ' + name + '\'s account?',
+          'This will permanently remove their account and all access. This cannot be undone.',
+          async function () {
+            var result = await callApi('/api/delete-account', { userId: id });
+            if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
+            MQ.store.accounts.delete(id);
+            MQ.store.staff.delete(id);
+            selectedStaffId = '';
+            selectedColour  = '';
+            form.style.display = 'none';
+            renderAvatarGrid();
+            MQ.ui.toast(name + '\'s account deleted', 'info');
+          }
+        );
       });
     }
 

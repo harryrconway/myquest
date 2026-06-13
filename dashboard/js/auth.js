@@ -141,8 +141,11 @@
     if (profileResult.data) {
       name = profileResult.data.name || email;
       role = profileResult.data.role || 'staff';
-      if (profileResult.data.status === 'invited') {
-        sb.from('profiles').update({ status: 'active' }).eq('id', userId).then(function () {});
+      if (profileResult.data.status === 'invited' && role !== 'owner') {
+        if (!window.location.pathname.includes('onboarding.html')) {
+          window.location.href = 'onboarding.html';
+          return;
+        }
       }
     }
 
