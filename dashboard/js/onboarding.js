@@ -605,10 +605,6 @@
       try { result = await res.json(); } catch (e) { result = { error: 'Unexpected server response.' }; }
       if (result && result.error) throw new Error(result.error);
 
-      if (sb && state.userId) {
-        await sb.from('profiles').update({ status: 'active' }).eq('id', state.userId);
-      }
-
       var stepWrap = document.getElementById('ob-step-wrap');
       var success  = document.getElementById('ob-success');
       if (stepWrap) stepWrap.hidden = true;

@@ -26,7 +26,8 @@ export async function onRequestPost(context) {
   const {
     userId, role, cleaning_level, status, phone, colour, name,
     // Onboarding fields — any authenticated user can update their own profile
-    mobile, residential_address, emergency_contact_name, emergency_contact_number,
+    mobile, date_of_birth, residential_address,
+    emergency_contact_name, emergency_contact_number, emergency_relation,
     profile_photo_url, police_check_url, drivers_licence_url,
     vehicle_make, vehicle_model, vehicle_registration, right_to_work_url,
     availability, employment_agreement_signed_at, privacy_policy_signed_at,
@@ -49,9 +50,11 @@ export async function onRequestPost(context) {
   // Onboarding fields (self or manager+)
   const textField = (v, max) => v !== undefined ? (String(v || '').trim().slice(0, max) || null) : undefined;
   if (mobile                    !== undefined) updates.mobile                    = textField(mobile, 30);
+  if (date_of_birth             !== undefined) updates.date_of_birth             = textField(date_of_birth, 10);
   if (residential_address       !== undefined) updates.residential_address       = textField(residential_address, 200);
   if (emergency_contact_name    !== undefined) updates.emergency_contact_name    = textField(emergency_contact_name, 100);
   if (emergency_contact_number  !== undefined) updates.emergency_contact_number  = textField(emergency_contact_number, 30);
+  if (emergency_relation        !== undefined) updates.emergency_relation        = textField(emergency_relation, 50);
   if (profile_photo_url         !== undefined) updates.profile_photo_url         = textField(profile_photo_url, 500);
   if (police_check_url          !== undefined) updates.police_check_url          = textField(police_check_url, 500);
   if (drivers_licence_url       !== undefined) updates.drivers_licence_url       = textField(drivers_licence_url, 500);
@@ -63,7 +66,11 @@ export async function onRequestPost(context) {
   if (employment_agreement_signed_at !== undefined) updates.employment_agreement_signed_at = employment_agreement_signed_at;
   if (privacy_policy_signed_at  !== undefined) updates.privacy_policy_signed_at  = privacy_policy_signed_at;
   if (company_policy_signed_at  !== undefined) updates.company_policy_signed_at  = company_policy_signed_at;
-  if (onboarding_complete       !== undefined) updates.onboarding_complete       = Boolean(onboarding_complete);
+  if (onboarding_complete !== undefined) {
+    updates.onboarding_complete = Boolean(onboarding_complete);
+    // Auto-activate own account when onboarding completes (status update requires service role)
+    if (Boolean(onboarding_complete) && isSelf) updates.status = 'active';
+  }
 
   // Only owners can change role, level, or account status
   if (callerRole === 'owner') {
