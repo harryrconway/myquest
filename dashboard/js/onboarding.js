@@ -6,37 +6,31 @@
   var ALLOWED_EXTS  = ['pdf', 'jpg', 'jpeg', 'png'];
   var MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-  var DAYS  = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var TIMES = ['Morning', 'Afternoon', 'Evening', 'Flexible'];
 
-  /* ── collected data ──────────────────────────────────────── */
+  /* ── state ───────────────────────────────────────────────── */
 
   var state = {
     userId: null,
     firstName: '', lastName: '', phone: '', dob: '',
     address: '', suburb: '', stateVal: '', postcode: '',
     emergencyName: '', emergencyPhone: '', emergencyRel: '',
-    vehicleMake: '', vehicleModel: '', vehicleRego: '',
-    availDays: [], availStart: '', availEnd: '',
-    photoFile: null,     photoUrl:       null,
-    policeFile: null,    policeUrl:      null,
-    licenceFile: null,   licenceUrl:     null,
-    rtwFile: null,       rtwUrl:         null,
+    availStart: '', availEnd: '',
+    photoFile: null,   photoUrl:   null,
+    policeFile: null,  policeUrl:  null,
+    licenceFile: null, licenceUrl: null,
+    rtwFile: null,     rtwUrl:     null,
     agreedEmployment: false, agreedCompany: false, agreedPrivacy: false,
   };
 
   /* ── helpers ─────────────────────────────────────────────── */
 
-  function sanitize(val, maxLen) {
-    return String(val || '').trim().slice(0, maxLen || 200);
-  }
-  function sanitizePhone(val) {
-    return sanitize(val, 20).replace(/[^\d\s\-+().]/g, '');
-  }
+  function sanitize(val, maxLen) { return String(val || '').trim().slice(0, maxLen || 200); }
+  function sanitizePhone(val)    { return sanitize(val, 20).replace(/[^\d\s\-+().]/g, ''); }
   function esc(s) {
     return String(s || '')
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function isAdmin() {
@@ -44,7 +38,7 @@
       (MQ.session.role === 'owner' || MQ.session.role === 'manager');
   }
 
-  /* ── upload area (label wrapping hidden input — works on iOS) */
+  /* ── upload area ─────────────────────────────────────────── */
 
   function uploadField(labelText, inputId, optional) {
     var optTag = optional ? '<span class="ob-label-opt">(optional)</span>' : '';
@@ -106,19 +100,59 @@
     });
   }
 
+  /* ── DOB picker wiring ───────────────────────────────────── */
+
+  function wireDOB() {
+    var dd   = document.getElementById('ob-dob-dd');
+    var mm   = document.getElementById('ob-dob-mm');
+    var yyyy = document.getElementById('ob-dob-yyyy');
+    if (!dd || !mm || !yyyy) return;
+
+    function digitsOnly(input) {
+      input.addEventListener('input', function () {
+        var pos = input.selectionStart;
+        input.value = input.value.replace(/\D/g, '');
+        try { input.setSelectionRange(pos, pos); } catch(e) {}
+      });
+    }
+    digitsOnly(dd); digitsOnly(mm); digitsOnly(yyyy);
+
+    // Auto-advance when field full
+    dd.addEventListener('input', function () {
+      if (dd.value.length >= 2) { mm.focus(); mm.select(); }
+    });
+    mm.addEventListener('input', function () {
+      if (mm.value.length >= 2) { yyyy.focus(); yyyy.select(); }
+    });
+
+    // Backspace on empty field goes back
+    mm.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && mm.value === '') { dd.focus(); dd.setSelectionRange(2, 2); }
+    });
+    yyyy.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && yyyy.value === '') { mm.focus(); mm.setSelectionRange(2, 2); }
+    });
+  }
+
   /* ── step HTML ───────────────────────────────────────────── */
 
   var STEPS = [
-    { title: 'Personal details',   subtitle: 'Tell us a bit about yourself.',                 render: renderS1, collect: collectS1, validate: validateS1 },
-    { title: 'Address',            subtitle: 'Where are you currently living?',               render: renderS2, collect: collectS2, validate: validateS2 },
-    { title: 'Emergency contact',  subtitle: 'Who should we contact in an emergency?',        render: renderS3, collect: collectS3, validate: validateS3 },
-    { title: 'Availability',       subtitle: 'When are you available to work?',               render: renderS4, collect: function(){}, validate: validateS4 },
-    { title: 'Profile photo',      subtitle: 'Add a photo so your team can recognise you.',   render: renderS5, collect: function(){}, validate: function(){ return null; } },
-    { title: 'Documents',          subtitle: 'Upload your compliance documents.',             render: renderS6, collect: function(){}, validate: validateS6 },
-    { title: 'Agreements',         subtitle: 'Please review and agree to the following.',     render: renderS7, collect: collectS7, validate: validateS7 },
+    { title: 'Personal details',  subtitle: 'Tell us a bit about yourself.',              render: renderS1, collect: collectS1, validate: validateS1 },
+    { title: 'Address',           subtitle: 'Where are you currently living?',            render: renderS2, collect: collectS2, validate: validateS2 },
+    { title: 'Emergency contact', subtitle: 'Who should we contact in an emergency?',     render: renderS3, collect: collectS3, validate: validateS3 },
+    { title: 'Availability',      subtitle: 'When do you prefer to work?',                render: renderS4, collect: function(){}, validate: validateS4 },
+    { title: 'Profile photo',     subtitle: 'Add a photo so your team can recognise you.',render: renderS5, collect: function(){}, validate: function(){ return null; } },
+    { title: 'Documents',         subtitle: 'Upload your compliance documents.',          render: renderS6, collect: function(){}, validate: validateS6 },
+    { title: 'Agreements',        subtitle: 'Please review and agree to the following.',  render: renderS7, collect: collectS7, validate: validateS7 },
   ];
 
   function renderS1() {
+    // Pre-populate DOB fields from stored ISO date (YYYY-MM-DD)
+    var dobDD = '', dobMM = '', dobYYYY = '';
+    if (state.dob) {
+      var parts = state.dob.split('-');
+      dobYYYY = parts[0] || ''; dobMM = parts[1] || ''; dobDD = parts[2] || '';
+    }
     return [
       '<div class="ob-row-2">',
         '<div class="ob-field"><label class="ob-label" for="ob-first">First name</label>',
@@ -126,31 +160,46 @@
         '<div class="ob-field"><label class="ob-label" for="ob-last">Last name</label>',
           '<input class="ob-input" id="ob-last" type="text" autocomplete="family-name" placeholder="Smith" maxlength="50" value="' + esc(state.lastName) + '"></div>',
       '</div>',
-      '<div class="ob-row-2">',
-        '<div class="ob-field"><label class="ob-label" for="ob-phone">Mobile number</label>',
-          '<input class="ob-input" id="ob-phone" type="tel" autocomplete="tel" placeholder="0400 000 000" maxlength="20" value="' + esc(state.phone) + '"></div>',
-        '<div class="ob-field"><label class="ob-label" for="ob-dob">Date of birth</label>',
-          '<input class="ob-input" id="ob-dob" type="date" autocomplete="bday" value="' + esc(state.dob) + '"></div>',
+      '<div class="ob-field"><label class="ob-label" for="ob-phone">Mobile number</label>',
+        '<input class="ob-input" id="ob-phone" type="tel" autocomplete="tel" placeholder="0400 000 000" maxlength="20" value="' + esc(state.phone) + '"></div>',
+      '<div class="ob-field">',
+        '<label class="ob-label">Date of birth</label>',
+        '<div class="ob-dob-wrap">',
+          '<input class="ob-input ob-dob-part" id="ob-dob-dd" type="text" inputmode="numeric" placeholder="DD" maxlength="2" value="' + esc(dobDD) + '">',
+          '<span class="ob-dob-sep">/</span>',
+          '<input class="ob-input ob-dob-part" id="ob-dob-mm" type="text" inputmode="numeric" placeholder="MM" maxlength="2" value="' + esc(dobMM) + '">',
+          '<span class="ob-dob-sep">/</span>',
+          '<input class="ob-input ob-dob-part ob-dob-yyyy" id="ob-dob-yyyy" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4" value="' + esc(dobYYYY) + '">',
+        '</div>',
       '</div>',
     ].join('');
   }
+
   function collectS1() {
     state.firstName = sanitize((qs('#ob-first') || {}).value, 50);
     state.lastName  = sanitize((qs('#ob-last')  || {}).value, 50);
     state.phone     = sanitizePhone((qs('#ob-phone') || {}).value);
-    state.dob       = sanitize((qs('#ob-dob')   || {}).value, 10);
+    var dd   = sanitize((qs('#ob-dob-dd')   || {}).value, 2);
+    var mm   = sanitize((qs('#ob-dob-mm')   || {}).value, 2);
+    var yyyy = sanitize((qs('#ob-dob-yyyy') || {}).value, 4);
+    state.dob = (dd && mm && yyyy) ? yyyy + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0') : '';
   }
+
   function validateS1() {
     collectS1();
     if (!state.firstName) return 'Please enter your first name.';
     if (!state.lastName)  return 'Please enter your last name.';
     if (!state.phone)     return 'Please enter your mobile number.';
-    if (!state.dob)       return 'Please enter your date of birth.';
+    if (!state.dob) return 'Please enter your date of birth.';
+    var parts = state.dob.split('-');
+    var yy = parseInt(parts[0]), mo = parseInt(parts[1]), dd = parseInt(parts[2]);
+    if (dd < 1 || dd > 31 || mo < 1 || mo > 12) return 'Please enter a valid date of birth.';
+    if (yy < 1920 || yy > new Date().getFullYear() - 14) return 'Please enter a valid year.';
     return null;
   }
 
   function renderS2() {
-    var states = ['ACT','NSW','NT','QLD','SA','TAS','VIC','WA'].map(function (s) {
+    var stateOpts = ['ACT','NSW','NT','QLD','SA','TAS','VIC','WA'].map(function (s) {
       return '<option value="' + s + '"' + (s === state.stateVal ? ' selected' : '') + '>' + s + '</option>';
     }).join('');
     return [
@@ -160,7 +209,7 @@
         '<div class="ob-field"><label class="ob-label" for="ob-suburb">Suburb</label>',
           '<input class="ob-input" id="ob-suburb" type="text" autocomplete="address-level2" placeholder="Melbourne" maxlength="60" value="' + esc(state.suburb) + '"></div>',
         '<div class="ob-field"><label class="ob-label" for="ob-state">State</label>',
-          '<select class="ob-input" id="ob-state" autocomplete="address-level1">' + states + '</select></div>',
+          '<select class="ob-input" id="ob-state">' + stateOpts + '</select></div>',
       '</div>',
       '<div class="ob-field" style="max-width:160px"><label class="ob-label" for="ob-postcode">Postcode</label>',
         '<input class="ob-input" id="ob-postcode" type="text" inputmode="numeric" placeholder="3000" maxlength="4" value="' + esc(state.postcode) + '"></div>',
@@ -207,10 +256,6 @@
   }
 
   function renderS4() {
-    var dayBtns = DAYS.map(function (d) {
-      var sel = state.availDays.indexOf(d) !== -1 ? ' selected' : '';
-      return '<button type="button" class="ob-day-btn' + sel + '" data-day="' + d + '">' + d + '</button>';
-    }).join('');
     var startPills = TIMES.map(function (t) {
       var sel = state.availStart === t ? ' selected' : '';
       return '<button type="button" class="ob-pill' + sel + '" data-time-type="start" data-time="' + esc(t) + '">' + esc(t) + '</button>';
@@ -220,9 +265,6 @@
       return '<button type="button" class="ob-pill' + sel + '" data-time-type="end" data-time="' + esc(t) + '">' + esc(t) + '</button>';
     }).join('');
     return [
-      '<p class="ob-section-label">Days available</p>',
-      '<div class="ob-day-grid">' + dayBtns + '</div>',
-      '<hr class="ob-divider">',
       '<p class="ob-section-label">Preferred start time</p>',
       '<div class="ob-time-pills">' + startPills + '</div>',
       '<hr class="ob-divider">',
@@ -230,21 +272,7 @@
       '<div class="ob-time-pills">' + endPills + '</div>',
     ].join('');
   }
-  function validateS4() {
-    if (!state.availDays.length) return 'Please select at least one available day.';
-    if (!state.availStart)       return 'Please select a preferred start time.';
-    if (!state.availEnd)         return 'Please select a preferred end time.';
-    return null;
-  }
   function wireS4() {
-    document.querySelectorAll('.ob-day-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var d = btn.dataset.day;
-        var idx = state.availDays.indexOf(d);
-        if (idx === -1) { state.availDays.push(d); btn.classList.add('selected'); }
-        else            { state.availDays.splice(idx, 1); btn.classList.remove('selected'); }
-      });
-    });
     document.querySelectorAll('.ob-pill[data-time-type="start"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.availStart = btn.dataset.time;
@@ -260,12 +288,16 @@
       });
     });
   }
+  function validateS4() {
+    if (!state.availStart) return 'Please select a preferred start time.';
+    if (!state.availEnd)   return 'Please select a preferred end time.';
+    return null;
+  }
 
   function renderS5() {
-    var initLetter = (state.firstName || '?').charAt(0).toUpperCase();
     var preview = state.photoUrl
       ? '<img src="' + esc(state.photoUrl) + '" alt="Your photo">'
-      : initLetter;
+      : (state.firstName || '?').charAt(0).toUpperCase();
     return [
       '<div class="ob-photo-wrap">',
         '<div class="ob-photo-preview" id="ob-photo-preview">' + preview + '</div>',
@@ -285,14 +317,11 @@
     input.addEventListener('change', function () {
       if (!input.files || !input.files[0]) return;
       var file = input.files[0];
-      var ext = file.name.split('.').pop().toLowerCase();
-      if (['jpg','jpeg','png'].indexOf(ext) === -1) return;
+      if (['jpg','jpeg','png'].indexOf(file.name.split('.').pop().toLowerCase()) === -1) return;
       if (file.size > MAX_FILE_BYTES) return;
       state.photoFile = file;
       var reader = new FileReader();
-      reader.onload = function (e) {
-        preview.innerHTML = '<img src="' + e.target.result + '" alt="Your photo">';
-      };
+      reader.onload = function (e) { preview.innerHTML = '<img src="' + e.target.result + '" alt="Your photo">'; };
       reader.readAsDataURL(file);
     });
   }
@@ -317,52 +346,72 @@
     return null;
   }
 
+  /* Agreement rows use <div> not <label> so the link inside can be clicked independently */
+  function agreeRow(rowId, chkId, text, checked) {
+    return [
+      '<div class="ob-agree-row' + (checked ? ' checked' : '') + '" id="' + rowId + '" role="checkbox" aria-checked="' + checked + '" tabindex="0">',
+        '<input type="checkbox" id="' + chkId + '"' + (checked ? ' checked' : '') + '>',
+        '<span>' + text + '</span>',
+      '</div>',
+    ].join('');
+  }
+
   function renderS7() {
     return [
       '<p class="ob-label">Employment / Contractor Agreement</p>',
       '<div class="ob-agreement-box">',
         '<h4>Employment / Contractor Agreement</h4>',
-        '<p>This agreement sets out the terms under which you provide cleaning services to MyQuest. You will be engaged as an independent contractor, responsible for your own tax obligations. MyQuest will provide work opportunities but does not guarantee hours. You agree to attend scheduled jobs on time, maintain professional conduct, protect client privacy, and comply with WHS obligations. This agreement is governed by the laws of New South Wales, Australia.</p>',
+        '<p>You will be engaged as an independent contractor, responsible for your own tax obligations. MyQuest will provide work opportunities but does not guarantee hours. You agree to attend scheduled jobs on time, maintain professional conduct, protect client privacy, and comply with WHS obligations.</p>',
       '</div>',
-      '<label class="ob-agree-row' + (state.agreedEmployment ? ' checked' : '') + '" id="ob-row-emp">',
-        '<input type="checkbox" id="ob-chk-emp"' + (state.agreedEmployment ? ' checked' : '') + '>',
-        '<span>I have read and agree to the <strong>Employment / Contractor Agreement</strong></span>',
-      '</label>',
+      agreeRow('ob-row-emp', 'ob-chk-emp', 'I have read and agree to the <strong>Employment / Contractor Agreement</strong>', state.agreedEmployment),
 
       '<p class="ob-label" style="margin-top:18px;">Company Policies</p>',
       '<div class="ob-agreement-box">',
         '<h4>Company Policies</h4>',
-        '<p><strong>Punctuality</strong> — Arrive on time for all scheduled jobs. Contact management immediately if you cannot attend.</p>',
-        '<p><strong>Presentation</strong> — Maintain a professional appearance at all times while on the job.</p>',
+        '<p><strong>Punctuality</strong> — Arrive on time. Contact management immediately if you cannot attend.</p>',
+        '<p><strong>Presentation</strong> — Maintain a professional appearance at all times on the job.</p>',
         '<p><strong>Client Property</strong> — Treat all client property with care. Report any damage immediately.</p>',
         '<p><strong>Communication</strong> — Respond to scheduling messages within 2 hours during business hours.</p>',
         '<p><strong>Health &amp; Safety</strong> — Do not attend if unwell. Report any workplace hazards promptly.</p>',
-        '<p><strong>Confidentiality</strong> — Do not share client contact details or access codes with anyone outside MyQuest.</p>',
+        '<p><strong>Confidentiality</strong> — Do not share client details or access codes outside MyQuest.</p>',
       '</div>',
-      '<label class="ob-agree-row' + (state.agreedCompany ? ' checked' : '') + '" id="ob-row-co">',
-        '<input type="checkbox" id="ob-chk-co"' + (state.agreedCompany ? ' checked' : '') + '>',
-        '<span>I have read and agree to the <strong>Company Policies</strong></span>',
-      '</label>',
+      agreeRow('ob-row-co', 'ob-chk-co', 'I have read and agree to the <strong>Company Policies</strong>', state.agreedCompany),
 
-      '<label class="ob-agree-row' + (state.agreedPrivacy ? ' checked' : '') + '" id="ob-row-priv" style="margin-top:8px;">',
-        '<input type="checkbox" id="ob-chk-priv"' + (state.agreedPrivacy ? ' checked' : '') + '>',
-        '<span>I have read and agree to the <a href="https://myquest.au/#privacy" target="_blank" rel="noopener">Privacy Policy</a></span>',
-      '</label>',
+      agreeRow('ob-row-priv', 'ob-chk-priv',
+        'I have read and agree to the <a href="https://myquest.au/privacy" target="_blank" rel="noopener">Privacy Policy</a>',
+        state.agreedPrivacy),
     ].join('');
   }
+
   function wireS7() {
-    function wireChk(chkId, rowId, setter) {
-      var chk = document.getElementById(chkId);
+    function wireRow(rowId, chkId, setter) {
       var row = document.getElementById(rowId);
-      if (!chk) return;
+      var chk = document.getElementById(chkId);
+      if (!row || !chk) return;
+
+      function toggle() {
+        chk.checked = !chk.checked;
+        setter(chk.checked);
+        row.classList.toggle('checked', chk.checked);
+        row.setAttribute('aria-checked', String(chk.checked));
+      }
+
+      row.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
+        toggle();
+      });
+      row.addEventListener('keydown', function (e) {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+      });
       chk.addEventListener('change', function () {
         setter(chk.checked);
-        if (row) row.classList.toggle('checked', chk.checked);
+        row.classList.toggle('checked', chk.checked);
+        row.setAttribute('aria-checked', String(chk.checked));
       });
     }
-    wireChk('ob-chk-emp',  'ob-row-emp',  function (v) { state.agreedEmployment = v; });
-    wireChk('ob-chk-co',   'ob-row-co',   function (v) { state.agreedCompany    = v; });
-    wireChk('ob-chk-priv', 'ob-row-priv', function (v) { state.agreedPrivacy    = v; });
+    wireRow('ob-row-emp',  'ob-chk-emp',  function (v) { state.agreedEmployment = v; });
+    wireRow('ob-row-co',   'ob-chk-co',   function (v) { state.agreedCompany    = v; });
+    wireRow('ob-row-priv', 'ob-chk-priv', function (v) { state.agreedPrivacy    = v; });
   }
   function collectS7() {
     state.agreedEmployment = !!(document.getElementById('ob-chk-emp')  || {}).checked;
@@ -393,15 +442,14 @@
 
   function showStep(n) {
     if (n < 1 || n > TOTAL_STEPS) return;
-    var s = STEPS[n - 1];
+    var s    = STEPS[n - 1];
     var wrap = document.getElementById('ob-step-wrap');
     if (!wrap) return;
 
-    var pct = Math.round(((n - 1) / TOTAL_STEPS) * 100);
     var prog = document.getElementById('ob-progress');
-    if (prog) prog.style.width = pct + '%';
+    if (prog) prog.style.width = Math.round(((n - 1) / TOTAL_STEPS) * 100) + '%';
 
-    var backBtn  = n > 1 ? '<button type="button" class="btn-outline" id="ob-back">Back</button>' : '<span></span>';
+    var backBtn   = n > 1 ? '<button type="button" class="btn-outline" id="ob-back">Back</button>' : '<span></span>';
     var nextLabel = n < TOTAL_STEPS ? 'Continue' : 'Complete setup';
     var skipNote  = n === 5 ? '<button type="button" class="btn-skip" id="ob-skip-photo">Skip for now</button>' : '';
     var adminBar  = isAdmin()
@@ -429,7 +477,7 @@
       adminBar,
     ].join('');
 
-    // per-step wiring
+    if (n === 1) wireDOB();
     if (n === 4) wireS4();
     if (n === 5) wireS5();
     if (n === 6) wireS6();
@@ -466,16 +514,12 @@
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  /* ── upload to Supabase Storage ──────────────────────────── */
+  /* ── Supabase Storage upload ─────────────────────────────── */
 
-  async function uploadDoc(file, filename) {
+  async function uploadDoc(file, filename, token) {
     var sb  = window.MQ && MQ.supabase;
     if (!sb) throw new Error('Not authenticated.');
     var uid = state.userId;
-    if (!uid) {
-      var u = await sb.auth.getUser();
-      uid = u.data && u.data.user && u.data.user.id;
-    }
     if (!uid) throw new Error('No user session.');
     var ext  = file.name.split('.').pop().toLowerCase();
     var path = uid + '/' + filename + '.' + ext;
@@ -483,6 +527,18 @@
     if (res.error) throw new Error(res.error.message);
     var signed = await sb.storage.from('staff-documents').createSignedUrl(path, 60 * 60 * 24 * 365);
     return signed.data ? signed.data.signedUrl : path;
+  }
+
+  async function ensureStorageBucket(token) {
+    var res = await fetch('/api/ensure-storage', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!res.ok) {
+      var body;
+      try { body = await res.json(); } catch (e) { body = {}; }
+      throw new Error(body.error || 'Could not initialise storage. Please try again.');
+    }
   }
 
   /* ── final submit ────────────────────────────────────────── */
@@ -494,17 +550,28 @@
     if (adminEl) adminEl.disabled = true;
 
     try {
-      if (state.policeFile)  state.policeUrl  = await uploadDoc(state.policeFile,  'police-check');
-      if (state.licenceFile) state.licenceUrl = await uploadDoc(state.licenceFile, 'drivers-licence');
-      if (state.rtwFile)     state.rtwUrl     = await uploadDoc(state.rtwFile,     'right-to-work');
-      if (state.photoFile)   state.photoUrl   = await uploadDoc(state.photoFile,   'profile-photo');
+      var sb = window.MQ && MQ.supabase;
+      var token = '';
+      if (sb) {
+        var sess = await sb.auth.getSession();
+        if (sess.data && sess.data.session) token = sess.data.session.access_token;
+      }
+      if (!token) throw new Error('Session expired. Please refresh and try again.');
+
+      // Ensure the bucket exists before any uploads
+      if (state.policeFile || state.licenceFile || state.rtwFile || state.photoFile) {
+        await ensureStorageBucket(token);
+      }
+
+      if (state.policeFile)  state.policeUrl  = await uploadDoc(state.policeFile,  'police-check', token);
+      if (state.licenceFile) state.licenceUrl = await uploadDoc(state.licenceFile, 'drivers-licence', token);
+      if (state.rtwFile)     state.rtwUrl     = await uploadDoc(state.rtwFile,     'right-to-work', token);
+      if (state.photoFile)   state.photoUrl   = await uploadDoc(state.photoFile,   'profile-photo', token);
 
       var now = new Date().toISOString();
       var payload = {
         userId:                   state.userId,
         name:                     (state.firstName + ' ' + state.lastName).trim(),
-        first_name:               state.firstName,
-        last_name:                state.lastName,
         phone:                    state.phone,
         mobile:                   state.phone,
         date_of_birth:            state.dob,
@@ -516,26 +583,18 @@
         emergency_contact_name:   state.emergencyName,
         emergency_contact_number: state.emergencyPhone,
         emergency_relation:       state.emergencyRel,
-        available_days:           state.availDays,
         available_start:          state.availStart,
         available_end:            state.availEnd,
-        availability:             { days: state.availDays, start: state.availStart, end: state.availEnd },
-        profile_photo_url:        state.photoUrl  || null,
-        police_check_url:         state.policeUrl || null,
+        availability:             { start: state.availStart, end: state.availEnd },
+        profile_photo_url:        state.photoUrl   || null,
+        police_check_url:         state.policeUrl  || null,
         drivers_licence_url:      state.licenceUrl || null,
-        right_to_work_url:        state.rtwUrl    || null,
+        right_to_work_url:        state.rtwUrl     || null,
         onboarding_complete:      true,
         employment_agreement_signed_at: state.agreedEmployment ? now : null,
         company_policy_signed_at:       state.agreedCompany    ? now : null,
         privacy_policy_signed_at:       state.agreedPrivacy    ? now : null,
       };
-
-      var sb = window.MQ && MQ.supabase;
-      var token = '';
-      if (sb) {
-        var sess = await sb.auth.getSession();
-        if (sess.data && sess.data.session) token = sess.data.session.access_token;
-      }
 
       var res = await fetch('/api/update-profile', {
         method: 'POST',
@@ -550,12 +609,12 @@
         await sb.from('profiles').update({ status: 'active' }).eq('id', state.userId);
       }
 
-      // Show success
       var stepWrap = document.getElementById('ob-step-wrap');
       var success  = document.getElementById('ob-success');
       if (stepWrap) stepWrap.hidden = true;
       if (success)  success.hidden  = false;
-      if (document.getElementById('ob-progress')) document.getElementById('ob-progress').style.width = '100%';
+      var pp = document.getElementById('ob-progress');
+      if (pp) pp.style.width = '100%';
       setTimeout(function () { window.location.href = 'index.html'; }, 2400);
 
     } catch (e) {
