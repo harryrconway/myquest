@@ -17,6 +17,11 @@
 
   var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
 
+  var STAFF_PALETTE = [
+    '#fee2e2','#ffedd5','#fef9c3','#dcfce7','#d1fae5',
+    '#e0f2fe','#e0e7ff','#ede9fe','#fce7f3','#f1f5f9',
+  ];
+
   async function getJwt() {
     var result = await MQ.supabase.auth.getSession();
     return result.data && result.data.session ? result.data.session.access_token : null;
@@ -406,6 +411,79 @@
   }
 
   /* ══════════════════════════════════════════════════════════
+     TEAM SETTINGS
+  ══════════════════════════════════════════════════════════ */
+
+  function initTeamSettings() {
+    var select  = document.getElementById('team-staff-select');
+    var form    = document.getElementById('team-staff-form');
+    var swatchEl = document.getElementById('team-colour-swatches');
+    if (!select || !form || !swatchEl) return;
+
+    var selectedColour = '';
+
+    // Populate dropdown from staff store
+    var allStaff = MQ.store.staff.getAll();
+    allStaff.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+    allStaff.forEach(function (s) {
+      var opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = s.name || s.email || s.id;
+      select.appendChild(opt);
+    });
+
+    function renderSwatches(current) {
+      swatchEl.innerHTML = '';
+      STAFF_PALETTE.forEach(function (c) {
+        var el = document.createElement('span');
+        el.className = 'colour-swatch' + (c === current ? ' colour-swatch--active' : '');
+        el.style.background = c;
+        el.title = c;
+        el.addEventListener('click', function () {
+          selectedColour = c;
+          renderSwatches(c);
+        });
+        swatchEl.appendChild(el);
+      });
+    }
+
+    select.addEventListener('change', function () {
+      var s = MQ.store.staff.getById(select.value);
+      if (!s) { form.style.display = 'none'; return; }
+      selectedColour = s.colour || '';
+      renderSwatches(selectedColour);
+      document.getElementById('team-role').value   = s.role   || 'staff';
+      document.getElementById('team-level').value  = s.level  || 1;
+      document.getElementById('team-status').value = s.active !== false ? 'active' : 'suspended';
+      form.style.display = '';
+    });
+
+    document.getElementById('team-save-btn').addEventListener('click', async function () {
+      var staffId = select.value;
+      if (!staffId) return;
+      var updates = {
+        userId:         staffId,
+        colour:         selectedColour,
+        role:           document.getElementById('team-role').value,
+        cleaning_level: parseInt(document.getElementById('team-level').value) || 1,
+        status:         document.getElementById('team-status').value,
+      };
+      var result = await callApi('/api/update-profile', updates);
+      if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
+      MQ.ui.toast('Changes saved');
+      // Update local staff record
+      var s = MQ.store.staff.getById(staffId);
+      if (s) {
+        s.colour = selectedColour;
+        s.role   = updates.role;
+        s.level  = updates.cleaning_level;
+        s.active = updates.status === 'active';
+        MQ.store.staff.save(s);
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
      INIT
   ══════════════════════════════════════════════════════════ */
 
@@ -437,6 +515,7 @@
     populateRates();
     renderChecklistTemplate();
     initCreateAccountForm();
+    initTeamSettings();
 
     // Load authoritative settings from Supabase and re-render forms
     loadSettingsFromSupabase().then(function () {

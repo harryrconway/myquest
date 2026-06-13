@@ -384,12 +384,12 @@
   white-space: nowrap;
 }
 
-.badge--green  { background: #d8edd9; color: #166534; }
+.badge--green  { background: #c6e3ce; color: #1a4535; }
 .badge--yellow { background: #fef9c3; color: #854d0e; }
 .badge--red    { background: #fee2e2; color: #991b1b; }
 .badge--blue   { background: #dbeafe; color: #1e40af; }
 .badge--grey   { background: #f3f4f6; color: var(--color-mid); }
-.badge--amber  { background: #fef3c7; color: #92400e; }
+.badge--amber  { background: #fde8c0; color: #92400e; }
 
 /* ---- Modals ----------------------------------------------- */
 .modal-overlay {
@@ -2837,13 +2837,13 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .action-btn:active { transform: translateY(0) !important; box-shadow: none !important; }
 
 .action-btn--view {
-  background: #f1f5f9;
-  color: #475569;
-  border-color: #e2e8f0;
+  background: #f5f0ea;
+  color: #5a4a3f;
+  border-color: #e9dcc9;
 }
 .action-btn--view:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: #ede5da;
+  color: #3d2e26;
 }
 
 .action-btn--accept,
@@ -2877,6 +2877,26 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   background: #fef2f2;
   color: #dc2626;
   border-color: #fecaca;
+}
+
+/* ---- Staff colour swatches (Team Settings panel) ----------- */
+.colour-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.colour-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.colour-swatch:hover { transform: scale(1.15); }
+.colour-swatch--active {
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #2d6a4f;
 }
 
 /* ============================================================
@@ -3050,8 +3070,8 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   border-top: 4px solid #f59e0b;
 }
 
-.jobs-hero--amber { border-top-color: #f59e0b; }
-.jobs-hero--blue  { border-top-color: #3b82f6; }
+.jobs-hero--amber { border-top-color: #d97706; }
+.jobs-hero--blue  { border-top-color: #52b788; }
 .jobs-hero--green { border-top-color: #2d6a4f; }
 
 .jobs-hero__left {
@@ -3070,9 +3090,9 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   flex-shrink: 0;
 }
 
-.jobs-hero--amber .jobs-hero__icon { background: #fef3c7; color: #d97706; }
-.jobs-hero--blue  .jobs-hero__icon { background: #dbeafe; color: #2563eb; }
-.jobs-hero--green .jobs-hero__icon { background: #d8edd9; color: #2d6a4f; }
+.jobs-hero--amber .jobs-hero__icon { background: #fde8c0; color: #92400e; }
+.jobs-hero--blue  .jobs-hero__icon { background: #d8edd9; color: #2d6a4f; }
+.jobs-hero--green .jobs-hero__icon { background: #c6e3ce; color: #1a4535; }
 
 .jobs-hero__title {
   font-size: 20px;
@@ -3107,9 +3127,9 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   display: block;
 }
 
-.jobs-hero--amber .jobs-hero__count { color: #d97706; }
-.jobs-hero--blue  .jobs-hero__count { color: #2563eb; }
-.jobs-hero--green .jobs-hero__count { color: #2d6a4f; }
+.jobs-hero--amber .jobs-hero__count { color: #92400e; }
+.jobs-hero--blue  .jobs-hero__count { color: #2d6a4f; }
+.jobs-hero--green .jobs-hero__count { color: #1a4535; }
 
 .jobs-hero__count-label {
   font-size: 11px;
@@ -3172,29 +3192,29 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 }
 
 .req-card {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  border-left: 4px solid #f59e0b;
+  background: #fdf9f5;
+  border-radius: 14px;
+  border: none;
+  border-left: 5px solid #d97706;
   padding: 16px 20px 16px 18px;
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
   transition: box-shadow 0.15s, transform 0.15s;
 }
 
 .req-card:hover {
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
 }
 
 .req-card__avatar {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: #fef3c7;
-  color: #d97706;
+  background: #fde8c0;
+  color: #92400e;
   font-size: 18px;
   font-weight: 800;
   display: flex;
@@ -3202,7 +3222,7 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   justify-content: center;
   flex-shrink: 0;
   margin-top: 1px;
-  box-shadow: 0 0 0 3px white, 0 0 0 4.5px rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 3px #fdf9f5, 0 0 0 5px rgba(217,119,6,0.2);
 }
 
 .req-card__body {
@@ -3262,12 +3282,12 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  background: #f3f4f6;
-  color: #374151;
+  background: #f5ede0;
+  color: #7c5b3e;
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e9dcc9;
 }
 
 .req-card__actions {
@@ -3287,11 +3307,11 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .job-card__side-pill {
   font-size: 10px;
   font-weight: 600;
-  color: #64748b;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 2px 7px;
+  color: #2d6a4f;
+  background: #e8f5ed;
+  border: 1px solid #b7dfc5;
+  border-radius: 9999px;
+  padding: 2px 8px;
   white-space: nowrap;
   line-height: 1.5;
 }
@@ -3301,9 +3321,9 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   gap: 4px;
 }
 .job-card__side-pill--done {
-  background: #d1fae5;
-  border-color: #6ee7b7;
-  color: #065f46;
+  background: #d8edd9;
+  border-color: #8fcca0;
+  color: #1a4535;
 }
 .job-card__side-btns {
   display: flex;
@@ -3320,12 +3340,12 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 }
 
 /* ---- Avatar colour variants -------------------------------- */
-.req-card__avatar--blue  { background: #dbeafe; color: #1e40af; box-shadow: 0 0 0 3px white, 0 0 0 4.5px rgba(59,130,246,0.2); }
-.req-card__avatar--green { background: #d8edd9; color: #166534; box-shadow: 0 0 0 3px white, 0 0 0 4.5px rgba(22,163,74,0.2); }
+.req-card__avatar--blue  { background: #d8edd9; color: #2d6a4f; box-shadow: 0 0 0 3px #f6fbf8, 0 0 0 5px rgba(82,183,136,0.2); }
+.req-card__avatar--green { background: #c6e3ce; color: #1a4535; box-shadow: 0 0 0 3px #f4f9f5, 0 0 0 5px rgba(45,106,79,0.2); }
 
 /* ---- Chip colour variants ---------------------------------- */
-.req-chip--blue  { background: #f0f7ff; color: #2563c9; border-color: #c3d9f7; }
-.req-chip--green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.req-chip--blue  { background: #e2f2e9; color: #1a5c3a; border-color: #a7d9ba; }
+.req-chip--green { background: #d8edd9; color: #1a4535; border-color: #a7cfb2; }
 
 /* ---- job-group__badge (count pill — legacy, matches new count style) */
 .job-group__badge {
@@ -3343,22 +3363,22 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .job-card--completed {
   display: flex;
   align-items: flex-start;
-  background: white;
-  border-radius: 12px;
+  background: #f6fbf8;
+  border-radius: 14px;
   border: none;
-  border-left: 4px solid #3b82f6;
+  border-left: 5px solid #52b788;
   padding: 16px 20px 16px 18px;
   gap: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
   transition: box-shadow 0.15s, transform 0.15s;
 }
 
-.job-card--completed { border-left-color: #16a34a; opacity: 0.93; }
+.job-card--completed { background: #f4f9f5; border-left-color: #2d6a4f; opacity: 1; }
 
 .job-card--scheduled:hover,
 .job-card--completed:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.08);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
 }
 
 /* Time column inside new-style scheduled cards */
@@ -3375,20 +3395,20 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .job-card__hour {
   font-size: 14px;
   font-weight: 800;
-  color: #1d4ed8;
+  color: #2d6a4f;
   white-space: nowrap;
   letter-spacing: -0.01em;
 }
 
-.job-card--completed .job-card__hour { color: #166534; }
+.job-card--completed .job-card__hour { color: #1a4535; }
 
 /* Done badge (checkmark circle) for completed cards */
 .job-card__done-badge {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #d8edd9;
-  color: #166534;
+  background: #c6e3ce;
+  color: #1a4535;
   display: flex;
   align-items: center;
   justify-content: center;
