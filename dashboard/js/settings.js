@@ -329,8 +329,15 @@
           return;
         }
         submitBtn.textContent = 'Sending…'; submitBtn.disabled = true;
-        var result = await callApi('/api/create-account', { name: name, email: email, role: role, cleaning_level: level });
-        submitBtn.textContent = 'Send Invitation'; submitBtn.disabled = false;
+        var result;
+        try {
+          result = await callApi('/api/create-account', { name: name, email: email, role: role, cleaning_level: level });
+        } catch (e) {
+          submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false;
+          if (errorEl) { errorEl.textContent = 'Request failed. Please try again.'; errorEl.hidden = false; }
+          return;
+        }
+        submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false;
         if (result.error) {
           if (errorEl) { errorEl.textContent = result.error; errorEl.hidden = false; }
           return;
@@ -429,7 +436,7 @@
         .eq('id', staffId)
         .single()
         .then(function (r) {
-          if (!r.data) { listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">No data.</p>'; return; }
+          if (r.error || !r.data) { listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">Documents unavailable.</p>'; return; }
           var p = r.data;
           var docs = [
             { label: 'Police Check',        url: p.police_check_url },
