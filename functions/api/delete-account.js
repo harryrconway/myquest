@@ -26,6 +26,12 @@ export async function onRequestPost(context) {
   if (!userId) return json({ error: 'userId is required.' }, 400);
   if (userId === user.id) return json({ error: 'You cannot delete your own account.' }, 400);
 
+  // Delete profile row first (auth delete may not cascade depending on DB setup)
+  await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${userId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Prefer': 'return=minimal' },
+  });
+
   const delRes = await fetch(`${URL_BASE}/auth/v1/admin/users/${userId}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
