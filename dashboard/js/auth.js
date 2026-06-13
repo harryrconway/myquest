@@ -108,7 +108,7 @@
           populateUserInfo(cached);
           initLogout(sb);
           startIdleMonitor(sb);
-          document.dispatchEvent(new CustomEvent('mq:ready'));
+          fireReady();
         }
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', doReady, { once: true });
@@ -166,7 +166,7 @@
       populateUserInfo(session);
       initLogout(sb);
       startIdleMonitor(sb);
-      document.dispatchEvent(new CustomEvent('mq:ready'));
+      fireReady();
     }
 
     if (document.readyState === 'loading') {
@@ -174,6 +174,16 @@
     } else {
       onDomReady();
     }
+  }
+
+  function fireReady() {
+    MQ._ready = true;
+    var _orig = document.addEventListener.bind(document);
+    document.addEventListener = function (type, fn, opts) {
+      if (type === 'mq:ready' && MQ._ready) { setTimeout(fn, 0); return; }
+      _orig(type, fn, opts);
+    };
+    document.dispatchEvent(new CustomEvent('mq:ready'));
   }
 
   init();
