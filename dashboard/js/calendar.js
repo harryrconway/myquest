@@ -63,8 +63,17 @@
       .gte('scheduled_date', from)
       .lte('scheduled_date', to)
       .order('scheduled_date')
-      .order('scheduled_time');
-    return res.data || [];
+      .order('scheduled_time', { nullsFirst: false });
+    if (res.error) {
+      console.error('[calendar] loadJobs error:', res.error);
+      return [];
+    }
+    return (res.data || []).map(function (j) {
+      if (j.scheduled_date && j.scheduled_date.length > 10) {
+        j.scheduled_date = j.scheduled_date.slice(0, 10);
+      }
+      return j;
+    });
   }
 
   function jobsForDate(dateStr) {
@@ -245,6 +254,8 @@
     if (countEl) countEl.textContent = allJobs.length;
     if (labelEl) labelEl.textContent = view === 'month' ? 'this month' : 'this week';
     view === 'month' ? renderMonth() : renderWeek();
+    var emptyEl = document.getElementById('cal-empty-hint');
+    if (emptyEl) emptyEl.style.display = allJobs.length === 0 ? '' : 'none';
   }
 
   /* ── Init ──────────────────────────────────────────────────── */
