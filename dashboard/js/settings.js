@@ -19,9 +19,14 @@
 
   var STAFF_PALETTE = [
     '#1b4332','#2d6a4f','#40916c','#52b788',
-    '#92400e','#c2410c','#d97706','#ca8a04',
+    '#0f766e','#0d9488',
     '#1e3a5f','#1e40af','#0369a1','#0891b2',
-    '#4f46e5','#7c3aed','#be185d','#334155',
+    '#4f46e5','#7c3aed','#9333ea',
+    '#be185d','#e11d48','#dc2626',
+    '#92400e','#b45309','#d97706','#ea580c',
+    '#78350f','#a16207',
+    '#3f6212','#4d7c0f',
+    '#1e293b','#334155','#475569','#64748b',
   ];
 
   async function getJwt() {
@@ -417,22 +422,66 @@
   ══════════════════════════════════════════════════════════ */
 
   function initTeamSettings() {
-    var select  = document.getElementById('team-staff-select');
-    var form    = document.getElementById('team-staff-form');
+    var picker   = document.getElementById('team-staff-picker');
+    var trigger  = document.getElementById('team-staff-trigger');
+    var dot      = document.getElementById('team-staff-dot');
+    var label    = document.getElementById('team-staff-label');
+    var dropdown = document.getElementById('team-staff-dropdown');
+    var searchEl = document.getElementById('team-staff-search');
+    var listEl   = document.getElementById('team-staff-list');
+    var form     = document.getElementById('team-staff-form');
     var swatchEl = document.getElementById('team-colour-swatches');
-    if (!select || !form || !swatchEl) return;
+    if (!picker || !trigger) return;
 
-    var selectedColour = '';
+    var selectedStaffId = '';
+    var selectedColour  = '';
+    var allStaff = MQ.store.staff.getAll()
+      .sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
 
-    // Populate dropdown from staff store
-    var allStaff = MQ.store.staff.getAll();
-    allStaff.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
-    allStaff.forEach(function (s) {
-      var opt = document.createElement('option');
-      opt.value = s.id;
-      opt.textContent = s.name || s.email || s.id;
-      select.appendChild(opt);
-    });
+    function staffInitials(name) {
+      return (name || '').split(' ').map(function (w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase() || '?';
+    }
+
+    function renderPickerList(q) {
+      var items = q
+        ? allStaff.filter(function (s) { return (s.name || '').toLowerCase().indexOf(q.toLowerCase()) > -1; })
+        : allStaff;
+      if (!items.length) {
+        listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;text-align:center;padding:14px 0;">No staff found</p>';
+        return;
+      }
+      listEl.innerHTML = items.map(function (s) {
+        var active = s.id === selectedStaffId;
+        var bg     = s.colour || '#334155';
+        var init   = staffInitials(s.name);
+        return '<button type="button" class="ts-picker__item' + (active ? ' ts-picker__item--active' : '') + '" data-id="' + s.id + '">' +
+          '<span class="ts-picker__item-dot" style="background:' + bg + ';">' + init + '</span>' +
+          '<span class="ts-picker__item-info">' +
+            '<span class="ts-picker__item-name">' + (s.name || s.email || 'Unknown') + '</span>' +
+            '<span class="ts-picker__item-role">' + (s.role || 'staff') + '</span>' +
+          '</span>' +
+          '<svg class="ts-picker__item-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+        '</button>';
+      }).join('');
+      listEl.querySelectorAll('.ts-picker__item').forEach(function (btn) {
+        btn.addEventListener('click', function () { selectStaff(btn.dataset.id); });
+      });
+    }
+
+    function openPicker() {
+      dropdown.hidden = false;
+      picker.classList.add('ts-picker--open');
+      trigger.setAttribute('aria-expanded', 'true');
+      renderPickerList('');
+      searchEl.value = '';
+      searchEl.focus();
+    }
+
+    function closePicker() {
+      dropdown.hidden = true;
+      picker.classList.remove('ts-picker--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
 
     function renderSwatches(current) {
       swatchEl.innerHTML = '';
@@ -441,18 +490,21 @@
         el.className = 'colour-swatch' + (c === current ? ' colour-swatch--active' : '');
         el.style.background = c;
         el.title = c;
-        el.addEventListener('click', function () {
-          selectedColour = c;
-          renderSwatches(c);
-        });
+        el.addEventListener('click', function () { selectedColour = c; renderSwatches(c); });
         swatchEl.appendChild(el);
       });
     }
 
-    select.addEventListener('change', function () {
-      var s = MQ.store.staff.getById(select.value);
-      if (!s) { form.style.display = 'none'; return; }
-      selectedColour = s.colour || '';
+    function selectStaff(id) {
+      var s = MQ.store.staff.getById(id);
+      if (!s) return;
+      selectedStaffId = id;
+      selectedColour  = s.colour || '';
+      dot.style.display    = '';
+      dot.style.background = s.colour || '#334155';
+      label.textContent    = s.name || s.email || id;
+      label.classList.remove('ts-picker__label--placeholder');
+      closePicker();
       renderSwatches(selectedColour);
       document.getElementById('team-name').value   = s.name      || '';
       document.getElementById('team-phone').value  = s.phone     || '';
@@ -461,13 +513,25 @@
       document.getElementById('team-status').value = s.active !== false ? 'active' : 'suspended';
       document.getElementById('team-start').value  = s.startDate || '';
       form.style.display = '';
+    }
+
+    trigger.addEventListener('click', function () {
+      if (dropdown.hidden) openPicker(); else closePicker();
+    });
+    searchEl.addEventListener('input', function () { renderPickerList(searchEl.value); });
+    document.addEventListener('click', function (e) {
+      if (!picker.contains(e.target)) closePicker();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePicker();
     });
 
+    label.classList.add('ts-picker__label--placeholder');
+
     document.getElementById('team-save-btn').addEventListener('click', async function () {
-      var staffId = select.value;
-      if (!staffId) return;
+      if (!selectedStaffId) return;
       var updates = {
-        userId:         staffId,
+        userId:         selectedStaffId,
         name:           document.getElementById('team-name').value.trim(),
         phone:          document.getElementById('team-phone').value.trim(),
         colour:         selectedColour,
@@ -478,8 +542,7 @@
       var result = await callApi('/api/update-profile', updates);
       if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
       MQ.ui.toast('Changes saved');
-      // Update local staff record
-      var s = MQ.store.staff.getById(staffId);
+      var s = MQ.store.staff.getById(selectedStaffId);
       if (s) {
         s.name      = updates.name;
         s.phone     = updates.phone;
@@ -490,9 +553,8 @@
         s.startDate = document.getElementById('team-start').value;
         MQ.store.staff.save(s);
       }
-      // Refresh dropdown label if name changed
-      var opt = select.querySelector('option[value="' + staffId + '"]');
-      if (opt && updates.name) opt.textContent = updates.name;
+      dot.style.background = selectedColour || '#334155';
+      if (updates.name) label.textContent = updates.name;
     });
   }
 
