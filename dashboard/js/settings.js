@@ -88,12 +88,16 @@
      ACCOUNT ACTIONS
   ══════════════════════════════════════════════════════════ */
 
-  function resetPassword(userId, email) {
-    MQ.ui.confirmDelete('Send a password reset email to ' + email + '?', async function () {
+  async function resetPassword(userId, email, btn) {
+    if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
+    try {
       var result = await callApi('/api/reset-password', { email: email });
-      if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
-      MQ.ui.toast('Password reset email sent to ' + email);
-    });
+      if (result.error) { MQ.ui.toast(result.error, 'error'); }
+      else { MQ.ui.toast('Password reset email sent to ' + email); }
+    } catch (e) {
+      MQ.ui.toast('Request failed. Please try again.', 'error');
+    }
+    if (btn) { btn.textContent = 'Reset Password'; btn.disabled = false; }
   }
 
   function deleteAccount(userId, displayName) {
@@ -465,7 +469,7 @@
         var s     = MQ.store.staff.getById(selectedStaffId);
         var email = document.getElementById('team-email').value || (s && s.email) || '';
         if (!email) { MQ.ui.toast('No email on record', 'error'); return; }
-        resetPassword(selectedStaffId, email);
+        resetPassword(selectedStaffId, email, resetPwdBtn);
       });
     }
 

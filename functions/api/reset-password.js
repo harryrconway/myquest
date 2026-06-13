@@ -25,12 +25,18 @@ export async function onRequestPost(context) {
   const { email } = body;
   if (!email) return json({ error: 'email is required.' }, 400);
 
-  const resetRes = await fetch(`${URL_BASE}/auth/v1/admin/generate_link`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'recovery', email }),
-  });
-  if (!resetRes.ok) return json({ error: 'Failed to send reset email.' }, 500);
+  const resetRes = await fetch(
+    `${URL_BASE}/auth/v1/recover?redirect_to=${encodeURIComponent('https://myquest.au/set-password.html')}`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }
+  );
+  if (!resetRes.ok) {
+    const err = await resetRes.json().catch(() => ({}));
+    return json({ error: err.msg || err.message || 'Failed to send reset email.' }, 500);
+  }
   return json({ success: true, message: 'Password reset email sent to ' + email });
 }
 
