@@ -2941,6 +2941,9 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   background: #dbeafe;
 }
 
+/* Icon alignment inside action buttons */
+.action-btn svg { vertical-align: middle; margin-top: -2px; flex-shrink: 0; }
+
 .action-btn--archive {
   background: transparent;
   color: #9ca3af;
@@ -3595,6 +3598,31 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   font-weight: 500;
   border: 1px solid #e9dcc9;
 }
+
+/* Cleaner row on job cards */
+.job-card__cleaner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.job-card__cleaner > svg { color: #94a3b8; flex-shrink: 0; }
+.job-card__cleaner > span { font-size: 12px; font-weight: 600; color: #475569; }
+.job-card__cleaner-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+}
+.job-card__cleaner-chip:hover { opacity: 0.85; transform: translateY(-1px); }
 
 .req-card__actions {
   display: flex;

@@ -552,7 +552,8 @@
       renderAvatarGrid();
     });
 
-    SettingsPage.addMember = addMember;
+    SettingsPage.addMember    = addMember;
+    SettingsPage.selectStaff  = selectStaff;
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -586,6 +587,18 @@
     populateRates();
     renderChecklistTemplate();
     initTeamCard();
+
+    // Deep-link: settings.html#staff:[uuid] — scroll to Team section and open that staff member
+    var staffHash = window.location.hash;
+    if (staffHash && staffHash.startsWith('#staff:')) {
+      var targetStaffId = staffHash.slice(7);
+      history.replaceState(null, '', window.location.pathname);
+      var teamSection = document.getElementById('team-staff-avatars');
+      if (teamSection) setTimeout(function () { teamSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+      if (MQ.store.staff.getById(targetStaffId)) {
+        setTimeout(function () { SettingsPage.selectStaff(targetStaffId); }, 120);
+      }
+    }
 
     // Load authoritative settings from Supabase and re-render forms
     loadSettingsFromSupabase().then(function () {

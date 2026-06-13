@@ -150,7 +150,25 @@
         var assignedIds = Array.isArray(j.assigned_staff_ids) ? j.assigned_staff_ids : [];
         var liveStaff   = assignedIds.map(function (id) { return MQ.store.staff.getById(id); }).filter(Boolean);
         var staffColour = liveStaff.length && liveStaff[0].colour ? liveStaff[0].colour : (j.assigned_staff_colour || '');
-        var staffName   = liveStaff.length ? liveStaff.map(function (s) { return s.name; }).join(', ') : (j.assigned_staff_name || '');
+        var staffName   = liveStaff.length ? '' : (j.assigned_staff_name || '');
+
+        var personIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        var cleanerHtml = '';
+        if (liveStaff.length) {
+          var staffChips = liveStaff.map(function (s) {
+            return '<span class="job-card__cleaner-chip" style="background:' + (s.colour || '#334155') + ';" ' +
+              'onclick="event.stopPropagation();window.location.href=\'settings.html#staff:' + s.id + '\'" ' +
+              'title="View ' + escHtml(s.name) + '\'s profile">' + escHtml(s.name) + '</span>';
+          }).join('');
+          cleanerHtml = '<div class="job-card__cleaner">' + personIcon + staffChips + '</div>';
+        } else if (staffName) {
+          cleanerHtml = '<div class="job-card__cleaner">' + personIcon + '<span>' + escHtml(staffName) + '</span></div>';
+        }
+
+        var eyeIcon   = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        var editIcon  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        var checkIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+
         return '<div class="job-card job-card--scheduled"' +
             (staffColour ? ' style="border-left:4px solid ' + staffColour + ';"' : '') + '>' +
           '<div class="job-card__time">' +
@@ -160,18 +178,18 @@
           '<div class="req-card__body">' +
             '<div class="req-card__row1">' +
               '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
-              (staffName ? '<span class="req-chip" style="background:' + (staffColour || '#f1f5f9') + ';color:#0f172a;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;">' + escHtml(staffName) + '</span>' : '') +
             '</div>' +
             (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
             (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +
             (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
+            cleanerHtml +
           '</div>' +
           '<div class="req-card__actions">' +
             (sideInfoHtml ? '<div class="job-card__side-info">' + sideInfoHtml + '</div>' : '') +
             '<div class="job-card__side-btns">' +
-              '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">View</button>'     +
-              '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">Edit</button>'     +
-              '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">Complete</button>' +
+              '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">' + eyeIcon   + ' View</button>'     +
+              '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">' + editIcon  + ' Edit</button>'     +
+              '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">' + checkIcon + ' Complete</button>' +
             '</div>' +
           '</div>' +
         '</div>';
