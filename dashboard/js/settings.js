@@ -84,14 +84,6 @@
           ? '<span class="badge badge--amber">Invited</span>'
           : '<span class="badge badge--grey">Suspended</span>';
 
-      var lvl = parseInt(p.cleaning_level) || 1;
-      var levelTag = (p.role === 'staff' && !isMe)
-        ? ' <select class="settings-level-select" data-level="' + lvl + '" onchange="SettingsPage.setLevel(\'' + escHtml(p.id) + '\', this.value); this.dataset.level=this.value;">' +
-            [1, 2, 3].map(function (n) {
-              return '<option value="' + n + '"' + (lvl === n ? ' selected' : '') + '>' + (LEVEL_NAMES[n] || 'Level ' + n) + '</option>';
-            }).join('') +
-          '</select>'
-        : (p.cleaning_level ? ' <span style="font-size:11px;color:#64748b;font-weight:500;">· ' + escHtml(LEVEL_NAMES[lvl] || 'Level ' + lvl) + '</span>' : '');
 
       var actions = '';
 
@@ -132,15 +124,9 @@
         : '—';
 
       return '<tr>' +
-        '<td>' + escHtml(p.name || '—') + levelTag + (isMe ? ' <span style="font-size:11px;color:#94a3b8;font-weight:500;">(you)</span>' : '') + '</td>' +
+        '<td>' + escHtml(p.name || '—') + (isMe ? ' <span style="font-size:11px;color:#94a3b8;font-weight:500;">(you)</span>' : '') + '</td>' +
         '<td>' + escHtml(p.email) + '</td>' +
-        '<td>' + (isMe
-          ? '<span class="badge ' + roleBadge + '">' + escHtml(p.role) + '</span>'
-          : '<select class="settings-role-select" data-role="' + escHtml(p.role) + '" onchange="SettingsPage.setRole(\'' + escHtml(p.id) + '\', this.value); this.dataset.role=this.value;">' +
-              ['staff', 'manager', 'owner'].map(function (r) {
-                return '<option value="' + r + '"' + (p.role === r ? ' selected' : '') + '>' + r.charAt(0).toUpperCase() + r.slice(1) + '</option>';
-              }).join('') +
-            '</select>') + '</td>' +
+        '<td><span class="badge ' + roleBadge + '">' + escHtml((p.role||'staff').charAt(0).toUpperCase() + (p.role||'staff').slice(1)) + '</span></td>' +
         '<td>' + statusBadge + '</td>' +
         '<td style="font-size:12.5px;color:#94a3b8;">' + joinTooltip + '</td>' +
         '<td class="table-actions">' + actions + '</td>' +
@@ -193,18 +179,6 @@
       MQ.ui.toast('Account deleted', 'info');
       renderAccounts();
     });
-  }
-
-  async function setRole(userId, newRole) {
-    var result = await callApi('/api/update-profile', { userId: userId, role: newRole });
-    if (result.error) { MQ.ui.toast(result.error, 'error'); renderAccounts(); }
-    else { MQ.ui.toast('Role updated to ' + newRole); }
-  }
-
-  async function setLevel(userId, newLevel) {
-    var result = await callApi('/api/update-profile', { userId: userId, cleaning_level: parseInt(newLevel) });
-    if (result.error) { MQ.ui.toast(result.error, 'error'); renderAccounts(); }
-    else { MQ.ui.toast('Level updated to ' + (LEVEL_NAMES[parseInt(newLevel)] || newLevel)); }
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -720,8 +694,6 @@
     activateAccount:  activateAccount,
     deleteAccount:    deleteAccount,
     resetPassword:    resetPassword,
-    setRole:          setRole,
-    setLevel:         setLevel,
     clearUnscheduled: clearUnscheduled,
     clearScheduled:   clearScheduled,
     clearCompleted:   clearCompleted,
