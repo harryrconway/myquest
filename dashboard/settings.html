@@ -153,7 +153,7 @@
       </div>
 
       <!-- Add Team Member Modal -->
-      <div class="modal-overlay" id="modal-add-team-member" hidden>
+      <div class="modal-overlay" id="modal-add-team-member" hidden style="align-items:flex-start;padding-top:clamp(16px,5vh,64px);">
         <div class="modal-card" style="max-width:520px;">
           <div class="modal-header">
             <div>
@@ -167,7 +167,7 @@
               <!-- Existing accounts section -->
               <div style="padding:16px 20px 0;">
                 <p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin:0 0 10px;">Available accounts</p>
-                <div id="add-team-existing-list" style="display:flex;flex-direction:column;gap:8px;min-height:40px;"></div>
+                <div id="add-team-existing-list" style="display:flex;flex-direction:column;gap:8px;min-height:40px;max-height:200px;overflow-y:auto;"></div>
               </div>
               <!-- Divider -->
               <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;">
