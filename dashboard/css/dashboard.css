@@ -782,8 +782,8 @@
 
 .mq-save-logo {
   display: block;
-  width: 130px;
-  height: 100px;
+  width: 90px;
+  height: auto;
   animation: mq-logo-spin 3s linear infinite;
 }
 

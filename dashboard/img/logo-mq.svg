@@ -1,31 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 146 116">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 0 110 125">
   <defs>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-
-  <!-- M — rich emerald -->
-  <path d="M 7 88 L 7 12 L 37 58 L 67 12 L 67 88"
-        fill="none"
-        stroke="#10b981"
-        stroke-width="10.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        filter="url(#glow)"/>
-
-  <!-- Q circle — brighter emerald, left edge meets M's right leg -->
-  <circle cx="97" cy="48" r="30"
-          fill="none"
-          stroke="#34d399"
-          stroke-width="9.5"
-          filter="url(#glow)"/>
-
-  <!-- Q tail — diagonal, bottom-right -->
-  <line x1="118" y1="69" x2="127" y2="82"
-        stroke="#34d399"
-        stroke-width="9.5"
-        stroke-linecap="round"
-        filter="url(#glow)"/>
+  <path d="M20 90 C20 40 60 10 100 10 C100 10 100 70 60 100 C40 115 20 110 20 90 Z"
+        fill="white" filter="url(#glow)"/>
+  <path d="M100 10 C100 10 110 80 70 110"
+        stroke="white" stroke-width="7.5" stroke-linecap="round" fill="none" filter="url(#glow)"/>
 </svg>
