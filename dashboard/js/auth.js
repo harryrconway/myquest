@@ -182,7 +182,7 @@
     // [1] All profiles — best-effort, used only to populate the in-memory store for display
     // [2] Company settings — rates + checklist template
     var _slowResults = await Promise.all([
-      sb.from('profiles').select('name, role, status').eq('id', userId).single().catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('profiles').select('name, role, status').eq('id', userId).single()).catch(function () { return { data: null }; }),
       sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').catch(function () { return { data: null }; }),
       sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
     ]);
