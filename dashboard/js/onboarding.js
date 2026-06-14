@@ -203,7 +203,7 @@
         '<input class="ob-input" id="ob-address" type="text" autocomplete="street-address" placeholder="123 Main Street" maxlength="100" value="' + esc(state.address) + '"></div>',
       '<div class="ob-row-2">',
         '<div class="ob-field"><label class="ob-label" for="ob-suburb">Suburb</label>',
-          '<input class="ob-input" id="ob-suburb" type="text" autocomplete="address-level2" placeholder="Melbourne" maxlength="60" value="' + esc(state.suburb) + '"></div>',
+          '<input class="ob-input" id="ob-suburb" type="text" autocomplete="address-level2" placeholder="Currumbin" maxlength="60" value="' + esc(state.suburb) + '"></div>',
         '<div class="ob-field"><label class="ob-label" for="ob-state">State</label>',
           '<select class="ob-input" id="ob-state">' + stateOpts + '</select></div>',
       '</div>',
@@ -459,6 +459,7 @@
     });
 
     currentStep = n;
+    sessionStorage.setItem('mq_ob_step', n);
     window.scrollTo(0, 0);
     requestAnimationFrame(function () { window.scrollTo(0, 0); });
   }
@@ -559,6 +560,7 @@
       try { result = await res.json(); } catch (e) { result = { error: 'Unexpected server response.' }; }
       if (result && result.error) throw new Error(result.error);
 
+      sessionStorage.removeItem('mq_ob_step');
       var stepWrap = document.getElementById('ob-step-wrap');
       var success  = document.getElementById('ob-success');
       if (stepWrap) stepWrap.hidden = true;
@@ -597,7 +599,8 @@
       state.phone     = profile.data.mobile || '';
     }
 
-    showStep(1);
+    var resumeStep = parseInt(sessionStorage.getItem('mq_ob_step')) || 1;
+    showStep(resumeStep);
   }
 
   MQ.onReady(doInit);
