@@ -142,8 +142,8 @@
       var fastCheck = await sb.auth.getSession();
       if (fastCheck.data && fastCheck.data.session) {
         var _fastResults = await Promise.all([
-          sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').catch(function () { return { data: null }; }),
-          sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date')).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template'])).catch(function () { return { data: null }; }),
         ]);
         syncProfilesToStore(_fastResults[0].data || []);
         syncRatesToStore(_fastResults[1].data || []);
@@ -183,8 +183,8 @@
     // [2] Company settings — rates + checklist template
     var _slowResults = await Promise.all([
       Promise.resolve(sb.from('profiles').select('name, role, status').eq('id', userId).single()).catch(function () { return { data: null }; }),
-      sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').catch(function () { return { data: null }; }),
-      sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date')).catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template'])).catch(function () { return { data: null }; }),
     ]);
     var myProfile   = _slowResults[0].data; // authoritative for this user's role
     var allProfiles = _slowResults[1].data || [];
