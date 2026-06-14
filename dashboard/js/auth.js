@@ -127,7 +127,6 @@
   }
 
   async function init() {
-    try {
     var sb = window.MQ && MQ.supabase;
     if (!sb) {
       window.location.href = '../login.html';
@@ -236,10 +235,6 @@
       document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
     } else {
       onDomReady();
-    }
-    } catch (err) {
-      console.error('[MyQuest] Auth init error:', err);
-      window.location.href = '../login.html';
     }
   }
 
