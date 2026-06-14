@@ -176,22 +176,30 @@
     var userId    = sbSession.user.id;
     var email     = sbSession.user.email;
 
-    // Load all profiles + company settings in parallel
+    // Three parallel queries:
+    // [0] Current user's own profile — targeted, immune to RLS / schema issues on other rows
+    // [1] All profiles — best-effort, used only to populate the in-memory store for display
+    // [2] Company settings — rates + checklist template
     var _slowResults = await Promise.all([
-      sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date'),
+      sb.from('profiles').select('name, role, status').eq('id', userId).single(),
+      sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').catch(function () { return { data: null }; }),
       sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
     ]);
-    var allProfiles = (_slowResults[0].data) || [];
-    var profileResult = { data: allProfiles.find(function (p) { return p.id === userId; }) || null };
+    var myProfile   = _slowResults[0].data; // authoritative for this user's role
+    var allProfiles = _slowResults[1].data || [];
+    // If all-profiles query returned nothing (RLS / failure), seed store with at least own profile
+    if (!allProfiles.length && myProfile) {
+      allProfiles = [Object.assign({ id: userId }, myProfile)];
+    }
     syncProfilesToStore(allProfiles);
-    syncRatesToStore((_slowResults[1] && _slowResults[1].data) || []);
+    syncRatesToStore((_slowResults[2] && _slowResults[2].data) || []);
 
     var name = email;
     var role = 'staff';
-    if (profileResult.data) {
-      name = profileResult.data.name || email;
-      role = profileResult.data.role || 'staff';
-      if (profileResult.data.status === 'invited' && role !== 'owner') {
+    if (myProfile) {
+      name = myProfile.name || email;
+      role = myProfile.role || 'staff';
+      if (myProfile.status === 'invited' && role !== 'owner') {
         if (!window.location.pathname.includes('onboarding')) {
           window.location.href = 'onboarding.html';
           return;
