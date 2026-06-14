@@ -11,7 +11,7 @@
   var state = {
     userId: null,
     firstName: '', lastName: '', phone: '', dob: '',
-    address: '', suburb: '', stateVal: '', postcode: '',
+    address: '', suburb: '', stateVal: 'NSW', postcode: '',
     emergencyName: '', emergencyPhone: '', emergencyRel: '',
     photoFile: null,   photoUrl:   null,
     policeFile: null,  policeUrl:  null,
@@ -334,8 +334,17 @@
       '</div>',
       agreeRow('ob-row-co', 'ob-chk-co', 'I have read and agree to the <strong>Company Policies</strong>', state.agreedCompany),
 
+      '<p class="ob-label" style="margin-top:18px;">Privacy Policy</p>',
+      '<div class="ob-agreement-box">',
+        '<h4>Privacy Policy</h4>',
+        '<p><strong>What we collect</strong> — Your name, contact details, date of birth, address, emergency contact, employment documents (police check, licence, right to work), and profile photo.</p>',
+        '<p><strong>How we use it</strong> — To manage your employment, coordinate scheduling, communicate job details, and meet legal obligations.</p>',
+        '<p><strong>Who we share it with</strong> — Your information is not sold or shared with third parties. It may be disclosed if required by law.</p>',
+        '<p><strong>Storage &amp; security</strong> — Data is stored securely using industry-standard encryption. You may request access or correction at any time.</p>',
+        '<p><strong>Contact</strong> — For privacy enquiries email <strong>hello@myquest.au</strong>.</p>',
+      '</div>',
       agreeRow('ob-row-priv', 'ob-chk-priv',
-        'I have read and agree to the <a href="https://myquest.au/privacy" target="_blank" rel="noopener" style="color:#16a34a;">Privacy Policy</a>',
+        'I have read and agree to the <strong>Privacy Policy</strong>',
         state.agreedPrivacy),
     ].join('');
   }
