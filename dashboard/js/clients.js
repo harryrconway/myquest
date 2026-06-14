@@ -8,6 +8,18 @@
   var editingClientId  = null;
   var importSourceId   = null;
 
+  async function callApi(path, body) {
+    var sess = await sb.auth.getSession();
+    var jwt  = sess.data && sess.data.session && sess.data.session.access_token;
+    if (!jwt) return { error: 'Not authenticated.' };
+    var res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  }
+
   function initials(name) {
     return (name || '').split(' ').filter(Boolean).map(function (p) { return p[0]; }).join('').toUpperCase().slice(0, 2) || '?';
   }
@@ -260,8 +272,8 @@
     var c = clients.find(function (x) { return x.id === id; });
     if (!c) return;
     MQ.ui.confirmDelete('Delete "' + escHtml(c.full_name || 'client') + '"? This cannot be undone.', async function () {
-      var { error } = await sb.from('clients').delete().eq('id', id);
-      if (error) { MQ.ui.toast(error.message, 'error'); return; }
+      var result = await callApi('/api/delete-client', { clientId: id });
+      if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
       MQ.ui.toast('Client deleted', 'info');
       closeDetail();
       load();
