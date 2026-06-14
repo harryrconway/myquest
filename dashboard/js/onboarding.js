@@ -157,7 +157,7 @@
           '<input class="ob-input" id="ob-last" type="text" autocomplete="family-name" placeholder="Smith" maxlength="50" value="' + esc(state.lastName) + '"></div>',
       '</div>',
       '<div class="ob-field"><label class="ob-label" for="ob-phone">Mobile number</label>',
-        '<input class="ob-input" id="ob-phone" type="tel" autocomplete="tel" placeholder="0400 000 000" maxlength="20" value="' + esc(state.phone) + '"></div>',
+        '<input class="ob-input" id="ob-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0400 000 000" maxlength="20" value="' + esc(state.phone) + '"></div>',
       '<div class="ob-field">',
         '<label class="ob-label">Date of birth</label>',
         '<div class="ob-dob-wrap">',
