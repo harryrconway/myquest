@@ -62,18 +62,27 @@ export async function onRequestPost(context) {
       return json({ error: msg }, 400);
     }
 
-    // Mark the new profile as 'invited' so it doesn't show as Active until they set a password
+    // Upsert the profile row — the invite creates an auth.users entry but there is no
+    // database trigger to create a profiles row, so we must INSERT it here.
+    // Using resolution=merge-duplicates so it also works if a row already exists.
     const invited = await inviteRes.json().catch(() => ({}));
     if (invited.id) {
-      await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${invited.id}`, {
-        method: 'PATCH',
+      await fetch(`${URL_BASE}/rest/v1/profiles`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${SVC_KEY}`,
           'apikey': SVC_KEY,
           'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
+          'Prefer': 'resolution=merge-duplicates,return=minimal',
         },
-        body: JSON.stringify({ status: 'invited' }),
+        body: JSON.stringify({
+          id:             invited.id,
+          email:          email,
+          name:           name,
+          role:           role,
+          cleaning_level: Number(cleaning_level) || 1,
+          status:         'invited',
+        }),
       }).catch(() => {});
     }
 
