@@ -88,6 +88,22 @@
     }, 60000);
   }
 
+  function syncRatesToStore(rows) {
+    if (!rows || !rows.length) return;
+    rows.forEach(function (row) {
+      if (row.key === 'rates' && row.value && typeof row.value === 'object') {
+        var current = MQ.store.rates.get();
+        Object.assign(current, row.value);
+        MQ.store.rates.save(current);
+      }
+      if (row.key === 'checklist_template' && Array.isArray(row.value)) {
+        var r = MQ.store.rates.get();
+        r.checklist = row.value;
+        MQ.store.rates.save(r);
+      }
+    });
+  }
+
   function syncProfilesToStore(profiles) {
     if (!profiles || !profiles.length) return;
     profiles.forEach(function (p) {
@@ -124,10 +140,12 @@
       MQ.hasRole = function (minRole) { return roleLevel(cached.role) >= roleLevel(minRole); };
       var fastCheck = await sb.auth.getSession();
       if (fastCheck.data && fastCheck.data.session) {
-        sb.from('profiles')
-          .select('id, name, email, role, cleaning_level, colour, status, mobile, start_date')
-          .then(function (r) { syncProfilesToStore(r.data || []); })
-          .catch(function () {});
+        var _fastResults = await Promise.all([
+          sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').catch(function () { return { data: null }; }),
+          sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
+        ]);
+        syncProfilesToStore(_fastResults[0].data || []);
+        syncRatesToStore(_fastResults[1].data || []);
         function doReady() {
           applyRoleGating(cached);
           populateUserInfo(cached);
@@ -158,11 +176,15 @@
     var userId    = sbSession.user.id;
     var email     = sbSession.user.email;
 
-    // Load profile (name + role)
-    var allProfilesRes = await sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date');
-    var allProfiles = allProfilesRes.data || [];
+    // Load all profiles + company settings in parallel
+    var _slowResults = await Promise.all([
+      sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date'),
+      sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
+    ]);
+    var allProfiles = (_slowResults[0].data) || [];
     var profileResult = { data: allProfiles.find(function (p) { return p.id === userId; }) || null };
     syncProfilesToStore(allProfiles);
+    syncRatesToStore((_slowResults[1] && _slowResults[1].data) || []);
 
     var name = email;
     var role = 'staff';

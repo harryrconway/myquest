@@ -1,6 +1,7 @@
 /* ============================================================
    MYQUEST — store.js
-   localStorage CRUD layer for all entities.
+   In-memory data layer. Supabase is the source of truth;
+   these stores hold the current page-session cache only.
    Exposes window.MQ.store
    ============================================================ */
 (function () {
@@ -8,68 +9,41 @@
 
   window.MQ = window.MQ || {};
 
-  const KEYS = {
-    permissions:   'mq_permissions',
-    session:       'mq_session',
-    clients:       'mq_clients',
-    properties:    'mq_properties',
-    quotes:        'mq_quotes',
-    jobs:          'mq_jobs',
-    staff:         'mq_staff',
-    roster:        'mq_roster',
-    timeLogs:      'mq_time_logs',
-    checklists:    'mq_checklists',
-    inventory:     'mq_inventory',
-    issues:        'mq_issues',
-    announcements: 'mq_announcements',
-    rates:         'mq_rates',
-    xpEvents:      'mq_xp_events',
-    accounts:      'mq_accounts',
-    authLog:       'mq_auth_log',
-  };
-
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
-  function entity(key) {
+  function entity() {
+    var _data = [];
     return {
-      getAll() {
-        try {
-          return JSON.parse(localStorage.getItem(key) || '[]');
-        } catch { return []; }
+      getAll: function () { return _data.slice(); },
+      getById: function (id) {
+        return _data.find(function (r) { return r.id === id; }) || null;
       },
-      getById(id) {
-        return this.getAll().find(function (r) { return r.id === id; }) || null;
-      },
-      save(obj) {
-        const all = this.getAll();
+      save: function (obj) {
         if (obj.id) {
-          const idx = all.findIndex(function (r) { return r.id === obj.id; });
+          var idx = _data.findIndex(function (r) { return r.id === obj.id; });
           if (idx > -1) {
-            all[idx] = Object.assign({}, all[idx], obj, { updatedAt: new Date().toISOString() });
-          } else {
-            all.push(Object.assign({}, obj, { updatedAt: new Date().toISOString() }));
+            _data[idx] = Object.assign({}, _data[idx], obj, { updatedAt: new Date().toISOString() });
+            return _data[idx];
           }
-        } else {
-          obj = Object.assign({}, obj, { id: uid(), createdAt: new Date().toISOString() });
-          all.push(obj);
+          var updated = Object.assign({}, obj, { updatedAt: new Date().toISOString() });
+          _data.push(updated);
+          return updated;
         }
-        localStorage.setItem(key, JSON.stringify(all));
+        obj = Object.assign({}, obj, { id: uid(), createdAt: new Date().toISOString() });
+        _data.push(obj);
         return obj;
       },
-      delete(id) {
-        const all = this.getAll().filter(function (r) { return r.id !== id; });
-        localStorage.setItem(key, JSON.stringify(all));
+      delete: function (id) {
+        _data = _data.filter(function (r) { return r.id !== id; });
       },
-      clear() {
-        localStorage.removeItem(key);
-      }
+      clear: function () { _data = []; },
     };
   }
 
   /* ---- Quote rate defaults --------------------------------- */
-  const DEFAULT_RATES = {
+  var DEFAULT_RATES = {
     res: {
       baseBedroom:  35,
       baseBathroom: 25,
@@ -90,71 +64,54 @@
     }
   };
 
-  function getRates() {
-    try {
-      return JSON.parse(localStorage.getItem(KEYS.rates)) || DEFAULT_RATES;
-    } catch { return DEFAULT_RATES; }
-  }
+  var _rates = JSON.parse(JSON.stringify(DEFAULT_RATES));
 
-  function saveRates(r) {
-    localStorage.setItem(KEYS.rates, JSON.stringify(r));
-  }
+  function getRates() { return _rates; }
+  function saveRates(r) { _rates = r; }
 
-  /* ---- Seed Data ------------------------------------------- */
-  function seed() {}
-
-  /* ---- Permissions default seed ---------------------------- */
-  function seedPermissions() {
-    // Permissions are set up via first login or Settings — no demo accounts seeded here.
-  }
-
-  /* ---- Auth log — append-only, capped at 200 entries ------- */
+  /* ---- Auth log — in-memory, capped at 200 entries --------- */
+  var _authLog = [];
   var authLog = {
     append: function (entry) {
-      try {
-        var logs = JSON.parse(localStorage.getItem(KEYS.authLog) || '[]');
-        logs.unshift(Object.assign({ id: uid(), at: new Date().toISOString() }, entry));
-        localStorage.setItem(KEYS.authLog, JSON.stringify(logs.slice(0, 200)));
-      } catch {}
+      _authLog.unshift(Object.assign({ id: uid(), at: new Date().toISOString() }, entry));
+      if (_authLog.length > 200) _authLog = _authLog.slice(0, 200);
     },
-    getAll: function () {
-      try { return JSON.parse(localStorage.getItem(KEYS.authLog) || '[]'); }
-      catch { return []; }
-    },
-    clear: function () { localStorage.removeItem(KEYS.authLog); }
+    getAll: function () { return _authLog.slice(); },
+    clear:  function () { _authLog = []; },
   };
 
   /* ---- Public API ------------------------------------------ */
-  MQ.store = {
-    clients:       entity(KEYS.clients),
-    properties:    entity(KEYS.properties),
-    quotes:        entity(KEYS.quotes),
-    jobs:          entity(KEYS.jobs),
-    staff:         entity(KEYS.staff),
-    roster:        entity(KEYS.roster),
-    timeLogs:      entity(KEYS.timeLogs),
-    checklists:    entity(KEYS.checklists),
-    inventory:     entity(KEYS.inventory),
-    issues:        entity(KEYS.issues),
-    announcements: entity(KEYS.announcements),
-    permissions:   entity(KEYS.permissions),
-    xpEvents:      entity(KEYS.xpEvents),
-    accounts:      entity(KEYS.accounts),
+  var stores = {
+    clients:       entity(),
+    properties:    entity(),
+    quotes:        entity(),
+    jobs:          entity(),
+    staff:         entity(),
+    roster:        entity(),
+    timeLogs:      entity(),
+    checklists:    entity(),
+    inventory:     entity(),
+    issues:        entity(),
+    announcements: entity(),
+    permissions:   entity(),
+    xpEvents:      entity(),
+    accounts:      entity(),
     authLog:       authLog,
     rates: { get: getRates, save: saveRates, defaults: DEFAULT_RATES },
-    seed: seed,
-    seedPermissions: seedPermissions,
+    seed: function () {},
+    seedPermissions: function () {},
     clearAll: function () {
-      Object.values(KEYS).forEach(function (k) { localStorage.removeItem(k); });
+      ['clients','properties','quotes','jobs','staff','roster','timeLogs',
+       'checklists','inventory','issues','announcements','permissions',
+       'xpEvents','accounts'].forEach(function (k) { stores[k].clear(); });
+      _authLog = [];
+      _rates = JSON.parse(JSON.stringify(DEFAULT_RATES));
       try { sessionStorage.removeItem('mq_session'); } catch {}
-    }
+    },
   };
 
-  seedPermissions();
+  MQ.store = stores;
 
-  // Returns jobs the current user is allowed to see.
-  // Owner / manager → all jobs. Staff → only their assigned jobs.
-  // Safe to call from any page after auth.js has run.
   MQ.store.visibleJobs = function () {
     var all = MQ.store.jobs.getAll();
     if (!MQ.hasRole) return all;
