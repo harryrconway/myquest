@@ -502,7 +502,7 @@
 
     // Sync any Supabase accounts not yet in localStorage so the Team card
     // shows all members on every device, not just the device where they were added
-    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status, phone, mobile').then(function (r) {
+    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status, phone, mobile, start_date').then(function (r) {
       if (!r.data) return;
       var changed = false;
       r.data.forEach(function (p) {
@@ -511,12 +511,19 @@
           role: p.role || 'staff', cleaningLevel: p.cleaning_level || 1,
           status: p.status === 'suspended' ? 'suspended' : 'active',
         });
-        if (!MQ.store.staff.getById(p.id)) {
+        var existing = MQ.store.staff.getById(p.id);
+        if (!existing) {
           MQ.store.staff.save({
-            id: p.id, name: p.name || '', email: p.email || '', phone: '',
-            role: p.role || 'staff', level: parseInt(p.cleaning_level) || 1,
-            startDate: '', active: p.status !== 'suspended', colour: p.colour || pickStaffColour(),
+            id: p.id, name: p.name || '', email: p.email || '',
+            mobile: p.mobile || '', role: p.role || 'staff', level: parseInt(p.cleaning_level) || 1,
+            startDate: p.start_date || '', active: p.status !== 'suspended', colour: p.colour || pickStaffColour(),
           });
+          changed = true;
+        } else if (p.mobile || p.start_date) {
+          MQ.store.staff.save(Object.assign({}, existing, {
+            mobile:    p.mobile    || existing.mobile    || '',
+            startDate: p.start_date || existing.startDate || '',
+          }));
           changed = true;
         }
       });
@@ -528,7 +535,8 @@
       var updates = {
         userId:         selectedStaffId,
         name:           document.getElementById('team-name').value.trim(),
-        phone:          document.getElementById('team-phone').value.trim(),
+        mobile:         document.getElementById('team-phone').value.trim(),
+        start_date:     document.getElementById('team-start').value || null,
         colour:         selectedColour,
         role:           document.getElementById('team-role').value,
         cleaning_level: parseInt(document.getElementById('team-level').value) || 1,
@@ -542,12 +550,12 @@
       var s = MQ.store.staff.getById(selectedStaffId);
       if (s) {
         s.name      = updates.name;
-        s.phone     = updates.phone;
+        s.mobile    = updates.mobile;
         s.colour    = selectedColour;
         s.role      = updates.role;
         s.level     = updates.cleaning_level;
         s.active    = updates.status === 'active';
-        s.startDate = document.getElementById('team-start').value;
+        s.startDate = updates.start_date || '';
         MQ.store.staff.save(s);
       }
       renderAvatarGrid();

@@ -24,7 +24,7 @@ export async function onRequestPost(context) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
   const {
-    userId, role, cleaning_level, status, phone, colour, name,
+    userId, role, cleaning_level, status, phone, colour, name, start_date,
     // Onboarding fields — any authenticated user can update their own profile
     mobile, date_of_birth, residential_address,
     emergency_contact_name, emergency_contact_number, emergency_relation,
@@ -43,9 +43,10 @@ export async function onRequestPost(context) {
 
   const updates = {};
   // Any manager or owner can update name, phone and colour
-  if (name   !== undefined) updates.name   = String(name   || '').trim().slice(0, 100) || null;
-  if (phone  !== undefined) updates.phone  = String(phone  || '').trim().slice(0, 30)  || null;
-  if (colour !== undefined) updates.colour = String(colour || '').trim().slice(0, 20);
+  if (name       !== undefined) updates.name       = String(name   || '').trim().slice(0, 100) || null;
+  if (phone      !== undefined) updates.phone      = String(phone  || '').trim().slice(0, 30)  || null;
+  if (colour     !== undefined) updates.colour     = String(colour || '').trim().slice(0, 20);
+  if (start_date !== undefined) updates.start_date = textField(start_date, 10);
 
   // Onboarding fields (self or manager+)
   const textField = (v, max) => v !== undefined ? (String(v || '').trim().slice(0, max) || null) : undefined;
