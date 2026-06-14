@@ -88,6 +88,27 @@
     }, 60000);
   }
 
+  function syncProfilesToStore(profiles) {
+    if (!profiles || !profiles.length) return;
+    profiles.forEach(function (p) {
+      MQ.store.accounts.save({
+        id: p.id, name: p.name || '', email: p.email || '',
+        role: p.role || 'staff', cleaningLevel: p.cleaning_level || 1,
+        status: p.status === 'suspended' ? 'suspended' : (p.status || 'active'),
+      });
+      var existing = MQ.store.staff.getById(p.id);
+      MQ.store.staff.save(Object.assign({}, existing || {}, {
+        id: p.id, name: p.name || '', email: p.email || '',
+        mobile:    p.mobile     || (existing && existing.mobile)    || '',
+        role:      p.role       || 'staff',
+        level:     parseInt(p.cleaning_level) || 1,
+        startDate: p.start_date || (existing && existing.startDate) || '',
+        active:    p.status !== 'suspended',
+        colour:    p.colour     || (existing && existing.colour)    || '',
+      }));
+    });
+  }
+
   async function init() {
     var sb = window.MQ && MQ.supabase;
     if (!sb) {
@@ -103,6 +124,10 @@
       MQ.hasRole = function (minRole) { return roleLevel(cached.role) >= roleLevel(minRole); };
       var fastCheck = await sb.auth.getSession();
       if (fastCheck.data && fastCheck.data.session) {
+        sb.from('profiles')
+          .select('id, name, email, role, cleaning_level, colour, status, mobile, start_date')
+          .then(function (r) { syncProfilesToStore(r.data || []); })
+          .catch(function () {});
         function doReady() {
           applyRoleGating(cached);
           populateUserInfo(cached);
@@ -134,7 +159,10 @@
     var email     = sbSession.user.email;
 
     // Load profile (name + role)
-    var profileResult = await sb.from('profiles').select('name, role, status').eq('id', userId).single();
+    var allProfilesRes = await sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date');
+    var allProfiles = allProfilesRes.data || [];
+    var profileResult = { data: allProfiles.find(function (p) { return p.id === userId; }) || null };
+    syncProfilesToStore(allProfiles);
 
     var name = email;
     var role = 'staff';
