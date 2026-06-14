@@ -51,6 +51,7 @@ export async function onRequestPost(context) {
     : [target];
 
   try {
+    // Delete all matching quote_requests rows
     const responses = await Promise.all(statuses.map(function (status) {
       return fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests?status=eq.${status}`, {
         method: 'DELETE',
@@ -67,6 +68,39 @@ export async function onRequestPost(context) {
       const detail = await Promise.all(failed.map(function (r) { return r.text(); }));
       return json({ error: 'Delete failed: ' + detail.join(' | ') }, 500);
     }
+
+    // For 'all', also delete every staff/manager profile (and their auth user)
+    // The calling owner's own profile is preserved.
+    if (target === 'all') {
+      const staffRes = await fetch(
+        `${SUPABASE_URL_BASE}/rest/v1/profiles?id=neq.${user.id}&select=id`,
+        { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
+      );
+      if (staffRes.ok) {
+        const staffProfiles = await staffRes.json().catch(() => []);
+        if (Array.isArray(staffProfiles) && staffProfiles.length > 0) {
+          // Delete auth users first (ignore individual failures — orphans are tolerable)
+          await Promise.all(staffProfiles.map(function (p) {
+            return fetch(`${SUPABASE_URL_BASE}/auth/v1/admin/users/${p.id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY },
+            }).catch(() => {});
+          }));
+
+          // Delete all non-owner profile rows in one request
+          const ids = staffProfiles.map(function (p) { return p.id; }).join(',');
+          await fetch(`${SUPABASE_URL_BASE}/rest/v1/profiles?id=in.(${ids})`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${SERVICE_KEY}`,
+              'apikey': SERVICE_KEY,
+              'Prefer': 'return=minimal',
+            },
+          });
+        }
+      }
+    }
+
     return json({ success: true });
   } catch (err) {
     return json({ error: 'Delete failed: ' + err.message }, 500);
