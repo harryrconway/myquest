@@ -30,15 +30,16 @@
   }
 
   function populateUserInfo(session) {
+    var displayName = (session && (session.name || session.email)) || '';
+    var displayRole = (session && session.role) || 'staff';
     document.querySelectorAll('.js-user-name').forEach(function (el) {
-      el.textContent = session.name || session.email;
+      el.textContent = displayName;
     });
     document.querySelectorAll('.js-user-role').forEach(function (el) {
-      el.textContent = session.role.charAt(0).toUpperCase() + session.role.slice(1);
+      el.textContent = displayRole.charAt(0).toUpperCase() + displayRole.slice(1);
     });
     document.querySelectorAll('.js-user-avatar').forEach(function (el) {
-      var name = session.name || session.email;
-      el.textContent = name.charAt(0).toUpperCase();
+      el.textContent = displayName ? displayName.charAt(0).toUpperCase() : '?';
     });
   }
 
@@ -126,6 +127,7 @@
   }
 
   async function init() {
+    try {
     var sb = window.MQ && MQ.supabase;
     if (!sb) {
       window.location.href = '../login.html';
@@ -181,7 +183,7 @@
     // [1] All profiles — best-effort, used only to populate the in-memory store for display
     // [2] Company settings — rates + checklist template
     var _slowResults = await Promise.all([
-      sb.from('profiles').select('name, role, status').eq('id', userId).single(),
+      sb.from('profiles').select('name, role, status').eq('id', userId).single().catch(function () { return { data: null }; }),
       sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').catch(function () { return { data: null }; }),
       sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template']).catch(function () { return { data: null }; }),
     ]);
@@ -234,6 +236,10 @@
       document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
     } else {
       onDomReady();
+    }
+    } catch (err) {
+      console.error('[MyQuest] Auth init error:', err);
+      window.location.href = '../login.html';
     }
   }
 

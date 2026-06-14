@@ -21,7 +21,7 @@
     if (!el) return;
     var h    = new Date().getHours();
     var time = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
-    var name = MQ.session ? MQ.session.name.split(' ')[0] : '';
+    var name = (MQ.session && MQ.session.name) ? MQ.session.name.split(' ')[0] : '';
     el.textContent = 'Good ' + time + (name ? ', ' + name : '') + '.';
 
     var dateEl = document.getElementById('dash-date');
