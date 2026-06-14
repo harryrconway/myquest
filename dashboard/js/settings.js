@@ -42,14 +42,18 @@
   }
 
   async function callApi(path, body) {
-    var jwt = await getJwt();
-    if (!jwt) return { error: 'Not authenticated.' };
-    var res = await fetch(path, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
-      body:    JSON.stringify(body),
-    });
-    return res.json();
+    try {
+      var jwt = await getJwt();
+      if (!jwt) return { error: 'Not authenticated.' };
+      var res = await fetch(path, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+        body:    JSON.stringify(body),
+      });
+      return await res.json();
+    } catch (e) {
+      return { error: 'Network error. Please try again.' };
+    }
   }
 
   /* ══════════════════════════════════════════════════════════
