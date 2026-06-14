@@ -306,6 +306,22 @@
     });
   }
 
+  /* ---- Page transitions ------------------------------------ */
+  function initPageTransitions() {
+    document.querySelectorAll('.dash-sidebar__nav a[href]').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        var href = this.getAttribute('href');
+        if (!href || href.charAt(0) === '#') return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        var content = document.querySelector('.dash-content');
+        if (!content) { window.location.href = href; return; }
+        content.classList.add('is-leaving');
+        setTimeout(function () { window.location.href = href; }, 210);
+      });
+    });
+  }
+
   /* ---- DOMContentLoaded init ------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
     initModalTriggers();
@@ -313,6 +329,7 @@
     initMobileSidebar();
     initTabs();
     initLogoLink();
+    initPageTransitions();
   });
 
   /* ---- Save overlay ---------------------------------------- */
@@ -323,7 +340,8 @@
     el.innerHTML =
       '<div class="mq-save-logo-wrap">' +
         '<img class="mq-save-logo" src="img/logo-mq.svg" width="88" height="88" alt="">' +
-      '</div>';
+      '</div>' +
+      '<p class="mq-save-text">Saving…</p>';
     document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(el); });
     return el;
   }());
@@ -333,22 +351,32 @@
 
   function _hideSaveOverlay() {
     _saveOverlay.classList.remove('is-visible');
+    _saveOverlay.classList.remove('is-saved');
+  }
+
+  function _completeSave() {
+    var t = _saveOverlay.querySelector('.mq-save-text');
+    if (t) t.textContent = 'Saved';
+    _saveOverlay.classList.add('is-saved');
+    setTimeout(_hideSaveOverlay, 700);
   }
 
   function saving(minMs) {
-    minMs = (minMs === undefined) ? 1500 : minMs;
+    minMs = (minMs === undefined) ? 1000 : minMs;
     _saveTimerDone = false;
     _saveOpDone    = false;
+    var t = _saveOverlay.querySelector('.mq-save-text');
+    if (t) t.textContent = 'Saving…';
+    _saveOverlay.classList.remove('is-saved');
     _saveOverlay.classList.add('is-visible');
-    setTimeout(function () {
-      _saveTimerDone = true;
-      if (_saveOpDone) _hideSaveOverlay();
-    }, minMs);
+    setTimeout(function () { _saveTimerDone = true; if (_saveOpDone) _completeSave(); }, minMs);
+    // Safety net — auto-hide after 10s if saved() is never called
+    setTimeout(function () { if (!_saveOpDone) { _saveOpDone = true; _hideSaveOverlay(); } }, 10000);
   }
 
   function saved() {
     _saveOpDone = true;
-    if (_saveTimerDone) _hideSaveOverlay();
+    if (_saveTimerDone) _completeSave();
   }
 
   /* ---- Public API ------------------------------------------ */

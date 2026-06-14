@@ -207,12 +207,21 @@
 .dash-content {
   flex: 1;
   padding: var(--space-8);
-  animation: dashFadeIn 0.18s ease both;
+  animation: dashEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes dashFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes dashEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dash-content.is-leaving {
+  animation: dashLeave 0.21s ease forwards;
+}
+
+@keyframes dashLeave {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-10px); }
 }
 
 /* ---- Page Header ------------------------------------------ */
@@ -787,9 +796,27 @@
   animation: mq-logo-spin 3s linear infinite;
 }
 
+.mq-save-overlay.is-saved .mq-save-logo {
+  animation: mq-logo-spin 1.2s ease-out forwards;
+}
+
 @keyframes mq-logo-spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+.mq-save-text {
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.mq-save-overlay.is-saved .mq-save-text {
+  color: rgba(82, 183, 136, 0.95);
 }
 
 /* ---- Toast Notifications ---------------------------------- */
