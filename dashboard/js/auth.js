@@ -182,11 +182,11 @@
     // [1] All profiles — best-effort, used only to populate the in-memory store for display
     // [2] Company settings — rates + checklist template
     var _slowResults = await Promise.all([
-      Promise.resolve(sb.from('profiles').select('name, role, status').eq('id', userId).single()).catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('profiles').select('name, role, status').eq('id', userId).limit(1)).catch(function () { return { data: null }; }),
       Promise.resolve(sb.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date')).catch(function () { return { data: null }; }),
       Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template'])).catch(function () { return { data: null }; }),
     ]);
-    var myProfile   = _slowResults[0].data; // authoritative for this user's role
+    var myProfile   = (_slowResults[0].data && _slowResults[0].data[0]) || null; // authoritative for this user's role
     var allProfiles = _slowResults[1].data || [];
     // If all-profiles query returned nothing (RLS / failure), seed store with at least own profile
     if (!allProfiles.length && myProfile) {
