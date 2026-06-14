@@ -1,34 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 100">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#0d2318"/>
-      <stop offset="100%" stop-color="#1e5236"/>
-    </linearGradient>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <!-- Badge background -->
-  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
-
-  <!-- Top-edge gloss highlight -->
-  <rect x="14" y="2.5" width="72" height="1.5" rx="0.75" fill="rgba(255,255,255,0.12)"/>
-
-  <!-- M — sage green, bold stroked path -->
-  <path d="M 12 70 L 12 30 L 38 57 L 55 30 L 55 70"
+  <!-- M — bold, elegant, sage green -->
+  <path d="M 7 88 L 7 12 L 37 58 L 67 12 L 67 88"
         fill="none"
         stroke="#52b788"
-        stroke-width="8.5"
+        stroke-width="10.5"
         stroke-linecap="round"
-        stroke-linejoin="round"/>
+        stroke-linejoin="round"
+        filter="url(#glow)"/>
 
-  <!-- Q circle — mint green, overlaps M's right leg -->
-  <circle cx="67" cy="50" r="20"
+  <!-- Q circle — mint green, left edge exactly meets M's right leg -->
+  <circle cx="97" cy="48" r="30"
           fill="none"
           stroke="#95d5b2"
-          stroke-width="7.5"/>
+          stroke-width="9.5"
+          filter="url(#glow)"/>
 
-  <!-- Q tail -->
-  <line x1="81" y1="63" x2="90" y2="74"
+  <!-- Q tail — diagonal, bottom-right -->
+  <line x1="118" y1="69" x2="127" y2="82"
         stroke="#95d5b2"
-        stroke-width="7.5"
-        stroke-linecap="round"/>
+        stroke-width="9.5"
+        stroke-linecap="round"
+        filter="url(#glow)"/>
 </svg>
