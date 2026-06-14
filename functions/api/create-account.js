@@ -80,19 +80,33 @@ export async function onRequestPost(context) {
         }
 
         // No profile — orphaned auth entry. Find the auth user by email and delete it.
-        const listRes = await fetch(
-          `${URL_BASE}/auth/v1/admin/users?filter=${encodeURIComponent(email)}&per_page=10`,
-          { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
-        );
-        if (listRes.ok) {
+        // Try filter param first; fall back to fetching a large page and searching manually.
+        let orphanId = null;
+        for (const url of [
+          `${URL_BASE}/auth/v1/admin/users?filter=${encodeURIComponent(email)}&per_page=50`,
+          `${URL_BASE}/auth/v1/admin/users?page=1&per_page=1000`,
+        ]) {
+          const listRes = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
+          });
+          if (!listRes.ok) continue;
           const listData = await listRes.json().catch(() => ({}));
-          const orphan = (listData.users || []).find(u => u.email === email);
-          if (orphan) {
-            await fetch(`${URL_BASE}/auth/v1/admin/users/${orphan.id}`, {
-              method: 'DELETE',
-              headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
-            });
-          }
+          // GoTrue returns either an array or { users: [...] } depending on version
+          const users = Array.isArray(listData) ? listData : (Array.isArray(listData.users) ? listData.users : []);
+          const orphan = users.find(u => u.email === email);
+          if (orphan) { orphanId = orphan.id; break; }
+        }
+
+        if (!orphanId) {
+          return json({ error: 'This email is already registered and could not be automatically cleared. Please contact support.' }, 400);
+        }
+
+        const delRes = await fetch(`${URL_BASE}/auth/v1/admin/users/${orphanId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
+        });
+        if (!delRes.ok) {
+          return json({ error: 'Failed to clear the previous registration for this email. Please try again.' }, 400);
         }
 
         // Retry the invite now that the orphan is cleared
