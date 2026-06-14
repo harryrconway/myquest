@@ -237,6 +237,30 @@
            STAFF_PALETTE[used.length % STAFF_PALETTE.length];
   }
 
+  function openUnifiedAddModal() {
+    var formEl    = document.getElementById('add-team-form');
+    var successEl = document.getElementById('at-success-panel');
+    var errorEl   = document.getElementById('add-team-error');
+    var submitBtn = document.getElementById('at-submit');
+    if (formEl)    { formEl.reset(); formEl.style.display = ''; }
+    if (successEl) successEl.hidden = true;
+    if (errorEl)   errorEl.hidden = true;
+    if (submitBtn) { submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false; }
+    var roleEl   = document.getElementById('at-role');
+    var levelGrp = document.getElementById('at-level-group');
+    if (roleEl && levelGrp) {
+      roleEl.onchange = function () { levelGrp.style.display = roleEl.value === 'staff' ? '' : 'none'; };
+      levelGrp.style.display = roleEl.value === 'staff' ? '' : 'none';
+    }
+    MQ.ui.modal.open('modal-add-team-member');
+  }
+
+  // Wire Add Team Member button immediately — don't wait for mq:ready (Safari mobile timing)
+  document.addEventListener('DOMContentLoaded', function () {
+    var addBtn = document.getElementById('team-add-btn');
+    if (addBtn) addBtn.addEventListener('click', openUnifiedAddModal);
+  });
+
   function initTeamCard() {
     var avatarsEl = document.getElementById('team-staff-avatars');
     var form      = document.getElementById('team-staff-form');
@@ -268,27 +292,6 @@
       heroBadges.innerHTML =
         '<span class="badge ' + roleCls + '">' + escHtml(roleLabel) + '</span>' +
         '<span class="badge ' + statusCls + '">' + (s.active !== false ? 'Active' : 'Inactive') + '</span>';
-    }
-
-    /* ── Add Member ──────────────────────────────────────── */
-    function openUnifiedAddModal() {
-      var formEl    = document.getElementById('add-team-form');
-      var successEl = document.getElementById('at-success-panel');
-      var errorEl   = document.getElementById('add-team-error');
-      var submitBtn = document.getElementById('at-submit');
-      if (formEl)    { formEl.reset(); formEl.style.display = ''; }
-      if (successEl) successEl.hidden = true;
-      if (errorEl)   errorEl.hidden = true;
-      if (submitBtn) { submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false; }
-
-      var roleEl   = document.getElementById('at-role');
-      var levelGrp = document.getElementById('at-level-group');
-      if (roleEl && levelGrp) {
-        roleEl.onchange = function () { levelGrp.style.display = roleEl.value === 'staff' ? '' : 'none'; };
-        levelGrp.style.display = roleEl.value === 'staff' ? '' : 'none';
-      }
-
-      MQ.ui.modal.open('modal-add-team-member');
     }
 
     function addMember(accountId) {
@@ -363,8 +366,6 @@
       });
     }
 
-    var addBtn = document.getElementById('team-add-btn');
-    if (addBtn) addBtn.addEventListener('click', openUnifiedAddModal);
     initAddTeamForm();
 
     function renderAvatarGrid() {
