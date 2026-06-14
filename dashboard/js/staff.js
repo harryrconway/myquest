@@ -274,17 +274,19 @@
     });
   }
 
+  // Wire button immediately on DOM ready — don't wait for mq:ready (Safari mobile timing)
+  document.addEventListener('DOMContentLoaded', function () {
+    var search = document.getElementById('staff-search');
+    if (search) search.addEventListener('input', renderList);
+    var addBtn = document.getElementById('btn-add-staff');
+    if (addBtn) addBtn.addEventListener('click', openAddModal);
+  });
+
   document.addEventListener('mq:ready', function () {
     if (!MQ.hasRole('manager')) {
       window.location.href = 'index.html';
       return;
     }
-
-    // Wire up listeners immediately (don't wait for profiles fetch)
-    var search = document.getElementById('staff-search');
-    if (search) search.addEventListener('input', renderList);
-    var addBtn = document.getElementById('btn-add-staff');
-    if (addBtn) addBtn.addEventListener('click', openAddModal);
 
     // Show cached staff immediately; Supabase fetch will sync roles/levels then re-render
     renderList();
