@@ -11,7 +11,7 @@
   var state = {
     userId: null,
     firstName: '', lastName: '', phone: '', dob: '',
-    address: '', suburb: '', stateVal: 'NSW', postcode: '',
+    address: '', suburb: '', stateVal: 'QLD', postcode: '',
     emergencyName: '', emergencyPhone: '', emergencyRel: '',
     photoFile: null,   photoUrl:   null,
     policeFile: null,  policeUrl:  null,
