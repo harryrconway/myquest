@@ -15,7 +15,14 @@
     return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' });
   }
 
-  var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
+  var ROLE_LABELS = {
+    'junior-cleaner': 'Junior Cleaner',
+    'mid-cleaner':    'Mid Level Cleaner',
+    'senior-cleaner': 'Senior Cleaner',
+    'manager':        'Manager',
+    'owner':          'Owner',
+    'staff':          'Junior Cleaner',
+  };
 
   var STAFF_PALETTE = [
     '#1b4332','#2d6a4f','#40916c','#52b788',
@@ -246,12 +253,6 @@
     if (successEl) successEl.hidden = true;
     if (errorEl)   errorEl.hidden = true;
     if (submitBtn) { submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false; }
-    var roleEl   = document.getElementById('at-role');
-    var levelGrp = document.getElementById('at-level-group');
-    if (roleEl && levelGrp) {
-      roleEl.onchange = function () { levelGrp.style.display = roleEl.value === 'staff' ? '' : 'none'; };
-      levelGrp.style.display = roleEl.value === 'staff' ? '' : 'none';
-    }
     MQ.ui.modal.open('modal-add-team-member');
   }
 
@@ -281,13 +282,17 @@
       var heroEmail  = document.getElementById('team-hero-email');
       var heroBadges = document.getElementById('team-hero-badges');
       if (!heroAvatar) return;
-      var ROLE_BADGE = { owner: 'badge--amber', manager: 'badge--blue', staff: 'badge--grey' };
+      var ROLE_BADGE = {
+        owner: 'badge--amber', manager: 'badge--blue',
+        'senior-cleaner': 'badge--green',
+        'mid-cleaner': 'badge--grey', 'junior-cleaner': 'badge--grey', staff: 'badge--grey',
+      };
       heroAvatar.textContent      = staffInitials(s.name);
       heroAvatar.style.background = s.colour || '#334155';
       heroName.textContent        = s.name || s.email || '—';
       heroEmail.textContent       = s.email || '';
       var roleCls   = ROLE_BADGE[s.role] || 'badge--grey';
-      var roleLabel = (s.role || 'staff').charAt(0).toUpperCase() + (s.role || 'staff').slice(1);
+      var roleLabel = ROLE_LABELS[s.role] || (s.role || 'Junior Cleaner');
       var statusCls = s.active !== false ? 'badge--green' : 'badge--grey';
       heroBadges.innerHTML =
         '<span class="badge ' + roleCls + '">' + escHtml(roleLabel) + '</span>' +
@@ -300,7 +305,7 @@
       var colour = pickStaffColour();
       MQ.store.staff.save({
         id: acc.id, name: acc.name || '', email: acc.email || '', phone: '',
-        role: acc.role || 'staff', level: parseInt(acc.cleaningLevel) || 1,
+        role: acc.role || 'junior-cleaner',
         startDate: '', active: true, colour: colour,
       });
       callApi('/api/update-profile', { userId: acc.id, colour: colour }).catch(function () {});
@@ -330,7 +335,6 @@
         var name  = document.getElementById('at-name').value.trim();
         var email = document.getElementById('at-email').value.trim().toLowerCase();
         var role  = document.getElementById('at-role').value;
-        var level = role === 'staff' ? (parseInt(document.getElementById('at-level').value) || 1) : null;
         if (!name || !email) {
           if (errorEl) { errorEl.textContent = 'Name and email are required.'; errorEl.hidden = false; }
           return;
@@ -338,7 +342,7 @@
         submitBtn.textContent = 'Sending…'; submitBtn.disabled = true;
         var result;
         try {
-          result = await callApi('/api/create-account', { name: name, email: email, role: role, cleaning_level: level });
+          result = await callApi('/api/create-account', { name: name, email: email, role: role });
         } catch (e) {
           submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false;
           if (errorEl) { errorEl.textContent = 'Request failed. Please try again.'; errorEl.hidden = false; }
@@ -353,11 +357,11 @@
           var colour = pickStaffColour();
           MQ.store.accounts.save({
             id: result.id, name: name, email: email,
-            role: role, cleaningLevel: level || 1, status: 'invited',
+            role: role, status: 'invited',
           });
           MQ.store.staff.save({
             id: result.id, name: name, email: email, phone: '',
-            role: role, level: level || 1, startDate: '', active: true, colour: colour,
+            role: role, startDate: '', active: true, colour: colour,
           });
           callApi('/api/update-profile', { userId: result.id, colour: colour }).catch(function () {});
           renderAvatarGrid();
@@ -412,6 +416,22 @@
     var toggleBtn = document.getElementById('team-toggle-btn');
     var deleteBtn = document.getElementById('team-delete-btn');
 
+    // Role pill group wiring
+    var rolePills = document.querySelectorAll('.role-pill');
+    function setRolePill(value) {
+      // Legacy 'staff' maps to 'junior-cleaner'
+      var effectiveVal = (value === 'staff') ? 'junior-cleaner' : (value || 'junior-cleaner');
+      document.getElementById('team-role').value = effectiveVal;
+      rolePills.forEach(function (p) {
+        p.classList.toggle('is-active', p.dataset.value === effectiveVal);
+      });
+    }
+    rolePills.forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        setRolePill(pill.dataset.value);
+      });
+    });
+
     function selectStaff(id) {
       var s = MQ.store.staff.getById(id);
       if (!s) return;
@@ -421,14 +441,12 @@
         btn.classList.toggle('ts-avatar-item--active', btn.dataset.id === id);
       });
       renderSwatches(selectedColour);
-      document.getElementById('team-name').value   = s.name      || '';
-      document.getElementById('team-phone').value  = s.mobile || s.phone || '';
-      document.getElementById('team-role').value   = s.role      || 'staff';
-      document.getElementById('team-level').value  = s.level     || 1;
-      document.getElementById('team-status').value = s.active !== false ? 'active' : 'suspended';
-      document.getElementById('team-start').value  = s.startDate || '';
+      document.getElementById('team-name').value  = s.name || '';
+      document.getElementById('team-phone').value = s.mobile || s.phone || '';
+      document.getElementById('team-start').value = s.startDate || '';
       var acc = MQ.store.accounts.getById(id);
-      document.getElementById('team-email').value  = (acc && acc.email) || s.email || '';
+      document.getElementById('team-email').value = (acc && acc.email) || s.email || '';
+      setRolePill(s.role);
       if (toggleBtn) toggleBtn.textContent = s.active !== false ? 'Deactivate' : 'Activate';
       populateHero(s);
       renderStaffDocuments(id);
@@ -515,21 +533,20 @@
 
     // Sync profiles from Supabase into the in-memory store so the Team card
     // reflects the latest database state (auth.js also does this on every page load)
-    MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').then(function (r) {
+    MQ.supabase.from('profiles').select('id, name, email, role, colour, status, mobile, start_date').then(function (r) {
       if (!r.data) return;
       var changed = false;
       r.data.forEach(function (p) {
         MQ.store.accounts.save({
           id: p.id, name: p.name || '', email: p.email || '',
-          role: p.role || 'staff', cleaningLevel: p.cleaning_level || 1,
+          role: p.role || 'junior-cleaner',
           status: p.status === 'suspended' ? 'suspended' : (p.status || 'active'),
         });
         var existing = MQ.store.staff.getById(p.id);
         MQ.store.staff.save(Object.assign({}, existing || {}, {
           id: p.id, name: p.name || '', email: p.email || '',
           mobile:    p.mobile     || (existing && existing.mobile)    || '',
-          role:      p.role       || 'staff',
-          level:     parseInt(p.cleaning_level) || 1,
+          role:      p.role       || 'junior-cleaner',
           startDate: p.start_date || (existing && existing.startDate) || '',
           active:    p.status !== 'suspended',
           colour:    p.colour     || (existing && existing.colour)    || '',
@@ -542,14 +559,12 @@
     document.getElementById('team-save-btn').addEventListener('click', async function () {
       if (!selectedStaffId) return;
       var updates = {
-        userId:         selectedStaffId,
-        name:           document.getElementById('team-name').value.trim(),
-        mobile:         document.getElementById('team-phone').value.trim(),
-        start_date:     document.getElementById('team-start').value || null,
-        colour:         selectedColour,
-        role:           document.getElementById('team-role').value,
-        cleaning_level: parseInt(document.getElementById('team-level').value) || 1,
-        status:         document.getElementById('team-status').value,
+        userId:     selectedStaffId,
+        name:       document.getElementById('team-name').value.trim(),
+        mobile:     document.getElementById('team-phone').value.trim(),
+        start_date: document.getElementById('team-start').value || null,
+        colour:     selectedColour,
+        role:       document.getElementById('team-role').value,
       };
       MQ.ui.saving();
       var result = await callApi('/api/update-profile', updates);
@@ -562,8 +577,6 @@
         s.mobile    = updates.mobile;
         s.colour    = selectedColour;
         s.role      = updates.role;
-        s.level     = updates.cleaning_level;
-        s.active    = updates.status === 'active';
         s.startDate = updates.start_date || '';
         MQ.store.staff.save(s);
       }

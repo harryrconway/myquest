@@ -9,11 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260611b">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260638">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260642">
   <script src="js/supabase.js?v=20260621"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260628"></script>
-  <script src="js/auth.js?v=20260641"></script>
+  <script src="js/auth.js?v=20260642"></script>
 </head>
 <body class="dash-body" data-page="settings">
 
@@ -71,7 +71,7 @@
         <div class="dash-card__body" style="padding:20px 24px;">
           <div id="team-staff-avatars" class="ts-avatar-grid"></div>
           <div id="team-staff-form" style="display:none;margin-top:4px;padding-top:20px;border-top:1px solid #f1f5f9;">
-            <div id="team-member-hero" style="display:flex;align-items:center;gap:16px;padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid #f1f5f9;">
+            <div id="team-member-hero" style="display:flex;align-items:center;gap:16px;padding-bottom:20px;margin-bottom:4px;">
               <div id="team-hero-avatar" style="width:52px;height:52px;border-radius:16px;background:#334155;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;"></div>
               <div style="flex:1;min-width:0;">
                 <div id="team-hero-name" style="font-size:16px;font-weight:800;color:#0f172a;margin-bottom:3px;"></div>
@@ -79,6 +79,8 @@
                 <div id="team-hero-badges" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
               </div>
             </div>
+
+            <p class="settings-section-label">Contact</p>
             <div class="form-grid form-grid--2" style="margin-bottom:12px;">
               <div class="form-group">
                 <label class="form-label" for="team-name">Full name</label>
@@ -89,60 +91,37 @@
                 <input type="tel" id="team-phone" class="form-input" placeholder="0400 000 000">
               </div>
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:20px;">
               <label class="form-label" for="team-email">Email</label>
               <input type="email" id="team-email" class="form-input" readonly style="background:#f8fafc;color:#64748b;cursor:default;">
             </div>
-            <div class="form-grid form-grid--2">
-              <div class="form-group">
-                <label class="form-label">Role</label>
-                <div class="mq-select-wrap">
-                  <select id="team-role" class="mq-select">
-                    <option value="staff">Staff</option>
-                    <option value="manager">Manager</option>
-                    <option value="owner">Owner</option>
-                  </select>
-                </div>
+
+            <p class="settings-section-label">Role</p>
+            <div class="form-group" style="margin-bottom:20px;">
+              <div class="role-pill-group" id="team-role-group">
+                <button type="button" class="role-pill" data-value="junior-cleaner">Junior Cleaner</button>
+                <button type="button" class="role-pill" data-value="mid-cleaner">Mid Level</button>
+                <button type="button" class="role-pill" data-value="senior-cleaner">Senior Cleaner</button>
+                <button type="button" class="role-pill" data-value="manager">Manager</button>
+                <button type="button" class="role-pill" data-value="owner">Owner</button>
               </div>
-              <div class="form-group">
-                <label class="form-label">Cleaning level</label>
-                <div class="mq-select-wrap">
-                  <select id="team-level" class="mq-select">
-                    <option value="1">1 — Trainee</option>
-                    <option value="2">2 — Cleaner</option>
-                    <option value="3">3 — Mid Cleaner</option>
-                    <option value="4">4 — Senior Cleaner</option>
-                    <option value="5">5 — Team Leader</option>
-                    <option value="6">6 — Supervisor</option>
-                    <option value="7">7 — Senior Supervisor</option>
-                    <option value="8">8 — Operations Lead</option>
-                    <option value="9">9 — Area Manager</option>
-                    <option value="10">10 — Regional Manager</option>
-                    <option value="11">11 — Director</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Status</label>
-                <div class="mq-select-wrap">
-                  <select id="team-status" class="mq-select">
-                    <option value="active">Active</option>
-                    <option value="suspended">Suspended</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="team-start">Start date</label>
-                <input type="date" id="team-start" class="form-input">
-              </div>
+              <input type="hidden" id="team-role" value="">
             </div>
-            <div class="form-group" style="margin-top:12px;">
-              <label class="form-label" style="margin-bottom:8px;">Colour</label>
+
+            <p class="settings-section-label">Timeline</p>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label class="form-label" for="team-start">Start date</label>
+              <input type="date" id="team-start" class="form-input" style="max-width:220px;">
+            </div>
+
+            <p class="settings-section-label">Colour</p>
+            <div class="form-group" style="margin-bottom:4px;">
               <div id="team-colour-swatches" class="colour-swatches"></div>
             </div>
+
             <!-- Emergency contact — read-only, populated from Supabase -->
             <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
-              <p style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Emergency Contact</p>
+              <p class="settings-section-label">Emergency Contact</p>
               <div class="form-grid form-grid--2" style="margin-bottom:12px;">
                 <div class="form-group">
                   <label class="form-label" for="team-ec-name">Name</label>
@@ -158,16 +137,19 @@
                 <input type="text" id="team-ec-rel" class="form-input" readonly style="background:#f8fafc;color:#64748b;cursor:default;" placeholder="—">
               </div>
             </div>
+
             <!-- Documents section — owner only -->
             <div id="team-docs-section" data-min-role="owner" style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
-              <p style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Documents</p>
+              <p class="settings-section-label">Documents</p>
               <div id="team-docs-list" style="display:flex;flex-direction:column;gap:8px;">
                 <p style="font-size:13px;color:#94a3b8;">Select a team member to view their documents.</p>
               </div>
             </div>
-            <div class="settings-team-actions" style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid #f1f5f9;margin-top:16px;">
+
+            <div class="settings-team-actions" style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid #f1f5f9;margin-top:16px;flex-wrap:wrap;gap:8px;">
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button class="btn-outline" id="team-reset-pwd-btn" style="font-size:13px;">Reset Password</button>
+                <button class="btn-outline" id="team-toggle-btn" style="font-size:13px;">Deactivate</button>
                 <button class="btn-outline" id="team-delete-btn" style="font-size:13px;color:#dc2626;border-color:#fecaca;">Delete Account</button>
               </div>
               <button class="btn-primary" id="team-save-btn">Save Changes</button>
@@ -320,31 +302,16 @@
             <label class="form-label" for="at-email">Email Address</label>
             <input class="form-input" type="email" id="at-email" placeholder="jane@example.com" required autocomplete="off">
           </div>
-          <div class="form-grid form-grid--2" style="margin-bottom:20px;">
-            <div class="form-group">
-              <label class="form-label" for="at-role">Role</label>
-              <div class="mq-select-wrap">
-                <select id="at-role" class="mq-select">
-                  <option value="staff">Staff</option>
-                  <option value="manager">Manager</option>
-                  <option value="owner">Owner</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group" id="at-level-group">
-              <label class="form-label" for="at-level">Cleaning Level</label>
-              <div class="mq-select-wrap">
-                <select id="at-level" class="mq-select">
-                  <option value="1">1 — Trainee</option>
-                  <option value="2">2 — Cleaner</option>
-                  <option value="3">3 — Mid Cleaner</option>
-                  <option value="4">4 — Senior Cleaner</option>
-                  <option value="5">5 — Team Leader</option>
-                  <option value="6">6 — Supervisor</option>
-                  <option value="7">7 — Senior Supervisor</option>
-                  <option value="8">8 — Operations Lead</option>
-                </select>
-              </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label class="form-label" for="at-role">Role</label>
+            <div class="mq-select-wrap">
+              <select id="at-role" class="mq-select">
+                <option value="junior-cleaner">Junior Cleaner</option>
+                <option value="mid-cleaner">Mid Level Cleaner</option>
+                <option value="senior-cleaner">Senior Cleaner</option>
+                <option value="manager">Manager</option>
+                <option value="owner">Owner</option>
+              </select>
             </div>
           </div>
           <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:16px;border-top:1px solid #f1f5f9;">
@@ -480,7 +447,7 @@
   </style>
 
   <script src="js/ui.js?v=20260638" defer></script>
-  <script src="js/settings.js?v=20260641" defer></script>
+  <script src="js/settings.js?v=20260642" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">

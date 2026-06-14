@@ -76,7 +76,7 @@ export async function onRequestPost(context) {
   // Only owners can change role, level, or account status
   if (callerRole === 'owner') {
     if (role !== undefined) {
-      if (!['owner','manager','staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
+      if (!['owner','manager','staff','junior-cleaner','mid-cleaner','senior-cleaner'].includes(role)) return json({ error: 'Invalid role.' }, 400);
       updates.role = role;
     }
     if (cleaning_level !== undefined) updates.cleaning_level = Number(cleaning_level) || 1;

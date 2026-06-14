@@ -5003,3 +5003,51 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   /* Smooth scroll inside modals on iOS */
   .modal-card { -webkit-overflow-scrolling: touch; }
 }
+
+/* ─── Role pill group ────────────────────────────────────────── */
+.role-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.role-pill {
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  line-height: 1;
+  user-select: none;
+}
+.role-pill:hover {
+  border-color: #2d6a4f;
+  color: #2d6a4f;
+  background: #f0fdf4;
+}
+.role-pill.is-active {
+  background: #2d6a4f;
+  border-color: #2d6a4f;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(45,106,79,0.22);
+}
+@media (max-width: 480px) {
+  .role-pill { font-size: 12px; padding: 7px 14px; }
+}
+
+/* ─── Settings section label ─────────────────────────────────── */
+.settings-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 20px 0 10px;
+  display: block;
+}
+.settings-section-label:first-child { margin-top: 0; }

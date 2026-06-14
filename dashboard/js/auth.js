@@ -9,7 +9,11 @@
 
   window.MQ = window.MQ || {};
 
-  var ROLES       = { owner: 3, manager: 2, staff: 1 };
+  var ROLES = {
+    owner: 3, manager: 2,
+    'senior-cleaner': 1, 'mid-cleaner': 1, 'junior-cleaner': 1,
+    staff: 1, // backwards compat for existing DB records
+  };
   var SESSION_KEY = 'mq_session';
   var IDLE_TTL    = 30 * 60 * 1000; // 30 minutes
 
@@ -110,15 +114,14 @@
     profiles.forEach(function (p) {
       MQ.store.accounts.save({
         id: p.id, name: p.name || '', email: p.email || '',
-        role: p.role || 'staff', cleaningLevel: p.cleaning_level || 1,
+        role: p.role || 'junior-cleaner',
         status: p.status === 'suspended' ? 'suspended' : (p.status || 'active'),
       });
       var existing = MQ.store.staff.getById(p.id);
       MQ.store.staff.save(Object.assign({}, existing || {}, {
         id: p.id, name: p.name || '', email: p.email || '',
         mobile:    p.mobile     || (existing && existing.mobile)    || '',
-        role:      p.role       || 'staff',
-        level:     parseInt(p.cleaning_level) || 1,
+        role:      p.role       || 'junior-cleaner',
         startDate: p.start_date || (existing && existing.startDate) || '',
         active:    p.status !== 'suspended',
         colour:    p.colour     || (existing && existing.colour)    || '',

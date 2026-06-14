@@ -25,8 +25,12 @@
   }
 
   function roleBadge(role) {
-    var map = { owner: 'badge--green', manager: 'badge--blue', staff: 'badge--grey' };
-    var label = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Staff';
+    var map = {
+      owner: 'badge--amber', manager: 'badge--blue',
+      'senior-cleaner': 'badge--green', 'mid-cleaner': 'badge--grey',
+      'junior-cleaner': 'badge--grey', staff: 'badge--grey',
+    };
+    var label = ROLE_LABELS[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Staff');
     return '<span class="badge ' + (map[role] || 'badge--grey') + '">' + label + '</span>';
   }
 
@@ -110,7 +114,10 @@
     }).join('');
   }
 
-  var LEVEL_NAMES = { 1: 'Junior', 2: 'Mid Level', 3: 'Senior' };
+  var ROLE_LABELS = {
+    'junior-cleaner': 'Junior Cleaner', 'mid-cleaner': 'Mid Level',
+    'senior-cleaner': 'Senior Cleaner', manager: 'Manager', owner: 'Owner', staff: 'Junior Cleaner',
+  };
 
   var STAFF_PALETTE = [
     '#1b4332','#2d6a4f','#40916c','#52b788',
@@ -155,15 +162,14 @@
     try {
       // Fetch accounts if store not yet populated
       if (!MQ.store.accounts.getAll().length) {
-        var r = await MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status');
+        var r = await MQ.supabase.from('profiles').select('id, name, email, role, status');
         (r.data || []).forEach(function (p) {
           MQ.store.accounts.save({
-            id:            p.id,
-            name:          p.name          || '',
-            email:         p.email         || '',
-            role:          p.role          || 'staff',
-            cleaningLevel: p.cleaning_level || 1,
-            status:        p.status === 'suspended' ? 'suspended' : 'active',
+            id:     p.id,
+            name:   p.name  || '',
+            email:  p.email || '',
+            role:   p.role  || 'junior-cleaner',
+            status: p.status === 'suspended' ? 'suspended' : 'active',
           });
         });
       }
@@ -180,11 +186,15 @@
         return;
       }
 
-      var ROLE_COLOR = { owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8', staff: 'background:#f1f5f9;color:#475569' };
+      var ROLE_COLOR = {
+        owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8',
+        'senior-cleaner': 'background:#f0fdf4;color:#16a34a',
+        'mid-cleaner': 'background:#f1f5f9;color:#475569', 'junior-cleaner': 'background:#f1f5f9;color:#475569',
+        staff: 'background:#f1f5f9;color:#475569',
+      };
 
       list.innerHTML = available.map(function (acc) {
         var initial   = (acc.name || acc.email).charAt(0).toUpperCase();
-        var levelName = LEVEL_NAMES[parseInt(acc.cleaningLevel)] || '';
         var roleStyle = ROLE_COLOR[acc.role] || ROLE_COLOR.staff;
         return '<button type="button" onclick="StaffPage.addFromAccount(\'' + acc.id + '\')" style="' +
           'display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;' +
@@ -198,8 +208,7 @@
             '<div style="font-size:12px;color:#94a3b8;">' + esc(acc.email) + '</div>' +
           '</div>' +
           '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">' +
-            '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;' + roleStyle + ';">' + esc(acc.role) + '</span>' +
-            (levelName ? '<span style="font-size:11px;color:#94a3b8;font-weight:500;">' + esc(levelName) + '</span>' : '') +
+            '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;' + roleStyle + ';">' + esc(ROLE_LABELS[acc.role] || acc.role) + '</span>' +
           '</div>' +
           '</button>';
       }).join('');
@@ -217,8 +226,7 @@
       name:      acc.name  || '',
       email:     acc.email || '',
       phone:     '',
-      role:      acc.role  || 'staff',
-      level:     parseInt(acc.cleaningLevel) || 1,
+      role:      acc.role  || 'junior-cleaner',
       startDate: '',
       active:    true,
       colour:    colour,
@@ -261,10 +269,8 @@
         return a.email.toLowerCase() === (s.email || '').toLowerCase();
       });
       if (!acc) return;
-      var level = parseInt(acc.cleaningLevel) || 1;
-      if (s.role !== acc.role || s.level !== level) {
-        s.role  = acc.role;
-        s.level = level;
+      if (s.role !== acc.role) {
+        s.role = acc.role;
         MQ.store.staff.save(s);
       }
     });

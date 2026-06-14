@@ -40,7 +40,7 @@ export async function onRequestPost(context) {
     try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
     const { email, name, role, cleaning_level } = body;
     if (!email || !name || !role) return json({ error: 'email, name and role are required.' }, 400);
-    if (!['owner', 'manager', 'staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
+    if (!['owner', 'manager', 'staff', 'junior-cleaner', 'mid-cleaner', 'senior-cleaner'].includes(role)) return json({ error: 'Invalid role.' }, 400);
 
     const invitePayload = JSON.stringify({
       email,
