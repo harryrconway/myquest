@@ -21,50 +21,97 @@ export async function onRequestPost(context) {
     const callerJwt = (request.headers.get('Authorization') || '').replace('Bearer ', '').trim();
     if (!callerJwt) return json({ error: 'Unauthorised.' }, 401);
 
-    // Verify caller is authenticated
     const userRes = await fetch(`${URL_BASE}/auth/v1/user`, {
       headers: { 'Authorization': `Bearer ${callerJwt}`, 'apikey': SVC_KEY },
     });
     if (!userRes.ok) return json({ error: 'Unauthorised.' }, 401);
     const user = await userRes.json();
 
-    // Check caller is owner
     const profileRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${user.id}&select=role`, {
       headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
     });
     if (!profileRes.ok) return json({ error: 'Could not verify account permissions (' + profileRes.status + ').' }, 500);
     const profiles = await profileRes.json();
-    if (!Array.isArray(profiles) || !profiles.length || profiles[0].role !== 'owner') return json({ error: 'Only owners can create accounts.' }, 403);
+    if (!Array.isArray(profiles) || !profiles.length || profiles[0].role !== 'owner') {
+      return json({ error: 'Only owners can create accounts.' }, 403);
+    }
 
     let body;
     try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
     const { email, name, role, cleaning_level } = body;
     if (!email || !name || !role) return json({ error: 'email, name and role are required.' }, 400);
-    if (!['owner','manager','staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
+    if (!['owner', 'manager', 'staff'].includes(role)) return json({ error: 'Invalid role.' }, 400);
 
-    // Send invite
-    const inviteRes = await fetch(`${URL_BASE}/auth/v1/invite`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        data: { name, role, cleaning_level: Number(cleaning_level) || 1 },
-        redirect_to: 'https://myquest.au/set-password.html',
-      }),
+    const invitePayload = JSON.stringify({
+      email,
+      data: { name, role, cleaning_level: Number(cleaning_level) || 1 },
+      redirect_to: 'https://myquest.au/set-password.html',
     });
+    const inviteHeaders = {
+      'Authorization': `Bearer ${SVC_KEY}`,
+      'apikey': SVC_KEY,
+      'Content-Type': 'application/json',
+    };
+
+    async function attemptInvite() {
+      return fetch(`${URL_BASE}/auth/v1/invite`, {
+        method: 'POST', headers: inviteHeaders, body: invitePayload,
+      });
+    }
+
+    let inviteRes = await attemptInvite();
+
     if (!inviteRes.ok) {
-      const err = await inviteRes.json().catch(() => ({}));
-      const raw = err.msg || err.message || err.error_description || '';
-      let msg = 'Failed to send invitation. Please try again.';
-      if (raw.toLowerCase().includes('already registered')) msg = 'A user with this email already exists.';
-      else if (raw.toLowerCase().includes('rate limit')) msg = 'Email rate limit reached. Wait a few minutes and try again.';
-      else if (raw) msg = raw;
-      return json({ error: msg }, 400);
+      const errBody = await inviteRes.json().catch(() => ({}));
+      const raw = (errBody.msg || errBody.message || errBody.error_description || '').toLowerCase();
+
+      if (raw.includes('already registered')) {
+        // The email exists in auth.users. Check whether a profiles row also exists.
+        // If no profile exists the auth user is orphaned (deleted profile but auth entry
+        // survived) — clean it up and retry the invite automatically.
+        const profCheckRes = await fetch(
+          `${URL_BASE}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}&select=id`,
+          { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
+        );
+        const existingProfiles = await profCheckRes.json().catch(() => []);
+
+        if (Array.isArray(existingProfiles) && existingProfiles.length > 0) {
+          return json({ error: 'A user with this email already has an active account.' }, 400);
+        }
+
+        // No profile — orphaned auth entry. Find the auth user by email and delete it.
+        const listRes = await fetch(
+          `${URL_BASE}/auth/v1/admin/users?filter=${encodeURIComponent(email)}&per_page=10`,
+          { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
+        );
+        if (listRes.ok) {
+          const listData = await listRes.json().catch(() => ({}));
+          const orphan = (listData.users || []).find(u => u.email === email);
+          if (orphan) {
+            await fetch(`${URL_BASE}/auth/v1/admin/users/${orphan.id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
+            });
+          }
+        }
+
+        // Retry the invite now that the orphan is cleared
+        inviteRes = await attemptInvite();
+        if (!inviteRes.ok) {
+          const retryErr = await inviteRes.json().catch(() => ({}));
+          return json({ error: retryErr.msg || retryErr.message || 'Failed to send invitation after cleanup. Please try again.' }, 400);
+        }
+
+      } else {
+        let msg = 'Failed to send invitation. Please try again.';
+        if (raw.includes('rate limit')) msg = 'Email rate limit reached. Wait a few minutes and try again.';
+        else if (errBody.msg || errBody.message) msg = errBody.msg || errBody.message;
+        return json({ error: msg }, 400);
+      }
     }
 
     // Upsert the profile row — the invite creates an auth.users entry but there is no
     // database trigger to create a profiles row, so we must INSERT it here.
-    // Using resolution=merge-duplicates so it also works if a row already exists.
     const invited = await inviteRes.json().catch(() => ({}));
     if (invited.id) {
       await fetch(`${URL_BASE}/rest/v1/profiles`, {
