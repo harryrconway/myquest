@@ -77,7 +77,7 @@ export async function onRequestPost(context) {
       }).catch(() => {});
     }
 
-    return json({ success: true, message: 'Invitation sent to ' + email });
+    return json({ success: true, id: invited.id || null, message: 'Invitation sent to ' + email });
   } catch (e) {
     return json({ error: 'Internal error: ' + (e.message || String(e)) }, 500);
   }

@@ -351,6 +351,10 @@
         }
         if (result.id) {
           var colour = pickStaffColour();
+          MQ.store.accounts.save({
+            id: result.id, name: name, email: email,
+            role: role, cleaningLevel: level || 1, status: 'invited',
+          });
           MQ.store.staff.save({
             id: result.id, name: name, email: email, phone: '',
             role: role, level: level || 1, startDate: '', active: true, colour: colour,
