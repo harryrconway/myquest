@@ -306,22 +306,6 @@
     });
   }
 
-  /* ---- Page transitions ------------------------------------ */
-  function initPageTransitions() {
-    document.querySelectorAll('.dash-sidebar__nav a[href]').forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        var href = this.getAttribute('href');
-        if (!href || href.charAt(0) === '#') return;
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        e.preventDefault();
-        var content = document.querySelector('.dash-content');
-        if (!content) { window.location.href = href; return; }
-        content.classList.add('is-leaving');
-        setTimeout(function () { window.location.href = href; }, 210);
-      });
-    });
-  }
-
   /* ---- DOMContentLoaded init ------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
     initModalTriggers();
@@ -329,7 +313,6 @@
     initMobileSidebar();
     initTabs();
     initLogoLink();
-    initPageTransitions();
   });
 
   /* ---- Save overlay ---------------------------------------- */

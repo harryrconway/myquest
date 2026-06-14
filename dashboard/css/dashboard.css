@@ -215,14 +215,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.dash-content.is-leaving {
-  animation: dashLeave 0.21s ease forwards;
-}
-
-@keyframes dashLeave {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-10px); }
-}
 
 /* ---- Page Header ------------------------------------------ */
 .page-header {
