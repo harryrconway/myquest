@@ -183,10 +183,9 @@
               (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
               (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +
               (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
-              cleanerHtml +
             '</div>' +
-            (sideInfoHtml ? '<div class="job-card__side-info">' + sideInfoHtml + '</div>' : '') +
           '</div>' +
+          ((sideInfoHtml || cleanerHtml) ? '<div class="job-card__meta-row">' + sideInfoHtml + cleanerHtml + '</div>' : '') +
           '<div class="job-card__btn-row">' +
             '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">' + eyeIcon   + 'View</button>'     +
             '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">' + editIcon  + 'Edit</button>'     +

@@ -3615,12 +3615,22 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   border: 1px solid #e9dcc9;
 }
 
+/* Meta row — property pills + cleaner chips between content and buttons */
+.job-card__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(0,0,0,0.07);
+}
+
 /* Cleaner row on job cards */
 .job-card__cleaner {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 8px;
   flex-wrap: wrap;
 }
 .job-card__cleaner > svg { color: #94a3b8; flex-shrink: 0; }
@@ -3628,8 +3638,8 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .job-card__cleaner-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
   color: #fff;
@@ -3655,20 +3665,18 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   gap: 4px;
 }
 .job-card__side-pill {
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
   font-weight: 600;
   color: #2d6a4f;
   background: #e8f5ed;
-  border: 1px solid #b7dfc5;
-  border-radius: 9999px;
-  padding: 2px 8px;
+  border: 1.5px solid #b7dfc5;
+  border-radius: 8px;
+  padding: 4px 10px;
   white-space: nowrap;
-  line-height: 1.5;
-}
-.job-card__side-pill--checklist {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  line-height: 1.4;
 }
 .job-card__side-pill--done {
   background: #d8edd9;
