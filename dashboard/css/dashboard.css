@@ -4942,3 +4942,45 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 .cf-past-result__name { font-size: 13px; font-weight: 600; color: #1e293b; }
 .cf-past-result__meta { font-size: 12px; color: #64748b; margin-top: 2px; }
 .cf-past-result__inv  { display: inline-block; font-size: 10px; font-weight: 700; color: #065f46; background: #d1fae5; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+
+/* ─── Mobile — global card tightening (all pages) ──────────── */
+@media (max-width: 599px) {
+  .dash-card__header { padding: 14px 16px; }
+  .dash-card__body   { padding: 16px; }
+  .mb-8 { margin-bottom: var(--space-5); }
+}
+
+/* ─── Settings page — mobile ────────────────────────────────── */
+@media (max-width: 599px) {
+  /* Team card header: stack Add button under the title */
+  .settings-team-header { flex-direction: column !important; align-items: flex-start !important; }
+  #team-add-btn { width: 100%; margin-top: 4px; }
+
+  /* Inline-styled section headers and bodies (Checklist, Danger Zone) */
+  .settings-section-head { padding: 14px 16px !important; }
+  .settings-section-body { padding: 16px !important; }
+
+  /* Team member form: action buttons stack vertically */
+  .settings-team-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  .settings-team-actions > div {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .settings-team-actions .btn-outline,
+  .settings-team-actions .btn-primary { width: 100%; justify-content: center; }
+
+  /* Danger zone: stack description and button */
+  .settings-danger-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+  #btn-clear { width: 100%; text-align: center; }
+
+  /* Add Team Member modal: bottom-sheet on mobile (override inline align) */
+  #modal-add-team-member { align-items: flex-end !important; padding-top: 0 !important; }
+  #modal-add-team-member .modal-card { border-radius: 20px 20px 0 0; }
+
+  /* Smooth scroll inside modals on iOS */
+  .modal-card { -webkit-overflow-scrolling: touch; }
+}

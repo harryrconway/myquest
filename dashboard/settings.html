@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260611b">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260628">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260629">
   <script src="js/supabase.js?v=20260621"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260621"></script>
@@ -59,8 +59,8 @@
 
       <!-- Team -->
       <div class="dash-card mb-8" style="border-radius:20px;border:1px solid #eaedf0;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 6px 24px rgba(0,0,0,0.06);overflow:visible;">
-        <div class="dash-card__header" style="padding:20px 24px;border-bottom:1px solid #f1f5f9;">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;width:100%;">
+        <div class="dash-card__header" style="border-bottom:1px solid #f1f5f9;">
+          <div class="settings-team-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;width:100%;">
             <div style="display:flex;flex-direction:column;gap:2px;">
               <span style="font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Team</span>
               <span style="font-size:13px;color:#94a3b8;font-weight:500;">Your team — profiles, roles and account management</span>
@@ -147,7 +147,7 @@
                 <p style="font-size:13px;color:#94a3b8;">Select a team member to view their documents.</p>
               </div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid #f1f5f9;margin-top:16px;">
+            <div class="settings-team-actions" style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid #f1f5f9;margin-top:16px;">
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button class="btn-outline" id="team-reset-pwd-btn" style="font-size:13px;">Reset Password</button>
                 <button class="btn-outline" id="team-delete-btn" style="font-size:13px;color:#dc2626;border-color:#fecaca;">Delete Account</button>
@@ -160,7 +160,7 @@
 
       <!-- Quote Rates -->
       <div class="dash-card mb-8">
-        <div class="dash-card__header" style="padding:20px 24px;border-bottom:1px solid #f1f5f9;">
+        <div class="dash-card__header" style="border-bottom:1px solid #f1f5f9;">
           <span style="font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Quote Rates</span>
         </div>
         <div class="dash-card__body">
@@ -237,7 +237,7 @@
 
       <!-- Checklist Template -->
       <div style="border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 6px 24px rgba(0,0,0,0.04);overflow:hidden;">
-        <div style="padding:20px 24px;background:linear-gradient(135deg,#f0fdf4 0%,#fff 100%);border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;">
+        <div class="settings-section-head" style="padding:20px 24px;background:linear-gradient(135deg,#f0fdf4 0%,#fff 100%);border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;">
           <div style="width:36px;height:36px;border-radius:10px;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
@@ -246,7 +246,7 @@
             <p style="font-size:12.5px;color:#64748b;font-weight:500;margin-top:2px;">Default checklist applied when a job is scheduled</p>
           </div>
         </div>
-        <div style="padding:20px 24px;">
+        <div class="settings-section-body" style="padding:20px 24px;">
           <ul class="checklist-template-list" id="checklist-template-list" style="margin:0 0 12px;"></ul>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn-add-checklist-item" id="btn-add-checklist-item" type="button">
@@ -260,7 +260,7 @@
 
       <!-- Danger Zone -->
       <div style="border-radius:20px;border:1.5px solid #fecaca;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 6px 24px rgba(239,68,68,0.06);overflow:hidden;">
-        <div style="padding:20px 24px;background:linear-gradient(135deg,#fff5f5 0%,#fff 100%);border-bottom:1px solid #fecaca;display:flex;align-items:center;gap:12px;">
+        <div class="settings-section-head" style="padding:20px 24px;background:linear-gradient(135deg,#fff5f5 0%,#fff 100%);border-bottom:1px solid #fecaca;display:flex;align-items:center;gap:12px;">
           <div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
@@ -269,7 +269,7 @@
             <p style="font-size:12.5px;color:#f87171;font-weight:500;margin-top:2px;">These actions are permanent and cannot be undone</p>
           </div>
         </div>
-        <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div class="settings-section-body settings-danger-row" style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
           <div>
             <p style="font-size:14px;font-weight:700;color:#1e293b;">Data Management</p>
             <p style="font-size:12.5px;color:#94a3b8;margin-top:2px;">Selectively clear jobs, staff, or rates — or wipe everything at once</p>
