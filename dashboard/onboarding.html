@@ -232,7 +232,12 @@
     .btn-skip:hover { color: #64748b; }
 
     /* Success */
-    .ob-success { padding: 52px 36px; text-align: center; }
+    .ob-success {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      text-align: center; padding: 32px 24px;
+    }
     .ob-success__icon {
       width: 80px; height: 80px;
       background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -254,7 +259,6 @@
       .ob-body    { padding: 22px 24px; }
       .ob-footer  { padding: 14px 24px 22px; }
       .ob-admin-bar { padding: 10px 24px 14px; }
-      .ob-success { padding: 40px 24px; }
       .ob-title   { font-size: 21px; }
     }
     @media (max-width: 480px) {
@@ -295,13 +299,14 @@
       <!-- Steps rendered by JS -->
     </div>
 
-    <div id="ob-success" class="ob-success" hidden>
-      <div class="ob-success__icon">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <h2 style="font-size:23px;font-weight:800;color:#0f172a;margin-bottom:8px;">You're all set!</h2>
-      <p style="font-size:14.5px;color:#64748b;line-height:1.6;max-width:320px;margin:0 auto;">Your profile is complete. Taking you to the dashboard…</p>
+  </div>
+
+  <div id="ob-success" class="ob-success" hidden>
+    <div class="ob-success__icon">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
+    <h2 style="font-size:23px;font-weight:800;color:#0f172a;margin-bottom:8px;">You're all set!</h2>
+    <p style="font-size:14.5px;color:#64748b;line-height:1.6;max-width:320px;margin:0 auto;">Your profile is complete. Taking you to the dashboard…</p>
   </div>
 
   <script src="js/onboarding.js?v=20260614" defer></script>
