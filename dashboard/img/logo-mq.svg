@@ -1,12 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 0 110 125">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" fill="none">
   <defs>
     <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <path d="M20 90 C20 40 60 10 100 10 C100 10 100 70 60 100 C40 115 20 110 20 90 Z"
-        fill="white" filter="url(#glow)"/>
-  <path d="M100 10 C100 10 110 80 70 110"
-        stroke="white" stroke-width="7.5" stroke-linecap="round" fill="none" filter="url(#glow)"/>
+  <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z"
+        fill="#52b788" filter="url(#glow)"/>
+  <path d="M20 2 C20 2 22 16 14 22"
+        stroke="#52b788" stroke-width="1.5" stroke-linecap="round" fill="none" filter="url(#glow)"/>
+  <text x="28" y="25"
+        font-family="'Plus Jakarta Sans', system-ui, sans-serif"
+        font-weight="700" font-size="18" fill="white">MyQuest</text>
 </svg>
