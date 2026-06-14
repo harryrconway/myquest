@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var TOTAL_STEPS   = 6;
+  var TOTAL_STEPS   = 5;
   var ALLOWED_EXTS  = ['pdf', 'jpg', 'jpeg', 'png'];
   var MAX_FILE_BYTES = 5 * 1024 * 1024;
 
@@ -137,7 +137,6 @@
     { title: 'Personal details',  subtitle: 'Tell us a bit about yourself.',              render: renderS1, collect: collectS1, validate: validateS1 },
     { title: 'Address',           subtitle: 'Where are you currently living?',            render: renderS2, collect: collectS2, validate: validateS2 },
     { title: 'Emergency contact', subtitle: 'Who should we contact in an emergency?',     render: renderS3, collect: collectS3, validate: validateS3 },
-    { title: 'Profile photo',     subtitle: 'Add a photo so your team can recognise you.',render: renderS5, collect: function(){}, validate: function(){ return null; } },
     { title: 'Documents',         subtitle: 'Upload your compliance documents.',          render: renderS6, collect: function(){}, validate: validateS6 },
     { title: 'Agreements',        subtitle: 'Please review and agree to the following.',  render: renderS7, collect: collectS7, validate: validateS7 },
   ];
@@ -417,7 +416,7 @@
 
     var backBtn   = n > 1 ? '<button type="button" class="btn-outline" id="ob-back">Back</button>' : '<span></span>';
     var nextLabel = n < TOTAL_STEPS ? 'Continue' : 'Complete setup';
-    var skipNote  = n === 4 ? '<button type="button" class="btn-skip" id="ob-skip-photo">Skip for now</button>' : '';
+    var skipNote  = '';
     var adminBar  = isAdmin()
       ? '<div class="ob-admin-bar"><span class="ob-admin-label">&#9889; Dev / Testing</span><button type="button" class="ob-admin-skip" id="ob-admin-fwd">Skip step</button></div>'
       : '';
@@ -444,15 +443,11 @@
     ].join('');
 
     if (n === 1) wireDOB();
-    if (n === 4) wireS5();
-    if (n === 5) wireS6();
-    if (n === 6) wireS7();
+    if (n === 4) wireS6();
+    if (n === 5) wireS7();
 
     var backEl = document.getElementById('ob-back');
     if (backEl) backEl.addEventListener('click', function () { showStep(n - 1); });
-
-    var skipPhoto = document.getElementById('ob-skip-photo');
-    if (skipPhoto) skipPhoto.addEventListener('click', function () { showStep(n + 1); });
 
     var adminSkip = document.getElementById('ob-admin-fwd');
     if (adminSkip) adminSkip.addEventListener('click', function () {

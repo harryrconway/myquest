@@ -139,6 +139,12 @@
     if (cached && cached.role) {
       MQ.session = cached;
       MQ.hasRole = function (minRole) { return roleLevel(cached.role) >= roleLevel(minRole); };
+      // Populate sidebar immediately from cache so name/avatar never flash blank on navigation
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { populateUserInfo(cached); }, { once: true });
+      } else {
+        populateUserInfo(cached);
+      }
       var fastCheck = await sb.auth.getSession();
       if (fastCheck.data && fastCheck.data.session) {
         var _fastResults = await Promise.all([

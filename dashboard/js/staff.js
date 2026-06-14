@@ -98,6 +98,8 @@
 
         '<div class="staff-row__actions">' +
           '<button class="btn-outline" style="padding:0.375rem 0.75rem;font-size:0.75rem;white-space:nowrap;" ' +
+            'onclick="StaffPage.viewProfile(\'' + s.id + '\')">View</button>' +
+          '<button class="btn-outline" style="padding:0.375rem 0.75rem;font-size:0.75rem;white-space:nowrap;" ' +
             'onclick="StaffPage.toggleActive(\'' + s.id + '\')">' + toggleLabel + '</button>' +
           (isOwner
             ? '<button class="btn-icon btn-icon--danger" onclick="StaffPage.remove(\'' + s.id + '\')" title="Delete">' + ICON_DELETE + '</button>'
@@ -268,6 +270,90 @@
     });
   }
 
+  async function viewProfile(id) {
+    var overlay = document.getElementById('modal-staff-profile');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.id = 'modal-staff-profile';
+      overlay.setAttribute('hidden', '');
+      overlay.innerHTML = '<div class="modal-card" style="max-width:520px;" id="modal-staff-profile-card"></div>';
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) MQ.ui.modal.close('modal-staff-profile');
+      });
+    }
+    var card = document.getElementById('modal-staff-profile-card');
+    card.innerHTML = [
+      '<div class="modal-header">',
+        '<h2 class="modal-title">Staff Profile</h2>',
+        '<button class="modal-close" data-modal-close="modal-staff-profile" aria-label="Close">',
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+        '</button>',
+      '</div>',
+      '<div class="modal-body" id="modal-staff-profile-body" style="padding:24px;">',
+        '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px;">Loading…</div>',
+      '</div>',
+    ].join('');
+    MQ.ui.modal.open('modal-staff-profile');
+
+    try {
+      var r = await MQ.supabase.from('profiles').select('*').eq('id', id).limit(1);
+      var p = r.data && r.data[0];
+      if (!p) throw new Error('Not found');
+      var body = document.getElementById('modal-staff-profile-body');
+      if (!body) return;
+
+      function row(label, value) {
+        if (!value) return '';
+        return '<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">' +
+          '<span style="font-size:11.5px;font-weight:600;color:#94a3b8;min-width:130px;text-transform:uppercase;letter-spacing:0.05em;padding-top:2px;flex-shrink:0;">' + label + '</span>' +
+          '<span style="font-size:14px;color:#0f172a;flex:1;">' + esc(String(value)) + '</span>' +
+        '</div>';
+      }
+      function section(title) {
+        return '<p style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin:20px 0 4px;">' + title + '</p>';
+      }
+
+      var staffRec = MQ.store.staff.getById(id);
+      var colour   = (staffRec && staffRec.colour) || '';
+      var name     = p.name || '—';
+      var address  = p.residential_address || [p.address, p.suburb, p.state, p.postcode].filter(Boolean).join(', ');
+
+      body.innerHTML = [
+        '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">',
+          '<div style="width:56px;height:56px;border-radius:16px;' + (colour ? 'background:' + colour : 'background:linear-gradient(135deg,#0f172a,#334155)') + ';display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;">' + esc(name.charAt(0).toUpperCase()) + '</div>',
+          '<div>',
+            '<div style="font-size:17px;font-weight:700;color:#0f172a;margin-bottom:5px;">' + esc(name) + '</div>',
+            roleBadge(p.role),
+          '</div>',
+        '</div>',
+
+        section('Contact'),
+        row('Email',         p.email),
+        row('Mobile',        p.mobile || p.phone),
+        row('Date of Birth', p.date_of_birth ? MQ.ui.formatDate(p.date_of_birth) : ''),
+        row('Address',       address),
+
+        (p.emergency_contact_name || p.emergency_contact_number) ? [
+          section('Emergency Contact'),
+          row('Name',         p.emergency_contact_name),
+          row('Phone',        p.emergency_contact_number),
+          row('Relationship', p.emergency_relation),
+        ].join('') : '',
+
+        section('Employment'),
+        row('Role',       p.role ? p.role.charAt(0).toUpperCase() + p.role.slice(1) : ''),
+        row('Start Date', p.start_date ? MQ.ui.formatDate(p.start_date) : ''),
+        row('Status',     p.status ? p.status.charAt(0).toUpperCase() + p.status.slice(1) : ''),
+        row('Onboarding', p.onboarding_complete ? 'Complete' : 'Pending'),
+      ].join('');
+    } catch (e) {
+      var body = document.getElementById('modal-staff-profile-body');
+      if (body) body.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:14px;">Failed to load profile. Please try again.</div>';
+    }
+  }
+
   function remove(id) {
     if (!MQ.hasRole('manager')) { MQ.ui.toast('Only managers and owners can delete', 'error'); return; }
     MQ.ui.confirmDelete('Delete this staff member? This cannot be undone.', function () {
@@ -338,5 +424,5 @@
 
   document.addEventListener('mq:pageshow', function () { renderList(); });
 
-  window.StaffPage = { remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount };
+  window.StaffPage = { remove: remove, toggleActive: toggleActive, addFromAccount: addFromAccount, viewProfile: viewProfile };
 })();
