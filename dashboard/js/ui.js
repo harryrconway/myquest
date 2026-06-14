@@ -321,9 +321,8 @@
     el.className = 'mq-save-overlay';
     el.id        = 'mq-save-overlay';
     el.innerHTML =
-      '<div class="mq-save-card">' +
-        '<div class="mq-spinner-ring"></div>' +
-        '<span class="mq-save-text">Saving</span>' +
+      '<div class="mq-save-logo-wrap">' +
+        '<img class="mq-save-logo" src="img/logo-mq.svg" width="88" height="88" alt="">' +
       '</div>';
     document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(el); });
     return el;
