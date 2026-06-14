@@ -163,18 +163,8 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     var html = buildStep(currentStep);
     body.innerHTML = html;
 
-    // Step 0 fits without scrolling; steps 1-3 may need to scroll
-    if (currentStep === 0) {
-      body.style.overflowY = '';
-      body.style.webkitOverflowScrolling = '';
-      body.scrollTop = 0;
-    } else {
-      body.style.overflowY = 'auto';
-      body.style.webkitOverflowScrolling = 'touch';
-      // Set after overflow is enabled so the reset actually takes effect
-      body.scrollTop = 0;
-      requestAnimationFrame(function () { body.scrollTop = 0; });
-    }
+    body.style.overflowY = (currentStep === 0) ? '' : 'auto';
+    body.style.webkitOverflowScrolling = (currentStep === 0) ? '' : 'touch';
 
     // Slide animation
     var stepEl = body.querySelector('.qm-step');
@@ -200,6 +190,14 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
       var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
       if (firstInput) firstInput.focus();
     }
+
+    // Scroll reset after all DOM work and focus — double rAF ensures it lands after
+    // any browser-initiated scroll-to-focused-element on iOS/Safari
+    body.scrollTop = 0;
+    requestAnimationFrame(function () {
+      body.scrollTop = 0;
+      requestAnimationFrame(function () { body.scrollTop = 0; });
+    });
   }
 
   function buildStep(n) {
