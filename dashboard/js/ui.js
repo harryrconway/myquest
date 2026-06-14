@@ -320,11 +320,7 @@
     var el = document.createElement('div');
     el.className = 'mq-save-overlay';
     el.id        = 'mq-save-overlay';
-    el.innerHTML =
-      '<div class="mq-save-logo-wrap">' +
-        '<img class="mq-save-logo" src="img/logo-mq.svg" width="88" height="88" alt="">' +
-      '</div>' +
-      '<p class="mq-save-text">Saving…</p>';
+    el.innerHTML = '<p class="mq-save-text">Saving…</p>';
     document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(el); });
     return el;
   }());
@@ -339,9 +335,9 @@
 
   function _completeSave() {
     var t = _saveOverlay.querySelector('.mq-save-text');
-    if (t) t.textContent = 'Saved';
+    if (t) t.textContent = 'Saved ✓';
     _saveOverlay.classList.add('is-saved');
-    setTimeout(_hideSaveOverlay, 700);
+    setTimeout(_hideSaveOverlay, 800);
   }
 
   function saving(minMs) {
