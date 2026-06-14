@@ -171,26 +171,26 @@
 
         return '<div class="job-card job-card--scheduled"' +
             (staffColour ? ' style="border-left:4px solid ' + staffColour + ';"' : '') + '>' +
-          '<div class="job-card__time">' +
-            '<span class="job-card__hour">' + escHtml(fmtTime(j.scheduled_time)) + '</span>' +
-          '</div>' +
-          '<div class="req-card__avatar req-card__avatar--blue">' + initial + '</div>' +
-          '<div class="req-card__body">' +
-            '<div class="req-card__row1">' +
-              '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
+          '<div class="job-card__main">' +
+            '<div class="job-card__time">' +
+              '<span class="job-card__hour">' + escHtml(fmtTime(j.scheduled_time)) + '</span>' +
             '</div>' +
-            (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
-            (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +
-            (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
-            cleanerHtml +
-          '</div>' +
-          '<div class="req-card__actions">' +
+            '<div class="req-card__avatar req-card__avatar--blue">' + initial + '</div>' +
+            '<div class="req-card__body">' +
+              '<div class="req-card__row1">' +
+                '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
+              '</div>' +
+              (address  ? '<div class="req-card__meta"><span>' + escHtml(address) + '</span></div>' : '') +
+              (j.phone  ? '<div class="req-card__meta" style="margin-top:1px;"><span>' + escHtml(j.phone) + '</span></div>' : '') +
+              (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
+              cleanerHtml +
+            '</div>' +
             (sideInfoHtml ? '<div class="job-card__side-info">' + sideInfoHtml + '</div>' : '') +
-            '<div class="job-card__side-btns">' +
-              '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">' + eyeIcon   + ' View</button>'     +
-              '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">' + editIcon  + ' Edit</button>'     +
-              '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">' + checkIcon + ' Complete</button>' +
-            '</div>' +
+          '</div>' +
+          '<div class="job-card__btn-row">' +
+            '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">' + eyeIcon   + 'View</button>'     +
+            '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">' + editIcon  + 'Edit</button>'     +
+            '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">' + checkIcon + 'Complete</button>' +
           '</div>' +
         '</div>';
       }).join('');

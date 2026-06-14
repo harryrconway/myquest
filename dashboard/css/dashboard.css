@@ -2375,9 +2375,12 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 
 @media (max-width: 599px) {
   .req-card,
-  .job-card--scheduled,
   .job-card--completed {
     flex-wrap: wrap;
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  .job-card--scheduled {
     padding: 14px 16px;
     gap: 10px;
   }
@@ -2388,6 +2391,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
     margin-top: 0;
   }
   .req-card > .req-card__avatar { display: none; }
+  .job-card__btn-row { grid-template-columns: 1fr; }
 }
 
 /* ---- Client Cards ----------------------------------------- */
@@ -2895,37 +2899,49 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 14px;
-  border-radius: 9999px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
   border: 1.5px solid transparent;
   font-family: inherit;
   white-space: nowrap;
+  width: 100%;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
               transform 0.15s ease, box-shadow 0.15s ease;
 }
 .action-btn:active { transform: translateY(0) !important; box-shadow: none !important; }
 
 .action-btn--view {
-  background: #f5f0ea;
-  color: #5a4a3f;
-  border-color: #e9dcc9;
+  background: #fff;
+  color: #64748b;
+  border-color: #e2e8f0;
 }
 .action-btn--view:hover {
-  background: #ede5da;
-  color: #3d2e26;
+  background: #f8fafc;
+  color: #334155;
+  border-color: #cbd5e1;
 }
 
-.action-btn--accept,
+.action-btn--accept {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+.action-btn--accept:hover {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #93c5fd;
+}
+
 .action-btn--complete {
   background: #2d6a4f;
   color: #fff;
   border-color: transparent;
 }
-.action-btn--accept:hover,
 .action-btn--complete:hover {
   background: #1e5236;
   transform: translateY(-1px);
@@ -2942,7 +2958,7 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 }
 
 /* Icon alignment inside action buttons */
-.action-btn svg { vertical-align: middle; margin-top: -2px; flex-shrink: 0; }
+.action-btn svg { flex-shrink: 0; }
 
 .action-btn--archive {
   background: transparent;
@@ -3708,6 +3724,27 @@ a.client-card__contact-line:hover svg { color: #3d8c5a; }
 }
 
 .job-card--completed { background: #f4f9f5; border-left-color: #2d6a4f; opacity: 1; }
+
+.job-card--scheduled {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.job-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+}
+
+.job-card__btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,0.07);
+}
 
 .job-card--scheduled:hover,
 .job-card--completed:hover {
