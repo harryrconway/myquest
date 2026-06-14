@@ -140,6 +140,24 @@
               <label class="form-label" style="margin-bottom:8px;">Colour</label>
               <div id="team-colour-swatches" class="colour-swatches"></div>
             </div>
+            <!-- Emergency contact — read-only, populated from Supabase -->
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
+              <p style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Emergency Contact</p>
+              <div class="form-grid form-grid--2" style="margin-bottom:12px;">
+                <div class="form-group">
+                  <label class="form-label" for="team-ec-name">Name</label>
+                  <input type="text" id="team-ec-name" class="form-input" readonly style="background:#f8fafc;color:#64748b;cursor:default;" placeholder="—">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="team-ec-phone">Phone</label>
+                  <input type="tel" id="team-ec-phone" class="form-input" readonly style="background:#f8fafc;color:#64748b;cursor:default;" placeholder="—">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="team-ec-rel">Relationship</label>
+                <input type="text" id="team-ec-rel" class="form-input" readonly style="background:#f8fafc;color:#64748b;cursor:default;" placeholder="—">
+              </div>
+            </div>
             <!-- Documents section — owner only -->
             <div id="team-docs-section" data-min-role="owner" style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
               <p style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Documents</p>
@@ -462,7 +480,7 @@
   </style>
 
   <script src="js/ui.js?v=20260638" defer></script>
-  <script src="js/settings.js?v=20260636" defer></script>
+  <script src="js/settings.js?v=20260641" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
