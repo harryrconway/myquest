@@ -181,6 +181,9 @@
 
   function fireReady() {
     MQ._ready = true;
+    var q = MQ._readyQueue || [];
+    MQ._readyQueue = [];
+    q.forEach(function (fn) { setTimeout(fn, 0); });
     var _orig = document.addEventListener.bind(document);
     document.addEventListener = function (type, fn, opts) {
       if (type === 'mq:ready' && MQ._ready) { setTimeout(fn, 0); return; }
@@ -188,6 +191,12 @@
     };
     document.dispatchEvent(new CustomEvent('mq:ready'));
   }
+
+  MQ._readyQueue = [];
+  MQ.onReady = function (fn) {
+    if (MQ._ready) { setTimeout(fn, 0); return; }
+    MQ._readyQueue.push(fn);
+  };
 
   init();
 

@@ -599,11 +599,6 @@
     showStep(1);
   }
 
-  document.addEventListener('mq:ready', doInit);
-
-  // Safari fallback: mq:ready fires before deferred scripts can register listeners
-  document.addEventListener('DOMContentLoaded', function () {
-    if (window.MQ && MQ._ready) doInit();
-  });
+  MQ.onReady(doInit);
 
 })();
