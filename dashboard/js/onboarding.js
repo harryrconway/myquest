@@ -575,7 +575,11 @@
 
   /* ── init ────────────────────────────────────────────────── */
 
-  document.addEventListener('mq:ready', async function () {
+  var _inited = false;
+  async function doInit() {
+    if (_inited) return;
+    _inited = true;
+
     var sb = window.MQ && MQ.supabase;
     if (!sb) { window.location.href = '../login.html'; return; }
 
@@ -593,6 +597,13 @@
     }
 
     showStep(1);
+  }
+
+  document.addEventListener('mq:ready', doInit);
+
+  // Safari fallback: mq:ready fires before deferred scripts can register listeners
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.MQ && MQ._ready) doInit();
   });
 
 })();
