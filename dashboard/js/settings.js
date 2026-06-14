@@ -504,8 +504,8 @@
 
     renderAvatarGrid();
 
-    // Sync any Supabase accounts not yet in localStorage so the Team card
-    // shows all members on every device, not just the device where they were added
+    // Sync profiles from Supabase into the in-memory store so the Team card
+    // reflects the latest database state (auth.js also does this on every page load)
     MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, colour, status, mobile, start_date').then(function (r) {
       if (!r.data) return;
       var changed = false;
@@ -575,7 +575,7 @@
     result.data.forEach(function (row) {
       if (row.key === 'rates' && row.value && typeof row.value === 'object') {
         var current = MQ.store.rates.get();
-        // Merge top-level keys from Supabase into localStorage defaults
+        // Merge top-level keys from Supabase into in-memory rate defaults
         Object.assign(current, row.value);
         MQ.store.rates.save(current);
       }
@@ -669,10 +669,10 @@
   }
 
   function clearStaff() {
-    if (!window.confirm('Delete all locally stored staff records? This cannot be undone.')) return;
+    if (!window.confirm('Clear staff from this page session? They will reload from the database on next page load.')) return;
     closeOptionsModal();
     MQ.store.staff.clear();
-    MQ.ui.toast('Staff records deleted', 'info');
+    MQ.ui.toast('Staff cleared from session', 'info');
   }
 
   function resetRates() {
@@ -708,11 +708,8 @@
       // Delete all Supabase job records via server-side API
       await callClearApi('all');
 
-      // Clear all local data except auth session
-      var SESSION_KEYS = ['mq_session', 'mq_permissions'];
-      Object.keys(localStorage).forEach(function (k) {
-        if (SESSION_KEYS.indexOf(k) === -1) localStorage.removeItem(k);
-      });
+      // Reset all in-memory stores (data re-syncs from Supabase on next page load)
+      MQ.store.clearAll();
 
       MQ.ui.modal.close('modal-delete-all-confirm');
       MQ.ui.toast('All data deleted', 'info');
