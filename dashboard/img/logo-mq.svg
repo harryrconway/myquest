@@ -6,25 +6,25 @@
     </filter>
   </defs>
 
-  <!-- M — bold, elegant, sage green -->
+  <!-- M — rich emerald -->
   <path d="M 7 88 L 7 12 L 37 58 L 67 12 L 67 88"
         fill="none"
-        stroke="#52b788"
+        stroke="#10b981"
         stroke-width="10.5"
         stroke-linecap="round"
         stroke-linejoin="round"
         filter="url(#glow)"/>
 
-  <!-- Q circle — mint green, left edge exactly meets M's right leg -->
+  <!-- Q circle — brighter emerald, left edge meets M's right leg -->
   <circle cx="97" cy="48" r="30"
           fill="none"
-          stroke="#95d5b2"
+          stroke="#34d399"
           stroke-width="9.5"
           filter="url(#glow)"/>
 
   <!-- Q tail — diagonal, bottom-right -->
   <line x1="118" y1="69" x2="127" y2="82"
-        stroke="#95d5b2"
+        stroke="#34d399"
         stroke-width="9.5"
         stroke-linecap="round"
         filter="url(#glow)"/>
