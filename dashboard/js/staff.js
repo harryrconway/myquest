@@ -143,9 +143,16 @@
   }
 
   async function openAddModal() {
-    // On-demand fetch if store not yet populated (mobile/iPad timing)
-    if (!MQ.store.accounts.getAll().length) {
-      try {
+    var list = document.getElementById('staff-account-list');
+    if (!list) return;
+
+    // Open modal immediately so mobile gets instant visual feedback
+    list.innerHTML = '<div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:14px;">Loading…</div>';
+    MQ.ui.modal.open('modal-add-staff');
+
+    try {
+      // Fetch accounts if store not yet populated
+      if (!MQ.store.accounts.getAll().length) {
         var r = await MQ.supabase.from('profiles').select('id, name, email, role, cleaning_level, status');
         (r.data || []).forEach(function (p) {
           MQ.store.accounts.save({
@@ -157,49 +164,46 @@
             status:        p.status === 'suspended' ? 'suspended' : 'active',
           });
         });
-      } catch (e) {}
+      }
+
+      var available = getAvailableAccounts();
+
+      if (!available.length) {
+        list.innerHTML = '<div style="text-align:center;padding:20px 16px;">' +
+          '<div style="font-size:32px;margin-bottom:12px;">👤</div>' +
+          '<p style="font-size:14px;font-weight:600;color:#0f172a;margin:0 0 6px;">No accounts available</p>' +
+          '<p style="font-size:13px;color:#64748b;margin:0 0 16px;">Create a staff account in Settings first, then come back here to add them to the team.</p>' +
+          '<a href="settings.html" style="display:inline-block;background:#2d6a4f;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
+          '</div>';
+        return;
+      }
+
+      var ROLE_COLOR = { owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8', staff: 'background:#f1f5f9;color:#475569' };
+
+      list.innerHTML = available.map(function (acc) {
+        var initial   = (acc.name || acc.email).charAt(0).toUpperCase();
+        var levelName = LEVEL_NAMES[parseInt(acc.cleaningLevel)] || '';
+        var roleStyle = ROLE_COLOR[acc.role] || ROLE_COLOR.staff;
+        return '<button type="button" onclick="StaffPage.addFromAccount(\'' + acc.id + '\')" style="' +
+          'display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;' +
+          'background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;cursor:pointer;' +
+          'font-family:inherit;text-align:left;transition:border-color 0.15s,background 0.15s;">' +
+          '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#0f172a,#334155);' +
+          'display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;">' +
+          esc(initial) + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px;">' + esc(acc.name || acc.email) + '</div>' +
+            '<div style="font-size:12px;color:#94a3b8;">' + esc(acc.email) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">' +
+            '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;' + roleStyle + ';">' + esc(acc.role) + '</span>' +
+            (levelName ? '<span style="font-size:11px;color:#94a3b8;font-weight:500;">' + esc(levelName) + '</span>' : '') +
+          '</div>' +
+          '</button>';
+      }).join('');
+    } catch (e) {
+      list.innerHTML = '<div style="text-align:center;padding:20px 16px;color:#ef4444;font-size:14px;">Failed to load accounts. Please try again.</div>';
     }
-    var available = getAvailableAccounts();
-    var list = document.getElementById('staff-account-list');
-
-    if (!available.length) {
-      list.innerHTML = '<div style="text-align:center;padding:20px 16px;">' +
-        '<div style="font-size:32px;margin-bottom:12px;">👤</div>' +
-        '<p style="font-size:14px;font-weight:600;color:#0f172a;margin:0 0 6px;">No accounts available</p>' +
-        '<p style="font-size:13px;color:#64748b;margin:0 0 16px;">Create a staff account in Settings first, then come back here to add them to the team.</p>' +
-        '<a href="settings.html" style="display:inline-block;background:#2d6a4f;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
-        '</div>';
-      MQ.ui.modal.open('modal-add-staff');
-      return;
-    }
-
-    var ROLE_COLOR = { owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8', staff: 'background:#f1f5f9;color:#475569' };
-
-    list.innerHTML = available.map(function (acc) {
-      var initial   = (acc.name || acc.email).charAt(0).toUpperCase();
-      var levelName = LEVEL_NAMES[parseInt(acc.cleaningLevel)] || '';
-      var roleStyle = ROLE_COLOR[acc.role] || ROLE_COLOR.staff;
-      return '<button type="button" onclick="StaffPage.addFromAccount(\'' + acc.id + '\')" style="' +
-        'display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;' +
-        'background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;cursor:pointer;' +
-        'font-family:inherit;text-align:left;transition:border-color 0.15s,background 0.15s;" ' +
-        'onmouseover="this.style.borderColor=\'#0f172a\';this.style.background=\'#fff\'" ' +
-        'onmouseout="this.style.borderColor=\'#e2e8f0\';this.style.background=\'#f8fafc\'">' +
-        '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#0f172a,#334155);' +
-        'display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;">' +
-        esc(initial) + '</div>' +
-        '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px;">' + esc(acc.name || acc.email) + '</div>' +
-          '<div style="font-size:12px;color:#94a3b8;">' + esc(acc.email) + '</div>' +
-        '</div>' +
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">' +
-          '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;' + roleStyle + ';">' + esc(acc.role) + '</span>' +
-          (levelName ? '<span style="font-size:11px;color:#94a3b8;font-weight:500;">' + esc(levelName) + '</span>' : '') +
-        '</div>' +
-        '</button>';
-    }).join('');
-
-    MQ.ui.modal.open('modal-add-staff');
   }
 
   function addFromAccount(accountId) {
