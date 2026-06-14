@@ -469,10 +469,11 @@
       if (ecRel)   ecRel.value   = '';
       MQ.supabase
         .from('profiles')
-        .select('police_check_url, drivers_licence_url, right_to_work_url, onboarding_complete, emergency_contact_name, emergency_contact_number, emergency_relation')
+        .select('*')
         .eq('id', staffId)
         .limit(1)
         .then(function (r) {
+          if (r.error) { listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">Documents unavailable.</p>'; return; }
           var p = (r.data && r.data[0]) || null;
           if (!p) { listEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">Documents unavailable.</p>'; return; }
           if (ecName)  ecName.value  = p.emergency_contact_name   || '';

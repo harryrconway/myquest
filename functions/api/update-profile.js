@@ -41,6 +41,8 @@ export async function onRequestPost(context) {
     return json({ error: 'Insufficient permissions.' }, 403);
   }
 
+  const textField = (v, max) => v !== undefined ? (String(v || '').trim().slice(0, max) || null) : undefined;
+
   const updates = {};
   // Any manager or owner can update name, phone and colour
   if (name       !== undefined) updates.name       = String(name   || '').trim().slice(0, 100) || null;
@@ -49,7 +51,6 @@ export async function onRequestPost(context) {
   if (start_date !== undefined) updates.start_date = textField(start_date, 10);
 
   // Onboarding fields (self or manager+)
-  const textField = (v, max) => v !== undefined ? (String(v || '').trim().slice(0, max) || null) : undefined;
   if (mobile                    !== undefined) updates.mobile                    = textField(mobile, 30);
   if (date_of_birth             !== undefined) updates.date_of_birth             = textField(date_of_birth, 10);
   if (residential_address       !== undefined) updates.residential_address       = textField(residential_address, 200);
