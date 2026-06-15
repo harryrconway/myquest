@@ -336,9 +336,10 @@
       formEl.addEventListener('submit', async function (e) {
         e.preventDefault();
         if (errorEl) errorEl.hidden = true;
-        var name  = document.getElementById('at-name').value.trim();
-        var email = document.getElementById('at-email').value.trim().toLowerCase();
-        var role  = document.getElementById('at-role').value;
+        var name      = document.getElementById('at-name').value.trim();
+        var email     = document.getElementById('at-email').value.trim().toLowerCase();
+        var role      = document.getElementById('at-role').value;
+        var startDate = document.getElementById('at-start').value || null;
         if (!name || !email) {
           if (errorEl) { errorEl.textContent = 'Name and email are required.'; errorEl.hidden = false; }
           return;
@@ -365,9 +366,9 @@
           });
           MQ.store.staff.save({
             id: result.id, name: name, email: email, phone: '',
-            role: role, startDate: '', active: true, colour: colour,
+            role: role, startDate: startDate || '', active: true, colour: colour,
           });
-          callApi('/api/update-profile', { userId: result.id, colour: colour }).catch(function () {});
+          callApi('/api/update-profile', { userId: result.id, colour: colour, start_date: startDate }).catch(function () {});
           renderAvatarGrid();
         }
         if (formEl) formEl.style.display = 'none';

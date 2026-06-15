@@ -302,7 +302,7 @@
             <label class="form-label" for="at-email">Email Address</label>
             <input class="form-input" type="email" id="at-email" placeholder="jane@example.com" required autocomplete="off">
           </div>
-          <div class="form-group" style="margin-bottom:20px;">
+          <div class="form-group" style="margin-bottom:14px;">
             <label class="form-label" for="at-role">Role</label>
             <div class="mq-select-wrap">
               <select id="at-role" class="mq-select">
@@ -313,6 +313,10 @@
                 <option value="owner">Owner</option>
               </select>
             </div>
+          </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label class="form-label" for="at-start">Start date</label>
+            <input class="form-input" type="date" id="at-start" style="max-width:220px;">
           </div>
           <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:16px;border-top:1px solid #f1f5f9;">
             <button type="button" class="btn-outline" data-modal-close="modal-add-team-member">Cancel</button>
@@ -447,7 +451,7 @@
   </style>
 
   <script src="js/ui.js?v=20260643" defer></script>
-  <script src="js/settings.js?v=20260648" defer></script>
+  <script src="js/settings.js?v=20260649" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
