@@ -447,7 +447,7 @@
       renderSwatches(selectedColour);
       document.getElementById('team-name').value  = s.name || '';
       document.getElementById('team-phone').value = s.mobile || s.phone || '';
-      document.getElementById('team-start').value = s.startDate || '';
+      document.getElementById('team-start').textContent = s.startDate ? new Date(s.startDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
       var acc = MQ.store.accounts.getById(id);
       document.getElementById('team-email').value = (acc && acc.email) || s.email || '';
       setRolePill(s.role);
@@ -564,12 +564,11 @@
     document.getElementById('team-save-btn').addEventListener('click', async function () {
       if (!selectedStaffId) return;
       var updates = {
-        userId:     selectedStaffId,
-        name:       document.getElementById('team-name').value.trim(),
-        mobile:     document.getElementById('team-phone').value.trim(),
-        start_date: document.getElementById('team-start').value || null,
-        colour:     selectedColour,
-        role:       document.getElementById('team-role').value,
+        userId:  selectedStaffId,
+        name:    document.getElementById('team-name').value.trim(),
+        mobile:  document.getElementById('team-phone').value.trim(),
+        colour:  selectedColour,
+        role:    document.getElementById('team-role').value,
       };
       MQ.ui.saving();
       var result = await callApi('/api/update-profile', updates);
@@ -578,11 +577,10 @@
       MQ.ui.toast('Changes saved');
       var s = MQ.store.staff.getById(selectedStaffId);
       if (s) {
-        s.name      = updates.name;
-        s.mobile    = updates.mobile;
-        s.colour    = selectedColour;
-        s.role      = updates.role;
-        s.startDate = updates.start_date || '';
+        s.name   = updates.name;
+        s.mobile = updates.mobile;
+        s.colour = selectedColour;
+        s.role   = updates.role;
         MQ.store.staff.save(s);
       }
       renderAvatarGrid();
