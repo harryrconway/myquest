@@ -10,9 +10,10 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost(context) {
-  const { request, env } = context;
+  const { request, env, waitUntil } = context;
   const SUPABASE_URL = env.SUPABASE_URL;
   const SERVICE_KEY  = env.SUPABASE_SERVICE_KEY;
+  const ANON_KEY     = env.SUPABASE_ANON_KEY || SERVICE_KEY;
   const RESEND_KEY   = env.RESEND_API_KEY;
   const ADMIN_EMAIL  = env.ADMIN_EMAIL || 'hello@myquest.au';
 
@@ -31,7 +32,7 @@ export async function onRequestPost(context) {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${SERVICE_KEY}`,
-      'apikey': SERVICE_KEY,
+      'apikey': ANON_KEY,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation',
     },
@@ -70,67 +71,95 @@ export async function onRequestPost(context) {
   const insertedRows = await insertRes.json().catch(() => []);
   const newJobId = insertedRows && insertedRows[0] ? insertedRows[0].id : null;
 
-  // Upsert client record by email (fire and forget)
+  // Upsert client record by email — registered with waitUntil so Cloudflare
+  // keeps the worker alive until it finishes (fire-and-forget without waitUntil
+  // gets killed as soon as the response is returned).
   if (newJobId && email) {
-    (async () => {
-      try {
-        const existingRes = await fetch(`${SUPABASE_URL}/rest/v1/clients?email=eq.${encodeURIComponent(email)}&select=id`, {
-          headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY },
-        });
-        const existing = await existingRes.json().catch(() => []);
-        const clientBody = {
-          full_name: full_name,
-          email: email,
-          phone: body.phone || null,
-          street_address: body.street_address || null,
-          suburb: body.suburb || null,
-          state: body.state || null,
-          postcode: body.postcode || null,
-          updated_at: new Date().toISOString(),
-        };
-        let clientId;
-        if (existing && existing[0]) {
-          clientId = existing[0].id;
-          await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-            body: JSON.stringify(clientBody),
-          });
-        } else {
-          const createRes = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-            body: JSON.stringify({ ...clientBody, created_at: new Date().toISOString() }),
-          });
-          const created = await createRes.json().catch(() => []);
-          clientId = created && created[0] ? created[0].id : null;
-        }
-        if (clientId) {
-          await fetch(`${SUPABASE_URL}/rest/v1/quote_requests?id=eq.${newJobId}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ client_id: clientId }),
-          });
-        }
-      } catch (e) { /* client upsert failure doesn't block response */ }
-    })();
+    waitUntil(upsertClient({ SUPABASE_URL, SERVICE_KEY, ANON_KEY, newJobId, body }));
   }
 
-  // Send emails (fire and forget — don't fail the response if email fails)
+  // Send emails (also fire-and-forget; non-blocking)
   if (RESEND_KEY) {
-    const suburb   = body.suburb ? body.suburb : '';
-    const services = body.services && body.services.length ? body.services.join(', ') : 'Not specified';
-    const address  = [body.street_address, body.suburb, body.state, body.postcode].filter(Boolean).join(', ');
+    waitUntil(sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, body }));
+  }
 
-    // Customer confirmation
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
-        to:      [email],
-        subject: "We've received your quote request — MyQuest",
-        html: `<!DOCTYPE html>
+  return json({ success: true }, 200);
+}
+
+async function upsertClient({ SUPABASE_URL, SERVICE_KEY, ANON_KEY, newJobId, body }) {
+  try {
+    const { full_name, email, phone } = body;
+    const existingRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/clients?email=eq.${encodeURIComponent(email)}&select=id`,
+      { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': ANON_KEY } }
+    );
+    const existing = await existingRes.json().catch(() => []);
+    const clientBody = {
+      full_name:      full_name,
+      email:          email,
+      phone:          phone || null,
+      street_address: body.street_address || null,
+      suburb:         body.suburb         || null,
+      state:          body.state          || null,
+      postcode:       body.postcode       || null,
+      updated_at:     new Date().toISOString(),
+    };
+    let clientId;
+    if (existing && existing[0]) {
+      clientId = existing[0].id;
+      await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${SERVICE_KEY}`,
+          'apikey': ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(clientBody),
+      });
+    } else {
+      const createRes = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SERVICE_KEY}`,
+          'apikey': ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({ ...clientBody, created_at: new Date().toISOString() }),
+      });
+      const created = await createRes.json().catch(() => []);
+      clientId = created && created[0] ? created[0].id : null;
+    }
+    if (clientId) {
+      await fetch(`${SUPABASE_URL}/rest/v1/quote_requests?id=eq.${newJobId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${SERVICE_KEY}`,
+          'apikey': ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ client_id: clientId }),
+      });
+    }
+  } catch (e) { /* swallow — upsert failure doesn't affect the user */ }
+}
+
+async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, body }) {
+  const suburb   = body.suburb ? body.suburb : '';
+  const services = body.services && body.services.length ? body.services.join(', ') : 'Not specified';
+  const address  = [body.street_address, body.suburb, body.state, body.postcode].filter(Boolean).join(', ');
+
+  // Customer confirmation
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from:    'MyQuest <hello@myquest.au>',
+      to:      [email],
+      subject: "We've received your quote request — MyQuest",
+      html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <div style="background:#2d6a4f;padding:28px 36px;">
@@ -157,39 +186,36 @@ export async function onRequestPost(context) {
   </div>
 </div>
 </body></html>`,
-      }),
-    }).catch(() => {});
+    }),
+  }).catch(() => {});
 
-    // Admin notification
-    const rows = [
-      row('Name', full_name, false),
-      row('Phone', `<a href="tel:${phone}" style="color:#2d6a4f;">${phone}</a>`, true),
-      row('Email', `<a href="mailto:${email}" style="color:#2d6a4f;">${email}</a>`, false),
-      body.preferred_contact ? row('Preferred contact', body.preferred_contact, true)  : '',
-      address                ? row('Address',           address,                 false) : '',
-      body.property_type     ? row('Property type',     body.property_type,      true)  : '',
-      body.bedrooms          ? row('Bedrooms',           body.bedrooms,           false) : '',
-      body.bathrooms         ? row('Bathrooms',          body.bathrooms,          true)  : '',
-      body.living_areas      ? row('Living areas',       body.living_areas,       false) : '',
-      body.floor_area_sqm    ? row('Floor area',         body.floor_area_sqm + ' sqm', true)  : '',
-      body.staff_count       ? row('Staff count',        body.staff_count,        false) : '',
-      services               ? row('Services',           services,                true)  : '',
-      body.frequency         ? row('Frequency',          body.frequency,          false) : '',
-      body.condition         ? row('Condition',          body.condition,          true)  : '',
-      body.extras && body.extras.length ? row('Extras', body.extras.join(', '), false) : '',
-      body.preferred_days && body.preferred_days.length ? row('Preferred days', body.preferred_days.join(', '), true) : '',
-      body.preferred_time    ? row('Preferred time',     body.preferred_time,     false) : '',
-      body.notes             ? row('Notes',              body.notes,              true)  : '',
-    ].filter(Boolean).join('');
+  // Admin notification
+  const rows = [
+    row('Name', escHtmlEmail(full_name), false),
+    row('Phone', `<a href="tel:${escHtmlEmail(phone)}" style="color:#2d6a4f;">${escHtmlEmail(phone)}</a>`, true),
+    row('Email', `<a href="mailto:${escHtmlEmail(email)}" style="color:#2d6a4f;">${escHtmlEmail(email)}</a>`, false),
+    body.preferred_contact ? row('Preferred contact', escHtmlEmail(body.preferred_contact), true)  : '',
+    address                ? row('Address',           escHtmlEmail(address),                 false) : '',
+    body.property_type     ? row('Property type',     escHtmlEmail(body.property_type),      true)  : '',
+    body.bedrooms          ? row('Bedrooms',           body.bedrooms,                         false) : '',
+    body.bathrooms         ? row('Bathrooms',          body.bathrooms,                        true)  : '',
+    body.living_areas      ? row('Living areas',       body.living_areas,                     false) : '',
+    services               ? row('Services',           escHtmlEmail(services),                true)  : '',
+    body.frequency         ? row('Frequency',          escHtmlEmail(body.frequency),          false) : '',
+    body.condition         ? row('Condition',          escHtmlEmail(body.condition),          true)  : '',
+    body.preferred_days && body.preferred_days.length ? row('Preferred days', escHtmlEmail(body.preferred_days.join(', ')), false) : '',
+    body.preferred_time    ? row('Preferred time',     escHtmlEmail(body.preferred_time),     true)  : '',
+    body.notes             ? row('Notes',              escHtmlEmail(body.notes),              false) : '',
+  ].filter(Boolean).join('');
 
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
-        to:      [ADMIN_EMAIL],
-        subject: `New Quote Request — ${full_name}${suburb ? ' · ' + suburb : ''}`,
-        html: `<!DOCTYPE html>
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from:    'MyQuest <hello@myquest.au>',
+      to:      [ADMIN_EMAIL],
+      subject: `New Quote Request — ${full_name}${suburb ? ' · ' + suburb : ''}`,
+      html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:sans-serif;max-width:600px;margin:32px auto;">
   <div style="background:#2d6a4f;padding:20px 24px;border-radius:8px 8px 0 0;">
@@ -207,11 +233,8 @@ export async function onRequestPost(context) {
   </p>
 </div>
 </body></html>`,
-      }),
-    }).catch(() => {});
-  }
-
-  return json({ success: true }, 200);
+    }),
+  }).catch(() => {});
 }
 
 function row(label, value, stripe) {
@@ -220,6 +243,10 @@ function row(label, value, stripe) {
     <td style="padding:8px 16px;font-weight:600;white-space:nowrap;color:#374151;width:140px;">${label}</td>
     <td style="padding:8px 16px;color:#111827;">${value}</td>
   </tr>`;
+}
+
+function escHtmlEmail(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function json(data, status = 200) {

@@ -35,12 +35,11 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     'General', 'Deep', 'Office', 'NDIS', 'Carpet', 'Window', 'Other (please specify)',
   ];
 
-  var DAYS       = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  var AU_STATES  = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
+  var DAYS      = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var AU_STATES = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
 
   /* ─── Open / Close ───────────────────────────────────────────────────── */
 
-  var _vpHandler   = null;
   var _savedScrollY = 0;
 
   function openModal() {
@@ -54,72 +53,28 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     overlay.hidden = false;
     overlay.removeAttribute('aria-hidden');
 
-    // Lock body scroll — position:fixed approach works on iOS (overflow:hidden alone doesn't)
+    // Lock body scroll — position:fixed works on iOS (overflow:hidden alone doesn't)
     _savedScrollY = window.scrollY || window.pageYOffset || 0;
-    document.body.style.position   = 'fixed';
-    document.body.style.top        = -_savedScrollY + 'px';
-    document.body.style.width      = '100%';
+    document.body.style.position = 'fixed';
+    document.body.style.top      = -_savedScrollY + 'px';
+    document.body.style.width    = '100%';
 
     requestAnimationFrame(function () {
       overlay.classList.add('qm--open');
     });
     document.getElementById('qm-close').focus();
 
-    // Keep the card inside the visible area on every device.
-    //
-    // The overlay MUST stay at inset:0 (never shrink it) so its dark background
-    // always covers the full layout viewport — shrinking it created gaps where the
-    // landing page showed through when vv.offsetTop > 0 (iOS page shift on focus).
-    //
-    // Instead, keep the overlay full-page and drive paddingTop so the card is
-    // positioned within the visual viewport (above the keyboard).
-    if (window.visualViewport) {
-      _vpHandler = function () {
-        var vv  = window.visualViewport;
-        var ov  = document.getElementById('quote-modal');
-        var crd = document.querySelector('.qm-card');
-        if (!vv || !ov) return;
-
-        var mobile = window.innerWidth <= 600;
-
-        // Resize card to fit within the visible area
-        var cardH = mobile
-          ? vv.height                          // fullscreen on phones
-          : Math.min(680, vv.height - 48);     // capped on tablet / desktop
-
-        if (crd) crd.style.height = cardH + 'px';
-
-        // Push card down to vv.offsetTop, then vertically centre it in the visible area.
-        // Using paddingTop instead of changing overlay top/height keeps inset:0 intact.
-        var centreGap = mobile ? 0 : Math.max(0, (vv.height - cardH) / 2);
-        ov.style.alignItems = 'flex-start';
-        ov.style.paddingTop = (vv.offsetTop + centreGap) + 'px';
-      };
-      window.visualViewport.addEventListener('resize', _vpHandler);
-      window.visualViewport.addEventListener('scroll', _vpHandler);
-      _vpHandler(); // run immediately so initial render is correct
-    }
+    buildSidebar();
   }
 
   function closeModal() {
-    if (_vpHandler && window.visualViewport) {
-      window.visualViewport.removeEventListener('resize', _vpHandler);
-      window.visualViewport.removeEventListener('scroll', _vpHandler);
-      _vpHandler = null;
-    }
-
-    // Clear inline styles set by the viewport handler
-    var card    = document.querySelector('.qm-card');
-    var overlay = document.getElementById('quote-modal');
-    if (card)    card.style.height      = '';
-    if (overlay) { overlay.style.alignItems = ''; overlay.style.paddingTop = ''; }
-
-    // Restore body scroll (reverse of position:fixed lock)
+    // Restore body scroll
     document.body.style.position = '';
     document.body.style.top      = '';
     document.body.style.width    = '';
     window.scrollTo(0, _savedScrollY);
 
+    var overlay = document.getElementById('quote-modal');
     if (overlay) {
       overlay.classList.remove('qm--open');
       setTimeout(function () {
@@ -146,12 +101,48 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
   function loadDraft()  { try { var s = localStorage.getItem(DRAFT_KEY); if (s) Object.assign(state, JSON.parse(s)); } catch(e){} }
   function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch(e){} }
 
+  /* ─── Sidebar ─────────────────────────────────────────────────────────── */
+
+  function buildSidebar() {
+    var nav = document.getElementById('qm-sidebar-steps');
+    if (!nav) return;
+    nav.innerHTML = STEPS.map(function (s, i) {
+      return '<div class="qm-sn-item" id="qm-sn-' + i + '">' +
+        '<div class="qm-sn-item__left">' +
+          '<div class="qm-sn-item__circle">' + (i + 1) + '</div>' +
+          '<div class="qm-sn-item__connector"></div>' +
+        '</div>' +
+        '<div class="qm-sn-item__label">' + escHtml(s.title) + '</div>' +
+      '</div>';
+    }).join('');
+    updateSidebar(0);
+  }
+
+  function updateSidebar(step) {
+    STEPS.forEach(function (_, i) {
+      var item = document.getElementById('qm-sn-' + i);
+      if (!item) return;
+      item.classList.remove('qm-sn-item--active', 'qm-sn-item--done');
+      var circle = item.querySelector('.qm-sn-item__circle');
+      if (i < step) {
+        item.classList.add('qm-sn-item--done');
+        if (circle) circle.textContent = '✓';
+      } else if (i === step) {
+        item.classList.add('qm-sn-item--active');
+        if (circle) circle.textContent = i + 1;
+      } else {
+        if (circle) circle.textContent = i + 1;
+      }
+    });
+  }
+
   /* ─── Render ──────────────────────────────────────────────────────────── */
 
   function setProgress(step) {
     var pct = Math.round((step / totalSteps) * 100);
     document.getElementById('qm-progress-bar').style.width = pct + '%';
     document.getElementById('qm-step-label').textContent = 'Step ' + (step + 1) + ' of ' + totalSteps;
+    updateSidebar(step);
   }
 
   function renderStep() {
@@ -163,11 +154,11 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     var html = buildStep(currentStep);
     body.innerHTML = html;
 
-    body.style.overflowY = (currentStep === 0) ? '' : 'auto';
-    body.style.webkitOverflowScrolling = (currentStep === 0) ? '' : 'touch';
+    body.style.overflowY = 'hidden';
+    body.style.webkitOverflowScrolling = '';
 
-    // Slide animation
-    var stepEl = body.querySelector('.qm-step');
+    // Slide animation — target the step root element (may have extra classes)
+    var stepEl = body.firstElementChild;
     if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
 
     setProgress(currentStep);
@@ -185,14 +176,13 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
 
     wireStep(currentStep);
 
-    // Auto-focus first input on desktop only — prevents keyboard covering footer on mobile
-    if (window.innerWidth > 600) {
+    // Auto-focus first input on desktop only
+    if (window.innerWidth > 767) {
       var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
       if (firstInput) firstInput.focus();
     }
 
-    // Scroll reset after all DOM work and focus — double rAF ensures it lands after
-    // any browser-initiated scroll-to-focused-element on iOS/Safari
+    // Scroll reset
     body.scrollTop = 0;
     requestAnimationFrame(function () {
       body.scrollTop = 0;
@@ -214,8 +204,10 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
   function stepDetails() {
     return '<div class="qm-step">' +
       field('Full Name', 'qm-name', 'text', state.full_name, 'Your name', true) +
-      field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel', 'Australian mobile or landline') +
-      field('Email', 'qm-email', 'email', state.email, 'you@example.com', true) +
+      '<div class="qm-row-2">' +
+        field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel', 'Australian mobile or landline') +
+        field('Email', 'qm-email', 'email', state.email, 'you@example.com', true) +
+      '</div>' +
       '<div class="qm-field">' +
         '<label class="qm-label">Preferred Contact Method</label>' +
         radioRow('preferred_contact', [
@@ -228,75 +220,97 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
   }
 
   function stepProperty() {
-    return '<div class="qm-step">' +
-      '<p class="qm-section-title">Address</p>' +
-      field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St', false, 'address-line1') +
-      '<div class="qm-row-2">' +
-        field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb', false, 'address-level2') +
-        '<div class="qm-field" style="position:relative">' +
-          '<label class="qm-label">State</label>' +
-          '<div class="qm-dropdown' + (state.state ? '' : ' qm-dropdown--placeholder') + '" id="qm-state-dd">' +
-            '<div class="qm-dropdown__trigger" id="qm-state-trigger">' +
-              '<span id="qm-state-val">' + (state.state ? escHtml(state.state) : 'Select…') + '</span>' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
-            '</div>' +
-            '<div class="qm-dropdown__list" id="qm-state-list">' +
-              AU_STATES.map(function (s) {
-                return '<div class="qm-dropdown__opt' + (state.state === s ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + s + '">' + s + '</div>';
-              }).join('') +
+    return '<div class="qm-step qm-step--cols qm-step--cols-2">' +
+
+      // Left column: Address
+      '<div class="qm-step-col">' +
+        '<p class="qm-step-col-title">Address</p>' +
+        field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St', false, 'address-line1') +
+        '<div class="qm-row-2">' +
+          field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb', false, 'address-level2') +
+          '<div class="qm-field" style="position:relative">' +
+            '<label class="qm-label">State</label>' +
+            '<div class="qm-dropdown' + (state.state ? '' : ' qm-dropdown--placeholder') + '" id="qm-state-dd">' +
+              '<div class="qm-dropdown__trigger" id="qm-state-trigger">' +
+                '<span id="qm-state-val">' + (state.state ? escHtml(state.state) : 'Select…') + '</span>' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+              '</div>' +
+              '<div class="qm-dropdown__list" id="qm-state-list">' +
+                AU_STATES.map(function (s) {
+                  return '<div class="qm-dropdown__opt' + (state.state === s ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + s + '">' + s + '</div>';
+                }).join('') +
+              '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
+        field('Postcode', 'qm-postcode', 'text', state.postcode, '3000', false, 'postal-code', 'tel') +
+        field('Access Instructions', 'qm-access', 'text', state.access_instructions, 'Gate code, key location…', false, 'off') +
       '</div>' +
-      field('Postcode', 'qm-postcode', 'text', state.postcode, '3000', false, 'postal-code', 'tel') +
-      field('Access Instructions', 'qm-access', 'text', state.access_instructions, 'Gate code, key location…', false, 'off') +
-      '<p class="qm-section-title">Property Type</p>' +
-      '<div class="qm-grid-type">' +
-        PROPERTY_TYPES.map(function (pt) {
-          var sel = state.property_type === pt.value ? ' qm-tile--selected' : '';
-          return '<button type="button" class="qm-tile' + sel + '" data-value="' + pt.value + '">' +
-            '<span class="qm-tile__label">' + pt.label + '</span>' +
-          '</button>';
-        }).join('') +
+
+      // Right column: Property Type + Details
+      '<div class="qm-step-col">' +
+        '<p class="qm-step-col-title">Property Type</p>' +
+        '<div class="qm-grid-type">' +
+          PROPERTY_TYPES.map(function (pt) {
+            var sel = state.property_type === pt.value ? ' qm-tile--selected' : '';
+            return '<button type="button" class="qm-tile' + sel + '" data-value="' + pt.value + '">' +
+              '<span class="qm-tile__label">' + pt.label + '</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+        '<p class="qm-step-col-title" style="margin-top:20px">Property Details</p>' +
+        '<div class="qm-stepper-grid">' +
+          stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
+          stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
+          stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
+        '</div>' +
+        '<p class="qm-helper">Lounges, dining rooms, studies, etc.</p>' +
       '</div>' +
-      '<p class="qm-section-title">Property Details</p>' +
-      '<div class="qm-stepper-grid">' +
-        stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
-        stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
-        stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
-      '</div>' +
-      '<p class="qm-helper">Lounges, dining rooms, studies, etc.</p>' +
+
     '</div>';
   }
 
   function stepClean() {
     var hasOther = state.services.indexOf('Other (please specify)') !== -1;
-    return '<div class="qm-step">' +
-      '<p class="qm-section-title">Services Required</p>' +
-      '<div class="qm-grid-check qm-grid-check--big">' +
-        SERVICES.map(function (s) {
-          var checked = state.services.indexOf(s) !== -1;
-          return checkTile(s, s, checked, 'qm-service');
-        }).join('') +
+    return '<div class="qm-step qm-step--cols qm-step--cols-3">' +
+
+      // Column 1: Services
+      '<div class="qm-step-col">' +
+        '<p class="qm-step-col-title">Services Required</p>' +
+        '<div class="qm-grid-check">' +
+          SERVICES.map(function (s) {
+            var checked = state.services.indexOf(s) !== -1;
+            return checkTile(s, s, checked, 'qm-service');
+          }).join('') +
+        '</div>' +
+        '<div id="qm-other-service-wrap"' + (!hasOther ? ' hidden' : '') + '>' +
+          field('Please describe', 'qm-other-service', 'text', state.other_service_detail, 'Describe what you need…', false) +
+        '</div>' +
       '</div>' +
-      '<div id="qm-other-service-wrap"' + (!hasOther ? ' hidden' : '') + '>' +
-        field('Please describe the service', 'qm-other-service', 'text', state.other_service_detail, 'Describe what you need…', false) +
+
+      // Column 2: Frequency
+      '<div class="qm-step-col">' +
+        '<p class="qm-step-col-title">How Often?</p>' +
+        radioCards('frequency', [
+          { value: 'One-Time',    label: 'One-Time',     desc: 'Single visit'      },
+          { value: 'Weekly',      label: 'Weekly',       desc: 'Every week'        },
+          { value: 'Fortnightly', label: 'Fortnightly',  desc: 'Every two weeks'   },
+          { value: 'Monthly',     label: 'Monthly',      desc: 'Once a month'      },
+          { value: 'Unsure',      label: 'Not sure yet', desc: "I'll decide later" },
+        ], state.frequency) +
       '</div>' +
-      '<p class="qm-section-title">How Often?</p>' +
-      radioCards('frequency', [
-        { value: 'One-Time',    label: 'One-Time',     desc: 'Single visit'      },
-        { value: 'Weekly',      label: 'Weekly',       desc: 'Every week'        },
-        { value: 'Fortnightly', label: 'Fortnightly',  desc: 'Every two weeks'   },
-        { value: 'Monthly',     label: 'Monthly',      desc: 'Once a month'      },
-        { value: 'Unsure',      label: 'Not sure yet', desc: "I'll decide later" },
-      ], state.frequency) +
-      '<p class="qm-section-title">Property Condition</p>' +
-      radioCards('condition', [
-        { value: 'Excellent',           label: 'Excellent',       desc: 'Clean and well maintained'  },
-        { value: 'Good',                label: 'Good',            desc: 'Some light cleaning needed' },
-        { value: 'Average',             label: 'Average',         desc: 'Moderate cleaning required' },
-        { value: 'Requires Deep Clean', label: 'Needs Deep Clean',desc: 'Heavy clean required'       },
-      ], state.condition) +
+
+      // Column 3: Condition
+      '<div class="qm-step-col">' +
+        '<p class="qm-step-col-title">Property Condition</p>' +
+        radioCards('condition', [
+          { value: 'Excellent',           label: 'Excellent',       desc: 'Clean and well maintained'  },
+          { value: 'Good',                label: 'Good',            desc: 'Some light cleaning needed' },
+          { value: 'Average',             label: 'Average',         desc: 'Moderate cleaning required' },
+          { value: 'Requires Deep Clean', label: 'Needs Deep Clean',desc: 'Heavy clean required'       },
+        ], state.condition) +
+      '</div>' +
+
     '</div>';
   }
 
@@ -342,7 +356,7 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
       '<p class="qm-section-title">Additional Notes</p>' +
       '<div class="qm-field">' +
         '<label class="qm-label" for="qm-notes">Optional — anything else we should know</label>' +
-        '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="Special requests, parking, pets, access details…" rows="4">' + escHtml(state.notes) + '</textarea>' +
+        '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="Special requests, parking, pets, access details…" rows="3">' + escHtml(state.notes) + '</textarea>' +
         '<div class="qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '') + '" id="qm-word-count"><span id="qm-wc-num">' + wc + '</span>/100 words</div>' +
       '</div>' +
     '</div>';
@@ -371,6 +385,7 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     document.getElementById('qm-title').textContent = 'Review Your Request';
     document.getElementById('qm-step-label').textContent = 'Almost done!';
     document.getElementById('qm-progress-bar').style.width = '100%';
+    updateSidebar(totalSteps); // mark all steps done
 
     backBtn.style.display = '';
     backBtn.textContent   = 'Back';
@@ -454,7 +469,7 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
         '<h3 class="qm-success__heading">Request submitted!</h3>' +
         '<p class="qm-success__body">We\'ve received your quote request. A member of our team will be in touch within <strong>2 hours</strong>.</p>' +
         '<p class="qm-success__sub">Check your inbox — we\'ve sent a confirmation to <strong>' + escHtml(state.email) + '</strong>.</p>' +
-        '<button class="btn-outline qm-success__btn" id="qm-success-close">Close</button>' +
+        '<button class="btn-primary qm-success__btn" id="qm-success-close">Close</button>' +
         '<p class="qm-success__countdown">Closing in <span id="qm-countdown-num">5</span>…</p>' +
       '</div>';
 
@@ -563,11 +578,9 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
         bindRadios('preferred_contact', function (v) { state.preferred_contact = v; });
         advanceOnEnter('qm-name', 'qm-phone');
         advanceAfterLen('qm-phone', 'qm-email', 10);
-        advanceOnEnter('qm-email', 'qm-phone');
         break;
 
       case 1:
-        // Address fields
         bind('qm-street', 'input', function () {
           var prev = state.street_address;
           state.street_address = this.value;
@@ -632,7 +645,6 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
         break;
 
       case 2:
-        // Service checkboxes + Other reveal
         document.querySelectorAll('.qm-service').forEach(function (cb) {
           cb.addEventListener('change', function () {
             var tile = this.closest('.qm-ctile');
@@ -661,7 +673,7 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
           state.other_service_detail = this.value;
           saveDraft();
         });
-        // Frequency — scoped deselect to avoid clearing condition cards
+        // Frequency — scoped to avoid clearing condition cards
         document.querySelectorAll('input[name="frequency"]').forEach(function (r) {
           r.addEventListener('change', function () {
             document.querySelectorAll('input[name="frequency"]').forEach(function (o) {
@@ -674,7 +686,7 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
             saveDraft();
           });
         });
-        // Condition — scoped deselect to avoid clearing frequency cards
+        // Condition — scoped to avoid clearing frequency cards
         document.querySelectorAll('input[name="condition"]').forEach(function (r) {
           r.addEventListener('change', function () {
             document.querySelectorAll('input[name="condition"]').forEach(function (o) {
@@ -690,7 +702,6 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
         break;
 
       case 3:
-        // Days
         document.querySelectorAll('.qm-day__cb').forEach(function (cb) {
           cb.addEventListener('change', function () {
             var lbl = this.closest('.qm-day');
@@ -703,7 +714,6 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
             }
           });
         });
-        // Time
         document.querySelectorAll('input[name="preferred_time"]').forEach(function (r) {
           r.addEventListener('change', function () {
             document.querySelectorAll('.qm-time-pill').forEach(function (l) { l.classList.remove('qm-time-pill--on'); });
@@ -712,14 +722,13 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
           });
         });
         bind('qm-flexible', 'change', function () { state.flexible_schedule = this.checked; });
-        // Notes
         bind('qm-notes', 'input', function () {
           var words = (this.value.trim() === '') ? [] : this.value.trim().split(/\s+/);
           if (words.length > 100) this.value = words.slice(0, 100).join(' ');
           state.notes = this.value;
-          var wc     = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
-          var numEl  = document.getElementById('qm-wc-num');
-          var ctrEl  = document.getElementById('qm-word-count');
+          var wc    = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
+          var numEl = document.getElementById('qm-wc-num');
+          var ctrEl = document.getElementById('qm-word-count');
           if (numEl) numEl.textContent = wc;
           if (ctrEl) ctrEl.className = 'qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '');
         });
@@ -762,14 +771,17 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     switch (n) {
       case 0:
         if (!state.full_name.trim()) return 'Please enter your name.';
-        if (!state.phone.trim())     return 'Please enter your phone number.';
-        if (!state.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) return 'Please enter a valid email address.';
+        if (!state.phone.trim() || state.phone.replace(/\D/g, '').length < 8)
+          return 'Please enter a valid phone number.';
+        if (!state.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email))
+          return 'Please enter a valid email address.';
         break;
       case 1:
         if (!state.street_address.trim()) return 'Please enter your street address.';
         if (!state.suburb.trim())         return 'Please enter your suburb.';
         if (!state.state)                 return 'Please select your state.';
         if (!state.postcode.trim())       return 'Please enter your postcode.';
+        if (!/^\d{4}$/.test(state.postcode.trim())) return 'Please enter a valid 4-digit postcode.';
         if (!state.property_type)         return 'Please select a property type.';
         break;
       case 2:

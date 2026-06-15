@@ -32,7 +32,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=20260613">
+  <link rel="stylesheet" href="style.css?v=20260615">
   <link rel="stylesheet" href="header.css?v=20260611a">
   <link rel="stylesheet" href="footer.css?v=20260621">
 
@@ -584,22 +584,45 @@
   <script src="header.js?v=20260621" defer></script>
   <script src="footer.js?v=20260621" defer></script>
   <script src="main.js?v=20260621" defer></script>
-  <script src="quote-modal.js?v=20260614" defer></script>
+  <script src="quote-modal.js?v=20260615" defer></script>
 
   <!-- ── Quote modal ───────────────────────────────────────── -->
   <div class="qm-overlay" id="quote-modal" hidden role="dialog" aria-modal="true" aria-labelledby="qm-title">
     <div class="qm-card">
-      <div class="qm-header">
-        <div class="qm-progress"><div class="qm-progress__bar" id="qm-progress-bar"></div></div>
-        <div class="qm-step-label" id="qm-step-label">Step 1 of 10</div>
-        <button class="qm-close" id="qm-close" aria-label="Close">&times;</button>
+
+      <!-- Left sidebar — hidden on mobile -->
+      <div class="qm-sidebar" id="qm-sidebar">
+        <div class="qm-sidebar__brand">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 14 C3 6 9 2 15 2 C15 2 15 11 9 16 C6 18 3 17 3 14 Z" fill="white"/>
+            <path d="M15 2 C15 2 17 13 10 17" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="qm-sidebar__wordmark">MyQuest</span>
+        </div>
+        <nav class="qm-sidebar__steps" id="qm-sidebar-steps" aria-label="Form steps">
+          <!-- Injected by quote-modal.js -->
+        </nav>
+        <div class="qm-sidebar__contact">
+          <p class="qm-sidebar__ql">Questions?</p>
+          <a href="tel:+61497828838" class="qm-sidebar__phone">0497 828 838</a>
+        </div>
       </div>
-      <h2 class="qm-title" id="qm-title">Your Details</h2>
-      <div class="qm-body" id="qm-body"></div>
-      <div class="qm-footer" id="qm-footer">
-        <button class="btn-outline" id="qm-back" style="display:none">Back</button>
-        <button class="btn-primary" id="qm-next">Next</button>
+
+      <!-- Right panel -->
+      <div class="qm-panel">
+        <div class="qm-header">
+          <div class="qm-progress"><div class="qm-progress__bar" id="qm-progress-bar"></div></div>
+          <div class="qm-step-label" id="qm-step-label">Step 1 of 4</div>
+          <button class="qm-close" id="qm-close" aria-label="Close">&times;</button>
+        </div>
+        <h2 class="qm-title" id="qm-title">Your Details</h2>
+        <div class="qm-body" id="qm-body"></div>
+        <div class="qm-footer" id="qm-footer">
+          <button class="btn-outline" id="qm-back" style="display:none">Back</button>
+          <button class="btn-primary" id="qm-next">Next</button>
+        </div>
       </div>
+
     </div>
   </div>
 
