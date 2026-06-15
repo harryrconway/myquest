@@ -538,8 +538,8 @@
 
     // Sync profiles from Supabase into the in-memory store so the Team card
     // reflects the latest database state (auth.js also does this on every page load)
-    MQ.supabase.from('profiles').select('id, name, email, role, colour, status, mobile, start_date').then(function (r) {
-      if (!r.data) return;
+    MQ.supabase.from('profiles').select('*').then(function (r) {
+      if (!r.data || r.error) return;
       var changed = false;
       r.data.forEach(function (p) {
         MQ.store.accounts.save({
