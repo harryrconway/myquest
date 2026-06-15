@@ -120,7 +120,7 @@
   };
 
   var STAFF_PALETTE = [
-    '#1b4332','#2d6a4f','#40916c','#52b788',
+    '#1a1a1a','#FFD400','#D4AF00','#FFE566',
     '#0f766e','#0d9488',
     '#1e3a5f','#1e40af','#0369a1','#0891b2',
     '#4f46e5','#7c3aed','#9333ea',
@@ -181,14 +181,14 @@
           '<div style="font-size:32px;margin-bottom:12px;">👤</div>' +
           '<p style="font-size:14px;font-weight:600;color:#0f172a;margin:0 0 6px;">No accounts available</p>' +
           '<p style="font-size:13px;color:#64748b;margin:0 0 16px;">Create a staff account in Settings first, then come back here to add them to the team.</p>' +
-          '<a href="settings.html" style="display:inline-block;background:#2d6a4f;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
+          '<a href="settings.html" style="display:inline-block;background:#FFD400;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
           '</div>';
         return;
       }
 
       var ROLE_COLOR = {
-        owner: 'background:#dcfce7;color:#16a34a', manager: 'background:#dbeafe;color:#1d4ed8',
-        'senior-cleaner': 'background:#f0fdf4;color:#16a34a',
+        owner: 'background:#FFFDE7;color:#9A7700', manager: 'background:#dbeafe;color:#1d4ed8',
+        'senior-cleaner': 'background:#FFFDE7;color:#9A7700',
         'mid-cleaner': 'background:#f1f5f9;color:#475569', 'junior-cleaner': 'background:#f1f5f9;color:#475569',
         staff: 'background:#f1f5f9;color:#475569',
       };

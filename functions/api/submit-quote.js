@@ -162,7 +162,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
       html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <div style="background:#2d6a4f;padding:28px 36px;">
+  <div style="background:#FFD400;padding:28px 36px;">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
       <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
@@ -180,9 +180,9 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
       ${body.frequency ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Frequency:</strong> ${body.frequency}</p>` : ''}
     </div>
     <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">If you have any questions before we reach out, give us a call:</p>
-    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#2d6a4f;font-weight:700;font-size:16px;">0497 828 838</a></p>
+    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:16px;">0497 828 838</a></p>
     <p style="color:#6b7280;font-size:14px;margin:0;">The MyQuest Team<br>
-    <a href="https://myquest.au" style="color:#2d6a4f;">myquest.au</a></p>
+    <a href="https://myquest.au" style="color:#FFD400;">myquest.au</a></p>
   </div>
 </div>
 </body></html>`,
@@ -192,8 +192,8 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
   // Admin notification
   const rows = [
     row('Name', escHtmlEmail(full_name), false),
-    row('Phone', `<a href="tel:${escHtmlEmail(phone)}" style="color:#2d6a4f;">${escHtmlEmail(phone)}</a>`, true),
-    row('Email', `<a href="mailto:${escHtmlEmail(email)}" style="color:#2d6a4f;">${escHtmlEmail(email)}</a>`, false),
+    row('Phone', `<a href="tel:${escHtmlEmail(phone)}" style="color:#FFD400;">${escHtmlEmail(phone)}</a>`, true),
+    row('Email', `<a href="mailto:${escHtmlEmail(email)}" style="color:#FFD400;">${escHtmlEmail(email)}</a>`, false),
     body.preferred_contact ? row('Preferred contact', escHtmlEmail(body.preferred_contact), true)  : '',
     address                ? row('Address',           escHtmlEmail(address),                 false) : '',
     body.property_type     ? row('Property type',     escHtmlEmail(body.property_type),      true)  : '',
@@ -218,7 +218,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
       html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:sans-serif;max-width:600px;margin:32px auto;">
-  <div style="background:#2d6a4f;padding:20px 24px;border-radius:8px 8px 0 0;">
+  <div style="background:#FFD400;padding:20px 24px;border-radius:8px 8px 0 0;">
     <h2 style="color:white;margin:0;font-size:18px;">New Quote Request</h2>
     <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px;">Submitted ${new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })}</p>
   </div>
@@ -227,7 +227,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
   </div>
   <p style="text-align:center;margin-top:20px;">
     <a href="https://myquest.au/dashboard/unscheduled-jobs.html"
-       style="background:#2d6a4f;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+       style="background:#FFD400;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
       View in Dashboard →
     </a>
   </p>

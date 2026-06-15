@@ -199,7 +199,7 @@
           '<div class="job-detail__section">' +
             '<div class="job-detail__section-title">Notes</div>' +
             (j.notes ? '<div class="job-detail__note">' + escHtml(j.notes) + '</div>' : '') +
-            (j.internal_notes ? '<div class="job-detail__note" style="margin-top:6px;border-left:3px solid #2d6a4f;">' + escHtml(j.internal_notes) + '</div>' : '') +
+            (j.internal_notes ? '<div class="job-detail__note" style="margin-top:6px;border-left:3px solid #FFD400;">' + escHtml(j.internal_notes) + '</div>' : '') +
           '</div>'
         : '') +
       '</div>';

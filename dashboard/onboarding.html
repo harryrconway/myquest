@@ -19,7 +19,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      background: linear-gradient(135deg, #FFFDE7 0%, #eff6ff 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -46,7 +46,7 @@
     .ob-progress-bar { height: 4px; background: #e2e8f0; }
     .ob-progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #22c55e, #16a34a);
+      background: linear-gradient(90deg, #FFD400, #9A7700);
       transition: width 0.45s ease;
     }
 
@@ -58,8 +58,8 @@
       transition: all 0.25s ease;
       flex-shrink: 0;
     }
-    .ob-dot--done { background: #16a34a; }
-    .ob-dot--active { width: 22px; border-radius: 4px; background: #16a34a; }
+    .ob-dot--done { background: #9A7700; }
+    .ob-dot--active { width: 22px; border-radius: 4px; background: #9A7700; }
 
     /* Header */
     .ob-header { padding: 28px 36px 0; }
@@ -90,7 +90,7 @@
       font-family: inherit; font-size: 14px; color: #0f172a;
       background: #fff; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .ob-input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.10); }
+    .ob-input:focus { border-color: #FFD400; box-shadow: 0 0 0 3px rgba(34,197,94,0.10); }
     .ob-input::placeholder { color: #cbd5e1; }
     .ob-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .ob-section-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 12px; }
@@ -110,13 +110,13 @@
       gap: 6px; min-height: 130px;
     }
     .ob-upload-area:hover,
-    .ob-upload-area.drag-over { border-color: #22c55e; background: #f0fdf4; }
-    .ob-upload-area.has-file  { border-color: #22c55e; background: #f0fdf4; border-style: solid; }
+    .ob-upload-area.drag-over { border-color: #FFD400; background: #FFFDE7; }
+    .ob-upload-area.has-file  { border-color: #FFD400; background: #FFFDE7; border-style: solid; }
     .ob-upload-icon { color: #94a3b8; line-height: 0; }
-    .ob-upload-area.has-file .ob-upload-icon { color: #16a34a; }
+    .ob-upload-area.has-file .ob-upload-icon { color: #9A7700; }
     .ob-upload-text { font-size: 13.5px; font-weight: 600; color: #475569; }
     .ob-upload-hint { font-size: 11.5px; color: #94a3b8; }
-    .ob-upload-filename { font-size: 13px; font-weight: 600; color: #16a34a; }
+    .ob-upload-filename { font-size: 13px; font-weight: 600; color: #9A7700; }
 
     /* Photo */
     .ob-photo-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
@@ -138,8 +138,8 @@
       font-size: 11.5px; font-weight: 700; color: #64748b;
       cursor: pointer; transition: all 0.15s; user-select: none; background: #fff;
     }
-    .ob-day-btn:hover  { border-color: #22c55e; color: #16a34a; }
-    .ob-day-btn.selected { border-color: #22c55e; background: #f0fdf4; color: #16a34a; }
+    .ob-day-btn:hover  { border-color: #FFD400; color: #9A7700; }
+    .ob-day-btn.selected { border-color: #FFD400; background: #FFFDE7; color: #9A7700; }
 
     /* Time pills */
     .ob-time-pills { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -148,8 +148,8 @@
       font-size: 13px; font-weight: 500; color: #64748b; cursor: pointer;
       transition: all 0.15s; user-select: none; background: #fff;
     }
-    .ob-pill:hover   { border-color: #22c55e; color: #16a34a; background: #f0fdf4; }
-    .ob-pill.selected { border-color: #22c55e; background: #f0fdf4; color: #16a34a; font-weight: 600; }
+    .ob-pill:hover   { border-color: #FFD400; color: #9A7700; background: #FFFDE7; }
+    .ob-pill.selected { border-color: #FFD400; background: #FFFDE7; color: #9A7700; font-weight: 600; }
 
     /* Agreements */
     .ob-agreement-box {
@@ -167,10 +167,10 @@
       margin-bottom: 10px; cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
     }
-    .ob-agree-row.checked { border-color: #22c55e; background: #f0fdf4; }
-    .ob-agree-row input[type="checkbox"] { accent-color: #16a34a; width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+    .ob-agree-row.checked { border-color: #FFD400; background: #FFFDE7; }
+    .ob-agree-row input[type="checkbox"] { accent-color: #9A7700; width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
     .ob-agree-row span { font-size: 13.5px; color: #374151; line-height: 1.5; flex: 1; }
-    .ob-agree-row a { color: #16a34a; text-decoration: underline; }
+    .ob-agree-row a { color: #9A7700; text-decoration: underline; }
 
     /* Error */
     .ob-error {
@@ -211,7 +211,7 @@
 
     /* Buttons */
     .btn-primary {
-      padding: 11px 24px; background: #16a34a; color: #fff;
+      padding: 11px 24px; background: #9A7700; color: #fff;
       border: none; border-radius: 10px; font-family: inherit;
       font-size: 14px; font-weight: 600; cursor: pointer;
       transition: background 0.15s; min-width: 110px; white-space: nowrap;
@@ -236,13 +236,13 @@
       display: none;
       position: fixed; inset: 0; z-index: 100;
       flex-direction: column; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+      background: linear-gradient(135deg, #FFFDE7 0%, #eff6ff 100%);
       text-align: center; padding: 32px 24px;
     }
     .ob-success:not([hidden]) { display: flex; }
     .ob-success__icon {
       width: 80px; height: 80px;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
+      background: linear-gradient(135deg, #FFD400, #9A7700);
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       margin: 0 auto 20px;
       box-shadow: 0 6px 28px rgba(34,197,94,0.3);
@@ -288,8 +288,8 @@
 
   <div class="ob-logo">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" aria-hidden="true">
-      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#16a34a"/>
-      <path d="M20 2 C20 2 22 16 14 22" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#9A7700"/>
+      <path d="M20 2 C20 2 22 16 14 22" stroke="#9A7700" stroke-width="1.5" stroke-linecap="round" fill="none"/>
       <text x="28" y="25" font-family="'Plus Jakarta Sans',system-ui,sans-serif" font-weight="700" font-size="18" fill="#0f172a">MyQuest</text>
     </svg>
   </div>

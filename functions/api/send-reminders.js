@@ -44,7 +44,7 @@ export async function onRequestGet({ request, env }) {
         html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f5f0;">
 <div style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;max-width:560px;margin:32px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.09);">
-  <div style="background:linear-gradient(135deg,#2d6a4f 0%,#40916c 100%);padding:32px 40px;">
+  <div style="background:linear-gradient(135deg,#FFD400 0%,#40916c 100%);padding:32px 40px;">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
       <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
@@ -59,7 +59,7 @@ export async function onRequestGet({ request, env }) {
     <p style="color:#4b5563;line-height:1.7;margin:0 0 24px;">
       Your MyQuest team is scheduled to arrive tomorrow. Here are your booking details:
     </p>
-    <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:24px;margin:0 0 28px;">
+    <div style="background:#FFFDE7;border:1.5px solid #FFE566;border-radius:12px;padding:24px;margin:0 0 28px;">
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
         <tr>
           <td style="padding:5px 0;color:#4b5563;width:80px;vertical-align:top;">Date</td>
@@ -82,12 +82,12 @@ export async function onRequestGet({ request, env }) {
       Questions or need to reschedule? Give us a call:
     </p>
     <p style="margin:0 0 28px;">
-      <a href="tel:+61497828838" style="color:#2d6a4f;font-weight:700;font-size:16px;">0497 828 838</a>
+      <a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:16px;">0497 828 838</a>
     </p>
     <p style="color:#9ca3af;font-size:13px;margin:0;line-height:1.6;">
       See you tomorrow,<br>
       The MyQuest Team<br>
-      <a href="https://myquest.au" style="color:#2d6a4f;">myquest.au</a>
+      <a href="https://myquest.au" style="color:#FFD400;">myquest.au</a>
     </p>
   </div>
 </div>

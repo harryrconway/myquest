@@ -149,7 +149,7 @@
       .order('created_at', { ascending: false });
     var cJobs = jobRes.data || [];
 
-    var statusColor = { completed: '#2d6a4f', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
+    var statusColor = { completed: '#FFD400', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
     var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
     var statusLabel = { completed: 'Done',    scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
 

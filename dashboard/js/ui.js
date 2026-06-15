@@ -276,8 +276,8 @@
     overlay.innerHTML = [
       '<div class="modal-card" style="max-width:420px;text-align:center;">',
         '<div class="modal-body" style="align-items:center;gap:1.25rem;padding:2.5rem 2rem 1.5rem;">',
-          '<div style="width:56px;height:56px;border-radius:50%;background:#d8edd9;display:flex;align-items:center;justify-content:center;margin:0 auto;">',
-            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+          '<div style="width:56px;height:56px;border-radius:50%;background:#FFF9CC;display:flex;align-items:center;justify-content:center;margin:0 auto;">',
+            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFD400" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
           '</div>',
           '<h2 style="font-size:var(--text-xl);font-weight:700;color:var(--color-dark);">Back to website?</h2>',
           '<p style="font-size:var(--text-sm);color:var(--color-mid);line-height:1.6;">You\'re about to leave the dashboard and return to the MyQuest public website.</p>',

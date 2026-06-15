@@ -25,7 +25,7 @@
   };
 
   var STAFF_PALETTE = [
-    '#1b4332','#2d6a4f','#40916c','#52b788',
+    '#1a1a1a','#FFD400','#D4AF00','#FFE566',
     '#0f766e','#0d9488',
     '#1e3a5f','#1e40af','#0369a1','#0891b2',
     '#4f46e5','#7c3aed','#9333ea',
@@ -489,7 +489,7 @@
             return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8fafc;border-radius:8px;font-size:13px;">' +
               '<span style="font-weight:600;color:#374151;">' + d.label + '</span>' +
               (d.url
-                ? '<a href="' + d.url + '" target="_blank" rel="noopener" style="color:#16a34a;font-weight:600;text-decoration:none;">View &rarr;</a>'
+                ? '<a href="' + d.url + '" target="_blank" rel="noopener" style="color:#9A7700;font-weight:600;text-decoration:none;">View &rarr;</a>'
                 : '<span style="color:#94a3b8;">Not uploaded</span>') +
             '</div>';
           }).join('');

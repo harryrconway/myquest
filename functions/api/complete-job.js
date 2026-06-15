@@ -142,7 +142,7 @@ export async function onRequestPost(context) {
         html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <div style="background:#2d6a4f;padding:28px 36px;">
+  <div style="background:#FFD400;padding:28px 36px;">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
       <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
@@ -152,13 +152,13 @@ export async function onRequestPost(context) {
   <div style="background:#fff;padding:36px;">
     <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Thanks, ${job.full_name}!</h2>
     <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">We've just completed your ${services}. We hope everything is looking spotless — it was a pleasure working for you.</p>
-    <div style="background:#f0fdf4;border-radius:8px;padding:20px;margin:0 0 24px;text-align:center;">
+    <div style="background:#FFFDE7;border-radius:8px;padding:20px;margin:0 0 24px;text-align:center;">
       <p style="font-size:15px;color:#166534;font-weight:600;margin:0 0 8px;">Happy with the result?</p>
       <p style="font-size:14px;color:#4b5563;margin:0 0 16px;">A quick review helps other homeowners find trustworthy cleaners.</p>
-      <a href="https://g.page/r/review" style="background:#2d6a4f;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block;">Leave a Review</a>
+      <a href="https://g.page/r/review" style="background:#FFD400;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block;">Leave a Review</a>
     </div>
     <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">Need us again? Booking is easy:</p>
-    <p style="margin:0 0 24px;"><a href="https://myquest.au" style="color:#2d6a4f;font-weight:700;font-size:15px;">myquest.au</a> &nbsp;or&nbsp; <a href="tel:+61497828838" style="color:#2d6a4f;font-weight:700;font-size:15px;">0497 828 838</a></p>
+    <p style="margin:0 0 24px;"><a href="https://myquest.au" style="color:#FFD400;font-weight:700;font-size:15px;">myquest.au</a> &nbsp;or&nbsp; <a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:15px;">0497 828 838</a></p>
     <p style="color:#6b7280;font-size:14px;margin:0;">Thanks again,<br>The MyQuest Team</p>
   </div>
 </div>

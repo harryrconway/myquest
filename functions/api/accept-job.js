@@ -108,7 +108,7 @@ export async function onRequestPost(context) {
         html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <div style="background:#2d6a4f;padding:28px 36px;">
+  <div style="background:#FFD400;padding:28px 36px;">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
       <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
@@ -118,15 +118,15 @@ export async function onRequestPost(context) {
   <div style="background:#fff;padding:36px;">
     <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">You're all booked in!</h2>
     <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">Hi ${job.full_name}, we're looking forward to seeing you. Here are your booking details:</p>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:20px;margin:0 0 24px;">
+    <div style="background:#FFFDE7;border:1px solid #FFE566;border-radius:8px;padding:20px;margin:0 0 24px;">
       <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Date:</strong> ${dateFormatted}</p>
       <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Time:</strong> ${timeFormatted}</p>
       <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Service:</strong> ${services}</p>
     </div>
     <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">Our team will arrive at the scheduled time. If you need to reschedule or have any questions, call us:</p>
-    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#2d6a4f;font-weight:700;font-size:16px;">0497 828 838</a></p>
+    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:16px;">0497 828 838</a></p>
     <p style="color:#6b7280;font-size:14px;margin:0;">See you soon,<br>The MyQuest Team<br>
-    <a href="https://myquest.au" style="color:#2d6a4f;">myquest.au</a></p>
+    <a href="https://myquest.au" style="color:#FFD400;">myquest.au</a></p>
   </div>
 </div>
 </body></html>`,
