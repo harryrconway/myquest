@@ -2,13 +2,29 @@
    MYQUEST — Login Page Styles
    ============================================================ */
 
+/* Lock scroll on every device — login is a single-screen experience */
+html:has(.login-page) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .login-page {
-  background: #FFD400;
+  background: #000;
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-6);
+  padding: var(--space-8);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* ---- Fade-in animation ------------------------------------ */
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ---- Login Card ------------------------------------------- */
@@ -20,27 +36,32 @@
 }
 
 .login-card {
-  background: #fff;
+  background: #FFD400;
   border-radius: var(--radius-xl);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 440px;
   padding: var(--space-12);
   position: relative;
   overflow: hidden;
+  animation: cardFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.login-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: #FFD400;
+/* ---- Text ------------------------------------------------- */
+.login-heading {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: #000;
 }
 
-/* ---- Form State ------------------------------------------- */
+.login-sub {
+  font-size: var(--text-sm);
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.65;
+  max-width: 30ch;
+}
+
+/* ---- Form ------------------------------------------------- */
 .login-form-state {
   display: flex;
   flex-direction: column;
@@ -56,20 +77,11 @@
 }
 
 .login-logo:hover {
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
-.login-heading {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-weight-bold);
-  color: #000;
-}
-
-.login-sub {
-  font-size: var(--text-sm);
-  color: #000;
-  line-height: 1.65;
-  max-width: 30ch;
+.login-logo-wrap {
+  margin-bottom: var(--space-2);
 }
 
 .login-form {
@@ -91,13 +103,22 @@
 
 .login-back {
   font-size: var(--text-sm);
-  color: var(--color-light);
+  color: rgba(0, 0, 0, 0.5);
   margin-top: var(--space-2);
   transition: color var(--transition-fast);
 }
 
 .login-back:hover {
   color: #000;
+}
+
+/* ---- Multi-state ------------------------------------------ */
+.login-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
 }
 
 /* ---- Success State ---------------------------------------- */
@@ -118,7 +139,6 @@
   height: 80px;
 }
 
-/* Checkmark circle draw animation */
 .check-circle {
   stroke-dasharray: 201;
   stroke-dashoffset: 201;
@@ -139,9 +159,59 @@
   to { stroke-dashoffset: 0; }
 }
 
+/* ---- Badges ----------------------------------------------- */
+.login-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+.login-badge--green { background: rgba(0, 0, 0, 0.1); color: #000; }
+.login-badge--blue  { background: rgba(0, 0, 0, 0.1); color: #000; }
+
+/* ---- Error block ------------------------------------------ */
+.login-error-block {
+  width: 100%;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #dc2626;
+  line-height: 1.55;
+  text-align: left;
+}
+
+/* ---- Password toggle -------------------------------------- */
+.pw-input-wrap {
+  position: relative;
+}
+.pw-input-wrap .form-input {
+  padding-right: 42px;
+}
+.pw-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+.pw-toggle:hover { color: #000; }
+
+/* ---- Misc ------------------------------------------------- */
 .login-hint {
   font-size: var(--text-xs);
-  color: var(--color-light);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .login-resend {
@@ -163,141 +233,16 @@
   color: #FFD400;
 }
 
-/* ---- Multi-state login ------------------------------------ */
-.login-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-4);
+.cf-turnstile {
+  margin: 0.25rem 0;
 }
-
-.login-logo-wrap {
-  margin-bottom: var(--space-2);
-}
-
-/* Icon badge above headings */
-.login-badge {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: var(--space-2);
-}
-.login-badge--green { background: rgba(0,0,0,0.08); color: #000; }
-.login-badge--blue  { background: rgba(0,0,0,0.08); color: #000; }
-
-/* Error block */
-.login-error-block {
-  width: 100%;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: #dc2626;
-  line-height: 1.55;
-  text-align: left;
-}
-
-/* Password input wrapper with toggle */
-.pw-input-wrap {
-  position: relative;
-}
-.pw-input-wrap .form-input {
-  padding-right: 42px;
-}
-.pw-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-light);
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  transition: color var(--transition-fast);
-}
-.pw-toggle:hover { color: var(--color-mid); }
-
-/* Strength bar */
-.pw-strength-wrap {
-  margin-top: 8px;
-  text-align: left;
-}
-.pw-strength-track {
-  height: 4px;
-  background: #f1f5f9;
-  border-radius: 2px;
-  overflow: hidden;
-}
-.pw-strength-bar {
-  height: 100%;
-  width: 0;
-  border-radius: 2px;
-  transition: width 0.3s ease, background 0.3s ease;
-}
-.pw-strength-label {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 700;
-  margin-top: 5px;
-  min-height: 16px;
-  transition: color 0.3s;
-}
-
-/* Requirements checklist */
-.pw-requirements {
-  width: 100%;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 12px 14px;
-  text-align: left;
-  font-size: 12.5px;
-  color: #000;
-}
-.pw-requirements p {
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 6px;
-}
-.pw-requirements ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.pw-requirements li::before {
-  content: '✕';
-  margin-right: 8px;
-  color: #000;
-  font-size: 11px;
-  font-weight: 700;
-}
-.pw-requirements li.req-met { color: #000; }
-.pw-requirements li.req-met::before { content: '✓'; color: #000; }
 
 /* ---- Responsive ------------------------------------------- */
 @media (max-width: 480px) {
   .login-page {
-    padding: var(--space-8) var(--space-6);
-    min-height: 100dvh;
-    align-items: center;
+    padding: var(--space-6);
   }
   .login-card {
     padding: var(--space-8) var(--space-6);
-    border-radius: var(--radius-xl);
   }
-}
-
-.cf-turnstile {
-  margin: 0.25rem 0;
 }
