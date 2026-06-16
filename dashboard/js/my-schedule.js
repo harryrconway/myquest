@@ -33,13 +33,6 @@
     return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
   }
 
-  /* Owners and managers see all jobs; staff see only their assigned ones.
-     Bug fix: owners who assign jobs to themselves weren't appearing because
-     the contains() filter can fail if their profile ID wasn't stored correctly. */
-  function showAllJobs() {
-    return MQ.hasRole && MQ.hasRole('manager');
-  }
-
   /* ── data ─────────────────────────────────────────────── */
   async function load() {
     if (!userId) return;
@@ -58,17 +51,11 @@
       console.error('[my-schedule] load error:', res.error);
       monthJobs = [];
     } else {
-      var jobs = (res.data || []).map(function (j) {
-        j.scheduled_date = (j.scheduled_date || '').slice(0, 10);
-        return j;
-      });
-      if (showAllJobs()) {
-        monthJobs = jobs;
-      } else {
-        monthJobs = jobs.filter(function (j) {
+      monthJobs = (res.data || [])
+        .map(function (j) { j.scheduled_date = (j.scheduled_date || '').slice(0, 10); return j; })
+        .filter(function (j) {
           return Array.isArray(j.assigned_staff_ids) && j.assigned_staff_ids.indexOf(userId) !== -1;
         });
-      }
     }
     updateHeader();
     renderMonth();
@@ -124,17 +111,11 @@
           j.bathrooms ? j.bathrooms + ' bath' : null,
         ].filter(Boolean);
 
-        var staffNames = (j.assigned_staff_ids || []).map(function (sid) {
-          var s = MQ.store.staff.getAll().find(function (x) { return x.id === sid; });
-          return s ? s.name : null;
-        }).filter(Boolean).join(', ');
-
         html += '<div class="myschedule-job" data-id="' + escHtml(j.id) + '">' +
-          '<div class="myschedule-job__time">' + (j.scheduled_time ? escHtml(fmtTime(j.scheduled_time)) : '<span style="color:rgba(0,0,0,0.3)">—</span>') + '</div>' +
+          '<div class="myschedule-job__time">' + (j.scheduled_time ? escHtml(fmtTime(j.scheduled_time)) : '<span style="color:rgba(0,0,0,0.25)">—</span>') + '</div>' +
           '<div class="myschedule-job__body">' +
             '<div class="myschedule-job__name">' + escHtml(j.full_name || '') + '</div>' +
-            (address    ? '<div class="myschedule-job__address">' + escHtml(address) + '</div>' : '') +
-            (staffNames && showAllJobs() ? '<div class="myschedule-job__staff">' + escHtml(staffNames) + '</div>' : '') +
+            (address ? '<div class="myschedule-job__address">' + escHtml(address) + '</div>' : '') +
             (chips.length ? '<div class="myschedule-job__chips">' +
               chips.map(function (c) { return '<span class="ms-chip">' + escHtml(c) + '</span>'; }).join('') +
             '</div>' : '') +
