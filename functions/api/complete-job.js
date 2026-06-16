@@ -176,7 +176,7 @@ export async function onRequestPost(context) {
         <tr>
           <td style="padding:36px 32px 28px;">
             <h1 style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111;letter-spacing:-0.5px;">All done, ${firstName}!</h1>
-            <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.6;">Your ${services} on <strong style="color:#111;">${dateStr}</strong>${address ? ' at <strong style="color:#111;">' + address + '</strong>' : ''} is complete. We hope everything is looking spotless.</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#000;line-height:1.6;">Your ${services} on <strong>${dateStr}</strong>${address ? ' at <strong>' + address + '</strong>' : ''} is complete. We hope everything is looking spotless.</p>
 
             <!-- Divider -->
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;"><tr><td style="border-top:1px solid #eee;"></td></tr></table>
@@ -185,30 +185,30 @@ export async function onRequestPost(context) {
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border-radius:8px;padding:20px 24px;margin:0 0 28px;">
               <tr>
                 <td>
-                  <p style="margin:0 0 6px;font-size:15px;font-weight:700;color:#111;">Happy with the result?</p>
-                  <p style="margin:0 0 16px;font-size:14px;color:#666;line-height:1.55;">A quick Google review helps other locals find trustworthy cleaners — it only takes a minute.</p>
-                  <a href="https://g.page/r/myquest-review" style="display:inline-block;background:#FFD400;color:#000;padding:11px 26px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">Leave a Review &#8594;</a>
+                  <p style="margin:0 0 6px;font-size:15px;font-weight:700;color:#000;">Happy with the result?</p>
+                  <p style="margin:0 0 16px;font-size:14px;color:rgba(0,0,0,0.55);line-height:1.55;">A quick Google review helps other locals find trustworthy cleaners — it only takes a minute.</p>
+                  <a href="https://g.page/r/myquest-review" style="display:inline-block;background:#000;color:#fff;padding:11px 26px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">Leave a Review &#8594;</a>
                 </td>
               </tr>
             </table>
 
-            <p style="margin:0 0 8px;font-size:14px;color:#555;line-height:1.6;">Need us again? It's easy to book:</p>
+            <p style="margin:0 0 8px;font-size:14px;color:#000;line-height:1.6;">Need us again? It's easy to book:</p>
             <p style="margin:0 0 32px;font-size:14px;">
               <a href="https://myquest.au" style="color:#000;font-weight:700;text-decoration:none;">myquest.au</a>
               &nbsp;&nbsp;|&nbsp;&nbsp;
               <a href="tel:+61497828838" style="color:#000;font-weight:700;text-decoration:none;">0497 828 838</a>
             </p>
 
-            <p style="margin:0;font-size:14px;color:#888;line-height:1.6;">Thank you for choosing MyQuest,<br><strong style="color:#111;">The MyQuest Team</strong></p>
+            <p style="margin:0;font-size:14px;color:rgba(0,0,0,0.5);line-height:1.6;">Thank you for choosing MyQuest,<br><strong style="color:#000;">The MyQuest Team</strong></p>
           </td>
         </tr>
 
         <!-- Footer -->
         <tr>
           <td style="background:#f9f9f9;padding:16px 32px;border-top:1px solid #eee;">
-            <p style="margin:0;font-size:11px;color:#aaa;text-align:center;">
+            <p style="margin:0;font-size:11px;color:rgba(0,0,0,0.35);text-align:center;">
               MyQuest Cleaning Services &nbsp;&bull;&nbsp; Northern Rivers &amp; Gold Coast &nbsp;&bull;&nbsp;
-              <a href="mailto:hello@myquest.au" style="color:#aaa;text-decoration:none;">hello@myquest.au</a>
+              <a href="mailto:hello@myquest.au" style="color:rgba(0,0,0,0.35);text-decoration:none;">hello@myquest.au</a>
             </p>
           </td>
         </tr>

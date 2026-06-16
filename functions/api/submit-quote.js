@@ -164,25 +164,25 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <div style="background:#FFD400;padding:28px 36px;">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
-      <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-      <text x="28" y="25" font-family="'Plus Jakarta Sans',sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text>
+      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#000"/>
+      <path d="M20 2 C20 2 22 16 14 22" stroke="#000" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <text x="28" y="25" font-family="'Plus Jakarta Sans',sans-serif" font-weight="700" font-size="18" fill="#000">MyQuest</text>
     </svg>
   </div>
   <div style="background:#fff;padding:36px;">
-    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Hi ${full_name}, we've got your request!</h2>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">Thanks for reaching out to MyQuest. We've received your quote request and a member of our team will be in touch within <strong>2 hours</strong>.</p>
-    <div style="background:#f9fafb;border-radius:8px;padding:20px;margin:0 0 24px;">
-      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;margin:0 0 12px;">Your request</p>
-      <p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Services:</strong> ${services}</p>
-      ${suburb ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Suburb:</strong> ${suburb}</p>` : ''}
-      ${body.property_type ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Property:</strong> ${body.property_type}</p>` : ''}
-      ${body.frequency ? `<p style="margin:4px 0;font-size:14px;color:#111827;"><strong>Frequency:</strong> ${body.frequency}</p>` : ''}
+    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#000;">Hi ${full_name}, we've got your request!</h2>
+    <p style="color:#000;line-height:1.7;margin:0 0 20px;">Thanks for reaching out to MyQuest. We've received your quote request and a member of our team will be in touch within <strong>2 hours</strong>.</p>
+    <div style="background:#f4f4f4;border-radius:8px;padding:20px;margin:0 0 24px;">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(0,0,0,0.4);margin:0 0 12px;">Your request</p>
+      <p style="margin:4px 0;font-size:14px;color:#000;"><strong>Services:</strong> ${services}</p>
+      ${suburb ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Suburb:</strong> ${suburb}</p>` : ''}
+      ${body.property_type ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Property:</strong> ${body.property_type}</p>` : ''}
+      ${body.frequency ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Frequency:</strong> ${body.frequency}</p>` : ''}
     </div>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">If you have any questions before we reach out, give us a call:</p>
-    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:16px;">0497 828 838</a></p>
-    <p style="color:#6b7280;font-size:14px;margin:0;">The MyQuest Team<br>
-    <a href="https://myquest.au" style="color:#FFD400;">myquest.au</a></p>
+    <p style="color:#000;line-height:1.7;margin:0 0 8px;">If you have any questions before we reach out, give us a call:</p>
+    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#000;font-weight:700;font-size:16px;">0497 828 838</a></p>
+    <p style="color:rgba(0,0,0,0.45);font-size:14px;margin:0;">The MyQuest Team<br>
+    <a href="https://myquest.au" style="color:#000;font-weight:700;">myquest.au</a></p>
   </div>
 </div>
 </body></html>`,
@@ -192,8 +192,8 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
   // Admin notification
   const rows = [
     row('Name', escHtmlEmail(full_name), false),
-    row('Phone', `<a href="tel:${escHtmlEmail(phone)}" style="color:#FFD400;">${escHtmlEmail(phone)}</a>`, true),
-    row('Email', `<a href="mailto:${escHtmlEmail(email)}" style="color:#FFD400;">${escHtmlEmail(email)}</a>`, false),
+    row('Phone', `<a href="tel:${escHtmlEmail(phone)}" style="color:#000;font-weight:600;">${escHtmlEmail(phone)}</a>`, true),
+    row('Email', `<a href="mailto:${escHtmlEmail(email)}" style="color:#000;font-weight:600;">${escHtmlEmail(email)}</a>`, false),
     body.preferred_contact ? row('Preferred contact', escHtmlEmail(body.preferred_contact), true)  : '',
     address                ? row('Address',           escHtmlEmail(address),                 false) : '',
     body.property_type     ? row('Property type',     escHtmlEmail(body.property_type),      true)  : '',
@@ -219,15 +219,15 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:sans-serif;max-width:600px;margin:32px auto;">
   <div style="background:#FFD400;padding:20px 24px;border-radius:8px 8px 0 0;">
-    <h2 style="color:white;margin:0;font-size:18px;">New Quote Request</h2>
-    <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px;">Submitted ${new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })}</p>
+    <h2 style="color:#000;margin:0;font-size:18px;">New Quote Request</h2>
+    <p style="color:rgba(0,0,0,0.55);margin:4px 0 0;font-size:13px;">Submitted ${new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })}</p>
   </div>
   <div style="background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;">
     <table style="width:100%;border-collapse:collapse;font-size:14px;">${rows}</table>
   </div>
   <p style="text-align:center;margin-top:20px;">
     <a href="https://myquest.au/dashboard/unscheduled-jobs.html"
-       style="background:#FFD400;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+       style="background:#000;color:#fff;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
       View in Dashboard →
     </a>
   </p>
@@ -238,10 +238,10 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
 }
 
 function row(label, value, stripe) {
-  var bg = stripe ? 'background:#f9fafb;' : '';
+  var bg = stripe ? 'background:#f4f4f4;' : '';
   return `<tr style="${bg}">
-    <td style="padding:8px 16px;font-weight:600;white-space:nowrap;color:#374151;width:140px;">${label}</td>
-    <td style="padding:8px 16px;color:#111827;">${value}</td>
+    <td style="padding:8px 16px;font-weight:600;white-space:nowrap;color:#000;width:140px;">${label}</td>
+    <td style="padding:8px 16px;color:#000;">${value}</td>
   </tr>`;
 }
 
