@@ -9,7 +9,7 @@ html:has(.login-page) {
 }
 
 .login-page {
-  background: #000;
+  background: #f8f7f4;
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
@@ -244,5 +244,21 @@ html:has(.login-page) {
   }
   .login-card {
     padding: var(--space-8) var(--space-6);
+  }
+}
+
+/* Landscape on short screens — unlock vertical scroll so password is reachable */
+@media (orientation: landscape) and (max-height: 600px) {
+  html:has(.login-page) {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .login-page {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100dvh;
+    align-items: flex-start;
+    padding-block: var(--space-8);
   }
 }
