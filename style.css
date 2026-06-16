@@ -365,8 +365,8 @@ textarea.form-input {
   align-items: center;
   gap: var(--space-16);
   background: #FFD400;
-  border-radius: 32px;
-  padding: var(--space-12) var(--space-12);
+  border-radius: 40px;
+  padding: var(--space-20) var(--space-16);
 }
 
 .hero__content {
@@ -871,13 +871,16 @@ textarea.form-input {
   /* ---- Hero -------------------------------------------------- */
   .hero {
     min-height: auto;
-    padding-block: var(--space-10);
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
   }
 
   .hero__inner {
     grid-template-columns: 1fr;
     gap: var(--space-6);
     text-align: center;
+    border-radius: 28px;
+    padding: var(--space-10) var(--space-6);
   }
 
   .hero__actions {

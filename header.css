@@ -139,20 +139,20 @@ body.menu-open .mobile-menu-backdrop {
 
 .mobile-menu {
   position: fixed;
-  top: 12px;
-  right: 12px;
-  bottom: 12px;
-  left: 12px;
+  top: 24px;
+  right: 20px;
+  bottom: 24px;
+  left: 20px;
   width: auto;
   background: #FFD400;
-  border-radius: 28px;
+  border-radius: 32px;
   z-index: 200;
   display: flex;
   flex-direction: column;
   padding: var(--space-6);
   padding-top: max(var(--space-6), env(safe-area-inset-top));
   padding-bottom: max(var(--space-6), env(safe-area-inset-bottom));
-  transform: translateX(calc(100% + 12px));
+  transform: translateX(calc(100% + 20px));
   transition: transform var(--transition-slow);
   overflow: hidden;
 }
