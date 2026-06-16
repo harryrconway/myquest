@@ -292,9 +292,13 @@
         'mid-cleaner': 'badge--grey', 'junior-cleaner': 'badge--grey', staff: 'badge--grey',
       };
       heroAvatar.textContent      = staffInitials(s.name);
-      heroAvatar.style.background = s.colour || '#334155';
+      heroAvatar.style.background = s.colour || '#000';
       heroName.textContent        = s.name || s.email || '—';
-      heroEmail.textContent       = s.email || '';
+      var joinedStr = s.startDate
+        ? 'Joined ' + new Date(s.startDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+        : '';
+      heroEmail.innerHTML = escHtml(s.email || '') +
+        (joinedStr ? '<span style="margin-left:8px;font-size:11px;color:rgba(0,0,0,0.4);font-weight:500;">' + escHtml(joinedStr) + '</span>' : '');
       var roleCls   = ROLE_BADGE[s.role] || 'badge--grey';
       var roleLabel = ROLE_LABELS[s.role] || (s.role || 'Junior Cleaner');
       var statusCls = s.active !== false ? 'badge--green' : 'badge--grey';
