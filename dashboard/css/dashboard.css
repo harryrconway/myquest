@@ -2888,7 +2888,7 @@ a.client-card__contact-line:hover svg { color: #000; }
 .action-btn--view {
   background: #fff;
   color: #000;
-  border-color: #e2e8f0;
+  border-color: #000;
 }
 .action-btn--view:hover {
   background: #f8fafc;
@@ -2940,6 +2940,32 @@ a.client-card__contact-line:hover svg { color: #000; }
   color: #dc2626;
   border-color: #fecaca;
 }
+
+/* ---- Icon-only outline button (e.g. refresh) --------------- */
+.btn-icon-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+.btn-icon-outline:hover {
+  background: #000;
+  color: #fff;
+}
+.btn-icon-outline.is-spinning svg {
+  animation: spin 0.5s linear;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ---- Staff colour swatches (Team Settings panel) ----------- */
 .colour-swatches {

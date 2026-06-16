@@ -46,7 +46,7 @@
     var from = isoDate(startOfMonth(cursor));
     var to   = isoDate(endOfMonth(cursor));
 
-    var query = sb.from('quote_requests')
+    var res = await sb.from('quote_requests')
       .select('*')
       .eq('status', 'scheduled')
       .gte('scheduled_date', from)
@@ -54,12 +54,22 @@
       .order('scheduled_date')
       .order('scheduled_time');
 
-    if (!showAllJobs()) {
-      query = query.contains('assigned_staff_ids', [userId]);
+    if (res.error) {
+      console.error('[my-schedule] load error:', res.error);
+      monthJobs = [];
+    } else {
+      var jobs = (res.data || []).map(function (j) {
+        j.scheduled_date = (j.scheduled_date || '').slice(0, 10);
+        return j;
+      });
+      if (showAllJobs()) {
+        monthJobs = jobs;
+      } else {
+        monthJobs = jobs.filter(function (j) {
+          return Array.isArray(j.assigned_staff_ids) && j.assigned_staff_ids.indexOf(userId) !== -1;
+        });
+      }
     }
-
-    var res = await query;
-    monthJobs = res.data || [];
     updateHeader();
     renderMonth();
   }
