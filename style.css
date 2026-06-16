@@ -664,8 +664,8 @@ textarea.form-input {
   width: 64px;
   height: 64px;
   border-radius: var(--radius-full);
-  background: #000;
-  color: white;
+  background: #FFD400;
+  color: #000;
   font-size: var(--text-xl);
   font-weight: var(--font-weight-bold);
   display: flex;
