@@ -12,7 +12,7 @@
   --color-sand: #e9dcc9;
   --color-clay: #8b5a3c;
   --color-soft-sage: #FFF9CC;
-  --color-off-white: #FFD400;
+  --color-off-white: #f8f7f4;
   --color-dark: #000;
   --color-mid: #000;
   --color-light: #000;
@@ -356,7 +356,7 @@ textarea.form-input {
   display: flex;
   align-items: center;
   background: var(--color-off-white);
-  padding-block: var(--space-16);
+  padding-block: var(--space-12);
 }
 
 .hero__inner {
@@ -364,6 +364,9 @@ textarea.form-input {
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: var(--space-16);
+  background: #FFD400;
+  border-radius: 32px;
+  padding: var(--space-12) var(--space-12);
 }
 
 .hero__content {
