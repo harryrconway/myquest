@@ -150,7 +150,7 @@
     var cJobs = jobRes.data || [];
 
     var statusColor = { completed: '#000', scheduled: '#000', unscheduled: '#000', archived: '#000' };
-    var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
+    var statusBg    = { completed: '#e8e8e8', scheduled: '#e8e8e8', unscheduled: '#f0f0f0', archived: '#f1f5f9' };
     var statusLabel = { completed: 'Done',    scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
 
     var jobHtml = '<div class="client-detail__section-title">Job History (' + cJobs.length + ')</div>';
@@ -326,7 +326,7 @@
 
     var statusLabel = { completed: 'Done', scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
     var statusColor = { completed: '#000', scheduled: '#000', unscheduled: '#000', archived: '#000' };
-    var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
+    var statusBg    = { completed: '#e8e8e8', scheduled: '#e8e8e8', unscheduled: '#f0f0f0', archived: '#f1f5f9' };
 
     resultsEl.innerHTML = matched.map(function (j, i) {
       var location  = [j.suburb, j.state].filter(Boolean).join(', ');

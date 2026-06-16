@@ -382,8 +382,8 @@
       if (isInView) {
         document.getElementById('sj-view-body').innerHTML =
           '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:18px;">' +
-            '<div style="width:68px;height:68px;background:#FFF9CC;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
-              '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9A7700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+            '<div style="width:68px;height:68px;background:#f0f0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+              '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
             '</div>' +
             '<div>' +
               '<div style="font-size:19px;font-weight:700;color:#000;margin-bottom:8px;">Job Complete!</div>' +
@@ -395,7 +395,7 @@
         if (footer) {
           footer.innerHTML =
             '<button class="btn-outline" onclick="MQ.ui.modal.close(\'modal-sj-view\');">Close</button>' +
-            '<a class="btn-primary" href="completed-jobs.html">View Completed Jobs</a>';
+            (MQ.hasRole('owner') ? '<a class="btn-primary" href="completed-jobs.html">View Completed Jobs</a>' : '');
         }
         viewingId = null;
         load();

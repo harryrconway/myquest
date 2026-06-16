@@ -12,7 +12,7 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost(context) {
-  const { request, env } = context;
+  const { request, env, waitUntil } = context;
   const SUPABASE_URL_BASE = env.SUPABASE_URL;
   const SERVICE_KEY = env.SUPABASE_SERVICE_KEY;
   const RESEND_KEY  = env.RESEND_API_KEY;
@@ -79,7 +79,6 @@ export async function onRequestPost(context) {
       const daysAhead = daysMap[job.recurrence] || 7;
       const base = new Date(job.scheduled_date + 'T00:00:00');
       base.setDate(base.getDate() + daysAhead);
-      const nextDateStr = base.toISOString().split('T')[0];
 
       const cloneBody = {
         full_name:           job.full_name,
@@ -111,11 +110,12 @@ export async function onRequestPost(context) {
         recurrence:          job.recurrence,
         recurrence_parent_id: job.recurrence_parent_id || job.id,
         checklist:           [],
+        scheduled_date:      base.toISOString().split('T')[0],
         created_at:          new Date().toISOString(),
         updated_at:          new Date().toISOString(),
       };
 
-      await fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
+      waitUntil(fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${SERVICE_KEY}`,
@@ -124,47 +124,102 @@ export async function onRequestPost(context) {
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify(cloneBody),
-      }).catch(() => {});
+      }).catch(() => {}));
     } catch (e) { /* clone failure doesn't block complete */ }
   }
 
-  // Send thank-you email to customer
+  // Send thank-you email to customer via waitUntil so Cloudflare doesn't kill it
   if (RESEND_KEY && job.email) {
-    const services = job.services && job.services.length ? job.services.join(', ') : 'cleaning service';
+    const firstName = (job.full_name || '').split(' ')[0] || job.full_name;
+    const services  = job.services && job.services.length ? job.services.join(', ') : 'cleaning service';
+    const address   = [job.street_address, job.suburb].filter(Boolean).join(', ') || '';
+    const dateStr   = job.scheduled_date
+      ? new Date(job.scheduled_date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })
+      : 'today';
 
-    fetch('https://api.resend.com/emails', {
+    waitUntil(fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from:    'MyQuest <hello@myquest.au>',
         to:      [job.email],
-        subject: 'Thanks for choosing MyQuest — we hope you love the result',
+        subject: `Thanks for choosing MyQuest, ${firstName} — your clean is done!`,
         html: `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
-<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <div style="background:#FFD400;padding:28px 36px;">
-    <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
-      <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-      <text x="28" y="25" font-family="'Plus Jakarta Sans',sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text>
-    </svg>
-  </div>
-  <div style="background:#fff;padding:36px;">
-    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Thanks, ${job.full_name}!</h2>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">We've just completed your ${services}. We hope everything is looking spotless — it was a pleasure working for you.</p>
-    <div style="background:#FFFDE7;border-radius:8px;padding:20px;margin:0 0 24px;text-align:center;">
-      <p style="font-size:15px;color:#166534;font-weight:600;margin:0 0 8px;">Happy with the result?</p>
-      <p style="font-size:14px;color:#4b5563;margin:0 0 16px;">A quick review helps other homeowners find trustworthy cleaners.</p>
-      <a href="https://g.page/r/review" style="background:#FFD400;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block;">Leave a Review</a>
-    </div>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">Need us again? Booking is easy:</p>
-    <p style="margin:0 0 24px;"><a href="https://myquest.au" style="color:#FFD400;font-weight:700;font-size:15px;">myquest.au</a> &nbsp;or&nbsp; <a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:15px;">0497 828 838</a></p>
-    <p style="color:#6b7280;font-size:14px;margin:0;">Thanks again,<br>The MyQuest Team</p>
-  </div>
-</div>
-</body></html>`,
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:#FFD400;padding:24px 32px;">
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <svg width="110" height="28" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#000"/>
+                    <path d="M20 2 C20 2 22 16 14 22" stroke="#000" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                    <text x="28" y="25" font-family="Arial,sans-serif" font-weight="700" font-size="18" fill="#000">MyQuest</text>
+                  </svg>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:36px 32px 28px;">
+            <h1 style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111;letter-spacing:-0.5px;">All done, ${firstName}!</h1>
+            <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.6;">Your ${services} on <strong style="color:#111;">${dateStr}</strong>${address ? ' at <strong style="color:#111;">' + address + '</strong>' : ''} is complete. We hope everything is looking spotless.</p>
+
+            <!-- Divider -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;"><tr><td style="border-top:1px solid #eee;"></td></tr></table>
+
+            <!-- Review CTA -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border-radius:8px;padding:20px 24px;margin:0 0 28px;">
+              <tr>
+                <td>
+                  <p style="margin:0 0 6px;font-size:15px;font-weight:700;color:#111;">Happy with the result?</p>
+                  <p style="margin:0 0 16px;font-size:14px;color:#666;line-height:1.55;">A quick Google review helps other locals find trustworthy cleaners — it only takes a minute.</p>
+                  <a href="https://g.page/r/myquest-review" style="display:inline-block;background:#FFD400;color:#000;padding:11px 26px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">Leave a Review &#8594;</a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:0 0 8px;font-size:14px;color:#555;line-height:1.6;">Need us again? It's easy to book:</p>
+            <p style="margin:0 0 32px;font-size:14px;">
+              <a href="https://myquest.au" style="color:#000;font-weight:700;text-decoration:none;">myquest.au</a>
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              <a href="tel:+61497828838" style="color:#000;font-weight:700;text-decoration:none;">0497 828 838</a>
+            </p>
+
+            <p style="margin:0;font-size:14px;color:#888;line-height:1.6;">Thank you for choosing MyQuest,<br><strong style="color:#111;">The MyQuest Team</strong></p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f9f9f9;padding:16px 32px;border-top:1px solid #eee;">
+            <p style="margin:0;font-size:11px;color:#aaa;text-align:center;">
+              MyQuest Cleaning Services &nbsp;&bull;&nbsp; Northern Rivers &amp; Gold Coast &nbsp;&bull;&nbsp;
+              <a href="mailto:hello@myquest.au" style="color:#aaa;text-decoration:none;">hello@myquest.au</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
       }),
-    }).catch(() => {});
+    }).catch(() => {}));
   }
 
   return json({ success: true }, 200);
