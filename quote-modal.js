@@ -1,5 +1,4 @@
 /* Public site — 4-step quote request modal */
-window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we check window.google directly
 
 (function () {
   'use strict';
@@ -518,56 +517,6 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
     });
   }
 
-  function initPlacesAutocomplete() {
-    if (!window.google || !google.maps || !google.maps.places) return;
-    var streetEl = document.getElementById('qm-street');
-    if (!streetEl) return;
-
-    var ac = new google.maps.places.Autocomplete(streetEl, {
-      componentRestrictions: { country: 'au' },
-      fields: ['address_components'],
-      types: ['address']
-    });
-
-    ac.addListener('place_changed', function () {
-      var place = ac.getPlace();
-      if (!place.address_components) return;
-
-      var streetNum = '', route = '', suburb = '', stateShort = '', postcode = '';
-      place.address_components.forEach(function (c) {
-        if (c.types.includes('street_number'))               streetNum  = c.long_name;
-        if (c.types.includes('route'))                       route      = c.long_name;
-        if (c.types.includes('locality'))                    suburb     = c.long_name;
-        if (c.types.includes('administrative_area_level_1')) stateShort = c.short_name;
-        if (c.types.includes('postal_code'))                 postcode   = c.long_name;
-      });
-
-      var street = streetNum ? streetNum + ' ' + route : route;
-      streetEl.value = street;
-      state.street_address = street;
-
-      var suburbEl = document.getElementById('qm-suburb');
-      if (suburbEl) { suburbEl.value = suburb; state.suburb = suburb; }
-
-      var pcEl = document.getElementById('qm-postcode');
-      if (pcEl) { pcEl.value = postcode; state.postcode = postcode; }
-
-      if (stateShort) {
-        state.state = stateShort;
-        var valEl   = document.getElementById('qm-state-val');
-        var dd      = document.getElementById('qm-state-dd');
-        var list    = document.getElementById('qm-state-list');
-        if (valEl) valEl.textContent = stateShort;
-        if (dd)    dd.classList.remove('qm-dropdown--placeholder');
-        if (list)  list.querySelectorAll('.qm-dropdown__opt').forEach(function (opt) {
-          opt.classList.toggle('qm-dropdown__opt--sel', opt.dataset.val === stateShort);
-        });
-      }
-
-      var accessEl = document.getElementById('qm-access');
-      if (accessEl) accessEl.focus();
-    });
-  }
 
   function wireStep(n) {
     switch (n) {
@@ -641,7 +590,6 @@ window.initGoogleMaps = function () {}; // called by Google SDK once loaded; we 
         wireStepperField('qm-beds',   'bedrooms',     20);
         wireStepperField('qm-baths',  'bathrooms',    20);
         wireStepperField('qm-living', 'living_areas', 10);
-        initPlacesAutocomplete();
         break;
 
       case 2:
