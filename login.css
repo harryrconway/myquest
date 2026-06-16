@@ -3,7 +3,7 @@
    ============================================================ */
 
 .login-page {
-  background: #f8f7f4;
+  background: #FFD400;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -20,9 +20,9 @@
 }
 
 .login-card {
-  background: #FFD400;
+  background: #fff;
   border-radius: var(--radius-xl);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
   width: 100%;
   max-width: 440px;
   padding: var(--space-12);
@@ -37,7 +37,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: #000;
+  background: #FFD400;
 }
 
 /* ---- Form State ------------------------------------------- */
@@ -67,7 +67,7 @@
 
 .login-sub {
   font-size: var(--text-sm);
-  color: rgba(0,0,0,0.6);
+  color: #000;
   line-height: 1.65;
   max-width: 30ch;
 }
