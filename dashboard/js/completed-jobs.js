@@ -100,14 +100,22 @@
     }
 
     var html = list.map(function (j) {
-      var initial  = (j.full_name || '?')[0].toUpperCase();
-      var location = [j.suburb, j.state].filter(Boolean).join(', ');
-      var chips    = (j.services || []).slice(0, 3).map(function (s) {
+      var initial    = (j.full_name || '?')[0].toUpperCase();
+      var location   = [j.suburb, j.state].filter(Boolean).join(', ');
+      var chips      = (j.services || []).slice(0, 3).map(function (s) {
         return '<span class="req-chip req-chip--green">' + escHtml(s) + '</span>';
       }).join('');
-      var doneOn = completedOn(j.updated_at);
+      var doneOn     = completedOn(j.updated_at);
+      var invoiceSent = !!j.invoice_sent_at;
+      var invoiceBadge = invoiceSent
+        ? '<div class="job-card__invoice-badge">' +
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+            ' Invoice Sent' +
+          '</div>'
+        : '';
 
-      return '<div class="job-card job-card--completed">' +
+      return '<div class="job-card job-card--completed' + (invoiceSent ? ' job-card--invoice-sent' : '') + '">' +
+        invoiceBadge +
         '<div class="job-card__done-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>' +
         '<div class="req-card__avatar req-card__avatar--green">' + initial + '</div>' +
         '<div class="req-card__body">' +

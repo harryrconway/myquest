@@ -419,7 +419,9 @@
   width: 100%;
   max-width: 540px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   overscroll-behavior: contain;
   box-shadow: 0 8px 32px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08);
   transform: translateY(20px) scale(0.98);
@@ -478,6 +480,9 @@
 
 .modal-body {
   padding: 24px 28px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -3718,6 +3723,7 @@ a.client-card__contact-line:hover svg { color: #000; }
 .job-card--completed {
   display: flex;
   align-items: flex-start;
+  position: relative;
   background: #fff;
   border-radius: 12px;
   border: 1.5px solid #ebebeb;
@@ -3729,6 +3735,25 @@ a.client-card__contact-line:hover svg { color: #000; }
 }
 
 .job-card--completed { background: #f0f0f0; border-left-color: #000; opacity: 1; }
+.job-card--invoice-sent {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-left-color: #22c55e;
+}
+.job-card__invoice-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  border-radius: 20px;
+  padding: 3px 8px;
+}
 
 .job-card--scheduled {
   flex-direction: column;
@@ -4459,7 +4484,7 @@ a.client-card__contact-line:hover svg { color: #000; }
   cursor: pointer;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.myschedule-job:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.myschedule-job:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); border-color: #000; background: #fafafa; }
 .myschedule-job__time {
   font-size: 11px;
   font-weight: 700;
@@ -4699,6 +4724,8 @@ a.client-card__contact-line:hover svg { color: #000; }
     z-index: 100;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
   }
+  .cal-panel__body { max-height: 45dvh; }
+  .cal-panel-job { padding: 10px 12px; }
   .clients-layout { grid-template-columns: 1fr; }
   .client-detail {
     position: fixed;
@@ -4724,8 +4751,6 @@ a.client-card__contact-line:hover svg { color: #000; }
   .cal-cell__dot { display: block; }
   .cal-cell__day { font-size: 12px; width: 22px; height: 22px; }
   .myschedule-hero { padding: 16px 18px; }
-  .myschedule-job { flex-direction: column; gap: 8px; }
-  .myschedule-job__time { width: auto; }
 }
 
 @media (max-width: 480px) {
@@ -5180,3 +5205,6 @@ a.client-card__contact-line:hover svg { color: #000; }
 .settings-accordion__body {
   padding: 24px 28px;
 }
+
+/* ─── Override yellow focus ring from style.css (--color-forest-green: #FFD400) ── */
+.dash-shell *:focus-visible { outline-color: #000; }
