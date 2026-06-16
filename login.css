@@ -287,9 +287,14 @@
 
 /* ---- Responsive ------------------------------------------- */
 @media (max-width: 480px) {
+  .login-page {
+    padding: var(--space-8) var(--space-6);
+    min-height: 100dvh;
+    align-items: center;
+  }
   .login-card {
     padding: var(--space-8) var(--space-6);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
   }
 }
 
