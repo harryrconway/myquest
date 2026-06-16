@@ -127,7 +127,7 @@
       '<span class="client-detail-row__val"><a href="tel:' + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a></span></div>';
     if (address) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Address</span>' +
       '<span class="client-detail-row__val">' + escHtml(address) + '</span></div>';
-    if (!c.email && !c.phone && !address) rows += '<div class="client-detail-row"><span class="client-detail-row__val" style="color:#94a3b8;font-style:italic;">No contact info</span></div>';
+    if (!c.email && !c.phone && !address) rows += '<div class="client-detail-row"><span class="client-detail-row__val" style="color:#000;font-style:italic;">No contact info</span></div>';
     if (c.notes) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Notes</span>' +
       '<span class="client-detail-row__val">' + escHtml(c.notes) + '</span></div>';
 
@@ -137,7 +137,7 @@
     if (actions) rows += '<div style="display:flex;gap:8px;padding:12px 0 4px;">' + actions + '</div>';
 
     rows += '<div class="client-detail__section-title">Job History</div>' +
-      '<p style="font-size:13px;color:#94a3b8;padding:6px 0;">Loading…</p>';
+      '<p style="font-size:13px;color:#000;padding:6px 0;">Loading…</p>';
     body.innerHTML = rows;
 
     document.getElementById('client-detail').hidden = false;
@@ -149,17 +149,17 @@
       .order('created_at', { ascending: false });
     var cJobs = jobRes.data || [];
 
-    var statusColor = { completed: '#FFD400', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
+    var statusColor = { completed: '#000', scheduled: '#000', unscheduled: '#000', archived: '#000' };
     var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
     var statusLabel = { completed: 'Done',    scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
 
     var jobHtml = '<div class="client-detail__section-title">Job History (' + cJobs.length + ')</div>';
     if (cJobs.length === 0) {
-      jobHtml += '<p style="font-size:13px;color:#94a3b8;font-style:italic;padding:6px 0;">No jobs yet</p>';
+      jobHtml += '<p style="font-size:13px;color:#000;font-style:italic;padding:6px 0;">No jobs yet</p>';
     } else {
       cJobs.forEach(function (j) {
         var dateStr = j.scheduled_date || (j.created_at || '').split('T')[0];
-        var badge = '<span style="font-size:10px;font-weight:700;color:' + (statusColor[j.status] || '#64748b') +
+        var badge = '<span style="font-size:10px;font-weight:700;color:' + (statusColor[j.status] || '#000') +
           ';background:' + (statusBg[j.status] || '#f1f5f9') + ';padding:2px 6px;border-radius:4px;margin-left:6px;">' +
           (statusLabel[j.status] || j.status) + '</span>';
         jobHtml += '<div class="client-detail__job">' +
@@ -169,7 +169,7 @@
             (j.bedrooms  ? ' · ' + j.bedrooms  + 'BR' : '') +
             (j.bathrooms ? ' / ' + j.bathrooms + 'BA' : '') +
           '</div>' +
-          (j.invoice_reference ? '<div style="font-size:11px;color:#64748b;margin-top:3px;">Invoice: <span style="font-weight:600;">' + escHtml(j.invoice_reference) + '</span></div>' : '') +
+          (j.invoice_reference ? '<div style="font-size:11px;color:#000;margin-top:3px;">Invoice: <span style="font-weight:600;">' + escHtml(j.invoice_reference) + '</span></div>' : '') +
           '</div>';
       });
     }
@@ -299,7 +299,7 @@
     }
     if (!pastJobs.length) {
       var resultsEl = document.getElementById('cf-past-results');
-      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">Loading…</div>';
+      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#000;">Loading…</div>';
       resultsEl.style.display = '';
       loadPastJobs().then(function () { renderPastResults(query); });
       return;
@@ -319,13 +319,13 @@
     }).slice(0, 8);
 
     if (!matched.length) {
-      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#94a3b8;">No past jobs found</div>';
+      resultsEl.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#000;">No past jobs found</div>';
       resultsEl.style.display = '';
       return;
     }
 
     var statusLabel = { completed: 'Done', scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
-    var statusColor = { completed: '#065f46', scheduled: '#1e40af', unscheduled: '#92400e', archived: '#64748b' };
+    var statusColor = { completed: '#000', scheduled: '#000', unscheduled: '#000', archived: '#000' };
     var statusBg    = { completed: '#d1fae5', scheduled: '#dbeafe', unscheduled: '#fef3c7', archived: '#f1f5f9' };
 
     resultsEl.innerHTML = matched.map(function (j, i) {
@@ -334,7 +334,7 @@
       var inv       = j.invoice_reference
         ? '<span class="cf-past-result__inv">INV: ' + escHtml(j.invoice_reference) + '</span>' : '';
       var statusTag = j.status
-        ? '<span style="font-size:10px;font-weight:700;color:' + (statusColor[j.status] || '#64748b') + ';background:' + (statusBg[j.status] || '#f1f5f9') + ';padding:1px 6px;border-radius:4px;margin-left:6px;">' + (statusLabel[j.status] || j.status) + '</span>' : '';
+        ? '<span style="font-size:10px;font-weight:700;color:' + (statusColor[j.status] || '#000') + ';background:' + (statusBg[j.status] || '#f1f5f9') + ';padding:1px 6px;border-radius:4px;margin-left:6px;">' + (statusLabel[j.status] || j.status) + '</span>' : '';
       var services  = (j.services || []).slice(0, 2).join(', ');
       return '<div class="cf-past-result" data-idx="' + i + '">' +
         '<div class="cf-past-result__name">' + escHtml(j.full_name) + statusTag + inv + '</div>' +

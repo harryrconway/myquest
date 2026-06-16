@@ -13,9 +13,9 @@
   --color-clay: #8b5a3c;
   --color-soft-sage: #FFF9CC;
   --color-off-white: #f8f7f4;
-  --color-dark: #1a1a1a;
-  --color-mid: #4a4a4a;
-  --color-light: #9ca3af;
+  --color-dark: #000;
+  --color-mid: #000;
+  --color-light: #000;
   --color-error: #dc2626;
 
   /* Typography */
@@ -139,8 +139,8 @@ h1, h2, h3, h4, h5, h6 {
   top: -100%;
   left: 1rem;
   padding: 0.5rem 1rem;
-  background: var(--color-forest-green);
-  color: #000;
+  background: #000;
+  color: white;
   border-radius: var(--radius-sm);
   z-index: 9999;
   font-weight: var(--font-weight-semibold);
@@ -196,7 +196,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.1em;
   font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-sage);
+  color: #000;
   margin-bottom: var(--space-2);
 }
 
@@ -237,13 +237,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--color-forest-green);
-  color: #000;
+  background: #000;
+  color: white;
   border: 2px solid transparent;
 }
 
 .btn-primary:hover {
-  background: var(--color-forest-green-dark);
+  background: #222;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -255,13 +255,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-outline {
   background: transparent;
-  color: var(--color-forest-green);
-  border: 2px solid var(--color-forest-green);
+  color: #000;
+  border: 2px solid #000;
 }
 
 .btn-outline:hover {
-  background: var(--color-forest-green);
-  color: #000;
+  background: #000;
+  color: white;
   transform: translateY(-1px);
 }
 
@@ -299,7 +299,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-input:focus {
   outline: none;
-  border-color: var(--color-forest-green);
+  border-color: #000;
   box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.15);
 }
 
@@ -494,7 +494,7 @@ textarea.form-input {
 }
 
 .svc-item__icon {
-  color: var(--color-forest-green);
+  color: #000;
   line-height: 0;
 }
 
@@ -661,8 +661,8 @@ textarea.form-input {
   width: 64px;
   height: 64px;
   border-radius: var(--radius-full);
-  background: var(--color-forest-green);
-  color: #000;
+  background: #000;
+  color: white;
   font-size: var(--text-xl);
   font-weight: var(--font-weight-bold);
   display: flex;
@@ -725,7 +725,7 @@ textarea.form-input {
   right: var(--space-6);
   font-size: 5rem;
   line-height: 1;
-  color: var(--color-soft-sage);
+  color: #000;
   font-family: Georgia, serif;
   pointer-events: none;
 }
@@ -756,8 +756,8 @@ textarea.form-input {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-full);
-  background: var(--color-forest-green);
-  color: #000;
+  background: #000;
+  color: white;
   font-size: var(--text-sm);
   font-weight: var(--font-weight-bold);
   display: flex;
@@ -825,7 +825,7 @@ textarea.form-input {
 }
 
 .contact__details svg {
-  color: var(--color-forest-green);
+  color: #000;
   flex-shrink: 0;
 }
 
@@ -836,14 +836,14 @@ textarea.form-input {
 }
 
 .contact__details a:hover {
-  color: var(--color-forest-green);
+  color: #000;
 }
 
 /* ---- Hero CTA note ----------------------------------------- */
 .hero__cta-note {
   margin: 0;
   font-size: var(--text-sm);
-  color: #0f172a;
+  color: #000;
 }
 
 /* ============================================================
@@ -1066,7 +1066,7 @@ textarea.form-input {
 .qm-sn-item--active .qm-sn-item__circle {
   background: #fff;
   border-color: #fff;
-  color: #18181b;
+  color: #000;
 }
 
 .qm-sn-item--active .qm-sn-item__label {
@@ -1150,7 +1150,7 @@ textarea.form-input {
 
 .qm-progress__bar {
   height: 100%;
-  background: #FFD400;
+  background: #000;
   border-radius: 0 9999px 9999px 0;
   transition: width 0.4s ease;
   width: 10%;
@@ -1159,7 +1159,7 @@ textarea.form-input {
 .qm-step-label {
   font-size: 12px;
   font-weight: 500;
-  color: #94a3b8;
+  color: #000;
   flex: 1;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -1175,7 +1175,7 @@ textarea.form-input {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #9ca3af;
+  color: #000;
   border-radius: 8px;
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
@@ -1183,14 +1183,14 @@ textarea.form-input {
 
 .qm-close:hover {
   background: #f1f5f9;
-  color: #374151;
+  color: #000;
 }
 
 /* ── Title ── */
 .qm-title {
   font-size: 30px;
   font-weight: 700;
-  color: #111827;
+  color: #000;
   margin: 0;
   padding: 28px 40px 0;
   flex-shrink: 0;
@@ -1236,7 +1236,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #9ca3af;
+  color: #000;
   margin: 0;
   padding-bottom: 10px;
   border-bottom: 1px solid #f1f5f9;
@@ -1279,7 +1279,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #9ca3af;
+  color: #000;
   margin: 0;
   padding-bottom: 10px;
   border-bottom: 1px solid #f1f5f9;
@@ -1297,7 +1297,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #6b7280;
+  color: #000;
 }
 
 .qm-req {
@@ -1311,19 +1311,19 @@ textarea.form-input {
   border-radius: 8px;
   font-size: 15px;
   font-family: inherit;
-  color: #111827;
+  color: #000;
   background: #fff;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
 }
 
 .qm-input::placeholder {
-  color: #9ca3af;
+  color: #000;
 }
 
 .qm-input:focus {
   outline: none;
-  border-color: #FFD400;
+  border-color: #000;
   box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
 }
 
@@ -1349,7 +1349,7 @@ textarea.form-input {
   background: #fff;
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  color: #111827;
+  color: #000;
   font-size: 15px;
   font-weight: 400;
   font-family: inherit;
@@ -1358,27 +1358,27 @@ textarea.form-input {
 }
 
 .qm-dropdown--placeholder .qm-dropdown__trigger {
-  color: #9ca3af;
+  color: #000;
 }
 
 .qm-dropdown__trigger svg {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: #000;
   transition: transform 0.2s ease;
 }
 
 .qm-dropdown:hover .qm-dropdown__trigger {
-  border-color: #FFD400;
+  border-color: #000;
 }
 
 .qm-dropdown--open .qm-dropdown__trigger {
-  border-color: #FFD400;
+  border-color: #000;
   box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
 }
 
 .qm-dropdown--open .qm-dropdown__trigger svg {
   transform: rotate(180deg);
-  color: #FFD400;
+  color: #000;
 }
 
 .qm-dropdown__list {
@@ -1412,7 +1412,7 @@ textarea.form-input {
   justify-content: space-between;
   padding: 10px 14px;
   font-size: 14px;
-  color: #374151;
+  color: #000;
   transition: background 0.1s;
   cursor: pointer;
   border-bottom: 1px solid #f9fafb;
@@ -1424,11 +1424,11 @@ textarea.form-input {
 
 .qm-dropdown__opt:hover {
   background: #f9fafb;
-  color: #111827;
+  color: #000;
 }
 
 .qm-dropdown__opt--sel {
-  color: #FFD400;
+  color: #000;
   font-weight: 600;
   background: #FFFDE7;
 }
@@ -1436,7 +1436,7 @@ textarea.form-input {
 .qm-dropdown__opt--sel::after {
   content: '✓';
   font-size: 12px;
-  color: #FFD400;
+  color: #000;
 }
 
 /* ── Grid helpers ── */
@@ -1454,7 +1454,7 @@ textarea.form-input {
 
 .qm-hint {
   font-size: 13px;
-  color: #6b7280;
+  color: #000;
   margin: 0;
 }
 
@@ -1475,7 +1475,7 @@ textarea.form-input {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  color: #374151;
+  color: #000;
   background: #fff;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
@@ -1484,9 +1484,9 @@ textarea.form-input {
 
 .qm-radio-pill--on,
 .qm-radio-pill:has(input:checked) {
-  border-color: #FFD400;
-  background: #FFD400;
-  color: #fff;
+  border-color: #000;
+  background: #000;
+  color: white;
 }
 
 /* ── Property type tiles ── */
@@ -1510,20 +1510,20 @@ textarea.form-input {
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: #374151;
+  color: #000;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
 .qm-tile:hover {
-  border-color: #FFD400;
+  border-color: #000;
   background: #FFFDE7;
-  color: #FFD400;
+  color: #000;
 }
 
 .qm-tile--selected {
-  border-color: #FFD400;
-  background: #FFD400;
-  color: #fff;
+  border-color: #000;
+  background: #000;
+  color: white;
 }
 
 /* ── Radio cards ── */
@@ -1548,36 +1548,36 @@ textarea.form-input {
 .qm-rcard input { display: none; }
 
 .qm-rcard:hover {
-  border-color: #FFD400;
+  border-color: #000;
   background: #f9fafb;
 }
 
 .qm-rcard--on,
 .qm-rcard:has(input:checked) {
-  border-color: #FFD400;
+  border-color: #000;
   background: #FFFDE7;
 }
 
 .qm-rcard__label {
   font-size: 14px;
   font-weight: 600;
-  color: #111827;
+  color: #000;
   flex: 1;
 }
 
 .qm-rcard--on .qm-rcard__label,
 .qm-rcard:has(input:checked) .qm-rcard__label {
-  color: #FFD400;
+  color: #000;
 }
 
 .qm-rcard__desc {
   font-size: 12px;
-  color: #9ca3af;
+  color: #000;
 }
 
 .qm-rcard--on .qm-rcard__desc,
 .qm-rcard:has(input:checked) .qm-rcard__desc {
-  color: #FFE566;
+  color: #000;
 }
 
 /* ── Check tiles ── */
@@ -1597,7 +1597,7 @@ textarea.form-input {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  color: #374151;
+  color: #000;
   background: #fff;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   position: relative;
@@ -1607,15 +1607,15 @@ textarea.form-input {
 .qm-ctile input { display: none; }
 
 .qm-ctile:hover {
-  border-color: #FFD400;
+  border-color: #000;
   background: #f9fafb;
 }
 
 .qm-ctile--on,
 .qm-ctile:has(input:checked) {
-  border-color: #FFD400;
+  border-color: #000;
   background: #FFFDE7;
-  color: #FFD400;
+  color: #000;
   font-weight: 600;
 }
 
@@ -1625,7 +1625,7 @@ textarea.form-input {
   margin-left: auto;
   font-size: 11px;
   font-weight: 700;
-  color: #FFD400;
+  color: #000;
 }
 
 /* ── Day picker ── */
@@ -1646,7 +1646,7 @@ textarea.form-input {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  color: #374151;
+  color: #000;
   background: #fff;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   user-select: none;
@@ -1664,20 +1664,20 @@ textarea.form-input {
 
 .qm-day:hover,
 .qm-day:active {
-  border-color: #FFD400;
+  border-color: #000;
   background: #FFFDE7;
-  color: #FFD400;
+  color: #000;
 }
 
 .qm-day--on,
 .qm-day:has(input:checked) {
-  border-color: #FFD400;
-  background: #FFD400;
-  color: #fff;
+  border-color: #000;
+  background: #000;
+  color: white;
 }
 
 .qm-day:focus-visible {
-  outline: 2px solid #FFD400;
+  outline: 2px solid #000;
   outline-offset: 2px;
 }
 
@@ -1705,46 +1705,46 @@ textarea.form-input {
 .qm-time-pill input { display: none; }
 
 .qm-time-pill:hover {
-  border-color: #FFD400;
+  border-color: #000;
   background: #f9fafb;
 }
 
 .qm-time-pill--on,
 .qm-time-pill:has(input:checked) {
-  border-color: #FFD400;
+  border-color: #000;
   background: #FFFDE7;
 }
 
 .qm-time-pill__label {
   font-size: 13px;
   font-weight: 700;
-  color: #111827;
+  color: #000;
 }
 
 .qm-time-pill--on .qm-time-pill__label,
 .qm-time-pill:has(input:checked) .qm-time-pill__label {
-  color: #FFD400;
+  color: #000;
 }
 
 .qm-time-pill__range {
   font-size: 11px;
-  color: #9ca3af;
+  color: #000;
 }
 
 .qm-time-pill--on .qm-time-pill__range,
 .qm-time-pill:has(input:checked) .qm-time-pill__range {
-  color: #FFE566;
+  color: #000;
 }
 
 /* ── Notes word counter ── */
 .qm-word-count {
   font-size: 12px;
-  color: #9ca3af;
+  color: #000;
   text-align: right;
   margin-top: 4px;
 }
 
-.qm-word-count--near { color: #d97706; }
+.qm-word-count--near { color: #000; }
 .qm-word-count--full { color: #dc2626; }
 
 /* ── Flexible checkbox row ── */
@@ -1753,14 +1753,14 @@ textarea.form-input {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #374151;
+  color: #000;
   cursor: pointer;
 }
 
 /* ── Helper text ── */
 .qm-helper {
   font-size: 11px;
-  color: #9ca3af;
+  color: #000;
   margin: 2px 0 0;
   line-height: 1.4;
 }
@@ -1798,7 +1798,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #9ca3af;
+  color: #000;
   width: 140px;
   vertical-align: middle;
   white-space: nowrap;
@@ -1806,14 +1806,14 @@ textarea.form-input {
 
 .qm-rv__val {
   padding: 10px 0;
-  color: #111827;
+  color: #000;
   font-weight: 500;
 }
 
 .qm-rv__edit {
   width: 24px;
   text-align: right;
-  color: #d1d5db;
+  color: #000;
   font-size: 18px;
   padding-right: 4px;
 }
@@ -1824,12 +1824,12 @@ textarea.form-input {
 
 .qm-rv__hint {
   font-size: 12px;
-  color: #9ca3af;
+  color: #000;
   margin: 0 0 10px;
   text-align: right;
 }
 
-.qm-rv__row:hover .qm-rv__edit { color: #6b7280; }
+.qm-rv__row:hover .qm-rv__edit { color: #000; }
 
 /* ── Success step ── */
 .qm-success {
@@ -1845,8 +1845,8 @@ textarea.form-input {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #FFD400;
-  color: #000;
+  background: #000;
+  color: white;
   font-size: 28px;
   font-weight: 700;
   display: flex;
@@ -1857,14 +1857,14 @@ textarea.form-input {
 .qm-success__heading {
   font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: #000;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .qm-success__body {
   font-size: 15px;
-  color: #4b5563;
+  color: #000;
   line-height: 1.65;
   margin: 0;
   max-width: 400px;
@@ -1872,7 +1872,7 @@ textarea.form-input {
 
 .qm-success__sub {
   font-size: 14px;
-  color: #9ca3af;
+  color: #000;
   margin: 0;
 }
 
@@ -1883,7 +1883,7 @@ textarea.form-input {
 
 .qm-success__countdown {
   font-size: 13px;
-  color: #9ca3af;
+  color: #000;
   margin-top: 4px;
 }
 
@@ -1894,8 +1894,8 @@ textarea.form-input {
   display: inline-block;
   width: 13px;
   height: 13px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: #000;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
   border-radius: 50%;
   animation: qm-spin 0.65s linear infinite;
   margin-right: 7px;
@@ -1920,7 +1920,7 @@ textarea.form-input {
 }
 
 .qm-stepper-grid .qm-field:focus-within {
-  border-color: #FFD400;
+  border-color: #000;
 }
 
 .qm-stepper-grid .qm-label {
@@ -1928,7 +1928,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #6b7280;
+  color: #000;
   text-align: center;
   margin-bottom: 6px;
 }
@@ -1945,13 +1945,13 @@ textarea.form-input {
 .qm-stepper-grid .qm-stepper__val {
   font-size: 28px;
   font-weight: 700;
-  color: #111827;
+  color: #000;
 }
 
 .qm-stepper-grid .qm-stepper__btn {
   font-size: 22px;
   width: 40px;
-  color: #FFD400;
+  color: #000;
 }
 
 .qm-stepper {
@@ -1966,13 +1966,13 @@ textarea.form-input {
 }
 
 .qm-stepper:focus-within {
-  border-color: #FFD400;
+  border-color: #000;
 }
 
 .qm-stepper__btn {
   background: none;
   border: none;
-  color: #FFD400;
+  color: #000;
   font-size: 22px;
   line-height: 1;
   width: 48px;
@@ -2008,7 +2008,7 @@ textarea.form-input {
   text-align: center;
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: #000;
   pointer-events: none;
   user-select: none;
 }

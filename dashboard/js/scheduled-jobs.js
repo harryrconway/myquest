@@ -325,7 +325,7 @@
           '<div class="job-detail__section">' +
             '<div class="job-detail__section-title">Notes</div>' +
             (j.notes ? '<div class="job-detail__note">' + escHtml(j.notes) + '</div>' : '') +
-            (j.internal_notes ? '<div class="job-detail__note" style="margin-top:6px;border-left:3px solid #FFD400;">' + escHtml(j.internal_notes) + '</div>' : '') +
+            (j.internal_notes ? '<div class="job-detail__note" style="margin-top:6px;border-left:3px solid #000;">' + escHtml(j.internal_notes) + '</div>' : '') +
           '</div>'
         : '') +
 
@@ -386,8 +386,8 @@
               '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9A7700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
             '</div>' +
             '<div>' +
-              '<div style="font-size:19px;font-weight:700;color:#9A7700;margin-bottom:8px;">Job Complete!</div>' +
-              '<div style="font-size:14px;color:#6b7280;line-height:1.55;">A thank-you email has been sent to<br><strong style="color:#374151;">' + escHtml(j.email || j.full_name) + '</strong>.</div>' +
+              '<div style="font-size:19px;font-weight:700;color:#000;margin-bottom:8px;">Job Complete!</div>' +
+              '<div style="font-size:14px;color:#000;line-height:1.55;">A thank-you email has been sent to<br><strong style="color:#000;">' + escHtml(j.email || j.full_name) + '</strong>.</div>' +
             '</div>' +
           '</div>';
 
@@ -464,7 +464,7 @@
         (s.colour ? '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + escHtml(s.colour) + ';flex-shrink:0;"></span>' : '') +
         '<input type="checkbox" value="' + escHtml(s.id) + '"' + checked + '> ' + escHtml(s.name) +
       '</label>';
-    }).join('') : '<span style="font-size:13px;color:#9ca3af;">No staff added yet</span>';
+    }).join('') : '<span style="font-size:13px;color:#000;">No staff added yet</span>';
 
     MQ.ui.modal.close('modal-sj-view');
     MQ.ui.modal.open('modal-sj-edit');

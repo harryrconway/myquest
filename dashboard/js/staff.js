@@ -120,7 +120,7 @@
   };
 
   var STAFF_PALETTE = [
-    '#1a1a1a','#FFD400','#D4AF00','#FFE566',
+    '#1a1a1a','#000000','#333333','#666666',
     '#0f766e','#0d9488',
     '#1e3a5f','#1e40af','#0369a1','#0891b2',
     '#4f46e5','#7c3aed','#9333ea',
@@ -156,7 +156,7 @@
     if (!list) return;
 
     // Open modal immediately so mobile gets instant visual feedback
-    list.innerHTML = '<div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:14px;">Loading…</div>';
+    list.innerHTML = '<div style="text-align:center;padding:24px 16px;color:#000;font-size:14px;">Loading…</div>';
     MQ.ui.modal.open('modal-add-staff');
 
     try {
@@ -179,9 +179,9 @@
       if (!available.length) {
         list.innerHTML = '<div style="text-align:center;padding:20px 16px;">' +
           '<div style="font-size:32px;margin-bottom:12px;">👤</div>' +
-          '<p style="font-size:14px;font-weight:600;color:#0f172a;margin:0 0 6px;">No accounts available</p>' +
-          '<p style="font-size:13px;color:#64748b;margin:0 0 16px;">Create a staff account in Settings first, then come back here to add them to the team.</p>' +
-          '<a href="settings.html" style="display:inline-block;background:#FFD400;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
+          '<p style="font-size:14px;font-weight:600;color:#000;margin:0 0 6px;">No accounts available</p>' +
+          '<p style="font-size:13px;color:#000;margin:0 0 16px;">Create a staff account in Settings first, then come back here to add them to the team.</p>' +
+          '<a href="settings.html" style="display:inline-block;background:#000;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Go to Settings</a>' +
           '</div>';
         return;
       }
@@ -204,8 +204,8 @@
           'display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;">' +
           esc(initial) + '</div>' +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px;">' + esc(acc.name || acc.email) + '</div>' +
-            '<div style="font-size:12px;color:#94a3b8;">' + esc(acc.email) + '</div>' +
+            '<div style="font-size:14px;font-weight:700;color:#000;margin-bottom:3px;">' + esc(acc.name || acc.email) + '</div>' +
+            '<div style="font-size:12px;color:#000;">' + esc(acc.email) + '</div>' +
           '</div>' +
           '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">' +
             '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;' + roleStyle + ';">' + esc(ROLE_LABELS[acc.role] || acc.role) + '</span>' +
@@ -213,7 +213,7 @@
           '</button>';
       }).join('');
     } catch (e) {
-      list.innerHTML = '<div style="text-align:center;padding:20px 16px;color:#ef4444;font-size:14px;">Failed to load accounts. Please try again.</div>';
+      list.innerHTML = '<div style="text-align:center;padding:20px 16px;color:#000;font-size:14px;">Failed to load accounts. Please try again.</div>';
     }
   }
 
@@ -298,7 +298,7 @@
         '</button>',
       '</div>',
       '<div class="modal-body" id="modal-staff-profile-body" style="padding:24px;">',
-        '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px;">Loading…</div>',
+        '<div style="text-align:center;padding:20px;color:#000;font-size:14px;">Loading…</div>',
       '</div>',
     ].join('');
     MQ.ui.modal.open('modal-staff-profile');
@@ -313,12 +313,12 @@
       function row(label, value) {
         if (!value) return '';
         return '<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">' +
-          '<span style="font-size:11.5px;font-weight:600;color:#94a3b8;min-width:130px;text-transform:uppercase;letter-spacing:0.05em;padding-top:2px;flex-shrink:0;">' + label + '</span>' +
-          '<span style="font-size:14px;color:#0f172a;flex:1;">' + esc(String(value)) + '</span>' +
+          '<span style="font-size:11.5px;font-weight:600;color:#000;min-width:130px;text-transform:uppercase;letter-spacing:0.05em;padding-top:2px;flex-shrink:0;">' + label + '</span>' +
+          '<span style="font-size:14px;color:#000;flex:1;">' + esc(String(value)) + '</span>' +
         '</div>';
       }
       function section(title) {
-        return '<p style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin:20px 0 4px;">' + title + '</p>';
+        return '<p style="font-size:11px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:0.07em;margin:20px 0 4px;">' + title + '</p>';
       }
 
       var staffRec = MQ.store.staff.getById(id);
@@ -330,7 +330,7 @@
         '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">',
           '<div style="width:56px;height:56px;border-radius:16px;' + (colour ? 'background:' + colour : 'background:linear-gradient(135deg,#0f172a,#334155)') + ';display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;">' + esc(name.charAt(0).toUpperCase()) + '</div>',
           '<div>',
-            '<div style="font-size:17px;font-weight:700;color:#0f172a;margin-bottom:5px;">' + esc(name) + '</div>',
+            '<div style="font-size:17px;font-weight:700;color:#000;margin-bottom:5px;">' + esc(name) + '</div>',
             roleBadge(p.role),
           '</div>',
         '</div>',
@@ -356,7 +356,7 @@
       ].join('');
     } catch (e) {
       var body = document.getElementById('modal-staff-profile-body');
-      if (body) body.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:14px;">Failed to load profile. Please try again.</div>';
+      if (body) body.innerHTML = '<div style="text-align:center;padding:20px;color:#000;font-size:14px;">Failed to load profile. Please try again.</div>';
     }
   }
 

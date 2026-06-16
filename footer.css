@@ -57,7 +57,7 @@
 
 .footer-social__link:hover {
   background: var(--color-forest-green);
-  border-color: var(--color-forest-green);
+  border-color: #000;
   color: white;
 }
 
@@ -107,7 +107,7 @@
 .footer-contact__list li svg {
   flex-shrink: 0;
   margin-top: 3px;
-  color: var(--color-sage);
+  color: #000;
 }
 
 .footer-contact__list a {

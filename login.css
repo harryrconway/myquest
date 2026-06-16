@@ -3,7 +3,7 @@
    ============================================================ */
 
 .login-page {
-  background: linear-gradient(135deg, var(--color-forest-green) 0%, #C8A800 50%, var(--color-sage) 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 50%, #555 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -97,7 +97,7 @@
 }
 
 .login-back:hover {
-  color: var(--color-forest-green);
+  color: #000;
 }
 
 /* ---- Success State ---------------------------------------- */
@@ -146,7 +146,7 @@
 
 .login-resend {
   font-size: var(--text-sm);
-  color: var(--color-forest-green);
+  color: #000;
   font-weight: var(--font-weight-medium);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-full);
@@ -186,7 +186,7 @@
   justify-content: center;
   margin-bottom: var(--space-2);
 }
-.login-badge--green { background: #FFFDE7; color: #9A7700; }
+.login-badge--green { background: #FFFDE7; color: #000; }
 .login-badge--blue  { background: #dbeafe; color: #1d4ed8; }
 
 /* Error block */
@@ -260,11 +260,11 @@
   padding: 12px 14px;
   text-align: left;
   font-size: 12.5px;
-  color: #64748b;
+  color: #000;
 }
 .pw-requirements p {
   font-weight: 700;
-  color: #475569;
+  color: #000;
   margin-bottom: 6px;
 }
 .pw-requirements ul {
@@ -278,12 +278,12 @@
 .pw-requirements li::before {
   content: '✕';
   margin-right: 8px;
-  color: #94a3b8;
+  color: #000;
   font-size: 11px;
   font-weight: 700;
 }
-.pw-requirements li.req-met { color: #9A7700; }
-.pw-requirements li.req-met::before { content: '✓'; color: #9A7700; }
+.pw-requirements li.req-met { color: #000; }
+.pw-requirements li.req-met::before { content: '✓'; color: #000; }
 
 /* ---- Responsive ------------------------------------------- */
 @media (max-width: 480px) {
