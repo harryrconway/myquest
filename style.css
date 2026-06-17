@@ -889,11 +889,12 @@ textarea.form-input {
 
   .hero__illustration {
     display: flex;
+    justify-content: center;
     margin-top: var(--space-2);
   }
 
   .hero-svg {
-    max-width: 300px;
+    max-width: 220px;
   }
 
   /* ---- Stats ------------------------------------------------- */
