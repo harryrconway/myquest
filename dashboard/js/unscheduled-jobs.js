@@ -139,7 +139,9 @@
         '<div class="req-card__actions">' +
           '<button class="action-btn action-btn--view"   onclick="UJPage.view(\''       + j.id + '\')">View</button>'     +
           '<button class="action-btn action-btn--accept" onclick="UJPage.openAccept(\'' + j.id + '\')">Schedule</button>' +
-          '<button class="action-btn action-btn--archive" onclick="UJPage.archive(\''   + j.id + '\')">Archive</button>'  +
+          '<button class="action-btn action-btn--archive" onclick="UJPage.archive(\'' + j.id + '\')" title="Archive" aria-label="Archive">' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+          '</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -243,6 +245,14 @@
 
   /* ─── Accept / Schedule ─────────────────────────────────────── */
 
+  function setRecurrence(val) {
+    var hiddenEl = document.getElementById('uj-recurrence');
+    if (hiddenEl) hiddenEl.value = val;
+    document.querySelectorAll('#uj-recurrence-btns .recurrence-btn').forEach(function (btn) {
+      btn.classList.toggle('is-active', btn.dataset.value === val);
+    });
+  }
+
   function openAccept(id) {
     viewingId = id;
     document.getElementById('uj-accept-id').value = id;
@@ -250,15 +260,12 @@
     document.getElementById('uj-time').value  = '';
     document.getElementById('uj-notes').value = '';
     document.getElementById('uj-accept-error').style.display = 'none';
-    var recurrenceEl = document.getElementById('uj-recurrence');
-    if (recurrenceEl) {
-      var jForFreq = jobs.find(function (x) { return x.id === id; });
-      var freq = jForFreq && jForFreq.frequency ? jForFreq.frequency.toLowerCase() : '';
-      recurrenceEl.value = freq.indexOf('fort') > -1 ? 'fortnightly'
-                         : freq.indexOf('weekly') > -1 ? 'weekly'
-                         : freq.indexOf('month') > -1 ? 'monthly'
-                         : 'none';
-    }
+    var jForFreq = jobs.find(function (x) { return x.id === id; });
+    var freq = jForFreq && jForFreq.frequency ? jForFreq.frequency.toLowerCase() : '';
+    setRecurrence(freq.indexOf('fort') > -1 ? 'fortnightly'
+                : freq.indexOf('weekly') > -1 ? 'weekly'
+                : freq.indexOf('month') > -1 ? 'monthly'
+                : 'none');
 
     var displayEl = document.getElementById('uj-date-display');
     if (displayEl) { displayEl.textContent = 'Select a date'; displayEl.classList.add('cdp-display--placeholder'); }
@@ -447,6 +454,10 @@
     document.getElementById('btn-refresh').addEventListener('click', load);
     document.getElementById('uj-accept-submit').addEventListener('click', submitAccept);
     document.getElementById('uj-view-accept-btn').addEventListener('click', function () { if (viewingId) openAccept(viewingId); });
+
+    document.querySelectorAll('#uj-recurrence-btns .recurrence-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { setRecurrence(btn.dataset.value); });
+    });
 
     var searchEl = document.getElementById('uj-search');
     if (searchEl) searchEl.addEventListener('input', function () { filterAndRender(this.value); });

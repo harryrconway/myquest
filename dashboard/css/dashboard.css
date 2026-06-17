@@ -2938,13 +2938,41 @@ a.client-card__contact-line:hover svg { color: #000; }
 
 .action-btn--archive {
   background: transparent;
-  color: #000;
+  color: #94a3b8;
   border-color: #e5e7eb;
+  width: auto;
+  padding: 7px 8px;
 }
 .action-btn--archive:hover {
   background: #fef2f2;
   color: #dc2626;
   border-color: #fecaca;
+}
+
+/* Recurrence toggle buttons in schedule modal */
+.recurrence-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.recurrence-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #000;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.recurrence-btn:hover { background: #f1f5f9; border-color: #cbd5e0; }
+.recurrence-btn.is-active {
+  background: #000;
+  color: white;
+  border-color: #000;
 }
 
 /* ---- Icon-only outline button (e.g. refresh) --------------- */
@@ -3519,10 +3547,10 @@ a.client-card__contact-line:hover svg { color: #000; }
 }
 
 .req-card {
-  background: #fdf9f5;
+  background: white;
   border-radius: 14px;
   border: none;
-  border-left: 5px solid #d97706;
+  border-left: 5px solid #000;
   padding: 16px 20px 16px 18px;
   display: flex;
   align-items: flex-start;
@@ -3549,7 +3577,7 @@ a.client-card__contact-line:hover svg { color: #000; }
   justify-content: center;
   flex-shrink: 0;
   margin-top: 1px;
-  box-shadow: 0 0 0 3px #fdf9f5, 0 0 0 5px rgba(217,119,6,0.2);
+  box-shadow: 0 0 0 3px white, 0 0 0 5px rgba(0,0,0,0.1);
 }
 
 .req-card__body {
@@ -3609,12 +3637,12 @@ a.client-card__contact-line:hover svg { color: #000; }
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  background: #f5ede0;
+  background: #f0f0f0;
   color: #000;
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid #e9dcc9;
+  border: 1px solid #e2e8f0;
 }
 
 /* Meta row — property pills + cleaner chips between content and buttons */
