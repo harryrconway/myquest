@@ -140,7 +140,7 @@
           '<button class="action-btn action-btn--view"   onclick="UJPage.view(\''       + j.id + '\')">View</button>'     +
           '<button class="action-btn action-btn--accept" onclick="UJPage.openAccept(\'' + j.id + '\')">Schedule</button>' +
           '<button class="action-btn action-btn--archive" onclick="UJPage.archive(\'' + j.id + '\')" title="Archive" aria-label="Archive">' +
-            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
           '</button>' +
         '</div>' +
       '</div>';
@@ -339,19 +339,48 @@
   /* ─── Archive ───────────────────────────────────────────────── */
 
   function archive(id) {
-    MQ.ui.confirmDelete('Archive this quote request? It will be removed from the queue.', async function () {
-      try {
-        var { error } = await MQ.supabase
-          .from('quote_requests')
-          .update({ status: 'archived', updated_at: new Date().toISOString() })
-          .eq('id', id);
-        if (error) throw error;
-        MQ.ui.toast('Archived', 'info');
-        load();
-      } catch (err) {
-        MQ.ui.toast('Failed to archive: ' + err.message, 'error');
-      }
-    });
+    var card = document.querySelector('.req-card[data-id="' + id + '"]');
+    if (!card) return;
+    var actionsEl = card.querySelector('.req-card__actions');
+    var job = jobs.find(function (x) { return x.id === id; });
+    var name = job ? escHtml(job.full_name || 'this request') : 'this request';
+    actionsEl.dataset.original = actionsEl.innerHTML;
+    actionsEl.innerHTML =
+      '<div class="req-card__confirm">' +
+        '<span class="req-card__confirm-msg">Archive <strong>' + name + '</strong>?</span>' +
+        '<button class="action-btn action-btn--confirm-yes" onclick="UJPage.confirmArchive(\'' + id + '\')">Archive</button>' +
+        '<button class="action-btn action-btn--confirm-no" onclick="UJPage.cancelArchive(\'' + id + '\')">Cancel</button>' +
+      '</div>';
+  }
+
+  function cancelArchive(id) {
+    var card = document.querySelector('.req-card[data-id="' + id + '"]');
+    if (!card) return;
+    var actionsEl = card.querySelector('.req-card__actions');
+    if (actionsEl.dataset.original) {
+      actionsEl.innerHTML = actionsEl.dataset.original;
+      delete actionsEl.dataset.original;
+    }
+  }
+
+  async function confirmArchive(id) {
+    var card = document.querySelector('.req-card[data-id="' + id + '"]');
+    if (card) {
+      var yesBtn = card.querySelector('.action-btn--confirm-yes');
+      if (yesBtn) { yesBtn.disabled = true; yesBtn.textContent = 'Archiving…'; }
+    }
+    try {
+      var { error } = await MQ.supabase
+        .from('quote_requests')
+        .update({ status: 'archived', updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      MQ.ui.toast('Archived', 'info');
+      load();
+    } catch (err) {
+      MQ.ui.toast('Failed to archive: ' + err.message, 'error');
+      cancelArchive(id);
+    }
   }
 
   /* ─── Date Picker ───────────────────────────────────────────── */
@@ -479,5 +508,5 @@
 
   document.addEventListener('mq:pageshow', function () { load(); });
 
-  window.UJPage = { view: view, openAccept: openAccept, archive: archive };
+  window.UJPage = { view: view, openAccept: openAccept, archive: archive, confirmArchive: confirmArchive, cancelArchive: cancelArchive };
 })();

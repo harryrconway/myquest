@@ -2949,6 +2949,38 @@ a.client-card__contact-line:hover svg { color: #000; }
   border-color: #fecaca;
 }
 
+/* Inline archive confirmation */
+.req-card__confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.req-card__confirm-msg {
+  font-size: 13px;
+  color: #000;
+  flex: 1;
+  min-width: 0;
+}
+.action-btn--confirm-yes {
+  background: #dc2626;
+  color: white;
+  border-color: transparent;
+  width: auto;
+  padding: 6px 14px;
+  font-size: 12px;
+}
+.action-btn--confirm-yes:hover { background: #b91c1c; transform: none; }
+.action-btn--confirm-no {
+  background: white;
+  color: #000;
+  border-color: #e2e8f0;
+  width: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.action-btn--confirm-no:hover { background: #f1f5f9; }
+
 /* Recurrence toggle buttons in schedule modal */
 .recurrence-btns {
   display: flex;
