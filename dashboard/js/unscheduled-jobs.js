@@ -293,6 +293,8 @@
     var staffIds = Array.from(document.querySelectorAll('#uj-staff-checkboxes input:checked'))
       .map(function (cb) { return cb.value; });
 
+    if (!staffIds.length) { errEl.textContent = 'Please assign at least one staff member before confirming.'; errEl.style.display = ''; return; }
+
     var staffMembers        = staffIds.map(function (id) { return MQ.store.staff.getById(id); }).filter(Boolean);
     var assignedStaffColour = staffMembers.length ? (staffMembers[0].colour || '') : '';
     var assignedStaffName   = staffMembers.map(function (s) { return s.name; }).join(', ');

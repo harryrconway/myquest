@@ -7,6 +7,7 @@
   var selectedClientId = null;
   var editingClientId  = null;
   var importSourceId   = null;
+  var showFollowUpOnly = false;
 
   async function callApi(path, body) {
     var sess = await sb.auth.getSession();
@@ -49,10 +50,16 @@
         var d = j.scheduled_date || (j.created_at || '').split('T')[0];
         if (!lastDate || d > lastDate) lastDate = d;
       });
-      return Object.assign({}, c, { job_count: cJobs.length, last_date: lastDate });
+      var daysSince = lastDate
+        ? Math.floor((Date.now() - new Date(lastDate)) / 86400000)
+        : (cJobs.length === 0 ? Math.floor((Date.now() - new Date(c.created_at || 0)) / 86400000) : 0);
+      return Object.assign({}, c, { job_count: cJobs.length, last_date: lastDate, days_since: daysSince, needs_follow_up: daysSince > 60 });
     });
 
     document.getElementById('clients-count').textContent = clients.length;
+    var followUpCount = clients.filter(function (c) { return c.needs_follow_up; }).length;
+    var followUpCountEl = document.getElementById('clients-followup-count');
+    if (followUpCountEl) followUpCountEl.textContent = followUpCount || '';
     renderGrid(filterClients(document.getElementById('clients-search').value));
   }
 
@@ -69,7 +76,7 @@
 
     grid.innerHTML = list.map(function (c) {
       var location  = [c.suburb, c.state].filter(Boolean).join(', ');
-      var lastLabel = c.last_date ? 'Last: ' + fmtDate(c.last_date) : '';
+      var lastLabel = c.last_date ? fmtDate(c.last_date) : 'No jobs yet';
       return '<div class="client-card' + (c.id === selectedClientId ? ' is-selected' : '') + '" data-id="' + c.id + '">' +
         '<div class="client-card__top">' +
           '<div class="client-card__avatar">' + initials(c.full_name) + '</div>' +
@@ -77,13 +84,19 @@
             '<div class="client-card__name">' + escHtml(c.full_name) + '</div>' +
             '<div class="client-card__contact">' + escHtml(c.email || c.phone || '') + '</div>' +
           '</div>' +
+          (c.needs_follow_up ? '<div class="client-card__followup-badge">Follow Up</div>' : '') +
         '</div>' +
         '<div class="client-card__meta">' +
-          '<div class="client-card__location">' + escHtml(location || lastLabel) + '</div>' +
+          '<div class="client-card__location">' + escHtml(location) + '</div>' +
           '<div class="client-card__stats">' +
             '<div class="client-stat"><div class="client-stat__val">' + c.job_count + '</div><div class="client-stat__lbl">Jobs</div></div>' +
           '</div>' +
-        '</div></div>';
+        '</div>' +
+        '<div class="client-card__lastjob">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>' +
+          escHtml(lastLabel) +
+        '</div>' +
+        '</div>';
     }).join('');
 
     grid.querySelectorAll('.client-card').forEach(function (card) {
@@ -92,9 +105,10 @@
   }
 
   function filterClients(q) {
-    if (!q) return clients;
+    var list = showFollowUpOnly ? clients.filter(function (c) { return c.needs_follow_up; }) : clients;
+    if (!q) return list;
     q = q.toLowerCase();
-    return clients.filter(function (c) {
+    return list.filter(function (c) {
       return (c.full_name || '').toLowerCase().indexOf(q) !== -1 ||
         (c.email    || '').toLowerCase().indexOf(q) !== -1 ||
         (c.suburb   || '').toLowerCase().indexOf(q) !== -1 ||
@@ -102,7 +116,7 @@
     });
   }
 
-  async function selectClient(id) {
+  function selectClient(id) {
     selectedClientId = id;
     var c = clients.find(function (x) { return x.id === id; });
     if (!c) return;
@@ -115,66 +129,97 @@
     var subParts = [];
     if (c.email) subParts.push('<a href="mailto:' + escHtml(c.email) + '">' + escHtml(c.email) + '</a>');
     if (c.phone) subParts.push('<a href="tel:'    + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a>');
-    document.getElementById('cd-sub').innerHTML = subParts.join(' · ') || 'No contact info';
+    document.getElementById('cd-sub').innerHTML = subParts.join(' \xb7 ') || 'No contact info';
 
     var body    = document.getElementById('cd-body');
     var address = [c.street_address, c.suburb, c.state, c.postcode].filter(Boolean).join(', ');
+    var rows    = '';
 
-    var rows = '<div class="client-detail__section-title">Contact</div>';
+    if (c.needs_follow_up) {
+      rows += '<div class="client-followup-banner">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg>' +
+        'No job in ' + c.days_since + ' days — consider reaching out' +
+      '</div>';
+    }
+
+    rows += '<div class="client-detail__section-title">Contact</div>';
     if (c.email) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Email</span>' +
       '<span class="client-detail-row__val"><a href="mailto:' + escHtml(c.email) + '">' + escHtml(c.email) + '</a></span></div>';
     if (c.phone) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Phone</span>' +
       '<span class="client-detail-row__val"><a href="tel:' + escHtml(c.phone) + '">' + escHtml(c.phone) + '</a></span></div>';
     if (address) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Address</span>' +
       '<span class="client-detail-row__val">' + escHtml(address) + '</span></div>';
+    if (c.last_date) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Last Job</span>' +
+      '<span class="client-detail-row__val">' + fmtDate(c.last_date) + '</span></div>';
     if (!c.email && !c.phone && !address) rows += '<div class="client-detail-row"><span class="client-detail-row__val" style="color:#000;font-style:italic;">No contact info</span></div>';
-    if (c.notes) rows += '<div class="client-detail-row"><span class="client-detail-row__label">Notes</span>' +
-      '<span class="client-detail-row__val">' + escHtml(c.notes) + '</span></div>';
 
     var actions = '';
     if (MQ.hasRole('manager')) actions += '<button class="btn-outline" style="font-size:13px;padding:6px 14px;" onclick="ClientsPage.editClient(\'' + escHtml(c.id) + '\')">Edit</button>';
     if (MQ.hasRole('owner'))   actions += '<button class="btn-outline" style="font-size:13px;padding:6px 14px;color:var(--color-error);border-color:var(--color-error);" onclick="ClientsPage.deleteClient(\'' + escHtml(c.id) + '\')">Delete</button>';
     if (actions) rows += '<div style="display:flex;gap:8px;padding:12px 0 4px;">' + actions + '</div>';
 
-    rows += '<div class="client-detail__section-title">Job History</div>' +
-      '<p style="font-size:13px;color:#000;padding:6px 0;">Loading…</p>';
+    rows += '<div class="client-detail__section-title" style="display:flex;align-items:center;justify-content:space-between;">' +
+      '<span>Property Notes</span>' +
+      '<button class="client-notes__edit-btn" onclick="ClientsPage.editNotes()" aria-label="Edit notes">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+        ' Edit' +
+      '</button>' +
+    '</div>' +
+    '<div class="client-notes" id="cd-notes-view">' +
+      (c.notes
+        ? '<div class="client-notes__display">' + escHtml(c.notes) + '</div>'
+        : '<div class="client-notes__empty">No notes yet — add alarm codes, key location, pet info, or preferences.</div>') +
+    '</div>' +
+    '<div class="client-notes" id="cd-notes-edit" hidden>' +
+      '<textarea class="client-notes__textarea" id="cd-notes-textarea" placeholder="Alarm code, key location, pets, surface preferences…">' + escHtml(c.notes || '') + '</textarea>' +
+      '<div class="client-notes__actions">' +
+        '<button class="btn-primary" style="font-size:13px;padding:6px 16px;" onclick="ClientsPage.saveNotes(\'' + escHtml(c.id) + '\')">Save</button>' +
+        '<button class="btn-outline" style="font-size:13px;padding:6px 14px;" onclick="ClientsPage.cancelNotes()">Cancel</button>' +
+      '</div>' +
+    '</div>';
+
     body.innerHTML = rows;
 
     document.getElementById('client-detail').hidden = false;
     document.getElementById('clients-layout').classList.remove('no-panel');
+  }
 
-    var jobRes = await sb.from('quote_requests')
-      .select('id, service_type, suburb, bedrooms, bathrooms, status, scheduled_date, created_at, invoice_reference')
-      .eq('client_id', id)
-      .order('created_at', { ascending: false });
-    var cJobs = jobRes.data || [];
+  function editNotes() {
+    document.getElementById('cd-notes-view').hidden = true;
+    document.getElementById('cd-notes-edit').hidden = false;
+    document.getElementById('cd-notes-textarea').focus();
+  }
 
-    var statusColor = { completed: '#000', scheduled: '#000', unscheduled: '#000', archived: '#000' };
-    var statusBg    = { completed: '#e8e8e8', scheduled: '#e8e8e8', unscheduled: '#f0f0f0', archived: '#f1f5f9' };
-    var statusLabel = { completed: 'Done',    scheduled: 'Scheduled', unscheduled: 'Pending', archived: 'Archived' };
+  function cancelNotes() {
+    document.getElementById('cd-notes-edit').hidden = true;
+    document.getElementById('cd-notes-view').hidden = false;
+  }
 
-    var jobHtml = '<div class="client-detail__section-title">Job History (' + cJobs.length + ')</div>';
-    if (cJobs.length === 0) {
-      jobHtml += '<p style="font-size:13px;color:#000;font-style:italic;padding:6px 0;">No jobs yet</p>';
-    } else {
-      cJobs.forEach(function (j) {
-        var dateStr = j.scheduled_date || (j.created_at || '').split('T')[0];
-        var badge = '<span style="font-size:10px;font-weight:700;color:' + (statusColor[j.status] || '#000') +
-          ';background:' + (statusBg[j.status] || '#f1f5f9') + ';padding:2px 6px;border-radius:4px;margin-left:6px;">' +
-          (statusLabel[j.status] || j.status) + '</span>';
-        jobHtml += '<div class="client-detail__job">' +
-          '<div class="client-detail__job-date">' + fmtDate(dateStr) + badge + '</div>' +
-          '<div class="client-detail__job-name">' + escHtml(j.service_type || 'Cleaning') + '</div>' +
-          '<div class="client-detail__job-meta">' + escHtml(j.suburb || '') +
-            (j.bedrooms  ? ' · ' + j.bedrooms  + 'BR' : '') +
-            (j.bathrooms ? ' / ' + j.bathrooms + 'BA' : '') +
-          '</div>' +
-          (j.invoice_reference ? '<div style="font-size:11px;color:#000;margin-top:3px;">Invoice: <span style="font-weight:600;">' + escHtml(j.invoice_reference) + '</span></div>' : '') +
-          '</div>';
-      });
+  async function saveNotes(id) {
+    var notes = document.getElementById('cd-notes-textarea').value.trim() || null;
+    var btn   = document.querySelector('#cd-notes-edit .btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    var result = await sb.from('clients').update({ notes: notes }).eq('id', id);
+
+    if (result.error) {
+      MQ.ui.toast(result.error.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+      return;
     }
 
-    body.innerHTML = rows.replace(/<div class="client-detail__section-title">Job History<\/div>.*$/s, '') + jobHtml;
+    var c = clients.find(function (x) { return x.id === id; });
+    if (c) c.notes = notes;
+
+    MQ.ui.toast('Notes saved');
+    cancelNotes();
+
+    var notesView = document.getElementById('cd-notes-view');
+    if (notesView) {
+      notesView.innerHTML = notes
+        ? '<div class="client-notes__display">' + escHtml(notes) + '</div>'
+        : '<div class="client-notes__empty">No notes yet — add alarm codes, key location, pet info, or preferences.</div>';
+    }
   }
 
   function closeDetail() {
@@ -399,6 +444,15 @@
     var pastSearch = document.getElementById('cf-past-search');
     if (pastSearch) pastSearch.addEventListener('input', onPastSearchInput);
 
+    var followUpBtn = document.getElementById('clients-followup-filter');
+    if (followUpBtn) {
+      followUpBtn.addEventListener('click', function () {
+        showFollowUpOnly = !showFollowUpOnly;
+        followUpBtn.classList.toggle('is-active', showFollowUpOnly);
+        renderGrid(filterClients(document.getElementById('clients-search').value));
+      });
+    }
+
     if (MQ.hasRole('manager')) {
       var addBtn = document.getElementById('btn-add-client');
       if (addBtn) { addBtn.style.display = ''; addBtn.addEventListener('click', openAddModal); }
@@ -415,5 +469,5 @@
 
   document.addEventListener('mq:pageshow', function () { load(); });
 
-  window.ClientsPage = { editClient: openEditModal, deleteClient: deleteClient, clearImport: clearImport };
+  window.ClientsPage = { editClient: openEditModal, deleteClient: deleteClient, clearImport: clearImport, editNotes: editNotes, saveNotes: saveNotes, cancelNotes: cancelNotes };
 })();

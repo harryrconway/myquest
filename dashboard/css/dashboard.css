@@ -4403,6 +4403,136 @@ a.client-card__contact-line:hover svg { color: #000; }
 }
 .client-detail-row__val { color: #000; word-break: break-word; }
 
+/* Re-engagement badge on card */
+.client-card__followup-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* Last job date row on card */
+.client-card__lastjob {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: rgba(0,0,0,0.45);
+  font-weight: 500;
+}
+
+/* Re-engagement banner in profile panel */
+.client-followup-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1.5px solid #fcd34d;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 14px;
+}
+
+/* Notes section in profile panel */
+.client-notes { margin-top: 0; margin-bottom: 8px; }
+.client-notes__display {
+  font-size: 13.5px;
+  color: #000;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.client-notes__empty {
+  font-size: 13px;
+  color: rgba(0,0,0,0.38);
+  font-style: italic;
+  line-height: 1.5;
+}
+.client-notes__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+}
+.client-notes__edit-btn:hover { background: #f1f5f9; }
+.client-notes__textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #000;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast);
+}
+.client-notes__textarea:focus { outline: none; border-color: #000; }
+.client-notes__actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* Follow-up filter button */
+.clients-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.clients-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.clients-filter-btn:hover { background: #f1f5f9; border-color: #cbd5e0; }
+.clients-filter-btn.is-active {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+.clients-followup-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background: #fcd34d;
+  color: #92400e;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 9px;
+  padding: 0 4px;
+}
+.clients-followup-count:empty { display: none; }
+
 /* ============================================================
    MY SCHEDULE — my-schedule.html
    ============================================================ */

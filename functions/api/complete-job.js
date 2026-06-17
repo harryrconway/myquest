@@ -192,11 +192,14 @@ export async function onRequestPost(context) {
               </tr>
             </table>
 
-            <p style="margin:0 0 8px;font-size:14px;color:#000;line-height:1.6;">Need us again? It's easy to book:</p>
-            <p style="margin:0 0 32px;font-size:14px;">
-              <a href="https://myquest.au" style="color:#000;font-weight:700;text-decoration:none;">myquest.au</a>
-              &nbsp;&nbsp;|&nbsp;&nbsp;
-              <a href="tel:+61497828838" style="color:#000;font-weight:700;text-decoration:none;">0497 828 838</a>
+            <p style="margin:0 0 20px;text-align:center;">
+              <a href="https://myquest.au/#quote"
+                 style="display:inline-block;background:#FFD400;color:#000;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:-0.01em;">
+                Book Another Clean &#8594;
+              </a>
+            </p>
+            <p style="margin:0 0 32px;text-align:center;font-size:13px;color:rgba(0,0,0,0.5);">
+              Or call us on <a href="tel:+61497828838" style="color:rgba(0,0,0,0.5);font-weight:600;text-decoration:none;">0497 828 838</a>
             </p>
 
             <p style="margin:0;font-size:14px;color:rgba(0,0,0,0.5);line-height:1.6;">Thank you for choosing MyQuest,<br><strong style="color:#000;">The MyQuest Team</strong></p>
