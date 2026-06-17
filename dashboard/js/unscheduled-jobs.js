@@ -126,7 +126,7 @@
         return '<span class="req-chip">' + escHtml(s) + '</span>';
       }).join('');
 
-      return '<div class="req-card">' +
+      return '<div class="req-card" data-id="' + j.id + '">' +
         '<div class="req-card__avatar">' + initial + '</div>' +
         '<div class="req-card__body">' +
           '<div class="req-card__row1">' +
