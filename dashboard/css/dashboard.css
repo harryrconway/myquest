@@ -5207,4 +5207,28 @@ a.client-card__contact-line:hover svg { color: #000; }
 }
 
 /* ─── Override yellow focus ring from style.css (--color-forest-green: #FFD400) ── */
-.dash-shell *:focus-visible { outline-color: #000; }
+/* Modals sit outside .dash-shell so need their own override */
+.dash-shell *:focus-visible,
+.modal-overlay *:focus-visible { outline-color: #000; }
+
+/* ─── Danger button (destructive actions like Delete Account) ── */
+.btn-danger {
+  background: #fff1f2;
+  color: #dc2626;
+  border: 1.5px solid #fca5a5;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.btn-danger:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}

@@ -23,6 +23,7 @@
       const firstInput = el.querySelector('input, select, textarea, button');
       if (firstInput) setTimeout(function () { firstInput.focus(); }, 50);
       el.addEventListener('keydown', modal._trapFocus);
+      document.addEventListener('keydown', modal._docEsc);
       el.addEventListener('click', function (e) {
         if (e.target === el) modal.close(id);
       });
@@ -37,11 +38,15 @@
       document.body.style.width = '';
       window.scrollTo(0, _scrollY);
       el.removeEventListener('keydown', modal._trapFocus);
+      document.removeEventListener('keydown', modal._docEsc);
     },
     closeAll: function () {
       document.querySelectorAll('.modal-overlay.is-open').forEach(function (el) {
         modal.close(el.id);
       });
+    },
+    _docEsc: function (e) {
+      if (e.key === 'Escape') modal.closeAll();
     },
     _trapFocus: function (e) {
       if (e.key === 'Escape') {
