@@ -29,12 +29,22 @@
     if (!str) return '';
     var diff  = Date.now() - new Date(str).getTime();
     var mins  = Math.floor(diff / 60000);
-    if (mins < 2)   return 'just now';
+    if (mins < 1)   return 'just now';
     if (mins < 60)  return mins + ' min ago';
     var hours = Math.floor(mins / 60);
     if (hours < 24) return hours + ' hr' + (hours === 1 ? '' : 's') + ' ago';
     var days  = Math.floor(hours / 24);
     return days + ' day' + (days === 1 ? '' : 's') + ' ago';
+  }
+
+  var _ujTimer = null;
+  function startTimerTick() {
+    if (_ujTimer) clearInterval(_ujTimer);
+    _ujTimer = setInterval(function () {
+      document.querySelectorAll('#uj-table-wrap .req-card__ago[data-ts]').forEach(function (el) {
+        el.textContent = timeAgo(el.dataset.ts);
+      });
+    }, 30000);
   }
 
   /* ─── Search / Count ────────────────────────────────────────── */
@@ -85,6 +95,7 @@
     var wrap = document.getElementById('uj-table-wrap');
 
     if (!list.length) {
+      if (_ujTimer) { clearInterval(_ujTimer); _ujTimer = null; }
       wrap.innerHTML = MQ.ui.emptyState(
         'M22 12h-4l-3 9L9 3l-3 9H2',
         jobs.length ? 'No results found' : 'No unscheduled jobs',
@@ -120,7 +131,7 @@
         '<div class="req-card__body">' +
           '<div class="req-card__row1">' +
             '<span class="req-card__name">' + escHtml(j.full_name) + '</span>' +
-            '<span class="req-card__ago">' + timeAgo(j.created_at) + '</span>' +
+            '<span class="req-card__ago" data-ts="' + escHtml(j.created_at || '') + '">' + timeAgo(j.created_at) + '</span>' +
           '</div>' +
           (metaHtml ? '<div class="req-card__meta">' + metaHtml + '</div>' : '') +
           (chips    ? '<div class="req-card__chips">' + chips + '</div>' : '') +
@@ -134,6 +145,7 @@
     }).join('');
 
     wrap.innerHTML = '<div class="req-list">' + html + '</div>';
+    startTimerTick();
   }
 
   /* ─── View details ──────────────────────────────────────────── */
