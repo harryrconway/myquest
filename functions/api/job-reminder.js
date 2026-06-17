@@ -17,7 +17,7 @@ export async function onRequestGet({ request, env }) {
 
   const jobRes = await fetch(
     `${SUPABASE_URL}/rest/v1/quote_requests` +
-    `?status=eq.unscheduled&schedule_reminder_sent=neq.true&created_at=lte.${cutoff}` +
+    `?status=eq.unscheduled&schedule_reminder_sent=not.is.true&created_at=lte.${cutoff}` +
     `&select=id,full_name,phone,email,suburb,services,created_at`,
     { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
   );
@@ -100,7 +100,7 @@ export async function onRequestGet({ request, env }) {
 
           <p style="text-align:center;margin:0 0 24px;">
             <a href="https://myquest.au/dashboard/unscheduled-jobs.html"
-               style="display:inline-block;background:#000;color:#fff;padding:13px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">
+               style="display:inline-block;background:#FFD400;color:#000;padding:13px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">
               View Unscheduled Jobs →
             </a>
           </p>
