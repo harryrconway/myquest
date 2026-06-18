@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260618">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260619">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260620">
   <script src="js/supabase.js?v=20260618"></script>
   <script src="js/supabase-client.js?v=20260618"></script>
   <script src="js/store.js?v=20260618"></script>
@@ -77,7 +77,10 @@
         <input type="search" id="sj-search" class="jobs-search-input" placeholder="Search by name, suburb, service…">
       </div>
 
-      <div id="sj-table-wrap"></div>
+      <div class="sj-layout">
+        <div id="sj-table-wrap"></div>
+        <aside id="sj-digest" class="sj-digest"></aside>
+      </div>
 
     </div></div>
   </div>
@@ -151,6 +154,6 @@
   </div>
 
   <script src="js/ui.js?v=20260618" defer></script>
-  <script src="js/scheduled-jobs.js?v=20260618" defer></script>
+  <script src="js/scheduled-jobs.js?v=20260620" defer></script>
 </body>
 </html>

@@ -55,6 +55,7 @@
     }) : jobs.slice();
     updateCount();
     render(filteredJobs);
+    renderDigest(filteredJobs);
   }
 
   /* ─── Load ─────────────────────────────────────────────────── */
@@ -628,5 +629,78 @@
 
   document.addEventListener('mq:pageshow', function () { load(); });
 
-  window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete };
+  /* ─── Digest panel ──────────────────────────────────────────── */
+
+  function renderDigest(jobList) {
+    var el = document.getElementById('sj-digest');
+    if (!el) return;
+
+    var recurringMap = {};
+    var oneOffs = [];
+
+    jobList.forEach(function (j) {
+      if (j.recurrence && j.recurrence !== 'none') {
+        var key = j.client_id || j.full_name;
+        if (!recurringMap[key]) {
+          recurringMap[key] = { job: j, count: 0, nextDate: j.scheduled_date };
+        }
+        recurringMap[key].count++;
+        if (j.scheduled_date < recurringMap[key].nextDate) {
+          recurringMap[key].nextDate = j.scheduled_date;
+        }
+      } else {
+        oneOffs.push(j);
+      }
+    });
+
+    var clients = Object.values(recurringMap)
+      .sort(function (a, b) { return a.nextDate.localeCompare(b.nextDate); });
+
+    var html = '';
+
+    if (clients.length) {
+      html += '<div class="sj-digest__card"><div class="sj-digest__heading">Recurring Clients</div>';
+      clients.forEach(function (entry) {
+        var j = entry.job;
+        var initial = (j.full_name || '?')[0].toUpperCase();
+        var recLabel = j.recurrence.charAt(0).toUpperCase() + j.recurrence.slice(1);
+        html += '<div class="sj-digest__row" onclick="SJPage.filterToClient(' + JSON.stringify(j.full_name) + ')">' +
+          '<div class="sj-digest__avatar">' + escHtml(initial) + '</div>' +
+          '<div class="sj-digest__info">' +
+            '<div class="sj-digest__name">' + escHtml(j.full_name) + '</div>' +
+            '<div class="sj-digest__sub">' + escHtml(recLabel) + ' &bull; Next: ' + escHtml(fmtDate(entry.nextDate)) + '</div>' +
+          '</div>' +
+          '<div class="sj-digest__badge">' + entry.count + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
+    if (oneOffs.length) {
+      oneOffs.sort(function (a, b) { return a.scheduled_date.localeCompare(b.scheduled_date); });
+      html += '<div class="sj-digest__card"><div class="sj-digest__heading">One-off Jobs</div>' +
+        '<div class="sj-digest__row" style="cursor:default;">' +
+          '<div class="sj-digest__info">' +
+            '<div class="sj-digest__name">' + oneOffs.length + ' upcoming job' + (oneOffs.length !== 1 ? 's' : '') + '</div>' +
+            '<div class="sj-digest__sub">Next: ' + escHtml(fmtDate(oneOffs[0].scheduled_date)) + '</div>' +
+          '</div>' +
+        '</div></div>';
+    }
+
+    if (!html) {
+      html = '<div class="sj-digest__card"><div class="sj-digest__heading" style="border:none;padding:14px;">No upcoming jobs</div></div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  function filterToClient(name) {
+    var searchEl = document.getElementById('sj-search');
+    if (searchEl) {
+      searchEl.value = name;
+      searchEl.dispatchEvent(new Event('input'));
+    }
+  }
+
+  window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete, filterToClient: filterToClient };
 })();
