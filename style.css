@@ -424,6 +424,16 @@ textarea.form-input {
   gap: var(--space-3);
 }
 
+.hero__loc-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+  line-height: 1.6;
+  margin: 0 0 var(--space-2);
+}
+
 .hero__loc-chip {
   display: inline-flex;
   align-self: flex-start;
