@@ -154,95 +154,14 @@
             <p class="hero__cta-note">Receive a callback from our team within 2 hours</p>
           </div>
         </div>
-        <div class="hero__illustration" aria-hidden="true">
-          <svg viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg" class="hero-svg">
-            <defs>
-              <linearGradient id="mq-glass" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#d8edf8"/>
-                <stop offset="100%" stop-color="#b9d5ec"/>
-              </linearGradient>
-              <linearGradient id="mq-shine" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%"   stop-color="white" stop-opacity="0"/>
-                <stop offset="40%"  stop-color="white" stop-opacity="0.55"/>
-                <stop offset="60%"  stop-color="white" stop-opacity="0.55"/>
-                <stop offset="100%" stop-color="white" stop-opacity="0"/>
-              </linearGradient>
-              <clipPath id="mq-panes">
-                <rect x="72" y="66" width="160" height="166" rx="4"/>
-                <rect x="248" y="66" width="160" height="166" rx="4"/>
-                <rect x="72" y="248" width="160" height="166" rx="4"/>
-                <rect x="248" y="248" width="160" height="166" rx="4"/>
-              </clipPath>
-              <style>
-                @keyframes mq-sweep {
-                  0%   { transform: translateX(-160px); opacity: 0; }
-                  6%   { opacity: 1; }
-                  30%  { transform: translateX(460px); opacity: 1; }
-                  36%  { transform: translateX(460px); opacity: 0; }
-                  100% { transform: translateX(-160px); opacity: 0; }
-                }
-                .mq-sweep { animation: mq-sweep 6s ease-in-out infinite; }
-                @keyframes mq-glint {
-                  0%, 80%, 100% { opacity: 0; transform: scale(0.2); }
-                  87%, 93%      { opacity: 1; transform: scale(1); }
-                }
-                .mq-glint {
-                  animation: mq-glint 7s ease-in-out infinite 2s;
-                  transform-box: fill-box;
-                  transform-origin: center;
-                }
-              </style>
-            </defs>
-
-            <!-- Drop shadow -->
-            <rect x="68" y="62" width="360" height="372" rx="20" fill="#000" opacity="0.06"/>
-            <rect x="64" y="58" width="360" height="372" rx="20" fill="#000" opacity="0.05"/>
-
-            <!-- Window frame -->
-            <rect x="60" y="54" width="360" height="372" rx="18" fill="#1c1c1e"/>
-
-            <!-- Glass panes -->
-            <rect x="72" y="66" width="160" height="166" rx="4" fill="url(#mq-glass)"/>
-            <rect x="248" y="66" width="160" height="166" rx="4" fill="url(#mq-glass)"/>
-            <rect x="72" y="248" width="160" height="166" rx="4" fill="url(#mq-glass)"/>
-            <rect x="248" y="248" width="160" height="166" rx="4" fill="url(#mq-glass)"/>
-
-            <!-- Permanent glare lines -->
-            <line x1="76" y1="72" x2="116" y2="72" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-            <line x1="76" y1="79" x2="96" y2="79" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
-            <line x1="252" y1="72" x2="292" y2="72" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-            <line x1="252" y1="79" x2="272" y2="79" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
-            <line x1="76" y1="254" x2="116" y2="254" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-            <line x1="76" y1="261" x2="96" y2="261" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
-            <line x1="252" y1="254" x2="292" y2="254" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-            <line x1="252" y1="261" x2="272" y2="261" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
-
-            <!-- Light sweep (clipped to glass panes) -->
-            <g clip-path="url(#mq-panes)">
-              <rect class="mq-sweep" x="60" y="54" width="80" height="380" fill="url(#mq-shine)"/>
-            </g>
-
-            <!-- Mullions (drawn over sweep to mask frame gaps) -->
-            <rect x="232" y="54" width="16" height="372" fill="#1c1c1e"/>
-            <rect x="60" y="232" width="360" height="16" fill="#1c1c1e"/>
-
-            <!-- Frame inner edge highlights -->
-            <rect x="61" y="55" width="358" height="3" rx="1.5" fill="white" opacity="0.08"/>
-            <rect x="61" y="55" width="3" height="368" rx="1.5" fill="white" opacity="0.05"/>
-
-            <!-- Window handle -->
-            <rect x="236" y="222" width="8" height="36" rx="4" fill="#3a3a3c"/>
-            <rect x="237.5" y="223" width="3" height="34" rx="1.5" fill="white" opacity="0.14"/>
-
-            <!-- Window sill -->
-            <rect x="44" y="420" width="392" height="18" rx="8" fill="#1c1c1e"/>
-            <rect x="50" y="432" width="380" height="8" rx="4" fill="#000" opacity="0.12"/>
-
-            <!-- Glint sparkle -->
-            <g class="mq-glint">
-              <path d="M388 80 L390 74 L392 80 L398 82 L392 84 L390 90 L388 84 L382 82 Z" fill="white" opacity="0.95"/>
-            </g>
-          </svg>
+        <div class="hero__location">
+          <span class="hero__loc-eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Now Servicing
+          </span>
+          <p class="hero__loc-line">Northern</p>
+          <p class="hero__loc-line">Rivers</p>
+          <p class="hero__loc-line hero__loc-line--sub">&amp; Gold Coast</p>
         </div>
       </div>
     </section>

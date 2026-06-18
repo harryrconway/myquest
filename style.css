@@ -417,17 +417,39 @@ textarea.form-input {
   font-size: var(--text-xs);
 }
 
-.hero__illustration {
+.hero__location {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  padding-left: var(--space-12);
+  border-left: 2px solid rgba(0, 0, 0, 0.12);
 }
 
-.hero-svg {
-  width: 100%;
-  max-width: 480px;
-  height: auto;
-  filter: drop-shadow(0 20px 40px rgba(255, 212, 0, 0.12));
+.hero__loc-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: var(--space-4);
+}
+
+.hero__loc-line {
+  font-size: clamp(52px, 5.5vw, 80px);
+  font-weight: 900;
+  color: #000;
+  line-height: 0.95;
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.hero__loc-line--sub {
+  font-size: clamp(36px, 3.8vw, 56px);
+  margin-top: var(--space-3);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 /* ---- Stats Bar --------------------------------------------- */
@@ -887,14 +909,27 @@ textarea.form-input {
     justify-content: center;
   }
 
-  .hero__illustration {
-    display: flex;
-    justify-content: center;
-    margin-top: var(--space-2);
+  .hero__location {
+    order: -1;
+    text-align: center;
+    align-items: center;
+    border-left: none;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    padding-left: 0;
+    padding-bottom: var(--space-5);
+    margin-bottom: var(--space-2);
   }
 
-  .hero-svg {
-    max-width: 220px;
+  .hero__loc-eyebrow {
+    justify-content: center;
+  }
+
+  .hero__loc-line {
+    font-size: clamp(40px, 10vw, 62px);
+  }
+
+  .hero__loc-line--sub {
+    font-size: clamp(28px, 7vw, 44px);
   }
 
   /* ---- Stats ------------------------------------------------- */
