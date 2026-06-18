@@ -75,44 +75,54 @@ export async function onRequestPost(context) {
   // Auto-clone if recurring
   if (job.recurrence && job.recurrence !== 'none' && job.scheduled_date) {
     try {
-      const daysMap = { weekly: 7, fortnightly: 14, monthly: 30 };
-      const daysAhead = daysMap[job.recurrence] || 7;
       const base = new Date(job.scheduled_date + 'T00:00:00');
-      base.setDate(base.getDate() + daysAhead);
+      if (job.recurrence === 'weekly') base.setDate(base.getDate() + 7);
+      else if (job.recurrence === 'fortnightly') base.setDate(base.getDate() + 14);
+      else if (job.recurrence === 'monthly') base.setMonth(base.getMonth() + 1);
+
+      const freshChecklist = Array.isArray(job.checklist) && job.checklist.length
+        ? job.checklist.map(item => ({ id: crypto.randomUUID(), text: item.text, done: false }))
+        : [];
 
       const cloneBody = {
-        full_name:           job.full_name,
-        phone:               job.phone,
-        email:               job.email,
-        preferred_contact:   job.preferred_contact,
-        street_address:      job.street_address,
-        suburb:              job.suburb,
-        state:               job.state,
-        postcode:            job.postcode,
-        access_instructions: job.access_instructions,
-        property_type:       job.property_type,
-        bedrooms:            job.bedrooms,
-        bathrooms:           job.bathrooms,
-        living_areas:        job.living_areas,
-        floor_area_sqm:      job.floor_area_sqm,
-        staff_count:         job.staff_count,
-        services:            job.services,
-        service_type:        job.service_type,
-        frequency:           job.frequency,
-        condition:           job.condition,
-        extras:              job.extras,
-        preferred_days:      job.preferred_days,
-        preferred_time:      job.preferred_time,
-        flexible_schedule:   job.flexible_schedule,
-        notes:               job.notes,
-        client_id:           job.client_id,
-        status:              'unscheduled',
-        recurrence:          job.recurrence,
+        full_name:            job.full_name,
+        phone:                job.phone,
+        email:                job.email,
+        preferred_contact:    job.preferred_contact,
+        street_address:       job.street_address,
+        suburb:               job.suburb,
+        state:                job.state,
+        postcode:             job.postcode,
+        access_instructions:  job.access_instructions,
+        property_type:        job.property_type,
+        bedrooms:             job.bedrooms,
+        bathrooms:            job.bathrooms,
+        living_areas:         job.living_areas,
+        floor_area_sqm:       job.floor_area_sqm,
+        staff_count:          job.staff_count,
+        services:             job.services,
+        service_type:         job.service_type,
+        frequency:            job.frequency,
+        condition:            job.condition,
+        extras:               job.extras,
+        preferred_days:       job.preferred_days,
+        preferred_time:       job.preferred_time,
+        flexible_schedule:    job.flexible_schedule,
+        notes:                job.notes,
+        client_id:            job.client_id,
+        status:               'scheduled',
+        scheduled_date:       base.toISOString().split('T')[0],
+        scheduled_time:       job.scheduled_time,
+        assigned_staff_ids:   job.assigned_staff_ids   || [],
+        assigned_staff_colour: job.assigned_staff_colour || '',
+        assigned_staff_name:  job.assigned_staff_name  || '',
+        internal_notes:       job.internal_notes       || null,
+        recurrence:           job.recurrence,
         recurrence_parent_id: job.recurrence_parent_id || job.id,
-        checklist:           [],
-        scheduled_date:      base.toISOString().split('T')[0],
-        created_at:          new Date().toISOString(),
-        updated_at:          new Date().toISOString(),
+        checklist:            freshChecklist,
+        job_accepted_at:      new Date().toISOString(),
+        created_at:           new Date().toISOString(),
+        updated_at:           new Date().toISOString(),
       };
 
       waitUntil(fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
