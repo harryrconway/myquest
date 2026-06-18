@@ -362,7 +362,7 @@ textarea.form-input {
 .hero__inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: stretch;
+  align-items: center;
   gap: var(--space-16);
   background: #FFD400;
   border-radius: 40px;
@@ -422,13 +422,12 @@ textarea.form-input {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  align-self: stretch;
-  padding-block: 7.5%;
 }
 
 .hero-map-svg {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 320 / 500;
+  max-height: 420px;
 }
 
 /* ---- Stats Bar --------------------------------------------- */
