@@ -424,14 +424,13 @@ textarea.form-input {
   gap: var(--space-3);
 }
 
-.hero__loc-label {
-  font-size: 13px;
+.hero__loc-eyebrow {
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.5);
-  line-height: 1.6;
-  margin: 0 0 var(--space-2);
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
 }
 
 .hero__loc-chip {
@@ -439,10 +438,10 @@ textarea.form-input {
   align-self: flex-start;
   background: #000;
   color: #FFD400;
-  font-size: clamp(11px, 1.2vw, 18px);
+  font-size: clamp(20px, 2.2vw, 32px);
   font-weight: 900;
-  letter-spacing: -0.03em;
-  padding: 6px 22px 12px;
+  letter-spacing: -0.02em;
+  padding: 8px 24px 12px;
   border-radius: 10px;
   line-height: 1;
   margin: 0;
@@ -908,6 +907,7 @@ textarea.form-input {
   .hero__location {
     order: -1;
     align-items: center;
+    text-align: center;
     padding-bottom: var(--space-6);
     margin-bottom: var(--space-2);
     border-bottom: 1.5px solid rgba(0, 0, 0, 0.1);
@@ -915,7 +915,8 @@ textarea.form-input {
 
   .hero__loc-chip {
     align-self: center;
-    font-size: clamp(18px, 5vw, 29px);
+    font-size: clamp(18px, 5.5vw, 26px);
+    text-align: center;
   }
 
   /* ---- Stats ------------------------------------------------- */
