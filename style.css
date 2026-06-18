@@ -427,7 +427,7 @@ textarea.form-input {
 .hero-map-svg {
   width: 100%;
   aspect-ratio: 320 / 500;
-  max-height: 500px;
+  max-height: 560px;
 }
 
 /* ---- Stats Bar --------------------------------------------- */
