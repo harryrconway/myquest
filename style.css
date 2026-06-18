@@ -420,9 +420,10 @@ textarea.form-input {
 /* ---- Hero map ---------------------------------------------- */
 .hero__map {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: flex-end;
   align-self: stretch;
+  padding-block: 7.5%;
 }
 
 .hero-map-svg {
