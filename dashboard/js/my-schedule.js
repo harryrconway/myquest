@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  var escHtml = window.escHtml || function (s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 
   var sb, userId;
   var today = new Date(); today.setHours(0, 0, 0, 0);
