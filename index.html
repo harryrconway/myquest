@@ -33,7 +33,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=20260624">
+  <link rel="stylesheet" href="style.css?v=20260625">
   <link rel="stylesheet" href="header.css?v=20260621">
   <link rel="stylesheet" href="footer.css?v=20260617">
 
@@ -153,6 +153,37 @@
             <button class="btn-primary" data-open-quote>Get a Free Quote</button>
             <p class="hero__cta-note">Receive a callback from our team within 2 hours</p>
           </div>
+        </div>
+        <div class="hero__map" aria-hidden="true">
+          <svg class="hero-map-svg" viewBox="0 0 320 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- QLD land -->
+            <path d="M0,0 L128,0 L148,32 L145,68 L134,109 L120,150 L162,190 L212,218 L228,243 L245,261 L262,289 L0,289 Z" fill="#1d2d4a"/>
+            <!-- NSW land -->
+            <path d="M0,289 L262,289 L264,307 L262,339 L265,363 L282,395 L271,421 L267,448 L252,482 L238,500 L0,500 Z" fill="#142032"/>
+            <!-- Coastline edge highlight -->
+            <path d="M128,0 L148,32 L145,68 L134,109 L120,150 L162,190 L212,218 L228,243 L245,261 L262,289 L264,307 L262,339 L265,363 L282,395 L271,421 L267,448 L252,482 L238,500" stroke="rgba(255,255,255,0.14)" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- State border -->
+            <line x1="0" y1="289" x2="262" y2="289" stroke="white" stroke-width="1.5" stroke-dasharray="7,4" opacity="0.65"/>
+            <!-- State watermarks -->
+            <text x="34" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="700" fill="rgba(255,255,255,0.18)" letter-spacing="0.18em">QLD</text>
+            <text x="34" y="408" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="700" fill="rgba(255,255,255,0.18)" letter-spacing="0.18em">NSW</text>
+            <!-- Gold Coast marker + label -->
+            <circle cx="228" cy="243" r="4.5" fill="#FFD400"/>
+            <text x="218" y="233" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="white" text-anchor="end">Gold Coast</text>
+            <!-- Tweed Heads border dot -->
+            <circle cx="262" cy="289" r="3" fill="rgba(255,255,255,0.55)"/>
+            <!-- Northern Rivers region label -->
+            <text x="38" y="356" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="rgba(255,255,255,0.65)" letter-spacing="0.04em">Northern Rivers</text>
+            <!-- Byron Bay marker + label -->
+            <circle cx="282" cy="395" r="4.5" fill="#FFD400"/>
+            <text x="272" y="385" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="white" text-anchor="end">Byron Bay</text>
+            <!-- Ballina marker -->
+            <circle cx="267" cy="448" r="3" fill="rgba(255,255,255,0.7)"/>
+            <text x="257" y="440" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(255,255,255,0.55)" text-anchor="end">Ballina</text>
+            <!-- North indicator -->
+            <polygon points="300,454 296,466 300,461 304,466" fill="rgba(0,0,0,0.35)"/>
+            <text x="300" y="478" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" font-weight="700" fill="rgba(0,0,0,0.35)" text-anchor="middle" letter-spacing="0.05em">N</text>
+          </svg>
         </div>
       </div>
     </section>
