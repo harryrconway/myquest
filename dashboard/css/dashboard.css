@@ -2632,16 +2632,16 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .action-btn svg { flex-shrink: 0; }
 
 .action-btn--archive {
-  background: transparent;
-  color: #94a3b8;
-  border-color: #e5e7eb;
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
   width: auto;
-  padding: 7px 8px;
+  padding: 7px 10px;
 }
 .action-btn--archive:hover {
-  background: #fef2f2;
+  background: #fee2e2;
   color: #dc2626;
-  border-color: #fecaca;
+  border-color: #fca5a5;
 }
 
 /* Inline archive confirmation */
