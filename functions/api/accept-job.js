@@ -140,9 +140,13 @@ export async function onRequestPost(context) {
     }
 
     // Staff assignment emails
-    if (assignedStaffIds && assignedStaffIds.length > 0) {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const safeStaffIds = Array.isArray(assignedStaffIds)
+      ? assignedStaffIds.filter(id => typeof id === 'string' && UUID_RE.test(id))
+      : [];
+    if (safeStaffIds.length > 0) {
       try {
-        const ids = assignedStaffIds.join(',');
+        const ids = safeStaffIds.join(',');
         const staffRes = await fetch(
           `${SUPABASE_URL_BASE}/rest/v1/profiles?id=in.(${ids})&select=id,name,email`,
           { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
