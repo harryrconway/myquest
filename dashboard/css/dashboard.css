@@ -2414,7 +2414,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 }
 .client-card--commercial .client-card__avatar {
   background: linear-gradient(140deg, #444 0%, #000 100%);
-  box-shadow: 0 4px 14px rgba(245,158,11,0.28);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
 }
 
 .client-card__info { flex: 1; min-width: 0; }
@@ -3454,7 +3454,7 @@ a.client-card__contact-line:hover svg { color: #000; }
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 16px;
-  border-top: 4px solid #f59e0b;
+  border-top: 4px solid #000;
 }
 
 .jobs-hero--amber { border-top-color: #000; }
