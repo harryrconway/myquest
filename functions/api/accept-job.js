@@ -12,7 +12,7 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost(context) {
-  const { request, env } = context;
+  const { request, env, waitUntil } = context;
   const SUPABASE_URL_BASE = env.SUPABASE_URL;
   const SERVICE_KEY = env.SUPABASE_SERVICE_KEY;
   const RESEND_KEY  = env.RESEND_API_KEY;
@@ -92,20 +92,25 @@ export async function onRequestPost(context) {
   );
   if (!updateRes.ok) return json({ error: 'Failed to update job.' }, 500);
 
-  // Send booking confirmation to customer
-  if (RESEND_KEY && job.email) {
+  // Send booking confirmation to customer + staff assignment emails
+  if (RESEND_KEY) {
     const dateFormatted = formatDate(scheduledDate);
     const timeFormatted = formatTime(scheduledTime);
     const services = job.services && job.services.length ? job.services.join(', ') : 'Cleaning Service';
+    const address  = [job.street_address, job.suburb, job.state].filter(Boolean).join(', ');
 
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
-        to:      [job.email],
-        subject: 'Your cleaning has been scheduled — MyQuest',
-        html: `<!DOCTYPE html>
+    const emailPromises = [];
+
+    // Customer confirmation
+    if (job.email) {
+      emailPromises.push(fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from:    'MyQuest <hello@myquest.au>',
+          to:      [job.email],
+          subject: 'Your cleaning has been scheduled — MyQuest',
+          html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
   <div style="background:#FFD400;padding:28px 36px;">
@@ -130,8 +135,65 @@ export async function onRequestPost(context) {
   </div>
 </div>
 </body></html>`,
-      }),
-    }).catch(() => {});
+        }),
+      }).catch(() => {}));
+    }
+
+    // Staff assignment emails
+    if (assignedStaffIds && assignedStaffIds.length > 0) {
+      try {
+        const ids = assignedStaffIds.join(',');
+        const staffRes = await fetch(
+          `${SUPABASE_URL_BASE}/rest/v1/profiles?id=in.(${ids})&select=id,name,email`,
+          { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
+        );
+        const staffProfiles = staffRes.ok ? await staffRes.json() : [];
+
+        for (const member of (staffProfiles || [])) {
+          if (!member.email) continue;
+          const firstName = (member.name || member.email).split(' ')[0];
+          emailPromises.push(fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              from:    'MyQuest <hello@myquest.au>',
+              to:      [member.email],
+              subject: `You've been assigned a job — ${dateFormatted}`,
+              html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">
+<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:560px;margin:32px auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="background:#000;padding:28px 36px;">
+    <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#FFD400"/>
+      <path d="M20 2 C20 2 22 16 14 22" stroke="#FFD400" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <text x="28" y="25" font-family="'Plus Jakarta Sans',sans-serif" font-weight="700" font-size="18" fill="#FFD400">MyQuest</text>
+    </svg>
+  </div>
+  <div style="background:#fff;padding:36px;">
+    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Hi ${firstName}, you've got a job!</h2>
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">You've been assigned to the following job. See the details below.</p>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin:0 0 24px;">
+      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Date:</strong> ${dateFormatted}</p>
+      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Time:</strong> ${timeFormatted}</p>
+      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Service:</strong> ${services}</p>
+      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Customer:</strong> ${job.full_name}</p>
+      ${address ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Address:</strong> ${address}</p>` : ''}
+    </div>
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">If you have any questions, contact the office:</p>
+    <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#000;font-weight:700;font-size:16px;">0497 828 838</a></p>
+    <p style="color:#6b7280;font-size:14px;margin:0;">Thanks,<br>The MyQuest Team</p>
+  </div>
+</div>
+</body></html>`,
+            }),
+          }).catch(() => {}));
+        }
+      } catch { /* staff email failure doesn't block response */ }
+    }
+
+    if (emailPromises.length > 0) {
+      waitUntil(Promise.all(emailPromises));
+    }
   }
 
   return json({ success: true }, 200);
