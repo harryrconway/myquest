@@ -143,10 +143,16 @@ function escHtml(s) {
     var backdrop  = document.getElementById('dash-backdrop');
     if (!hamburger || !sidebar) return;
 
+    var _sidebarScrollY = 0;
+
     function openSidebar() {
+      _sidebarScrollY = window.scrollY;
       sidebar.classList.add('is-open');
       hamburger.classList.add('is-open');
       if (backdrop) backdrop.classList.add('is-open');
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + _sidebarScrollY + 'px';
+      document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
     }
 
@@ -154,7 +160,11 @@ function escHtml(s) {
       sidebar.classList.remove('is-open');
       hamburger.classList.remove('is-open');
       if (backdrop) backdrop.classList.remove('is-open');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
       document.body.style.overflow = '';
+      window.scrollTo(0, _sidebarScrollY);
     }
 
     hamburger.addEventListener('click', function () {
