@@ -47,9 +47,9 @@ export async function onRequestPost(context) {
     return json({ error: 'jobId, scheduledDate and scheduledTime are required.' }, 400);
   }
 
-  // Fetch job to get customer email and details
+  // Fetch full job record (need all fields for clone pre-generation + emails)
   const jobRes = await fetch(
-    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=full_name,email,services,suburb,street_address,state,postcode,bedrooms,bathrooms`,
+    `${SUPABASE_URL_BASE}/rest/v1/quote_requests?id=eq.${jobId}&select=*`,
     { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
   );
   if (!jobRes.ok) return json({ error: 'Failed to fetch job.' }, 500);
@@ -91,6 +91,73 @@ export async function onRequestPost(context) {
     }
   );
   if (!updateRes.ok) return json({ error: 'Failed to update job.' }, 500);
+
+  // Pre-generate future recurring instances so they appear on the calendar immediately
+  if (recurrence && recurrence !== 'none') {
+    const cloneCounts = { weekly: 11, fortnightly: 5, monthly: 2 };
+    const count = cloneCounts[recurrence] || 0;
+    if (count > 0) {
+      const svcHeaders = {
+        'Authorization': `Bearer ${SERVICE_KEY}`,
+        'apikey': SERVICE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      };
+      const clones = [];
+      for (let i = 1; i <= count; i++) {
+        const d = new Date(scheduledDate + 'T00:00:00');
+        if (recurrence === 'weekly') d.setDate(d.getDate() + 7 * i);
+        else if (recurrence === 'fortnightly') d.setDate(d.getDate() + 14 * i);
+        else if (recurrence === 'monthly') d.setMonth(d.getMonth() + i);
+        const freshChecklist = checklist.map(item => ({ id: crypto.randomUUID(), text: item.text, done: false }));
+        clones.push({
+          full_name:            job.full_name,
+          phone:                job.phone,
+          email:                job.email,
+          preferred_contact:    job.preferred_contact,
+          street_address:       job.street_address,
+          suburb:               job.suburb,
+          state:                job.state,
+          postcode:             job.postcode,
+          access_instructions:  job.access_instructions,
+          property_type:        job.property_type,
+          bedrooms:             job.bedrooms,
+          bathrooms:            job.bathrooms,
+          living_areas:         job.living_areas,
+          floor_area_sqm:       job.floor_area_sqm,
+          staff_count:          job.staff_count,
+          services:             job.services,
+          service_type:         job.service_type,
+          frequency:            job.frequency,
+          condition:            job.condition,
+          extras:               job.extras,
+          preferred_days:       job.preferred_days,
+          preferred_time:       job.preferred_time,
+          flexible_schedule:    job.flexible_schedule,
+          notes:                job.notes,
+          client_id:            job.client_id,
+          status:               'scheduled',
+          scheduled_date:       d.toISOString().split('T')[0],
+          scheduled_time:       scheduledTime,
+          assigned_staff_ids:   assignedStaffIds   || [],
+          assigned_staff_colour: assignedStaffColour || '',
+          assigned_staff_name:  assignedStaffName   || '',
+          internal_notes:       internalNotes       || null,
+          recurrence:           recurrence,
+          recurrence_parent_id: jobId,
+          checklist:            freshChecklist,
+          job_accepted_at:      new Date().toISOString(),
+          created_at:           new Date().toISOString(),
+          updated_at:           new Date().toISOString(),
+        });
+      }
+      waitUntil(fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
+        method: 'POST',
+        headers: svcHeaders,
+        body: JSON.stringify(clones),
+      }).catch(() => {}));
+    }
+  }
 
   // Send booking confirmation to customer + staff assignment emails
   if (RESEND_KEY) {

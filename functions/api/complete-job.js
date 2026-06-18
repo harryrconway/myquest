@@ -72,70 +72,84 @@ export async function onRequestPost(context) {
   );
   if (!updateRes.ok) return json({ error: 'Failed to update job.' }, 500);
 
-  // Auto-clone if recurring
+  // Auto-clone if recurring — extend from the latest future instance to avoid duplicates
   if (job.recurrence && job.recurrence !== 'none' && job.scheduled_date) {
-    try {
-      const base = new Date(job.scheduled_date + 'T00:00:00');
-      if (job.recurrence === 'weekly') base.setDate(base.getDate() + 7);
-      else if (job.recurrence === 'fortnightly') base.setDate(base.getDate() + 14);
-      else if (job.recurrence === 'monthly') base.setMonth(base.getMonth() + 1);
-
-      const freshChecklist = Array.isArray(job.checklist) && job.checklist.length
-        ? job.checklist.map(item => ({ id: crypto.randomUUID(), text: item.text, done: false }))
-        : [];
-
-      const cloneBody = {
-        full_name:            job.full_name,
-        phone:                job.phone,
-        email:                job.email,
-        preferred_contact:    job.preferred_contact,
-        street_address:       job.street_address,
-        suburb:               job.suburb,
-        state:                job.state,
-        postcode:             job.postcode,
-        access_instructions:  job.access_instructions,
-        property_type:        job.property_type,
-        bedrooms:             job.bedrooms,
-        bathrooms:            job.bathrooms,
-        living_areas:         job.living_areas,
-        floor_area_sqm:       job.floor_area_sqm,
-        staff_count:          job.staff_count,
-        services:             job.services,
-        service_type:         job.service_type,
-        frequency:            job.frequency,
-        condition:            job.condition,
-        extras:               job.extras,
-        preferred_days:       job.preferred_days,
-        preferred_time:       job.preferred_time,
-        flexible_schedule:    job.flexible_schedule,
-        notes:                job.notes,
-        client_id:            job.client_id,
-        status:               'scheduled',
-        scheduled_date:       base.toISOString().split('T')[0],
-        scheduled_time:       job.scheduled_time,
-        assigned_staff_ids:   job.assigned_staff_ids   || [],
-        assigned_staff_colour: job.assigned_staff_colour || '',
-        assigned_staff_name:  job.assigned_staff_name  || '',
-        internal_notes:       job.internal_notes       || null,
-        recurrence:           job.recurrence,
-        recurrence_parent_id: job.recurrence_parent_id || job.id,
-        checklist:            freshChecklist,
-        job_accepted_at:      new Date().toISOString(),
-        created_at:           new Date().toISOString(),
-        updated_at:           new Date().toISOString(),
-      };
-
-      waitUntil(fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
-        method: 'POST',
-        headers: {
+    waitUntil((async () => {
+      try {
+        const parentId = job.recurrence_parent_id || job.id;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const svcHeaders = {
           'Authorization': `Bearer ${SERVICE_KEY}`,
           'apikey': SERVICE_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify(cloneBody),
-      }).catch(() => {}));
-    } catch (e) { /* clone failure doesn't block complete */ }
+        };
+
+        // Find the latest future scheduled instance in this recurring series
+        const latestRes = await fetch(
+          `${SUPABASE_URL_BASE}/rest/v1/quote_requests?recurrence_parent_id=eq.${parentId}&status=eq.scheduled&scheduled_date=gte.${todayStr}&select=scheduled_date&order=scheduled_date.desc&limit=1`,
+          { headers: svcHeaders }
+        );
+        const latestArr = latestRes.ok ? await latestRes.json() : [];
+        const fromDate = (latestArr[0] && latestArr[0].scheduled_date) || job.scheduled_date;
+
+        const nextBase = new Date(fromDate + 'T00:00:00');
+        if (job.recurrence === 'weekly') nextBase.setDate(nextBase.getDate() + 7);
+        else if (job.recurrence === 'fortnightly') nextBase.setDate(nextBase.getDate() + 14);
+        else if (job.recurrence === 'monthly') nextBase.setMonth(nextBase.getMonth() + 1);
+
+        const freshChecklist = Array.isArray(job.checklist) && job.checklist.length
+          ? job.checklist.map(item => ({ id: crypto.randomUUID(), text: item.text, done: false }))
+          : [];
+
+        await fetch(`${SUPABASE_URL_BASE}/rest/v1/quote_requests`, {
+          method: 'POST',
+          headers: {
+            ...svcHeaders,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            full_name:            job.full_name,
+            phone:                job.phone,
+            email:                job.email,
+            preferred_contact:    job.preferred_contact,
+            street_address:       job.street_address,
+            suburb:               job.suburb,
+            state:                job.state,
+            postcode:             job.postcode,
+            access_instructions:  job.access_instructions,
+            property_type:        job.property_type,
+            bedrooms:             job.bedrooms,
+            bathrooms:            job.bathrooms,
+            living_areas:         job.living_areas,
+            floor_area_sqm:       job.floor_area_sqm,
+            staff_count:          job.staff_count,
+            services:             job.services,
+            service_type:         job.service_type,
+            frequency:            job.frequency,
+            condition:            job.condition,
+            extras:               job.extras,
+            preferred_days:       job.preferred_days,
+            preferred_time:       job.preferred_time,
+            flexible_schedule:    job.flexible_schedule,
+            notes:                job.notes,
+            client_id:            job.client_id,
+            status:               'scheduled',
+            scheduled_date:       nextBase.toISOString().split('T')[0],
+            scheduled_time:       job.scheduled_time,
+            assigned_staff_ids:   job.assigned_staff_ids   || [],
+            assigned_staff_colour: job.assigned_staff_colour || '',
+            assigned_staff_name:  job.assigned_staff_name  || '',
+            internal_notes:       job.internal_notes       || null,
+            recurrence:           job.recurrence,
+            recurrence_parent_id: parentId,
+            checklist:            freshChecklist,
+            job_accepted_at:      new Date().toISOString(),
+            created_at:           new Date().toISOString(),
+            updated_at:           new Date().toISOString(),
+          }),
+        });
+      } catch (e) { /* clone failure doesn't block complete */ }
+    })());
   }
 
   // Send thank-you email to customer via waitUntil so Cloudflare doesn't kill it
