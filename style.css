@@ -360,15 +360,17 @@ textarea.form-input {
 }
 
 .hero__inner {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--space-16);
   background: #FFD400;
   border-radius: 40px;
   padding: var(--space-20) var(--space-16);
 }
 
 .hero__content {
-  max-width: 680px;
+  max-width: 52ch;
 }
 
 .hero__heading {
@@ -413,36 +415,6 @@ textarea.form-input {
   color: var(--color-light);
   line-height: 1;
   font-size: var(--text-xs);
-}
-
-.hero__location {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin-bottom: var(--space-6);
-}
-
-.hero__loc-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.45);
-  margin: 0;
-}
-
-.hero__loc-chip {
-  display: inline-flex;
-  align-self: flex-start;
-  background: #000;
-  color: #FFD400;
-  font-size: clamp(40px, 4.4vw, 64px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  padding: 8px 24px 12px;
-  border-radius: 10px;
-  line-height: 1;
-  margin: 0;
 }
 
 /* ---- Stats Bar --------------------------------------------- */
@@ -898,18 +870,6 @@ textarea.form-input {
 
   .hero__actions {
     justify-content: center;
-  }
-
-  .hero__location {
-    align-items: center;
-    text-align: center;
-    margin-bottom: var(--space-5);
-  }
-
-  .hero__loc-chip {
-    align-self: center;
-    font-size: clamp(22px, 6vw, 38px);
-    text-align: center;
   }
 
   /* ---- Stats ------------------------------------------------- */
