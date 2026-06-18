@@ -192,9 +192,7 @@
     } catch (e) { return str; }
   }
 
-  function escHtml(str) {
-    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+
 
   function getWeekStart() {
     var d = new Date();

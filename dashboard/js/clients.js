@@ -25,9 +25,7 @@
     return (name || '').split(' ').filter(Boolean).map(function (p) { return p[0]; }).join('').toUpperCase().slice(0, 2) || '?';
   }
 
-  function escHtml(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+
 
   function fmtDate(str) {
     if (!str) return '—';

@@ -8,9 +8,7 @@
   var filteredJobs = [];
   var viewingId    = null;
 
-  function escHtml(str) {
-    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+
 
   function fmtDate(str) {
     if (!str) return '—';

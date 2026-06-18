@@ -24,9 +24,7 @@
     return (h % 12 || 12) + ':' + m + (h >= 12 ? ' pm' : ' am');
   }
 
-  function escHtml(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
+
 
   function greeting() {
     var h = new Date().getHours();
