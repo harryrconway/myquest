@@ -227,7 +227,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
   </div>
   <p style="text-align:center;margin-top:20px;">
     <a href="https://myquest.au/dashboard/unscheduled-jobs.html"
-       style="background:#FFD400;color:#000;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+       style="display:inline-block;background:#FFD400;color:#000;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
       View in Dashboard →
     </a>
   </p>

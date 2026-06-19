@@ -67,8 +67,8 @@ export async function onRequestPost(context) {
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px 20px;margin:0 0 24px;">
       <p style="margin:0;font-size:14px;color:#166534;"><strong>Completed:</strong> ${now}</p>
     </div>
-    <p style="color:#6b7280;font-size:14px;margin:0;">Log into the MyQuest dashboard to review their profile.<br>
-    <a href="https://myquest.au/dashboard" style="color:#1e3a5f;font-weight:600;">Open Dashboard</a></p>
+    <p style="color:#6b7280;font-size:14px;margin:0 0 16px;">Log into the MyQuest dashboard to review their profile.</p>
+    <p style="text-align:center;margin:0;"><a href="https://myquest.au/dashboard" style="display:inline-block;background:#FFD400;color:#000;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Open Dashboard →</a></p>
   </div>
 </div>
 </body></html>`,

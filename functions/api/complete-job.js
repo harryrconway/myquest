@@ -211,7 +211,7 @@ export async function onRequestPost(context) {
                 <td>
                   <p style="margin:0 0 6px;font-size:15px;font-weight:700;color:#000;">Happy with the result?</p>
                   <p style="margin:0 0 16px;font-size:14px;color:rgba(0,0,0,0.55);line-height:1.55;">A quick Google review helps other locals find trustworthy cleaners — it only takes a minute.</p>
-                  <a href="https://g.page/r/myquest-review" style="display:inline-block;background:#FFD400;color:#000;padding:11px 26px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">Leave a Review &#8594;</a>
+                  <p style="margin:0;text-align:center;"><a href="https://g.page/r/myquest-review" style="display:inline-block;background:#FFD400;color:#000;padding:11px 26px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.01em;">Leave a Review &#8594;</a></p>
                 </td>
               </tr>
             </table>
