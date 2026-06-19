@@ -150,6 +150,8 @@
     var card = document.querySelector('.qm-card');
     if (card) card.classList.remove('qm-card--review');
     var body = document.getElementById('qm-body');
+    var tabBar = document.getElementById('qm-mob-tab-bar');
+    if (tabBar) { tabBar.style.display = ''; tabBar.innerHTML = ''; }
     var html = buildStep(currentStep);
     body.innerHTML = html;
 
@@ -220,12 +222,6 @@
 
   function stepProperty() {
     return '<div class="qm-step qm-step--cols qm-step--cols-2">' +
-
-      // Mobile-only segmented tab bar (hidden on desktop via CSS)
-      '<div class="qm-mob-segtabs">' +
-        '<button type="button" class="qm-mob-segtab qm-mob-segtab--active" data-target="qm-mob-addr">Address</button>' +
-        '<button type="button" class="qm-mob-segtab" data-target="qm-mob-prop">Property</button>' +
-      '</div>' +
 
       // Left column: Address
       '<div class="qm-step-col qm-mob-panel qm-mob-panel--active" id="qm-mob-addr">' +
@@ -596,17 +592,24 @@
         wireStepperField('qm-beds',   'bedrooms',     20);
         wireStepperField('qm-baths',  'bathrooms',    20);
         wireStepperField('qm-living', 'living_areas', 10);
-        // Mobile segmented tab switching
-        body.querySelectorAll('.qm-mob-segtab').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var target = this.dataset.target;
-            body.querySelectorAll('.qm-mob-segtab').forEach(function (b) { b.classList.remove('qm-mob-segtab--active'); });
-            body.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
-            this.classList.add('qm-mob-segtab--active');
-            var panel = document.getElementById(target);
-            if (panel) panel.classList.add('qm-mob-panel--active');
+        // Mobile segmented tab switching — rendered into #qm-mob-tab-bar (outside #qm-body)
+        var tabBar = document.getElementById('qm-mob-tab-bar');
+        if (tabBar) {
+          tabBar.innerHTML =
+            '<button type="button" class="qm-mob-segtab qm-mob-segtab--active" data-target="qm-mob-addr">Address</button>' +
+            '<button type="button" class="qm-mob-segtab" data-target="qm-mob-prop">Property</button>';
+          tabBar.style.display = 'flex';
+          tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var target = this.dataset.target;
+              tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (b) { b.classList.remove('qm-mob-segtab--active'); });
+              document.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
+              this.classList.add('qm-mob-segtab--active');
+              var panel = document.getElementById(target);
+              if (panel) panel.classList.add('qm-mob-panel--active');
+            });
           });
-        });
+        }
         break;
 
       case 2:
