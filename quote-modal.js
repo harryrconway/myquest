@@ -60,7 +60,9 @@
     document.body.style.width    = '100%';
 
     requestAnimationFrame(function () {
-      overlay.classList.add('qm--open');
+      requestAnimationFrame(function () {
+        overlay.classList.add('qm--open');
+      });
     });
     document.getElementById('qm-close').focus();
 
