@@ -2051,7 +2051,11 @@ textarea.form-input {
 }
 .qm-mob-segtab {
   flex: 1;
-  padding: 9px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 6px;
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   background: #f9fafb;
@@ -2064,7 +2068,21 @@ textarea.form-input {
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+.qm-segtab-num {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.55;
+}
+.qm-segtab-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+.qm-mob-segtab--active .qm-segtab-num,
+.qm-mob-segtab--done .qm-segtab-num {
+  opacity: 1;
 }
 .qm-mob-segtab--active {
   background: #000;

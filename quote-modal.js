@@ -271,7 +271,9 @@
       else if (done)    cls += ' qm-mob-segtab--done';
       return '<button type="button" class="' + cls + '"' +
              ' data-step="' + t.step + '" data-panel="' + (t.panel || '') + '">' +
-             escHtml(t.label) + '</button>';
+             '<span class="qm-segtab-num">' + (i + 1) + '</span>' +
+             '<span class="qm-segtab-lbl">' + escHtml(t.label) + '</span>' +
+             '</button>';
     }).join('');
     tabBar.style.display = 'flex';
 
