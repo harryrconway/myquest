@@ -169,7 +169,7 @@
   right: 0;
   height: 56px;
   background: #fff;
-  border-bottom: 2px solid #FFD400;
+  border-bottom: 1px solid #e5e7eb;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-4);
@@ -2313,8 +2313,8 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
     right: 0;
     transform: translateX(110%);
     border-right: none;
-    border-top: 4px solid #FFD400;
-    background: linear-gradient(170deg, #FFFEF5 0%, #FFFCE0 100%);
+    border-top: none;
+    background: #fff;
     width: clamp(280px, 88vw, 320px);
     transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
   }
