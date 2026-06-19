@@ -1393,7 +1393,8 @@ textarea.form-input {
 
 .qm-dropdown__list {
   position: absolute;
-  top: calc(100% + 4px);
+  top: auto;
+  bottom: calc(100% + 4px);
   left: 0;
   right: 0;
   z-index: 200;
@@ -1406,7 +1407,7 @@ textarea.form-input {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-4px);
+  transform: translateY(4px);
   transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
@@ -1722,28 +1723,29 @@ textarea.form-input {
 .qm-time-pill--on,
 .qm-time-pill:has(input:checked) {
   border-color: #000;
-  background: #FFFDE7;
+  background: #000;
+  color: #fff;
 }
 
 .qm-time-pill__label {
   font-size: 13px;
   font-weight: 700;
-  color: #000;
+  color: inherit;
 }
 
 .qm-time-pill--on .qm-time-pill__label,
 .qm-time-pill:has(input:checked) .qm-time-pill__label {
-  color: #000;
+  color: #fff;
 }
 
 .qm-time-pill__range {
   font-size: 11px;
-  color: #000;
+  color: inherit;
 }
 
 .qm-time-pill--on .qm-time-pill__range,
 .qm-time-pill:has(input:checked) .qm-time-pill__range {
-  color: #000;
+  color: rgba(255,255,255,0.75);
 }
 
 /* ── Notes word counter ── */
@@ -2037,43 +2039,42 @@ textarea.form-input {
 .qm-step--in-right { animation: qm-slide-right 0.22s ease forwards; }
 .qm-step--in-left  { animation: qm-slide-left  0.22s ease forwards; }
 
-/* ── Mobile bottom tab bar — replaces Back/Next on mobile ── */
+/* ── Tab bar — replaces Back/Next on all screen sizes ── */
 .qm-mob-tab-bar {
   display: none;        /* JS sets display:flex */
   background: #fff;
   border-top: 1px solid #e5e7eb;
   flex-shrink: 0;
   margin: 0;
-  padding: 0;
-  gap: 0;
+  padding: 8px 10px;
+  gap: 6px;
 }
 .qm-mob-segtab {
   flex: 1;
-  padding: 12px 4px 10px;
-  border: none;
-  border-top: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
+  padding: 9px 6px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #6b7280;
   cursor: pointer;
-  transition: color 0.12s, border-color 0.12s;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .qm-mob-segtab--active {
-  color: #000;
-  border-top-color: #000;
-  background: transparent;
-  box-shadow: none;
+  background: #000;
+  border-color: #000;
+  color: #fff;
 }
 .qm-mob-segtab--done {
+  background: #f0fdf4;
+  border-color: #16a34a;
   color: #16a34a;
-  border-top-color: #16a34a;
 }
 /* Multi-select dropdown checkmarks */
 .qm-dopt-check {
@@ -2086,18 +2087,10 @@ textarea.form-input {
 .qm-dropdown__opt--sel .qm-dopt-check {
   opacity: 1;
 }
-/* Review & Submit CTA — visible on mobile Schedule tab only */
+/* Review & Submit CTA — visible on Schedule tab on all screen sizes */
 .qm-mob-review-cta {
-  display: none;
-}
-@media (max-width: 767px) {
-  .qm-mob-review-cta {
-    display: block;
-    padding-top: 20px;
-  }
-}
-@media (min-width: 768px) {
-  .qm-mob-tab-bar { display: none !important; }
+  display: block;
+  padding-top: 20px;
 }
 
 /* ── Mobile (< 768px): sidebar hidden, body scrolls within locked modal ── */
@@ -2167,8 +2160,52 @@ textarea.form-input {
 
   .qm-stepper-grid .qm-stepper__btn { font-size: 16px; width: 28px; }
 
-  .qm-mob-panel { display: none; }
-  .qm-mob-panel--active { display: flex; flex-direction: column; gap: 14px; }
+  .qm-stepper { height: 36px; }
+  .qm-helper { margin-top: 0 !important; font-size: 11px; }
+}
+
+/* ── Panel show/hide — applies on all screen sizes (tab navigation) ── */
+.qm-mob-panel { display: none; }
+.qm-mob-panel--active { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Tab gate toast ── */
+.qm-tab-gate-toast {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: #111827;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  opacity: 0;
+  transition: opacity 0.18s, transform 0.18s;
+  white-space: nowrap;
+  z-index: 600;
+  pointer-events: none;
+  max-width: calc(100% - 32px);
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+.qm-tab-gate-toast--show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── "You" step modernised ── */
+.qm-step--details { gap: 16px; }
+.qm-details-lead { font-size: 14px; color: #6b7280; margin: 0; line-height: 1.6; }
+.qm-input--name { font-size: 18px !important; font-weight: 600 !important; padding: 12px 14px !important; }
+.qm-contact-card {
+  background: #f9fafb;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* ── Tablet (768px–1023px): sidebar narrower ── */

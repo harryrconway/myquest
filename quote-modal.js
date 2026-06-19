@@ -160,14 +160,9 @@
       if (ap) ap.classList.add('qm-mob-panel--active');
     }
 
-    // Allow mobile body to scroll (CSS sets auto); keep hidden on desktop
-    if (window.innerWidth <= 767) {
-      body.style.overflowY = '';
-      body.style.webkitOverflowScrolling = '';
-    } else {
-      body.style.overflowY = 'hidden';
-      body.style.webkitOverflowScrolling = '';
-    }
+    // Always allow body to scroll (tab-based nav, no overflow lock needed)
+    body.style.overflowY = '';
+    body.style.webkitOverflowScrolling = '';
 
     var stepEl = body.firstElementChild;
     if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
@@ -175,25 +170,10 @@
     setProgress(currentStep);
     document.getElementById('qm-title').textContent = STEPS[currentStep].title;
 
-    var isMobile = window.innerWidth <= 767;
-    var footer   = document.getElementById('qm-footer');
-    var tabBar   = document.getElementById('qm-mob-tab-bar');
-
-    if (isMobile) {
-      // Tab bar replaces Back/Next on mobile
-      if (footer) footer.style.display = 'none';
-      renderMobTabBar();
-    } else {
-      // Desktop: standard Back/Next, no tab bar
-      if (tabBar) { tabBar.style.display = ''; tabBar.innerHTML = ''; }
-      if (footer) footer.style.display = '';
-      var backBtn = document.getElementById('qm-back');
-      backBtn.style.display = currentStep === 0 ? 'none' : '';
-      backBtn.textContent   = 'Back';
-      var nextBtn = document.getElementById('qm-next');
-      nextBtn.textContent = currentStep === totalSteps - 1 ? 'Review' : 'Next';
-      nextBtn.disabled    = false;
-    }
+    var footer = document.getElementById('qm-footer');
+    // Tab bar replaces Back/Next on all screen sizes
+    if (footer) footer.style.display = 'none';
+    renderTabBar();
 
     wireStep(currentStep);
 
@@ -235,7 +215,32 @@
     });
   }
 
-  function renderMobTabBar() {
+  var GATE_MSGS = [
+    'Please fill in your name, phone and email first.',
+    'Please complete your address before continuing.',
+    'Please complete your property details first.',
+  ];
+
+  function showTabGateToast(msg) {
+    var existing = document.getElementById('qm-tab-gate-toast');
+    if (existing) existing.parentNode.removeChild(existing);
+    var card = document.querySelector('.qm-card');
+    if (!card) return;
+    var toast = document.createElement('div');
+    toast.id = 'qm-tab-gate-toast';
+    toast.className = 'qm-tab-gate-toast';
+    toast.textContent = msg;
+    card.appendChild(toast);
+    requestAnimationFrame(function () {
+      toast.classList.add('qm-tab-gate-toast--show');
+      setTimeout(function () {
+        toast.classList.remove('qm-tab-gate-toast--show');
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+      }, 2400);
+    });
+  }
+
+  function renderTabBar() {
     var tabBar = document.getElementById('qm-mob-tab-bar');
     if (!tabBar) return;
 
@@ -263,10 +268,21 @@
     }).join('');
     tabBar.style.display = 'flex';
 
-    tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (btn) {
+    tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (btn, btnIdx) {
       btn.addEventListener('click', function () {
         var targetStep  = parseInt(this.dataset.step);
         var targetPanel = this.dataset.panel || null;
+        var targetIdx   = btnIdx;
+
+        // Gate: moving forward requires all prior tabs to be complete
+        if (targetIdx > activeIdx) {
+          for (var g = 0; g < targetIdx && g < 3; g++) {
+            if (!isMobTabComplete(g)) {
+              showTabGateToast(GATE_MSGS[g]);
+              return;
+            }
+          }
+        }
 
         if (targetStep === currentStep && targetPanel && targetPanel !== currentMobPanel) {
           // Same step 1 — switch Address ↔ Property panel
@@ -303,14 +319,20 @@
   /* ─── Step builders ───────────────────────────────────────────────────── */
 
   function stepDetails() {
-    return '<div class="qm-step">' +
-      field('Full Name', 'qm-name', 'text', state.full_name, 'Your name', true) +
+    return '<div class="qm-step qm-step--details">' +
+      '<p class="qm-details-lead">Just a few details so we can reach you.</p>' +
+      '<div class="qm-field">' +
+        '<label class="qm-label" for="qm-name">Full Name <span class="qm-req">*</span></label>' +
+        '<input class="qm-input qm-input--name" type="text" id="qm-name"' +
+          ' value="' + escHtml(state.full_name) + '" placeholder="Your full name"' +
+          ' autocomplete="name" inputmode="text">' +
+      '</div>' +
       '<div class="qm-row-2">' +
-        field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel', 'Australian mobile or landline') +
+        field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel') +
         field('Email', 'qm-email', 'email', state.email, 'you@example.com', true) +
       '</div>' +
-      '<div class="qm-field">' +
-        '<label class="qm-label">Preferred Contact Method</label>' +
+      '<div class="qm-contact-card">' +
+        '<label class="qm-label">How should we reach you?</label>' +
         radioRow('preferred_contact', [
           { value: 'Phone', label: 'Phone' },
           { value: 'SMS',   label: 'SMS'   },
@@ -331,7 +353,7 @@
       : 'Select services…';
     var hasOther = state.services.indexOf('Other (please specify)') !== -1;
 
-    return '<div class="qm-step qm-step--cols qm-step--cols-2">' +
+    return '<div class="qm-step">' +
 
       // Left column: Address
       '<div class="qm-step-col qm-mob-panel qm-mob-panel--active" id="qm-mob-addr">' +
@@ -369,7 +391,7 @@
             '</button>';
           }).join('') +
         '</div>' +
-        '<p class="qm-step-col-title" style="margin-top:20px">Property Details</p>' +
+        '<p class="qm-step-col-title" style="margin-top:12px">Property Details</p>' +
         '<div class="qm-stepper-grid">' +
           stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
           stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
@@ -378,7 +400,7 @@
         '<p class="qm-helper">Lounges, dining rooms, studies, etc.</p>' +
 
         // Services multi-select dropdown
-        '<p class="qm-step-col-title" style="margin-top:20px">Services Required</p>' +
+        '<p class="qm-step-col-title" style="margin-top:12px">Services Required</p>' +
         '<div class="qm-field" style="position:relative">' +
           '<div class="qm-dropdown' + (!state.services.length ? ' qm-dropdown--placeholder' : '') + '" id="qm-services-dd">' +
             '<div class="qm-dropdown__trigger" id="qm-services-trigger">' +
@@ -401,7 +423,7 @@
         '</div>' +
 
         // Frequency single-select dropdown
-        '<p class="qm-step-col-title" style="margin-top:16px">How Often?</p>' +
+        '<p class="qm-step-col-title" style="margin-top:10px">How Often?</p>' +
         '<div class="qm-field" style="position:relative">' +
           '<div class="qm-dropdown' + (!state.frequency ? ' qm-dropdown--placeholder' : '') + '" id="qm-freq-dd">' +
             '<div class="qm-dropdown__trigger" id="qm-freq-trigger">' +
@@ -417,7 +439,7 @@
         '</div>' +
 
         // Condition single-select dropdown
-        '<p class="qm-step-col-title" style="margin-top:16px">Property Condition</p>' +
+        '<p class="qm-step-col-title" style="margin-top:10px">Property Condition</p>' +
         '<div class="qm-field" style="position:relative">' +
           '<div class="qm-dropdown' + (!state.condition ? ' qm-dropdown--placeholder' : '') + '" id="qm-cond-dd">' +
             '<div class="qm-dropdown__trigger" id="qm-cond-trigger">' +
@@ -524,7 +546,7 @@
     document.getElementById('qm-progress-bar').style.width = '100%';
     updateSidebar(totalSteps); // mark all steps done
 
-    // On mobile: hide tab bar, reveal footer for Review/Submit
+    // Hide tab bar, reveal footer for Review/Submit (all screen sizes)
     var tabBar = document.getElementById('qm-mob-tab-bar');
     var footer = document.getElementById('qm-footer');
     if (tabBar) { tabBar.style.display = 'none'; tabBar.innerHTML = ''; }
@@ -917,12 +939,6 @@
             saveDraft();
             onNext = submit;
             onBack = function () {
-              var tabBar = document.getElementById('qm-mob-tab-bar');
-              var footer = document.getElementById('qm-footer');
-              if (window.innerWidth <= 767) {
-                if (footer) footer.style.display = 'none';
-                renderMobTabBar();
-              }
               stepDir = -1;
               currentStep = totalSteps - 1;
               onNext = function () { next(); };
