@@ -1355,7 +1355,7 @@ textarea.form-input {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 9px 12px;
+  padding: 7px 12px;
   background: #fff;
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
@@ -1364,7 +1364,7 @@ textarea.form-input {
   font-weight: 400;
   font-family: inherit;
   transition: border-color 0.15s, box-shadow 0.15s;
-  min-height: 42px;
+  min-height: 36px;
 }
 
 .qm-dropdown--placeholder .qm-dropdown__trigger {
@@ -1383,7 +1383,7 @@ textarea.form-input {
 
 .qm-dropdown--open .qm-dropdown__trigger {
   border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
 .qm-dropdown--open .qm-dropdown__trigger svg {
@@ -1421,7 +1421,7 @@ textarea.form-input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: 8px 12px;
   font-size: 14px;
   color: #000;
   transition: background 0.1s;
@@ -1441,18 +1441,13 @@ textarea.form-input {
 .qm-dropdown__opt--sel {
   color: #000;
   font-weight: 600;
-  background: #FFFDE7;
+  background: #f3f4f6;
 }
 
 .qm-dropdown__opt--sel::after {
   content: '✓';
   font-size: 12px;
   color: #000;
-}
-
-.qm-dropdown__opt--multi {
-  justify-content: flex-start;
-  gap: 0;
 }
 
 /* ── Grid helpers ── */
@@ -2080,17 +2075,6 @@ textarea.form-input {
   background: #f0fdf4;
   border-color: #16a34a;
   color: #16a34a;
-}
-/* Multi-select dropdown checkmarks */
-.qm-dopt-check {
-  display: inline-block;
-  margin-right: 6px;
-  opacity: 0;
-  color: #16a34a;
-  font-weight: 700;
-}
-.qm-dropdown__opt--sel .qm-dopt-check {
-  opacity: 1;
 }
 /* Review & Submit CTA — visible on Schedule tab on all screen sizes */
 .qm-mob-review-cta {

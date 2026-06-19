@@ -138,11 +138,18 @@
 
   /* ─── Render ──────────────────────────────────────────────────────────── */
 
-  function setProgress(step) {
-    var pct = Math.round((step / totalSteps) * 100);
-    document.getElementById('qm-progress-bar').style.width = pct + '%';
-    document.getElementById('qm-step-label').textContent = 'Step ' + (step + 1) + ' of ' + totalSteps;
-    updateSidebar(step);
+  function setProgress() {
+    // Derive tab index (0–3) from current step + panel, so counter matches the 4-tab bar
+    var tabIdx = currentStep === 0 ? 0
+               : currentStep === 1 ? (currentMobPanel === 'qm-mob-prop' ? 2 : 1)
+               : 3;
+    var totalTabs = 4;
+    var pct = Math.round((tabIdx / totalTabs) * 100);
+    var bar = document.getElementById('qm-progress-bar');
+    var lbl = document.getElementById('qm-step-label');
+    if (bar) bar.style.width = pct + '%';
+    if (lbl) lbl.textContent = 'Step ' + (tabIdx + 1) + ' of ' + totalTabs;
+    updateSidebar(tabIdx);
   }
 
   function renderStep() {
@@ -160,14 +167,14 @@
       if (ap) ap.classList.add('qm-mob-panel--active');
     }
 
-    // Always allow body to scroll (tab-based nav, no overflow lock needed)
-    body.style.overflowY = '';
-    body.style.webkitOverflowScrolling = '';
+    // Always allow body to scroll (tab-based nav, single-column content)
+    body.style.overflowY = 'auto';
+    body.style.webkitOverflowScrolling = 'touch';
 
     var stepEl = body.firstElementChild;
     if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
 
-    setProgress(currentStep);
+    setProgress();
     document.getElementById('qm-title').textContent = STEPS[currentStep].title;
 
     var footer = document.getElementById('qm-footer');
@@ -296,6 +303,7 @@
           body.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
           var panel = body.querySelector('#' + currentMobPanel);
           if (panel) panel.classList.add('qm-mob-panel--active');
+          setProgress();
           refreshTabCompletion();
         } else if (targetStep !== currentStep) {
           saveDraft();
@@ -412,7 +420,7 @@
                 var sel = state.services.indexOf(s) !== -1;
                 var lbl = s === 'Other (please specify)' ? 'Other' : s;
                 return '<div class="qm-dropdown__opt qm-dropdown__opt--multi' + (sel ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + escHtml(s) + '">' +
-                  '<span class="qm-dopt-check">✓</span> ' + escHtml(lbl) +
+                  escHtml(lbl) +
                 '</div>';
               }).join('') +
             '</div>' +
