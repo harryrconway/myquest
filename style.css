@@ -959,11 +959,17 @@ textarea.form-input {
    QUOTE MODAL — Full-screen split-panel redesign v20260615
    ============================================================ */
 
-/* ── Overlay: true full-screen, no backdrop centering ── */
+/* ── Overlay: blurred dark backdrop, centers card ── */
 .qm-overlay {
   position: fixed;
   inset: 0;
   z-index: 9000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
   overflow: hidden;
@@ -972,24 +978,39 @@ textarea.form-input {
 .qm-overlay[hidden] { display: none; }
 .qm--open           { opacity: 1; }
 
-/* ── Card: phone-width centered column ── */
+/* ── Card: phone-width column — mobile full-screen, desktop condensed ── */
 .qm-card {
   width: 100%;
   max-width: 430px;
-  margin: 0 auto;
-  height: 100%;
   height: 100dvh;
   display: flex;
   flex-direction: column;
   background: #fff;
-  transform: scale(0.97);
+  overflow: hidden;
+  transform: translateY(40px);
   opacity: 0;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
 }
 
 .qm--open .qm-card {
-  transform: scale(1);
+  transform: translateY(0);
   opacity: 1;
+}
+
+/* ── Desktop card: auto-height, rounded, elevated ── */
+@media (min-width: 431px) {
+  .qm-card {
+    height: auto;
+    min-height: 520px;
+    max-height: 88vh;
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    transform: translateY(20px) scale(0.96);
+  }
+
+  .qm--open .qm-card {
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ── Left sidebar ── */
