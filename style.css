@@ -999,8 +999,7 @@ textarea.form-input {
 .qm-card {
   width: 100%;
   max-width: 430px;
-  height: auto;
-  max-height: calc(100svh - 60px);
+  height: calc(100svh - 60px);
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -1226,6 +1225,8 @@ textarea.form-input {
   flex-shrink: 0;
   border-bottom: 1px solid #f1f5f9;
   position: relative;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
 }
 
 .qm-progress {
@@ -1312,6 +1313,11 @@ textarea.form-input {
   .qm-body {
     overflow: visible;
   }
+  .qm-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+  }
 }
 
 /* ── Footer ── */
@@ -1324,6 +1330,7 @@ textarea.form-input {
   border-top: 1px solid #f1f5f9;
   flex-shrink: 0;
   background: #fff;
+  border-radius: 0 0 20px 20px;
 }
 
 /* ── Section title ── */
@@ -2147,6 +2154,7 @@ textarea.form-input {
   margin: 0;
   padding: 8px 10px;
   gap: 6px;
+  border-radius: 0 0 20px 20px;
 }
 .qm-mob-segtab {
   flex: 1;
