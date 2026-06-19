@@ -167,9 +167,9 @@
       if (ap) ap.classList.add('qm-mob-panel--active');
     }
 
-    // Always allow body to scroll (tab-based nav, single-column content)
-    body.style.overflowY = 'auto';
-    body.style.webkitOverflowScrolling = 'touch';
+    // Lock scroll — content is compressed to fit viewport
+    body.style.overflowY = 'hidden';
+    body.style.webkitOverflowScrolling = '';
 
     var stepEl = body.firstElementChild;
     if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
@@ -399,7 +399,7 @@
             '</button>';
           }).join('') +
         '</div>' +
-        '<p class="qm-step-col-title" style="margin-top:12px">Property Details</p>' +
+        '<p class="qm-step-col-title" style="margin-top:6px">Property Details</p>' +
         '<div class="qm-stepper-grid">' +
           stepperField('Bedrooms',     'qm-beds',   'bedrooms',     20) +
           stepperField('Bathrooms',    'qm-baths',  'bathrooms',    20) +
@@ -408,7 +408,7 @@
         '<p class="qm-helper">Lounges, dining rooms, studies, etc.</p>' +
 
         // Services multi-select dropdown
-        '<p class="qm-step-col-title" style="margin-top:12px">Services Required</p>' +
+        '<p class="qm-step-col-title" style="margin-top:6px">Services Required</p>' +
         '<div class="qm-field" style="position:relative">' +
           '<div class="qm-dropdown' + (!state.services.length ? ' qm-dropdown--placeholder' : '') + '" id="qm-services-dd">' +
             '<div class="qm-dropdown__trigger" id="qm-services-trigger">' +
@@ -431,7 +431,7 @@
         '</div>' +
 
         // Frequency single-select dropdown
-        '<p class="qm-step-col-title" style="margin-top:10px">How Often?</p>' +
+        '<p class="qm-step-col-title" style="margin-top:4px">How Often?</p>' +
         '<div class="qm-field" style="position:relative">' +
           '<div class="qm-dropdown' + (!state.frequency ? ' qm-dropdown--placeholder' : '') + '" id="qm-freq-dd">' +
             '<div class="qm-dropdown__trigger" id="qm-freq-trigger">' +
@@ -447,7 +447,7 @@
         '</div>' +
 
         // Condition single-select dropdown
-        '<p class="qm-step-col-title" style="margin-top:10px">Property Condition</p>' +
+        '<p class="qm-step-col-title" style="margin-top:4px">Property Condition</p>' +
         '<div class="qm-field" style="position:relative">' +
           '<div class="qm-dropdown' + (!state.condition ? ' qm-dropdown--placeholder' : '') + '" id="qm-cond-dd">' +
             '<div class="qm-dropdown__trigger" id="qm-cond-trigger">' +
@@ -612,8 +612,8 @@
         '<div id="qm-submit-error" class="qm-error" style="display:none"></div>' +
       '</div>';
     body.scrollTop = 0;
-    body.style.overflowY = 'auto';
-    body.style.webkitOverflowScrolling = 'touch';
+    body.style.overflowY = 'hidden';
+    body.style.webkitOverflowScrolling = '';
 
     var card = document.querySelector('.qm-card');
     if (card) card.classList.add('qm-card--review');

@@ -1224,8 +1224,7 @@ textarea.form-input {
 .qm-body::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
 .qm-card--review .qm-body {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: hidden;
 }
 
 /* ── Footer ── */
@@ -1291,7 +1290,7 @@ textarea.form-input {
   letter-spacing: 0.1em;
   color: #000;
   margin: 0;
-  padding-bottom: 10px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -1792,7 +1791,7 @@ textarea.form-input {
 .qm-rv {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .qm-rv__row {
@@ -1805,21 +1804,22 @@ textarea.form-input {
 }
 
 .qm-rv__label {
-  padding: 10px 14px 10px 0;
-  font-size: 12px;
+  padding: 5px 10px 5px 0;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #000;
-  width: 140px;
+  width: 130px;
   vertical-align: middle;
   white-space: nowrap;
 }
 
 .qm-rv__val {
-  padding: 10px 0;
+  padding: 5px 0;
   color: #000;
   font-weight: 500;
+  font-size: 13px;
 }
 
 .qm-rv__edit {
@@ -1927,7 +1927,7 @@ textarea.form-input {
   background: #f9fafb;
   border: 1.5px solid #e5e7eb;
   border-radius: 12px;
-  padding: 12px 8px 10px;
+  padding: 5px 6px 4px;
   transition: border-color 0.15s;
 }
 
@@ -1951,18 +1951,18 @@ textarea.form-input {
   border-top: 1.5px solid #e5e7eb;
   border-radius: 0;
   width: 100%;
-  height: 52px;
+  height: 36px;
 }
 
 .qm-stepper-grid .qm-stepper__val {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 700;
   color: #000;
 }
 
 .qm-stepper-grid .qm-stepper__btn {
-  font-size: 22px;
-  width: 40px;
+  font-size: 18px;
+  width: 32px;
   color: #000;
 }
 
@@ -2143,19 +2143,20 @@ textarea.form-input {
 
   .qm-stepper-grid { gap: 6px; }
 
-  .qm-stepper-grid .qm-field { padding: 6px 6px 6px; }
+  .qm-stepper-grid .qm-field { padding: 4px 6px 3px; }
 
+  .qm-stepper-grid .qm-stepper { height: 32px; }
   .qm-stepper-grid .qm-stepper__val { font-size: 18px; }
-
   .qm-stepper-grid .qm-stepper__btn { font-size: 16px; width: 28px; }
 
-  .qm-stepper { height: 36px; }
-  .qm-helper { margin-top: 0 !important; font-size: 11px; }
+  .qm-stepper { height: 32px; }
+  .qm-helper { display: none; }
+  .qm-dropdown__trigger { min-height: 32px; padding: 5px 10px; }
 }
 
 /* ── Panel show/hide — applies on all screen sizes (tab navigation) ── */
 .qm-mob-panel { display: none; }
-.qm-mob-panel--active { display: flex; flex-direction: column; gap: 14px; }
+.qm-mob-panel--active { display: flex; flex-direction: column; gap: 6px; }
 
 /* ── Tab gate toast ── */
 .qm-tab-gate-toast {
