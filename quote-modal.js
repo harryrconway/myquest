@@ -184,11 +184,6 @@
 
     wireStep(currentStep);
 
-    if (window.innerWidth > 767) {
-      var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
-      if (firstInput) firstInput.focus();
-    }
-
     body.scrollTop = 0;
     requestAnimationFrame(function () {
       body.scrollTop = 0;

@@ -972,13 +972,15 @@ textarea.form-input {
 .qm-overlay[hidden] { display: none; }
 .qm--open           { opacity: 1; }
 
-/* ── Card: full-screen row layout ── */
+/* ── Card: phone-width centered column ── */
 .qm-card {
   width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
   height: 100%;
   height: 100dvh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   background: #fff;
   transform: scale(0.97);
   opacity: 0;
@@ -992,13 +994,7 @@ textarea.form-input {
 
 /* ── Left sidebar ── */
 .qm-sidebar {
-  width: 300px;
-  flex-shrink: 0;
-  background: #18181b;
-  display: flex;
-  flex-direction: column;
-  padding: 44px 40px 40px;
-  overflow: hidden;
+  display: none;
 }
 
 .qm-sidebar__brand {
@@ -1142,8 +1138,8 @@ textarea.form-input {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 36px;
-  height: 52px;
+  padding: 0 16px;
+  height: 44px;
   flex-shrink: 0;
   border-bottom: 1px solid #f1f5f9;
   position: relative;
@@ -1198,11 +1194,11 @@ textarea.form-input {
 
 /* ── Title ── */
 .qm-title {
-  font-size: 30px;
+  font-size: 17px;
   font-weight: 700;
   color: #000;
   margin: 0;
-  padding: 28px 40px 0;
+  padding: 10px 16px 0;
   flex-shrink: 0;
   letter-spacing: -0.02em;
 }
@@ -1212,7 +1208,7 @@ textarea.form-input {
   flex: 1;
   min-height: 0;
   overflow-y: hidden;
-  padding: 22px 40px 0;
+  padding: 8px 16px 0;
   box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f9fafb;
@@ -1273,8 +1269,8 @@ textarea.form-input {
   align-content: start;
 }
 
-.qm-step--cols-2 { grid-template-columns: 1fr 1fr; }
-.qm-step--cols-3 { grid-template-columns: 1.2fr 1fr 1fr; }
+.qm-step--cols-2 { grid-template-columns: 1fr; }
+.qm-step--cols-3 { grid-template-columns: 1fr; }
 
 .qm-step-col {
   display: flex;
@@ -2102,35 +2098,11 @@ textarea.form-input {
 
 /* ── Mobile (< 768px): sidebar hidden, body scrolls within locked modal ── */
 @media (max-width: 767px) {
-  .qm-sidebar { display: none; }
-
-  .qm-panel { width: 100%; }
-
-  .qm-header { padding: 0 16px; height: 44px; }
-
-  .qm-title {
-    font-size: 17px;
-    padding: 10px 16px 0;
-  }
-
-  .qm-body {
-    padding: 8px 16px 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .qm-footer {
     padding: 8px 16px max(10px, env(safe-area-inset-bottom));
   }
 
   .qm-step { gap: 8px; }
-
-  /* Single-column for multi-col steps on mobile */
-  .qm-step--cols-2,
-  .qm-step--cols-3 {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
 
   /* Keep 16px to prevent iOS auto-zoom on focus */
   .qm-input { padding: 8px 10px; font-size: 16px; }
@@ -2216,23 +2188,3 @@ textarea.form-input {
   gap: 10px;
 }
 
-/* ── Tablet (768px–1023px): sidebar narrower ── */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .qm-sidebar {
-    width: 240px;
-    padding: 36px 28px 32px;
-  }
-
-  .qm-sidebar__brand { margin-bottom: 40px; }
-
-  .qm-sn-item__label { padding-bottom: 22px; }
-
-  .qm-title { font-size: 24px; padding: 22px 28px 0; }
-
-  .qm-body { padding: 18px 28px 0; }
-
-  .qm-footer { padding: 16px 28px; }
-
-  /* Step 3 three-col collapses to two on tablet */
-  .qm-step--cols-3 { grid-template-columns: 1fr 1fr; }
-}
