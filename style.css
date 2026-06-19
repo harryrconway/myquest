@@ -2049,13 +2049,13 @@ textarea.form-input {
 }
 .qm-mob-segtab {
   flex: 1;
-  padding: 10px 2px 9px;
+  padding: 12px 4px 10px;
   border: none;
   border-top: 2px solid transparent;
   border-radius: 0;
   background: transparent;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: #9ca3af;
   cursor: pointer;
@@ -2070,6 +2070,21 @@ textarea.form-input {
   border-top-color: #000;
   background: transparent;
   box-shadow: none;
+}
+.qm-mob-segtab--done {
+  color: #16a34a;
+  border-top-color: #16a34a;
+}
+/* Multi-select dropdown checkmarks */
+.qm-dopt-check {
+  display: inline-block;
+  margin-right: 6px;
+  opacity: 0;
+  color: #16a34a;
+  font-weight: 700;
+}
+.qm-dropdown__opt--sel .qm-dopt-check {
+  opacity: 1;
 }
 /* Review & Submit CTA — visible on mobile Schedule tab only */
 .qm-mob-review-cta {

@@ -5,7 +5,7 @@
 
   var state = {};
   var currentStep = 0;
-  var totalSteps  = 4;
+  var totalSteps  = 3;
   var submitting  = false;
   var stepDir     = 1;
 
@@ -16,7 +16,6 @@
   var STEPS = [
     { id: 'details',  title: 'Your Details'    },
     { id: 'property', title: 'Your Property'   },
-    { id: 'clean',    title: 'The Clean'       },
     { id: 'schedule', title: 'Schedule & Notes' },
   ];
 
@@ -161,8 +160,14 @@
       if (ap) ap.classList.add('qm-mob-panel--active');
     }
 
-    body.style.overflowY = 'hidden';
-    body.style.webkitOverflowScrolling = '';
+    // Allow mobile body to scroll (CSS sets auto); keep hidden on desktop
+    if (window.innerWidth <= 767) {
+      body.style.overflowY = '';
+      body.style.webkitOverflowScrolling = '';
+    } else {
+      body.style.overflowY = 'hidden';
+      body.style.webkitOverflowScrolling = '';
+    }
 
     var stepEl = body.firstElementChild;
     if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
@@ -204,25 +209,55 @@
     });
   }
 
+  function isMobTabComplete(tabIdx) {
+    if (tabIdx === 0) {
+      return !!(state.full_name.trim() &&
+                state.phone.replace(/\D/g, '').length >= 8 &&
+                state.email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email));
+    }
+    if (tabIdx === 1) {
+      return !!(state.street_address.trim() && state.suburb.trim() && state.state &&
+                /^\d{4}$/.test(state.postcode.trim()));
+    }
+    if (tabIdx === 2) {
+      return !!(state.property_type && state.services.length > 0 && state.frequency && state.condition);
+    }
+    return false; // Schedule — all optional
+  }
+
+  function refreshTabCompletion() {
+    var tabBar = document.getElementById('qm-mob-tab-bar');
+    if (!tabBar) return;
+    tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (btn, i) {
+      var done   = isMobTabComplete(i);
+      var active = btn.classList.contains('qm-mob-segtab--active');
+      btn.classList.toggle('qm-mob-segtab--done', done && !active);
+    });
+  }
+
   function renderMobTabBar() {
     var tabBar = document.getElementById('qm-mob-tab-bar');
     if (!tabBar) return;
 
+    // 4 tabs: You | Address | Property | Schedule
     var tabs = [
       { label: 'You',      step: 0, panel: null           },
       { label: 'Address',  step: 1, panel: 'qm-mob-addr'  },
       { label: 'Property', step: 1, panel: 'qm-mob-prop'  },
-      { label: 'Clean',    step: 2, panel: null           },
-      { label: 'Schedule', step: 3, panel: null           },
+      { label: 'Schedule', step: 2, panel: null           },
     ];
 
     var activeIdx = currentStep === 0 ? 0
                   : currentStep === 1 ? (currentMobPanel === 'qm-mob-prop' ? 2 : 1)
-                  : currentStep === 2 ? 3
-                  : 4;
+                  : 3;
 
     tabBar.innerHTML = tabs.map(function (t, i) {
-      return '<button type="button" class="qm-mob-segtab' + (i === activeIdx ? ' qm-mob-segtab--active' : '') + '"' +
+      var active = i === activeIdx;
+      var done   = isMobTabComplete(i);
+      var cls    = 'qm-mob-segtab';
+      if (active)       cls += ' qm-mob-segtab--active';
+      else if (done)    cls += ' qm-mob-segtab--done';
+      return '<button type="button" class="' + cls + '"' +
              ' data-step="' + t.step + '" data-panel="' + (t.panel || '') + '">' +
              escHtml(t.label) + '</button>';
     }).join('');
@@ -234,14 +269,18 @@
         var targetPanel = this.dataset.panel || null;
 
         if (targetStep === currentStep && targetPanel && targetPanel !== currentMobPanel) {
-          // Same step (Property), switch sub-panel only
+          // Same step 1 — switch Address ↔ Property panel
           currentMobPanel = targetPanel;
-          tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (b) { b.classList.remove('qm-mob-segtab--active'); });
+          tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (b) {
+            b.classList.remove('qm-mob-segtab--active');
+          });
           this.classList.add('qm-mob-segtab--active');
+          this.classList.remove('qm-mob-segtab--done');
           var body = document.getElementById('qm-body');
           body.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
           var panel = body.querySelector('#' + currentMobPanel);
           if (panel) panel.classList.add('qm-mob-panel--active');
+          refreshTabCompletion();
         } else if (targetStep !== currentStep) {
           saveDraft();
           stepDir = targetStep > currentStep ? 1 : -1;
@@ -257,8 +296,7 @@
     switch (n) {
       case 0: return stepDetails();
       case 1: return stepProperty();
-      case 2: return stepClean();
-      case 3: return stepScheduleNotes();
+      case 2: return stepScheduleNotes();
     }
   }
 
@@ -282,7 +320,17 @@
     '</div>';
   }
 
+  var CONDITION_DISPLAY = {
+    'Excellent': 'Excellent', 'Good': 'Good', 'Average': 'Average',
+    'Requires Deep Clean': 'Needs Deep Clean',
+  };
+
   function stepProperty() {
+    var servicesVal = state.services.length
+      ? state.services.map(function (s) { return s === 'Other (please specify)' ? 'Other' : s; }).join(', ')
+      : 'Select services…';
+    var hasOther = state.services.indexOf('Other (please specify)') !== -1;
+
     return '<div class="qm-step qm-step--cols qm-step--cols-2">' +
 
       // Left column: Address
@@ -310,7 +358,7 @@
         field('Access Instructions', 'qm-access', 'text', state.access_instructions, 'Gate code, key location…', false, 'off') +
       '</div>' +
 
-      // Right column: Property Type + Details
+      // Right column: Property Type + Details + Services + Frequency + Condition
       '<div class="qm-step-col qm-mob-panel" id="qm-mob-prop">' +
         '<p class="qm-step-col-title">Property Type</p>' +
         '<div class="qm-grid-type">' +
@@ -328,50 +376,66 @@
           stepperField('Living Areas', 'qm-living', 'living_areas', 10) +
         '</div>' +
         '<p class="qm-helper">Lounges, dining rooms, studies, etc.</p>' +
-      '</div>' +
 
-    '</div>';
-  }
-
-  function stepClean() {
-    var hasOther = state.services.indexOf('Other (please specify)') !== -1;
-    return '<div class="qm-step qm-step--cols qm-step--cols-3">' +
-
-      // Column 1: Services
-      '<div class="qm-step-col">' +
-        '<p class="qm-step-col-title">Services Required</p>' +
-        '<div class="qm-grid-check">' +
-          SERVICES.map(function (s) {
-            var checked = state.services.indexOf(s) !== -1;
-            return checkTile(s, s, checked, 'qm-service');
-          }).join('') +
+        // Services multi-select dropdown
+        '<p class="qm-step-col-title" style="margin-top:20px">Services Required</p>' +
+        '<div class="qm-field" style="position:relative">' +
+          '<div class="qm-dropdown' + (!state.services.length ? ' qm-dropdown--placeholder' : '') + '" id="qm-services-dd">' +
+            '<div class="qm-dropdown__trigger" id="qm-services-trigger">' +
+              '<span id="qm-services-val">' + escHtml(servicesVal) + '</span>' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</div>' +
+            '<div class="qm-dropdown__list" id="qm-services-list">' +
+              SERVICES.map(function (s) {
+                var sel = state.services.indexOf(s) !== -1;
+                var lbl = s === 'Other (please specify)' ? 'Other' : s;
+                return '<div class="qm-dropdown__opt qm-dropdown__opt--multi' + (sel ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + escHtml(s) + '">' +
+                  '<span class="qm-dopt-check">✓</span> ' + escHtml(lbl) +
+                '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
         '</div>' +
         '<div id="qm-other-service-wrap"' + (!hasOther ? ' hidden' : '') + '>' +
           field('Please describe', 'qm-other-service', 'text', state.other_service_detail, 'Describe what you need…', false) +
         '</div>' +
-      '</div>' +
 
-      // Column 2: Frequency
-      '<div class="qm-step-col">' +
-        '<p class="qm-step-col-title">How Often?</p>' +
-        radioCards('frequency', [
-          { value: 'One-Time',    label: 'One-Time',     desc: 'Single visit'      },
-          { value: 'Weekly',      label: 'Weekly',       desc: 'Every week'        },
-          { value: 'Fortnightly', label: 'Fortnightly',  desc: 'Every two weeks'   },
-          { value: 'Monthly',     label: 'Monthly',      desc: 'Once a month'      },
-          { value: 'Unsure',      label: 'Not sure yet', desc: "I'll decide later" },
-        ], state.frequency) +
-      '</div>' +
+        // Frequency single-select dropdown
+        '<p class="qm-step-col-title" style="margin-top:16px">How Often?</p>' +
+        '<div class="qm-field" style="position:relative">' +
+          '<div class="qm-dropdown' + (!state.frequency ? ' qm-dropdown--placeholder' : '') + '" id="qm-freq-dd">' +
+            '<div class="qm-dropdown__trigger" id="qm-freq-trigger">' +
+              '<span id="qm-freq-val">' + escHtml(state.frequency || 'Select frequency…') + '</span>' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</div>' +
+            '<div class="qm-dropdown__list" id="qm-freq-list">' +
+              ['One-Time', 'Weekly', 'Fortnightly', 'Monthly', 'Not sure yet'].map(function (f) {
+                return '<div class="qm-dropdown__opt' + (state.frequency === f ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + escHtml(f) + '">' + escHtml(f) + '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
 
-      // Column 3: Condition
-      '<div class="qm-step-col">' +
-        '<p class="qm-step-col-title">Property Condition</p>' +
-        radioCards('condition', [
-          { value: 'Excellent',           label: 'Excellent',       desc: 'Clean and well maintained'  },
-          { value: 'Good',                label: 'Good',            desc: 'Some light cleaning needed' },
-          { value: 'Average',             label: 'Average',         desc: 'Moderate cleaning required' },
-          { value: 'Requires Deep Clean', label: 'Needs Deep Clean',desc: 'Heavy clean required'       },
-        ], state.condition) +
+        // Condition single-select dropdown
+        '<p class="qm-step-col-title" style="margin-top:16px">Property Condition</p>' +
+        '<div class="qm-field" style="position:relative">' +
+          '<div class="qm-dropdown' + (!state.condition ? ' qm-dropdown--placeholder' : '') + '" id="qm-cond-dd">' +
+            '<div class="qm-dropdown__trigger" id="qm-cond-trigger">' +
+              '<span id="qm-cond-val">' + escHtml(state.condition ? (CONDITION_DISPLAY[state.condition] || state.condition) : 'Select condition…') + '</span>' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</div>' +
+            '<div class="qm-dropdown__list" id="qm-cond-list">' +
+              [
+                { v: 'Excellent',           l: 'Excellent'       },
+                { v: 'Good',                l: 'Good'            },
+                { v: 'Average',             l: 'Average'         },
+                { v: 'Requires Deep Clean', l: 'Needs Deep Clean'},
+              ].map(function (c) {
+                return '<div class="qm-dropdown__opt' + (state.condition === c.v ? ' qm-dropdown__opt--sel' : '') + '" data-val="' + escHtml(c.v) + '" data-label="' + escHtml(c.l) + '">' + escHtml(c.l) + '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
       '</div>' +
 
     '</div>';
@@ -439,8 +503,15 @@
     'Name': 0, 'Phone': 0, 'Email': 0, 'Preferred contact': 0,
     'Address': 1, 'Access': 1, 'Property type': 1,
     'Bedrooms': 1, 'Bathrooms': 1, 'Living areas': 1,
-    'Services': 2, 'Frequency': 2, 'Condition': 2,
-    'Preferred days': 3, 'Preferred time': 3, 'Flexible schedule': 3, 'Notes': 3,
+    'Services': 1, 'Frequency': 1, 'Condition': 1,
+    'Preferred days': 2, 'Preferred time': 2, 'Flexible schedule': 2, 'Notes': 2,
+  };
+
+  var REVIEW_PANEL_MAP = {
+    'Address': 'qm-mob-addr', 'Access': 'qm-mob-addr',
+    'Property type': 'qm-mob-prop', 'Bedrooms': 'qm-mob-prop', 'Bathrooms': 'qm-mob-prop',
+    'Living areas': 'qm-mob-prop', 'Services': 'qm-mob-prop', 'Frequency': 'qm-mob-prop',
+    'Condition': 'qm-mob-prop',
   };
 
   function renderReview() {
@@ -467,10 +538,12 @@
     var rows = [];
     function r(label, val) {
       if (!val) return;
-      var step = REVIEW_STEP_MAP[label];
-      var stepAttr = step !== undefined ? ' data-step="' + step + '"' : '';
+      var step  = REVIEW_STEP_MAP[label];
+      var panel = REVIEW_PANEL_MAP[label] || '';
+      var stepAttr  = step  !== undefined ? ' data-step="'  + step  + '"' : '';
+      var panelAttr = panel ? ' data-panel="' + panel + '"' : '';
       rows.push(
-        '<tr class="qm-rv__row"' + stepAttr + ' title="Edit ' + escHtml(label) + '">' +
+        '<tr class="qm-rv__row"' + stepAttr + panelAttr + ' title="Edit ' + escHtml(label) + '">' +
           '<td class="qm-rv__label">' + escHtml(label) + '</td>' +
           '<td class="qm-rv__val">' + escHtml(String(val)) + '</td>' +
           '<td class="qm-rv__edit">›</td>' +
@@ -517,8 +590,11 @@
 
     body.querySelectorAll('.qm-rv__row[data-step]').forEach(function (row) {
       row.addEventListener('click', function () {
-        var step = parseInt(this.dataset.step);
+        var step  = parseInt(this.dataset.step);
+        var panel = this.dataset.panel || '';
         currentStep = step;
+        if (panel) currentMobPanel = panel;
+        else if (step === 1) currentMobPanel = 'qm-mob-addr';
         onNext = function () { next(); };
         onBack = function () { back(); };
         renderStep();
@@ -594,9 +670,9 @@
   function wireStep(n) {
     switch (n) {
       case 0:
-        bind('qm-name',  'input', function () { state.full_name = this.value; });
-        bind('qm-phone', 'input', function () { state.phone = this.value; });
-        bind('qm-email', 'input', function () { state.email = this.value; });
+        bind('qm-name',  'input', function () { state.full_name = this.value; refreshTabCompletion(); });
+        bind('qm-phone', 'input', function () { state.phone = this.value;     refreshTabCompletion(); });
+        bind('qm-email', 'input', function () { state.email = this.value;     refreshTabCompletion(); });
         bindRadios('preferred_contact', function (v) { state.preferred_contact = v; });
         advanceOnEnter('qm-name', 'qm-phone');
         advanceAfterLen('qm-phone', 'qm-email', 10);
@@ -606,13 +682,14 @@
         bind('qm-street', 'input', function () {
           var prev = state.street_address;
           state.street_address = this.value;
+          refreshTabCompletion();
           if (this.value.length - prev.length > 4) {
             var suburbEl = document.getElementById('qm-suburb');
             if (suburbEl) suburbEl.focus();
           }
         });
-        bind('qm-suburb',  'input', function () { state.suburb = this.value; });
-        bind('qm-postcode','input', function () { state.postcode = this.value; });
+        bind('qm-suburb',  'input', function () { state.suburb   = this.value; refreshTabCompletion(); });
+        bind('qm-postcode','input', function () { state.postcode = this.value; refreshTabCompletion(); });
         bind('qm-access',  'input', function () { state.access_instructions = this.value; });
         advanceOnEnter('qm-suburb', 'qm-postcode');
         advanceAfterLen('qm-postcode', 'qm-access', 4);
@@ -648,6 +725,7 @@
               list.querySelectorAll('.qm-dropdown__opt').forEach(function (o) { o.classList.remove('qm-dropdown__opt--sel'); });
               opt.classList.add('qm-dropdown__opt--sel');
               closeDropdown();
+              refreshTabCompletion();
             });
           });
         })();
@@ -657,72 +735,151 @@
             document.querySelectorAll('.qm-tile').forEach(function (t) { t.classList.remove('qm-tile--selected'); });
             this.classList.add('qm-tile--selected');
             state.property_type = this.dataset.value;
+            refreshTabCompletion();
           });
         });
         // Room steppers
         wireStepperField('qm-beds',   'bedrooms',     20);
         wireStepperField('qm-baths',  'bathrooms',    20);
         wireStepperField('qm-living', 'living_areas', 10);
-        break;
-
-      case 2:
-        document.querySelectorAll('.qm-service').forEach(function (cb) {
-          cb.addEventListener('change', function () {
-            var tile = this.closest('.qm-ctile');
-            if (this.checked) {
-              if (state.services.indexOf(this.value) === -1) state.services.push(this.value);
-              if (tile) tile.classList.add('qm-ctile--on');
+        // Services multi-select dropdown
+        (function () {
+          var dd      = document.getElementById('qm-services-dd');
+          var trigger = document.getElementById('qm-services-trigger');
+          var list    = document.getElementById('qm-services-list');
+          var valEl   = document.getElementById('qm-services-val');
+          if (!dd || !trigger || !list || !valEl) return;
+          function updateServicesDisplay() {
+            var has = state.services.length > 0;
+            dd.classList.toggle('qm-dropdown--placeholder', !has);
+            valEl.textContent = has
+              ? state.services.map(function (s) { return s === 'Other (please specify)' ? 'Other' : s; }).join(', ')
+              : 'Select services…';
+          }
+          function closeDropdown() {
+            dd.classList.remove('qm-dropdown--open');
+            document.removeEventListener('click', closeOnOutside, true);
+          }
+          function closeOnOutside(e) {
+            if (!dd.contains(e.target)) closeDropdown();
+          }
+          trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (dd.classList.contains('qm-dropdown--open')) {
+              closeDropdown();
             } else {
-              state.services = state.services.filter(function (v) { return v !== cb.value; });
-              if (tile) tile.classList.remove('qm-ctile--on');
+              dd.classList.add('qm-dropdown--open');
+              document.addEventListener('click', closeOnOutside, true);
             }
-            var wrap = document.getElementById('qm-other-service-wrap');
-            if (wrap) {
-              if (state.services.indexOf('Other (please specify)') !== -1) {
-                wrap.removeAttribute('hidden');
-                var inp = document.getElementById('qm-other-service');
-                if (inp) inp.focus();
-              } else {
-                wrap.setAttribute('hidden', '');
-                state.other_service_detail = '';
-              }
-            }
-            saveDraft();
           });
-        });
+          list.querySelectorAll('.qm-dropdown__opt--multi').forEach(function (opt) {
+            opt.addEventListener('click', function (e) {
+              e.stopPropagation();
+              var val = opt.dataset.val;
+              var idx = state.services.indexOf(val);
+              if (idx === -1) {
+                state.services.push(val);
+                opt.classList.add('qm-dropdown__opt--sel');
+              } else {
+                state.services.splice(idx, 1);
+                opt.classList.remove('qm-dropdown__opt--sel');
+              }
+              var wrap = document.getElementById('qm-other-service-wrap');
+              if (wrap) {
+                if (state.services.indexOf('Other (please specify)') !== -1) {
+                  wrap.removeAttribute('hidden');
+                } else {
+                  wrap.setAttribute('hidden', '');
+                  state.other_service_detail = '';
+                }
+              }
+              updateServicesDisplay();
+              saveDraft();
+              refreshTabCompletion();
+            });
+          });
+        })();
         bind('qm-other-service', 'input', function () {
           state.other_service_detail = this.value;
           saveDraft();
         });
-        // Frequency — scoped to avoid clearing condition cards
-        document.querySelectorAll('input[name="frequency"]').forEach(function (r) {
-          r.addEventListener('change', function () {
-            document.querySelectorAll('input[name="frequency"]').forEach(function (o) {
-              var c = o.closest('.qm-rcard');
-              if (c) c.classList.remove('qm-rcard--on');
-            });
-            var card = this.closest('.qm-rcard');
-            if (card) card.classList.add('qm-rcard--on');
-            state.frequency = this.value;
-            saveDraft();
+        // Frequency single-select dropdown
+        (function () {
+          var dd      = document.getElementById('qm-freq-dd');
+          var trigger = document.getElementById('qm-freq-trigger');
+          var list    = document.getElementById('qm-freq-list');
+          var valEl   = document.getElementById('qm-freq-val');
+          if (!dd || !trigger || !list || !valEl) return;
+          function closeDropdown() {
+            dd.classList.remove('qm-dropdown--open');
+            document.removeEventListener('click', closeOnOutside, true);
+          }
+          function closeOnOutside(e) {
+            if (!dd.contains(e.target)) closeDropdown();
+          }
+          trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (dd.classList.contains('qm-dropdown--open')) {
+              closeDropdown();
+            } else {
+              dd.classList.add('qm-dropdown--open');
+              document.addEventListener('click', closeOnOutside, true);
+            }
           });
-        });
-        // Condition — scoped to avoid clearing frequency cards
-        document.querySelectorAll('input[name="condition"]').forEach(function (r) {
-          r.addEventListener('change', function () {
-            document.querySelectorAll('input[name="condition"]').forEach(function (o) {
-              var c = o.closest('.qm-rcard');
-              if (c) c.classList.remove('qm-rcard--on');
+          list.querySelectorAll('.qm-dropdown__opt').forEach(function (opt) {
+            opt.addEventListener('click', function (e) {
+              e.stopPropagation();
+              state.frequency = opt.dataset.val;
+              valEl.textContent = opt.dataset.val;
+              dd.classList.remove('qm-dropdown--placeholder');
+              list.querySelectorAll('.qm-dropdown__opt').forEach(function (o) { o.classList.remove('qm-dropdown__opt--sel'); });
+              opt.classList.add('qm-dropdown__opt--sel');
+              closeDropdown();
+              saveDraft();
+              refreshTabCompletion();
             });
-            var card = this.closest('.qm-rcard');
-            if (card) card.classList.add('qm-rcard--on');
-            state.condition = this.value;
-            saveDraft();
           });
-        });
+        })();
+        // Condition single-select dropdown
+        (function () {
+          var dd      = document.getElementById('qm-cond-dd');
+          var trigger = document.getElementById('qm-cond-trigger');
+          var list    = document.getElementById('qm-cond-list');
+          var valEl   = document.getElementById('qm-cond-val');
+          if (!dd || !trigger || !list || !valEl) return;
+          function closeDropdown() {
+            dd.classList.remove('qm-dropdown--open');
+            document.removeEventListener('click', closeOnOutside, true);
+          }
+          function closeOnOutside(e) {
+            if (!dd.contains(e.target)) closeDropdown();
+          }
+          trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (dd.classList.contains('qm-dropdown--open')) {
+              closeDropdown();
+            } else {
+              dd.classList.add('qm-dropdown--open');
+              document.addEventListener('click', closeOnOutside, true);
+            }
+          });
+          list.querySelectorAll('.qm-dropdown__opt').forEach(function (opt) {
+            opt.addEventListener('click', function (e) {
+              e.stopPropagation();
+              state.condition = opt.dataset.val;
+              valEl.textContent = opt.dataset.label || opt.dataset.val;
+              dd.classList.remove('qm-dropdown--placeholder');
+              list.querySelectorAll('.qm-dropdown__opt').forEach(function (o) { o.classList.remove('qm-dropdown__opt--sel'); });
+              opt.classList.add('qm-dropdown__opt--sel');
+              closeDropdown();
+              saveDraft();
+              refreshTabCompletion();
+            });
+          });
+        })();
         break;
 
-      case 3:
+      case 2:
         document.querySelectorAll('.qm-day__cb').forEach(function (cb) {
           cb.addEventListener('change', function () {
             var lbl = this.closest('.qm-day');
@@ -826,14 +983,12 @@
         if (!state.postcode.trim())       return 'Please enter your postcode.';
         if (!/^\d{4}$/.test(state.postcode.trim())) return 'Please enter a valid 4-digit postcode.';
         if (!state.property_type)         return 'Please select a property type.';
-        break;
-      case 2:
         if (!state.services.length) return 'Please select at least one service.';
         if (state.services.indexOf('Other (please specify)') !== -1 && !state.other_service_detail.trim()) return 'Please describe the service.';
         if (!state.frequency) return 'Please select a cleaning frequency.';
         if (!state.condition) return 'Please select the property condition.';
         break;
-      // case 3: schedule and notes are all optional
+      // case 2: schedule and notes are all optional
     }
     return null;
   }
