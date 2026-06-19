@@ -332,10 +332,8 @@
           ' value="' + escHtml(state.full_name) + '" placeholder="Your full name"' +
           ' autocomplete="name" inputmode="text">' +
       '</div>' +
-      '<div class="qm-row-2">' +
-        field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel') +
-        field('Email', 'qm-email', 'email', state.email, 'you@example.com', true) +
-      '</div>' +
+      field('Mobile', 'qm-phone', 'tel', state.phone, '04XX XXX XXX', true, null, 'tel') +
+      field('Email', 'qm-email', 'email', state.email, 'you@example.com', true) +
       '<div class="qm-contact-card">' +
         '<label class="qm-label">How should we reach you?</label>' +
         radioRow('preferred_contact', [
