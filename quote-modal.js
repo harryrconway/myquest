@@ -727,25 +727,7 @@
           var list    = document.getElementById('qm-state-list');
           var valEl   = document.getElementById('qm-state-val');
           if (!dd || !trigger || !list || !valEl) return;
-          function positionFixed() {
-            var rect = trigger.getBoundingClientRect();
-            list.style.position = 'fixed';
-            list.style.bottom   = (window.innerHeight - rect.top + 4) + 'px';
-            list.style.left     = rect.left + 'px';
-            list.style.right    = (window.innerWidth - rect.right) + 'px';
-            list.style.top      = 'auto';
-            list.style.width    = '';
-          }
-          function resetPosition() {
-            list.style.position = '';
-            list.style.bottom   = '';
-            list.style.left     = '';
-            list.style.right    = '';
-            list.style.top      = '';
-            list.style.width    = '';
-          }
           function closeDropdown() {
-            resetPosition();
             dd.classList.remove('qm-dropdown--open');
             document.removeEventListener('click', closeOnOutside, true);
           }
@@ -757,7 +739,6 @@
             if (dd.classList.contains('qm-dropdown--open')) {
               closeDropdown();
             } else {
-              if (window.innerWidth <= 430) positionFixed();
               dd.classList.add('qm-dropdown--open');
               document.addEventListener('click', closeOnOutside, true);
             }

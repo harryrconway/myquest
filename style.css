@@ -1306,6 +1306,14 @@ textarea.form-input {
   overflow-y: hidden;
 }
 
+/* Allow dropdown lists to extend above the card on mobile */
+@media (max-width: 430px) {
+  .qm-card,
+  .qm-body {
+    overflow: visible;
+  }
+}
+
 /* ── Footer ── */
 .qm-footer {
   display: flex;
