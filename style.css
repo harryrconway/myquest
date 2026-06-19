@@ -2037,33 +2037,49 @@ textarea.form-input {
 .qm-step--in-right { animation: qm-slide-right 0.22s ease forwards; }
 .qm-step--in-left  { animation: qm-slide-left  0.22s ease forwards; }
 
-/* ── Mobile segmented tab bar (Step 2 — rendered into #qm-mob-tab-bar by JS) ── */
+/* ── Mobile bottom tab bar — replaces Back/Next on mobile ── */
 .qm-mob-tab-bar {
-  display: none;        /* JS sets display:flex on step 2 only */
-  background: #f1f5f9;
-  border-radius: 10px;
-  padding: 3px;
-  gap: 3px;
+  display: none;        /* JS sets display:flex */
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
   flex-shrink: 0;
-  margin: 0 16px 8px;
+  margin: 0;
+  padding: 0;
+  gap: 0;
 }
 .qm-mob-segtab {
   flex: 1;
-  padding: 7px 10px;
+  padding: 10px 2px 9px;
   border: none;
-  border-radius: 8px;
+  border-top: 2px solid transparent;
+  border-radius: 0;
   background: transparent;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: #9ca3af;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: color 0.12s, border-color 0.12s;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .qm-mob-segtab--active {
-  background: #fff;
   color: #000;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  border-top-color: #000;
+  background: transparent;
+  box-shadow: none;
+}
+/* Review & Submit CTA — visible on mobile Schedule tab only */
+.qm-mob-review-cta {
+  display: none;
+}
+@media (max-width: 767px) {
+  .qm-mob-review-cta {
+    display: block;
+    padding-top: 20px;
+  }
 }
 @media (min-width: 768px) {
   .qm-mob-tab-bar { display: none !important; }

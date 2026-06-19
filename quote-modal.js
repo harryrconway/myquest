@@ -11,6 +11,7 @@
 
   var onNext = function () { next(); };
   var onBack = function () { back(); };
+  var currentMobPanel = 'qm-mob-addr'; // which sub-panel is active when on step 1
 
   var STEPS = [
     { id: 'details',  title: 'Your Details'    },
@@ -45,6 +46,7 @@
     resetState();
     loadDraft();
     currentStep = 0;
+    currentMobPanel = 'qm-mob-addr';
     stepDir = 1;
     renderStep();
 
@@ -150,44 +152,104 @@
     var card = document.querySelector('.qm-card');
     if (card) card.classList.remove('qm-card--review');
     var body = document.getElementById('qm-body');
-    var tabBar = document.getElementById('qm-mob-tab-bar');
-    if (tabBar) { tabBar.style.display = ''; tabBar.innerHTML = ''; }
-    var html = buildStep(currentStep);
-    body.innerHTML = html;
+    body.innerHTML = buildStep(currentStep);
+
+    // On step 1 activate correct sub-panel (set by tab or default)
+    if (currentStep === 1) {
+      body.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
+      var ap = body.querySelector('#' + currentMobPanel);
+      if (ap) ap.classList.add('qm-mob-panel--active');
+    }
 
     body.style.overflowY = 'hidden';
     body.style.webkitOverflowScrolling = '';
 
-    // Slide animation — target the step root element (may have extra classes)
     var stepEl = body.firstElementChild;
     if (stepEl) stepEl.classList.add(stepDir > 0 ? 'qm-step--in-right' : 'qm-step--in-left');
 
     setProgress(currentStep);
     document.getElementById('qm-title').textContent = STEPS[currentStep].title;
 
-    // Back button
-    var backBtn = document.getElementById('qm-back');
-    backBtn.style.display = currentStep === 0 ? 'none' : '';
-    backBtn.textContent   = 'Back';
+    var isMobile = window.innerWidth <= 767;
+    var footer   = document.getElementById('qm-footer');
+    var tabBar   = document.getElementById('qm-mob-tab-bar');
 
-    // Next button
-    var nextBtn = document.getElementById('qm-next');
-    nextBtn.textContent = currentStep === totalSteps - 1 ? 'Review' : 'Next';
-    nextBtn.disabled    = false;
+    if (isMobile) {
+      // Tab bar replaces Back/Next on mobile
+      if (footer) footer.style.display = 'none';
+      renderMobTabBar();
+    } else {
+      // Desktop: standard Back/Next, no tab bar
+      if (tabBar) { tabBar.style.display = ''; tabBar.innerHTML = ''; }
+      if (footer) footer.style.display = '';
+      var backBtn = document.getElementById('qm-back');
+      backBtn.style.display = currentStep === 0 ? 'none' : '';
+      backBtn.textContent   = 'Back';
+      var nextBtn = document.getElementById('qm-next');
+      nextBtn.textContent = currentStep === totalSteps - 1 ? 'Review' : 'Next';
+      nextBtn.disabled    = false;
+    }
 
     wireStep(currentStep);
 
-    // Auto-focus first input on desktop only
     if (window.innerWidth > 767) {
       var firstInput = body.querySelector('input[type="text"], input[type="tel"], input[type="email"], textarea');
       if (firstInput) firstInput.focus();
     }
 
-    // Scroll reset
     body.scrollTop = 0;
     requestAnimationFrame(function () {
       body.scrollTop = 0;
       requestAnimationFrame(function () { body.scrollTop = 0; });
+    });
+  }
+
+  function renderMobTabBar() {
+    var tabBar = document.getElementById('qm-mob-tab-bar');
+    if (!tabBar) return;
+
+    var tabs = [
+      { label: 'You',      step: 0, panel: null           },
+      { label: 'Address',  step: 1, panel: 'qm-mob-addr'  },
+      { label: 'Property', step: 1, panel: 'qm-mob-prop'  },
+      { label: 'Clean',    step: 2, panel: null           },
+      { label: 'Schedule', step: 3, panel: null           },
+    ];
+
+    var activeIdx = currentStep === 0 ? 0
+                  : currentStep === 1 ? (currentMobPanel === 'qm-mob-prop' ? 2 : 1)
+                  : currentStep === 2 ? 3
+                  : 4;
+
+    tabBar.innerHTML = tabs.map(function (t, i) {
+      return '<button type="button" class="qm-mob-segtab' + (i === activeIdx ? ' qm-mob-segtab--active' : '') + '"' +
+             ' data-step="' + t.step + '" data-panel="' + (t.panel || '') + '">' +
+             escHtml(t.label) + '</button>';
+    }).join('');
+    tabBar.style.display = 'flex';
+
+    tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var targetStep  = parseInt(this.dataset.step);
+        var targetPanel = this.dataset.panel || null;
+
+        if (targetStep === currentStep && targetPanel && targetPanel !== currentMobPanel) {
+          // Same step (Property), switch sub-panel only
+          currentMobPanel = targetPanel;
+          tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (b) { b.classList.remove('qm-mob-segtab--active'); });
+          this.classList.add('qm-mob-segtab--active');
+          var body = document.getElementById('qm-body');
+          body.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
+          var panel = body.querySelector('#' + currentMobPanel);
+          if (panel) panel.classList.add('qm-mob-panel--active');
+        } else if (targetStep !== currentStep) {
+          saveDraft();
+          stepDir = targetStep > currentStep ? 1 : -1;
+          currentStep     = targetStep;
+          currentMobPanel = targetPanel || (targetStep === 1 ? 'qm-mob-addr' : 'qm-mob-addr');
+          renderStep();
+        }
+      });
     });
   }
 
@@ -360,6 +422,9 @@
         '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="Special requests, parking, pets, access details…" rows="3">' + escHtml(state.notes) + '</textarea>' +
         '<div class="qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '') + '" id="qm-word-count"><span id="qm-wc-num">' + wc + '</span>/100 words</div>' +
       '</div>' +
+      '<div class="qm-mob-review-cta">' +
+        '<button type="button" class="btn-primary" id="qm-mob-review-btn" style="width:100%;padding:14px;">Review &amp; Submit →</button>' +
+      '</div>' +
     '</div>';
   }
 
@@ -387,6 +452,12 @@
     document.getElementById('qm-step-label').textContent = 'Almost done!';
     document.getElementById('qm-progress-bar').style.width = '100%';
     updateSidebar(totalSteps); // mark all steps done
+
+    // On mobile: hide tab bar, reveal footer for Review/Submit
+    var tabBar = document.getElementById('qm-mob-tab-bar');
+    var footer = document.getElementById('qm-footer');
+    if (tabBar) { tabBar.style.display = 'none'; tabBar.innerHTML = ''; }
+    if (footer) footer.style.display = '';
 
     backBtn.style.display = '';
     backBtn.textContent   = 'Back';
@@ -592,24 +663,6 @@
         wireStepperField('qm-beds',   'bedrooms',     20);
         wireStepperField('qm-baths',  'bathrooms',    20);
         wireStepperField('qm-living', 'living_areas', 10);
-        // Mobile segmented tab switching — rendered into #qm-mob-tab-bar (outside #qm-body)
-        var tabBar = document.getElementById('qm-mob-tab-bar');
-        if (tabBar) {
-          tabBar.innerHTML =
-            '<button type="button" class="qm-mob-segtab qm-mob-segtab--active" data-target="qm-mob-addr">Address</button>' +
-            '<button type="button" class="qm-mob-segtab" data-target="qm-mob-prop">Property</button>';
-          tabBar.style.display = 'flex';
-          tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-              var target = this.dataset.target;
-              tabBar.querySelectorAll('.qm-mob-segtab').forEach(function (b) { b.classList.remove('qm-mob-segtab--active'); });
-              document.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
-              this.classList.add('qm-mob-segtab--active');
-              var panel = document.getElementById(target);
-              if (panel) panel.classList.add('qm-mob-panel--active');
-            });
-          });
-        }
         break;
 
       case 2:
@@ -700,6 +753,28 @@
           if (numEl) numEl.textContent = wc;
           if (ctrEl) ctrEl.className = 'qm-word-count' + (wc >= 100 ? ' qm-word-count--full' : wc >= 80 ? ' qm-word-count--near' : '');
         });
+        // Mobile: "Review & Submit" button within Schedule content
+        var mobReviewBtn = document.getElementById('qm-mob-review-btn');
+        if (mobReviewBtn) {
+          mobReviewBtn.addEventListener('click', function () {
+            saveDraft();
+            onNext = submit;
+            onBack = function () {
+              var tabBar = document.getElementById('qm-mob-tab-bar');
+              var footer = document.getElementById('qm-footer');
+              if (window.innerWidth <= 767) {
+                if (footer) footer.style.display = 'none';
+                renderMobTabBar();
+              }
+              stepDir = -1;
+              currentStep = totalSteps - 1;
+              onNext = function () { next(); };
+              onBack = function () { back(); };
+              renderStep();
+            };
+            renderReview();
+          });
+        }
         break;
     }
   }
