@@ -5199,8 +5199,8 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 }
 .ts-avail-pill:hover { background: #f9fafb; border-color: #d1d5db; }
 .ts-avail-pill.is-active {
-  background: #000;
-  border-color: #000;
-  color: #FFD400;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.25);
 }

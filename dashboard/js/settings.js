@@ -447,7 +447,9 @@
       selectedAvailability = value || '';
       document.getElementById('team-avail').value = selectedAvailability;
       availPills.forEach(function (p) {
-        p.classList.toggle('is-active', p.dataset.value === selectedAvailability);
+        var active = p.dataset.value === selectedAvailability;
+        p.classList.toggle('is-active', active);
+        p.textContent = active ? '✓ ' + (p.dataset.label || p.dataset.value) : (p.dataset.label || p.dataset.value);
       });
     }
     availPills.forEach(function (pill) {
@@ -498,6 +500,11 @@
           if (ecPhone) ecPhone.value = p.emergency_contact_number  || '';
           if (ecRel)   ecRel.value   = p.emergency_relation        || '';
           setAvailPill((p.availability && p.availability.work_preference) || '');
+          var startEl = document.getElementById('team-start');
+          if (startEl && p.start_date) {
+            startEl.textContent = new Date(p.start_date + 'T00:00:00')
+              .toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+          }
           var docs = [
             { label: 'Police Check',        url: p.police_check_url },
             { label: 'Driver\'s Licence',   url: p.drivers_licence_url },

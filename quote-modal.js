@@ -221,8 +221,14 @@
   function stepProperty() {
     return '<div class="qm-step qm-step--cols qm-step--cols-2">' +
 
+      // Mobile-only segmented tab bar (hidden on desktop via CSS)
+      '<div class="qm-mob-segtabs">' +
+        '<button type="button" class="qm-mob-segtab qm-mob-segtab--active" data-target="qm-mob-addr">Address</button>' +
+        '<button type="button" class="qm-mob-segtab" data-target="qm-mob-prop">Property</button>' +
+      '</div>' +
+
       // Left column: Address
-      '<div class="qm-step-col">' +
+      '<div class="qm-step-col qm-mob-panel qm-mob-panel--active" id="qm-mob-addr">' +
         '<p class="qm-step-col-title">Address</p>' +
         field('Street Address', 'qm-street', 'text', state.street_address, '123 Example St', false, 'address-line1') +
         '<div class="qm-row-2">' +
@@ -247,7 +253,7 @@
       '</div>' +
 
       // Right column: Property Type + Details
-      '<div class="qm-step-col">' +
+      '<div class="qm-step-col qm-mob-panel" id="qm-mob-prop">' +
         '<p class="qm-step-col-title">Property Type</p>' +
         '<div class="qm-grid-type">' +
           PROPERTY_TYPES.map(function (pt) {
@@ -590,6 +596,17 @@
         wireStepperField('qm-beds',   'bedrooms',     20);
         wireStepperField('qm-baths',  'bathrooms',    20);
         wireStepperField('qm-living', 'living_areas', 10);
+        // Mobile segmented tab switching
+        body.querySelectorAll('.qm-mob-segtab').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var target = this.dataset.target;
+            body.querySelectorAll('.qm-mob-segtab').forEach(function (b) { b.classList.remove('qm-mob-segtab--active'); });
+            body.querySelectorAll('.qm-mob-panel').forEach(function (p) { p.classList.remove('qm-mob-panel--active'); });
+            this.classList.add('qm-mob-segtab--active');
+            var panel = document.getElementById(target);
+            if (panel) panel.classList.add('qm-mob-panel--active');
+          });
+        });
         break;
 
       case 2:

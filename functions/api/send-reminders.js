@@ -44,13 +44,13 @@ export async function onRequestGet({ request, env }) {
         html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f5f0;">
 <div style="font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;max-width:560px;margin:32px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.09);">
-  <div style="background:linear-gradient(135deg,#FFD400 0%,#40916c 100%);padding:32px 40px;">
+  <div style="background:#FFD400;padding:32px 40px;">
     <svg width="120" height="30" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="white"/>
-      <path d="M20 2 C20 2 22 16 14 22" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-      <text x="28" y="25" font-family="sans-serif" font-weight="700" font-size="18" fill="white">MyQuest</text>
+      <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#000"/>
+      <path d="M20 2 C20 2 22 16 14 22" stroke="#000" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <text x="28" y="25" font-family="sans-serif" font-weight="700" font-size="18" fill="#000">MyQuest</text>
     </svg>
-    <p style="color:rgba(255,255,255,0.8);margin:14px 0 0;font-size:15px;font-weight:500;">Your clean is tomorrow!</p>
+    <p style="color:rgba(0,0,0,0.6);margin:14px 0 0;font-size:15px;font-weight:500;">Your clean is tomorrow!</p>
   </div>
   <div style="padding:36px 40px;">
     <h2 style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 10px;letter-spacing:-0.02em;">
