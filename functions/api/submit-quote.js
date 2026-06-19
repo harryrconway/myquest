@@ -150,6 +150,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
   const suburb   = body.suburb ? body.suburb : '';
   const services = body.services && body.services.length ? body.services.join(', ') : 'Not specified';
   const address  = [body.street_address, body.suburb, body.state, body.postcode].filter(Boolean).join(', ');
+  const extras   = body.extras && body.extras.length ? body.extras.join(', ') : null;
 
   // Customer confirmation
   await fetch('https://api.resend.com/emails', {
@@ -175,9 +176,15 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
     <div style="background:#f4f4f4;border-radius:8px;padding:20px;margin:0 0 24px;">
       <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(0,0,0,0.4);margin:0 0 12px;">Your request</p>
       <p style="margin:4px 0;font-size:14px;color:#000;"><strong>Services:</strong> ${services}</p>
-      ${suburb ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Suburb:</strong> ${suburb}</p>` : ''}
+      ${address ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Address:</strong> ${escHtmlEmail(address)}</p>` : (suburb ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Suburb:</strong> ${suburb}</p>` : '')}
       ${body.property_type ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Property:</strong> ${body.property_type}</p>` : ''}
+      ${body.bedrooms ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Bedrooms:</strong> ${body.bedrooms}</p>` : ''}
+      ${body.bathrooms ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Bathrooms:</strong> ${body.bathrooms}</p>` : ''}
       ${body.frequency ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Frequency:</strong> ${body.frequency}</p>` : ''}
+      ${extras ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Extras:</strong> ${escHtmlEmail(extras)}</p>` : ''}
+      ${body.preferred_days && body.preferred_days.length ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Preferred days:</strong> ${escHtmlEmail(body.preferred_days.join(', '))}</p>` : ''}
+      ${body.preferred_time ? `<p style="margin:4px 0;font-size:14px;color:#000;"><strong>Preferred time:</strong> ${escHtmlEmail(body.preferred_time)}</p>` : ''}
+      ${body.notes ? `<p style="margin:4px 0;font-size:14px;color:#000;font-style:italic;">"${escHtmlEmail(body.notes)}"</p>` : ''}
     </div>
     <p style="color:#000;line-height:1.7;margin:0 0 8px;">If you have any questions before we reach out, give us a call:</p>
     <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#000;font-weight:700;font-size:16px;">0497 828 838</a></p>

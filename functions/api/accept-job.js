@@ -161,10 +161,17 @@ export async function onRequestPost(context) {
 
   // Send booking confirmation to customer + staff assignment emails
   if (RESEND_KEY) {
-    const dateFormatted = formatDate(scheduledDate);
-    const timeFormatted = formatTime(scheduledTime);
-    const services = job.services && job.services.length ? job.services.join(', ') : 'Cleaning Service';
-    const address  = [job.street_address, job.suburb, job.state].filter(Boolean).join(', ');
+    const dateFormatted   = formatDate(scheduledDate);
+    const timeFormatted   = formatTime(scheduledTime);
+    const services        = job.services && job.services.length ? job.services.join(', ') : 'Cleaning Service';
+    const fullAddress     = [job.street_address, job.suburb, job.state, job.postcode].filter(Boolean).join(', ');
+    const mapsUrl         = fullAddress ? `https://maps.google.com/?q=${encodeURIComponent(fullAddress)}` : null;
+    const extras          = job.extras && job.extras.length ? job.extras.join(', ') : null;
+    const staffCount      = assignedStaffIds && assignedStaffIds.length ? assignedStaffIds.length : (job.staff_count || 1);
+    const recurrenceLabel = recurrence === 'weekly' ? 'Weekly recurring'
+      : recurrence === 'fortnightly' ? 'Fortnightly recurring'
+      : recurrence === 'monthly' ? 'Monthly recurring'
+      : 'One-off';
 
     const emailPromises = [];
 
@@ -189,11 +196,16 @@ export async function onRequestPost(context) {
   </div>
   <div style="background:#fff;padding:36px;">
     <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">You're all booked in!</h2>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">Hi ${job.full_name}, we're looking forward to seeing you. Here are your booking details:</p>
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">Hi ${esc(job.full_name)}, we're looking forward to seeing you. Here are your booking details:</p>
     <div style="background:#FFFDE7;border:1px solid #FFE566;border-radius:8px;padding:20px;margin:0 0 24px;">
       <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Date:</strong> ${dateFormatted}</p>
       <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Time:</strong> ${timeFormatted}</p>
-      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Service:</strong> ${services}</p>
+      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Service:</strong> ${esc(services)}</p>
+      ${fullAddress ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Address:</strong> ${esc(fullAddress)}</p>` : ''}
+      ${recurrenceLabel !== 'One-off' ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Recurrence:</strong> ${recurrenceLabel}</p>` : ''}
+      ${staffCount > 1 ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Staff:</strong> ${staffCount} cleaners</p>` : ''}
+      ${extras ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Extras:</strong> ${esc(extras)}</p>` : ''}
+      ${job.notes ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Notes:</strong> ${esc(job.notes)}</p>` : ''}
     </div>
     <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">Our team will arrive at the scheduled time. If you need to reschedule or have any questions, call us:</p>
     <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#FFD400;font-weight:700;font-size:16px;">0497 828 838</a></p>
@@ -223,6 +235,8 @@ export async function onRequestPost(context) {
         for (const member of (staffProfiles || [])) {
           if (!member.email) continue;
           const firstName = (member.name || member.email).split(' ')[0];
+          const phoneLink = job.phone ? '<a href="tel:' + esc(job.phone) + '" style="color:#000;font-weight:600;">' + esc(job.phone) + '</a>' : '';
+          const addressLink = fullAddress && mapsUrl ? '<a href="' + esc(mapsUrl) + '" style="color:#1d4ed8;font-weight:600;">' + esc(fullAddress) + '</a>' : '';
           emailPromises.push(fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
@@ -241,16 +255,40 @@ export async function onRequestPost(context) {
     </svg>
   </div>
   <div style="background:#fff;padding:36px;">
-    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Hi ${firstName}, you've got a job!</h2>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">You've been assigned to the following job. See the details below.</p>
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin:0 0 24px;">
-      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Date:</strong> ${dateFormatted}</p>
-      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Time:</strong> ${timeFormatted}</p>
-      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Service:</strong> ${services}</p>
-      <p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Customer:</strong> ${job.full_name}</p>
-      ${address ? `<p style="margin:6px 0;font-size:15px;color:#111827;"><strong>Address:</strong> ${address}</p>` : ''}
+    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#111827;">Hi ${esc(firstName)}, you've got a job!</h2>
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 20px;">You've been assigned to the following job. Here's everything you need to know.</p>
+
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;margin:0 0 6px;">Job Details</p>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:4px 0;margin:0 0 16px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        ${propRow('Date', dateFormatted, false)}
+        ${propRow('Time', timeFormatted, true)}
+        ${propRow('Service', esc(services), false)}
+        ${propRow('Recurrence', recurrenceLabel, true)}
+        ${staffCount > 1 ? propRow('Team size', staffCount + ' cleaners', false) : ''}
+      </table>
     </div>
-    <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">If you have any questions, contact the office:</p>
+
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;margin:0 0 6px;">Property</p>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:4px 0;margin:0 0 16px;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        ${propRow('Customer', esc(job.full_name), false)}
+        ${propRow('Phone', phoneLink, true)}
+        ${propRow('Address', addressLink, false)}
+        ${propRow('Type', esc(job.property_type), true)}
+        ${propRow('Bedrooms', job.bedrooms, false)}
+        ${propRow('Bathrooms', job.bathrooms, true)}
+        ${propRow('Living areas', job.living_areas, false)}
+        ${propRow('Floor area', job.floor_area_sqm ? job.floor_area_sqm + ' m²' : '', true)}
+        ${propRow('Condition', esc(job.condition), false)}
+        ${propRow('Extras', esc(extras), true)}
+      </table>
+    </div>
+
+    ${job.access_instructions ? '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#92400e;margin:0 0 6px;">Access Instructions</p><div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:8px;padding:16px 20px;margin:0 0 16px;"><p style="font-size:14px;color:#78350f;margin:0;line-height:1.6;">' + esc(job.access_instructions) + '</p></div>' : ''}
+    ${job.notes ? '<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;margin:0 0 6px;">Customer Notes</p><div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:16px 20px;margin:0 0 16px;"><p style="font-size:14px;color:#0369a1;margin:0;line-height:1.6;">' + esc(job.notes) + '</p></div>' : ''}
+
+    <p style="color:#4b5563;line-height:1.7;margin:0 0 8px;">Questions? Contact the office:</p>
     <p style="margin:0 0 24px;"><a href="tel:+61497828838" style="color:#000;font-weight:700;font-size:16px;">0497 828 838</a></p>
     <p style="color:#6b7280;font-size:14px;margin:0;">Thanks,<br>The MyQuest Team</p>
   </div>
@@ -285,6 +323,16 @@ function formatTime(timeStr) {
     const hour   = h % 12 || 12;
     return `${hour}:${String(m).padStart(2, '0')}${suffix}`;
   } catch { return timeStr; }
+}
+
+function propRow(label, value, stripe) {
+  if (!value && value !== 0) return '';
+  const bg = stripe ? 'background:#f4f4f4;' : '';
+  return `<tr style="${bg}"><td style="padding:7px 14px;font-weight:600;white-space:nowrap;color:#374151;width:120px;font-size:13px;">${label}</td><td style="padding:7px 14px;color:#111827;font-size:13px;">${value}</td></tr>`;
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function json(data, status = 200) {

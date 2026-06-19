@@ -18,7 +18,7 @@ export async function onRequestGet({ request, env }) {
 
   const jobRes = await fetch(
     `${SUPABASE_URL}/rest/v1/quote_requests?status=eq.scheduled&scheduled_date=eq.${tomorrowStr}` +
-    `&select=id,full_name,email,service_type,scheduled_date,scheduled_time,street_address,suburb,state,access_instructions`,
+    `&select=id,full_name,email,service_type,scheduled_date,scheduled_time,street_address,suburb,state,postcode,services,property_type,bedrooms,bathrooms,extras,notes,assigned_staff_name,staff_count,recurrence,access_instructions`,
     { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
   );
 
@@ -30,9 +30,12 @@ export async function onRequestGet({ request, env }) {
   let sent = 0;
   for (const job of jobs) {
     if (!job.email) continue;
-    const dateLabel    = formatDate(job.scheduled_date);
-    const timeLabel    = formatTime(job.scheduled_time);
-    const addressLabel = [job.street_address, job.suburb, job.state].filter(Boolean).join(', ');
+    const dateLabel     = formatDate(job.scheduled_date);
+    const timeLabel     = formatTime(job.scheduled_time);
+    const addressLabel  = [job.street_address, job.suburb, job.state, job.postcode].filter(Boolean).join(', ');
+    const servicesLabel = (job.services && job.services.length ? job.services.join(', ') : null) || job.service_type || null;
+    const extrasLabel   = job.extras && job.extras.length ? job.extras.join(', ') : null;
+    const propSummary   = [job.bedrooms ? job.bedrooms + ' bed' : '', job.bathrooms ? job.bathrooms + ' bath' : ''].filter(Boolean).join(' / ') || null;
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -70,13 +73,21 @@ export async function onRequestGet({ request, env }) {
           <td style="padding:5px 0;font-weight:700;color:#0f172a;">${timeLabel}</td>
         </tr>
         ${addressLabel ? `<tr><td style="padding:5px 0;color:#4b5563;vertical-align:top;">Address</td><td style="padding:5px 0;font-weight:700;color:#0f172a;">${esc(addressLabel)}</td></tr>` : ''}
-        ${job.service_type ? `<tr><td style="padding:5px 0;color:#4b5563;vertical-align:top;">Service</td><td style="padding:5px 0;font-weight:700;color:#0f172a;">${esc(job.service_type)}</td></tr>` : ''}
+        ${servicesLabel ? `<tr><td style="padding:5px 0;color:#4b5563;vertical-align:top;">Service</td><td style="padding:5px 0;font-weight:700;color:#0f172a;">${esc(servicesLabel)}</td></tr>` : ''}
+        ${propSummary ? `<tr><td style="padding:5px 0;color:#4b5563;vertical-align:top;">Property</td><td style="padding:5px 0;font-weight:700;color:#0f172a;">${esc(propSummary)}</td></tr>` : ''}
+        ${extrasLabel ? `<tr><td style="padding:5px 0;color:#4b5563;vertical-align:top;">Extras</td><td style="padding:5px 0;font-weight:700;color:#0f172a;">${esc(extrasLabel)}</td></tr>` : ''}
+        ${job.assigned_staff_name ? `<tr><td style="padding:5px 0;color:#4b5563;vertical-align:top;">Cleaner</td><td style="padding:5px 0;font-weight:700;color:#0f172a;">${esc(job.assigned_staff_name)}</td></tr>` : ''}
       </table>
     </div>
     ${job.access_instructions ? `
     <div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:16px 20px;margin:0 0 24px;">
       <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#92400e;margin:0 0 6px;">Access Instructions</p>
       <p style="font-size:14px;color:#78350f;margin:0;line-height:1.6;">${esc(job.access_instructions)}</p>
+    </div>` : ''}
+    ${job.notes ? `
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:16px 20px;margin:0 0 24px;">
+      <p style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#0369a1;margin:0 0 6px;">Notes</p>
+      <p style="font-size:14px;color:#0369a1;margin:0;line-height:1.6;">${esc(job.notes)}</p>
     </div>` : ''}
     <p style="color:#6b7280;font-size:14px;line-height:1.7;margin:0 0 6px;">
       Questions or need to reschedule? Give us a call:

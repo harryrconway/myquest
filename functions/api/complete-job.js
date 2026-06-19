@@ -154,9 +154,10 @@ export async function onRequestPost(context) {
 
   // Send thank-you email to customer via waitUntil so Cloudflare doesn't kill it
   if (RESEND_KEY && job.email) {
-    const firstName = (job.full_name || '').split(' ')[0] || job.full_name;
-    const services  = job.services && job.services.length ? job.services.join(', ') : 'cleaning service';
-    const address   = [job.street_address, job.suburb].filter(Boolean).join(', ') || '';
+    const firstName  = (job.full_name || '').split(' ')[0] || job.full_name;
+    const services   = job.services && job.services.length ? job.services.join(', ') : 'cleaning service';
+    const address    = [job.street_address, job.suburb, job.state, job.postcode].filter(Boolean).join(', ') || '';
+    const staffName  = job.assigned_staff_name || null;
     const dateStr   = job.scheduled_date
       ? new Date(job.scheduled_date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })
       : 'today';
@@ -200,7 +201,7 @@ export async function onRequestPost(context) {
         <tr>
           <td style="padding:36px 32px 28px;">
             <h1 style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111;letter-spacing:-0.5px;">All done, ${firstName}!</h1>
-            <p style="margin:0 0 24px;font-size:15px;color:#000;line-height:1.6;">Your ${services} on <strong>${dateStr}</strong>${address ? ' at <strong>' + address + '</strong>' : ''} is complete. We hope everything is looking spotless.</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#000;line-height:1.6;">Your ${services} on <strong>${dateStr}</strong>${address ? ' at <strong>' + address + '</strong>' : ''} is complete.${staffName ? ' Cleaned by <strong>' + staffName + '</strong>.' : ''} We hope everything is looking spotless.</p>
 
             <!-- Divider -->
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;"><tr><td style="border-top:1px solid #eee;"></td></tr></table>
