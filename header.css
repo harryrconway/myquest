@@ -208,65 +208,31 @@ body.menu-open .mobile-menu-backdrop {
 .mobile-menu.is-open .mobile-menu__list li:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.24s; }
 .mobile-menu.is-open .mobile-menu__list li:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.30s; }
 .mobile-menu.is-open .mobile-menu__list li:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.36s; }
+.mobile-menu.is-open .mobile-menu__list li:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.42s; }
+.mobile-menu.is-open .mobile-menu__list li:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.48s; }
 
-.mobile-menu__list a {
+.mobile-menu__list a,
+.mobile-menu__list button {
   display: block;
+  width: 100%;
+  font-family: inherit;
   font-size: var(--text-3xl);
   font-weight: var(--font-weight-bold);
   color: #000;
   padding-block: var(--space-5);
   text-align: right;
   letter-spacing: -0.02em;
+  background: none;
+  border: none;
+  cursor: pointer;
   transition: opacity var(--transition-fast);
 }
 
-.mobile-menu__list a:hover {
+.mobile-menu__list a:hover,
+.mobile-menu__list button:hover {
   opacity: 0.7;
 }
 
-.mobile-menu__footer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin-top: var(--space-8);
-  padding-top: var(--space-8);
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.28s ease 0.4s, transform 0.28s ease 0.4s;
-}
-
-.mobile-menu.is-open .mobile-menu__footer {
-  opacity: 1;
-  transform: none;
-}
-
-.mobile-menu__login {
-  background: #000;
-  color: white;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--text-base);
-  text-align: center;
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
-}
-
-.mobile-menu__login:hover {
-  background: #222;
-}
-
-.mobile-menu__footer .btn-primary {
-  background: #000;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  font-size: var(--text-base);
-  border-radius: var(--radius-md);
-}
-
-.mobile-menu__footer .btn-primary:hover {
-  background: #222;
-}
 
 /* ---- Responsive ------------------------------------------- */
 @media (max-width: 1024px) {
