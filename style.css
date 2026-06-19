@@ -1490,6 +1490,16 @@ textarea.form-input {
   transform: translateY(0);
 }
 
+/* Downward-opening variant (used on State dropdown in Address step) */
+.qm-dropdown--down .qm-dropdown__list {
+  top: calc(100% + 4px);
+  bottom: auto;
+  transform: translateY(-4px);
+}
+.qm-dropdown--down.qm-dropdown--open .qm-dropdown__list {
+  transform: translateY(0);
+}
+
 .qm-dropdown__opt {
   display: flex;
   align-items: center;
@@ -1600,7 +1610,7 @@ textarea.form-input {
 
 .qm-tile:hover {
   border-color: #000;
-  background: #FFFDE7;
+  background: #f3f4f6;
   color: #000;
 }
 

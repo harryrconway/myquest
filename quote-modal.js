@@ -31,7 +31,7 @@
   ];
 
   var SERVICES = [
-    'General', 'Deep', 'Office', 'NDIS', 'Carpet', 'Window', 'Other (please specify)',
+    'General', 'Deep', 'Office', 'Window', 'Other (please specify)',
   ];
 
   var DAYS      = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -368,7 +368,7 @@
           field('Suburb', 'qm-suburb', 'text', state.suburb, 'Suburb', false, 'address-level2') +
           '<div class="qm-field" style="position:relative">' +
             '<label class="qm-label">State</label>' +
-            '<div class="qm-dropdown' + (state.state ? '' : ' qm-dropdown--placeholder') + '" id="qm-state-dd">' +
+            '<div class="qm-dropdown qm-dropdown--down' + (state.state ? '' : ' qm-dropdown--placeholder') + '" id="qm-state-dd">' +
               '<div class="qm-dropdown__trigger" id="qm-state-trigger">' +
                 '<span id="qm-state-val">' + (state.state ? escHtml(state.state) : 'Select…') + '</span>' +
                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
