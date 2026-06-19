@@ -1450,6 +1450,11 @@ textarea.form-input {
   color: #000;
 }
 
+.qm-dropdown__opt--multi {
+  justify-content: flex-start;
+  gap: 0;
+}
+
 /* ── Grid helpers ── */
 .qm-row-2 {
   display: grid;

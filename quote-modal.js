@@ -816,6 +816,7 @@
                 }
               }
               updateServicesDisplay();
+              closeDropdown();
               saveDraft();
               refreshTabCompletion();
             });
