@@ -972,6 +972,11 @@ textarea.form-input {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes qm-mob-slide-up {
+  from { transform: translateY(110vh); }
+  to   { transform: translateY(0); }
+}
+
 /* ── Overlay: mobile = dark solid bottom-aligned, desktop = blurred centered ── */
 .qm-overlay {
   position: fixed;
@@ -995,7 +1000,7 @@ textarea.form-input {
   width: 100%;
   max-width: 430px;
   height: auto;
-  max-height: calc(100dvh - 60px);
+  max-height: calc(100svh - 60px);
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -1003,8 +1008,6 @@ textarea.form-input {
   position: relative;
   border-radius: 20px;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12), 0 24px 48px rgba(0, 0, 0, 0.1);
-  transform: translateY(calc(100% + 24px));
-  transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Card shine sweep */
@@ -1021,7 +1024,7 @@ textarea.form-input {
 }
 
 .qm--open .qm-card {
-  transform: translateY(0);
+  animation: qm-mob-slide-up 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Desktop: centered, blurred backdrop, 3D tilt spring, shine, stagger ── */
@@ -1035,6 +1038,7 @@ textarea.form-input {
   }
 
   .qm-card {
+    animation: none;
     max-height: 88vh;
     min-height: 520px;
     border-radius: 20px;
@@ -1045,6 +1049,7 @@ textarea.form-input {
   }
 
   .qm--open .qm-card {
+    animation: none;
     transform: perspective(1200px) rotateX(0deg) translateY(0) scale(1);
     opacity: 1;
   }
