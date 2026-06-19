@@ -330,7 +330,7 @@
       '<p class="qm-details-lead">Just a few details so we can reach you.</p>' +
       '<div class="qm-field">' +
         '<label class="qm-label" for="qm-name">Full Name <span class="qm-req">*</span></label>' +
-        '<input class="qm-input qm-input--name" type="text" id="qm-name"' +
+        '<input class="qm-input" type="text" id="qm-name"' +
           ' value="' + escHtml(state.full_name) + '" placeholder="Your full name"' +
           ' autocomplete="name" inputmode="text">' +
       '</div>' +

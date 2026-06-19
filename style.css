@@ -2288,7 +2288,6 @@ textarea.form-input {
 /* ── "You" step modernised ── */
 .qm-step--details { gap: 16px; }
 .qm-details-lead { font-size: 14px; color: #6b7280; margin: 0; line-height: 1.6; }
-.qm-input--name { font-size: 18px !important; font-weight: 600 !important; padding: 12px 14px !important; }
 .qm-contact-card {
   background: #f9fafb;
   border: 1px solid #f0f0f0;
