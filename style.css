@@ -972,26 +972,24 @@ textarea.form-input {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Overlay: deep radial backdrop ── */
+/* ── Overlay: mobile = solid, desktop = blurred ── */
 .qm-overlay {
   position: fixed;
   inset: 0;
   z-index: 9000;
-  background: radial-gradient(ellipse at 50% 40%, rgba(20, 20, 35, 0.5) 0%, rgba(0, 0, 0, 0.75) 100%);
-  backdrop-filter: blur(14px) saturate(0.8);
-  -webkit-backdrop-filter: blur(14px) saturate(0.8);
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
   overflow: hidden;
 }
 
 .qm-overlay[hidden] { display: none; }
 .qm--open           { opacity: 1; }
 
-/* ── Card: phone-width column — slides up from below on mobile ── */
+/* ── Card: mobile — slides up cleanly, no opacity animation (overlay handles it) ── */
 .qm-card {
   width: 100%;
   max-width: 430px;
@@ -1002,11 +1000,10 @@ textarea.form-input {
   overflow: hidden;
   position: relative;
   transform: translateY(100%);
-  opacity: 0;
-  transition: transform 0.65s cubic-bezier(0.34, 1.28, 0.64, 1), opacity 0.3s ease;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Card shine sweep on open */
+/* Card shine sweep */
 .qm-card::before {
   content: '';
   position: absolute;
@@ -1021,31 +1018,16 @@ textarea.form-input {
 
 .qm--open .qm-card {
   transform: translateY(0);
-  opacity: 1;
 }
 
-.qm--open .qm-card::before {
-  animation: qm-shine 0.9s 0.25s ease-out forwards;
-}
-
-/* Step content stagger */
-.qm--open .qm-card .qm-step > *,
-.qm--open .qm-card .qm-mob-panel--active > * {
-  animation: qm-stagger-up 0.28s ease backwards;
-}
-.qm--open .qm-card .qm-step > *:nth-child(1),
-.qm--open .qm-card .qm-mob-panel--active > *:nth-child(1) { animation-delay: 0.05s; }
-.qm--open .qm-card .qm-step > *:nth-child(2),
-.qm--open .qm-card .qm-mob-panel--active > *:nth-child(2) { animation-delay: 0.09s; }
-.qm--open .qm-card .qm-step > *:nth-child(3),
-.qm--open .qm-card .qm-mob-panel--active > *:nth-child(3) { animation-delay: 0.13s; }
-.qm--open .qm-card .qm-step > *:nth-child(4),
-.qm--open .qm-card .qm-mob-panel--active > *:nth-child(4) { animation-delay: 0.17s; }
-.qm--open .qm-card .qm-step > *:nth-child(5),
-.qm--open .qm-card .qm-mob-panel--active > *:nth-child(5) { animation-delay: 0.21s; }
-
-/* ── Desktop card: 3D tilt spring from flat-back to upright ── */
+/* ── Desktop: rich backdrop, 3D tilt spring, shine, stagger ── */
 @media (min-width: 431px) {
+  .qm-overlay {
+    background: radial-gradient(ellipse at 50% 40%, rgba(20, 20, 35, 0.5) 0%, rgba(0, 0, 0, 0.78) 100%);
+    backdrop-filter: blur(14px) saturate(0.8);
+    -webkit-backdrop-filter: blur(14px) saturate(0.8);
+  }
+
   .qm-card {
     height: auto;
     min-height: 520px;
@@ -1061,6 +1043,26 @@ textarea.form-input {
     transform: perspective(1200px) rotateX(0deg) translateY(0) scale(1);
     opacity: 1;
   }
+
+  .qm--open .qm-card::before {
+    animation: qm-shine 0.9s 0.25s ease-out forwards;
+  }
+
+  /* Step content stagger — desktop only */
+  .qm--open .qm-card .qm-step > *,
+  .qm--open .qm-card .qm-mob-panel--active > * {
+    animation: qm-stagger-up 0.28s ease backwards;
+  }
+  .qm--open .qm-card .qm-step > *:nth-child(1),
+  .qm--open .qm-card .qm-mob-panel--active > *:nth-child(1) { animation-delay: 0.05s; }
+  .qm--open .qm-card .qm-step > *:nth-child(2),
+  .qm--open .qm-card .qm-mob-panel--active > *:nth-child(2) { animation-delay: 0.09s; }
+  .qm--open .qm-card .qm-step > *:nth-child(3),
+  .qm--open .qm-card .qm-mob-panel--active > *:nth-child(3) { animation-delay: 0.13s; }
+  .qm--open .qm-card .qm-step > *:nth-child(4),
+  .qm--open .qm-card .qm-mob-panel--active > *:nth-child(4) { animation-delay: 0.17s; }
+  .qm--open .qm-card .qm-step > *:nth-child(5),
+  .qm--open .qm-card .qm-mob-panel--active > *:nth-child(5) { animation-delay: 0.21s; }
 }
 
 /* ── Left sidebar ── */
