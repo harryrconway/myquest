@@ -165,37 +165,40 @@
         </div>
         <div class="hero__map" aria-hidden="true">
           <svg class="hero-map-svg" viewBox="0 0 320 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- QLD region fill -->
+            <path d="M0,0 L128,0 L148,32 L145,68 L134,109 L120,150 L162,190 L212,218 L228,243 L245,261 L262,289 L0,289 Z" fill="rgba(0,0,0,0.03)"/>
+            <!-- NSW region fill -->
+            <path d="M0,289 L262,289 L264,307 L262,339 L265,363 L282,395 L271,421 L267,448 L252,482 L238,500 L0,500 Z" fill="rgba(0,0,0,0.06)"/>
             <!-- Coastline -->
-            <path d="M128,0 L148,32 L145,68 L134,109 L120,150 L162,190 L212,218 L228,243 L245,261 L262,289 L264,307 L262,339 L265,363 L282,395 L271,421 L267,448 L252,482 L238,500" stroke="rgba(0,0,0,0.5)" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M128,0 L148,32 L145,68 L134,109 L120,150 L162,190 L212,218 L228,243 L245,261 L262,289 L264,307 L262,339 L265,363 L282,395 L271,421 L267,448 L252,482 L238,500" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
             <!-- State border -->
-            <line x1="0" y1="289" x2="262" y2="289" stroke="rgba(0,0,0,0.3)" stroke-width="1" stroke-dasharray="7,4"/>
+            <line x1="0" y1="289" x2="262" y2="289" stroke="rgba(0,0,0,0.22)" stroke-width="1" stroke-dasharray="6,4"/>
+            <!-- Service corridor -->
+            <path d="M228,243 L237,270 L262,289 L273,309 L270,336 L265,372" stroke="rgba(0,0,0,0.12)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
             <!-- State watermarks -->
-            <text x="34" y="188" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="700" fill="rgba(0,0,0,0.18)" letter-spacing="0.18em">QLD</text>
-            <text x="34" y="408" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" font-weight="700" fill="rgba(0,0,0,0.18)" letter-spacing="0.18em">NSW</text>
-            <!-- Gold Coast -->
-            <circle cx="228" cy="243" r="4" fill="rgba(0,0,0,0.65)"/>
-            <text x="218" y="233" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="10" font-weight="600" fill="rgba(0,0,0,0.65)" text-anchor="end">Gold Coast</text>
+            <text x="54" y="200" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="700" fill="rgba(0,0,0,0.1)" letter-spacing="0.2em">QLD</text>
+            <text x="54" y="400" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="700" fill="rgba(0,0,0,0.1)" letter-spacing="0.2em">NSW</text>
+            <!-- Gold Coast (primary hub) -->
+            <circle cx="228" cy="243" r="5" fill="#000"/>
+            <text x="218" y="238" font-family="'Plus Jakarta Sans',sans-serif" font-size="10" font-weight="700" fill="rgba(0,0,0,0.75)" text-anchor="end">Gold Coast</text>
             <!-- Burleigh Heads -->
-            <circle cx="237" cy="270" r="2.5" fill="rgba(0,0,0,0.5)"/>
-            <text x="227" y="261" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(0,0,0,0.55)" text-anchor="end">Burleigh Heads</text>
+            <circle cx="237" cy="270" r="3" fill="#000"/>
+            <text x="226" y="265" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" font-weight="600" fill="rgba(0,0,0,0.6)" text-anchor="end">Burleigh Heads</text>
             <!-- Coolangatta -->
-            <circle cx="262" cy="289" r="3" fill="rgba(0,0,0,0.5)"/>
-            <text x="252" y="280" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(0,0,0,0.55)" text-anchor="end">Coolangatta</text>
+            <circle cx="262" cy="289" r="3" fill="#000"/>
+            <text x="251" y="284" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" font-weight="600" fill="rgba(0,0,0,0.6)" text-anchor="end">Coolangatta</text>
             <!-- Kingscliff -->
-            <circle cx="273" cy="309" r="2.5" fill="rgba(0,0,0,0.5)"/>
-            <text x="263" y="300" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(0,0,0,0.55)" text-anchor="end">Kingscliff</text>
+            <circle cx="273" cy="309" r="3" fill="#000"/>
+            <text x="262" y="304" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" font-weight="600" fill="rgba(0,0,0,0.6)" text-anchor="end">Kingscliff</text>
             <!-- Pottsville -->
-            <circle cx="270" cy="336" r="2.5" fill="rgba(0,0,0,0.5)"/>
-            <text x="260" y="327" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(0,0,0,0.55)" text-anchor="end">Pottsville</text>
+            <circle cx="270" cy="336" r="3" fill="#000"/>
+            <text x="259" y="331" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" font-weight="600" fill="rgba(0,0,0,0.6)" text-anchor="end">Pottsville</text>
             <!-- Brunswick Heads -->
-            <circle cx="265" cy="372" r="2.5" fill="rgba(0,0,0,0.5)"/>
-            <text x="255" y="363" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(0,0,0,0.55)" text-anchor="end">Brunswick Heads</text>
-            <!-- Ballina -->
-            <circle cx="267" cy="448" r="3" fill="rgba(0,0,0,0.5)"/>
-            <text x="257" y="439" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" fill="rgba(0,0,0,0.55)" text-anchor="end">Ballina</text>
+            <circle cx="265" cy="372" r="3" fill="#000"/>
+            <text x="254" y="367" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" font-weight="600" fill="rgba(0,0,0,0.6)" text-anchor="end">Brunswick Heads</text>
             <!-- North indicator -->
-            <polygon points="300,454 296,466 300,461 304,466" fill="rgba(0,0,0,0.3)"/>
-            <text x="300" y="478" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="9" font-weight="700" fill="rgba(0,0,0,0.3)" text-anchor="middle" letter-spacing="0.05em">N</text>
+            <polygon points="300,454 296,466 300,461 304,466" fill="rgba(0,0,0,0.25)"/>
+            <text x="300" y="478" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" font-weight="700" fill="rgba(0,0,0,0.25)" text-anchor="middle" letter-spacing="0.05em">N</text>
           </svg>
         </div>
       </div>
