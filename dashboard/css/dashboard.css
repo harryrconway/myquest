@@ -5178,3 +5178,29 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   .sj-layout { grid-template-columns: 1fr; }
   .sj-digest { display: none; }
 }
+
+/* ─── Staff availability pills ───────────────────────────────── */
+.ts-avail-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ts-avail-pill {
+  padding: 8px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 99px;
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.ts-avail-pill:hover { background: #f9fafb; border-color: #d1d5db; }
+.ts-avail-pill.is-active {
+  background: #000;
+  border-color: #000;
+  color: #FFD400;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}

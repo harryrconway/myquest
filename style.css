@@ -2043,53 +2043,66 @@ textarea.form-input {
 
   .qm-panel { width: 100%; }
 
-  .qm-header { padding: 0 20px; }
+  .qm-header { padding: 0 16px; height: 44px; }
 
   .qm-title {
-    font-size: 22px;
-    padding: 18px 20px 0;
+    font-size: 17px;
+    padding: 10px 16px 0;
   }
 
   .qm-body {
-    padding: 14px 20px 0;
+    padding: 8px 16px 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   .qm-footer {
-    padding: 12px 20px max(14px, env(safe-area-inset-bottom));
+    padding: 8px 16px max(10px, env(safe-area-inset-bottom));
   }
 
-  .qm-step { gap: 14px; }
+  .qm-step { gap: 8px; }
 
   /* Single-column for multi-col steps on mobile */
   .qm-step--cols-2,
   .qm-step--cols-3 {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 8px;
   }
 
-  .qm-input { padding: 10px 12px; font-size: 16px; }
+  /* Keep 16px to prevent iOS auto-zoom on focus */
+  .qm-input { padding: 8px 10px; font-size: 16px; }
 
-  .qm-grid-type { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .qm-tile      { padding: 12px 6px; font-size: 12px; }
+  .qm-label { font-size: 10px; }
 
-  .qm-rcard     { padding: 10px 12px; }
+  .qm-field { gap: 3px; }
 
-  .qm-grid-check { gap: 6px; }
+  .qm-grid-type { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .qm-tile      { padding: 8px 4px; font-size: 11px; }
 
-  .qm-time-grid { grid-template-columns: repeat(2, 1fr); }
+  .qm-rcard           { padding: 7px 10px; }
+  .qm-rcard__label    { font-size: 13px; }
+  .qm-rcard__desc     { font-size: 11px; }
+
+  .qm-radio-pill { padding: 6px 10px; font-size: 12px; }
+
+  .qm-grid-check { gap: 4px; }
+
+  .qm-day { min-width: 36px; height: 36px; font-size: 12px; }
+
+  .qm-time-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+
+  .qm-time-pill { padding: 7px 10px; font-size: 12px; }
 
   .qm-row-2,
   .qm-row-3 { grid-template-columns: 1fr; }
 
-  .qm-stepper-grid { gap: 8px; }
+  .qm-stepper-grid { gap: 6px; }
 
-  .qm-stepper-grid .qm-field { padding: 10px 6px 8px; }
+  .qm-stepper-grid .qm-field { padding: 6px 6px 6px; }
 
-  .qm-stepper-grid .qm-stepper__val { font-size: 22px; }
+  .qm-stepper-grid .qm-stepper__val { font-size: 18px; }
 
-  .qm-stepper-grid .qm-stepper__btn { font-size: 18px; width: 32px; }
+  .qm-stepper-grid .qm-stepper__btn { font-size: 16px; width: 28px; }
 }
 
 /* ── Tablet (768px–1023px): sidebar narrower ── */

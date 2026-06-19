@@ -489,18 +489,24 @@
     MQ.ui.saving();
 
     try {
-      var { error } = await MQ.supabase
-        .from('quote_requests')
-        .update({
-          scheduled_date:        date,
-          scheduled_time:        time,
-          assigned_staff_ids:    staffIds,
-          assigned_staff_colour: newColour,
-          assigned_staff_name:   newName,
-          updated_at:            new Date().toISOString(),
-        })
-        .eq('id', id);
-      if (error) throw error;
+      var session = await MQ.supabase.auth.getSession();
+      var token   = session.data.session && session.data.session.access_token;
+      var resp = await fetch('/api/update-job-schedule', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId: id,
+          scheduledDate: date,
+          scheduledTime: time,
+          assignedStaffIds: staffIds,
+          assignedStaffColour: newColour,
+          assignedStaffName: newName,
+        }),
+      });
+      if (!resp.ok) {
+        var errData = await resp.json().catch(function () { return {}; });
+        throw new Error(errData.error || 'Save failed');
+      }
 
       MQ.ui.modal.close('modal-sj-edit');
       MQ.ui.toast('Schedule updated');

@@ -271,8 +271,9 @@
     var swatchEl  = document.getElementById('team-colour-swatches');
     if (!avatarsEl) return;
 
-    var selectedStaffId = '';
-    var selectedColour  = '';
+    var selectedStaffId   = '';
+    var selectedColour    = '';
+    var selectedAvailability = '';
 
     function staffInitials(name) {
       return (name || '').split(' ').map(function (w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase() || '?';
@@ -440,6 +441,19 @@
       });
     });
 
+    // Availability pills
+    var availPills = document.querySelectorAll('.ts-avail-pill');
+    function setAvailPill(value) {
+      selectedAvailability = value || '';
+      document.getElementById('team-avail').value = selectedAvailability;
+      availPills.forEach(function (p) {
+        p.classList.toggle('is-active', p.dataset.value === selectedAvailability);
+      });
+    }
+    availPills.forEach(function (pill) {
+      pill.addEventListener('click', function () { setAvailPill(pill.dataset.value === selectedAvailability ? '' : pill.dataset.value); });
+    });
+
     function selectStaff(id) {
       var s = MQ.store.staff.getById(id);
       if (!s) return;
@@ -483,6 +497,7 @@
           if (ecName)  ecName.value  = p.emergency_contact_name   || '';
           if (ecPhone) ecPhone.value = p.emergency_contact_number  || '';
           if (ecRel)   ecRel.value   = p.emergency_relation        || '';
+          setAvailPill((p.availability && p.availability.work_preference) || '');
           var docs = [
             { label: 'Police Check',        url: p.police_check_url },
             { label: 'Driver\'s Licence',   url: p.drivers_licence_url },
@@ -568,11 +583,12 @@
     document.getElementById('team-save-btn').addEventListener('click', async function () {
       if (!selectedStaffId) return;
       var updates = {
-        userId:  selectedStaffId,
-        name:    document.getElementById('team-name').value.trim(),
-        mobile:  document.getElementById('team-phone').value.trim(),
-        colour:  selectedColour,
-        role:    document.getElementById('team-role').value,
+        userId:       selectedStaffId,
+        name:         document.getElementById('team-name').value.trim(),
+        mobile:       document.getElementById('team-phone').value.trim(),
+        colour:       selectedColour,
+        role:         document.getElementById('team-role').value,
+        availability: selectedAvailability ? { work_preference: selectedAvailability } : null,
       };
       MQ.ui.saving();
       var result = await callApi('/api/update-profile', updates);
