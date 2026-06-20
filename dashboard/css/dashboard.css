@@ -5203,3 +5203,39 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   color: #fff;
   box-shadow: 0 2px 8px rgba(22,163,74,0.25);
 }
+
+/* ─── Compact buttons (dashboard only) — modelled on conductor.build's docs
+   button: small rounded-md (not full pill), near-black fill, flat hover
+   fade instead of the marketing site's lift+shadow ── */
+.dash-body .btn-primary,
+.dash-body .btn-outline,
+.dash-body .btn-secondary {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+}
+
+.dash-body .btn-primary {
+  background: #2c2826;
+  border: 1px solid transparent;
+  color: #fff;
+}
+
+.dash-body .btn-primary:hover {
+  background: rgba(44, 40, 38, 0.9);
+  transform: none;
+  box-shadow: none;
+}
+
+.dash-body .btn-outline,
+.dash-body .btn-secondary {
+  border-width: 1px;
+}
+
+.dash-body .btn-outline:hover,
+.dash-body .btn-secondary:hover {
+  transform: none;
+}
