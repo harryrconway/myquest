@@ -245,6 +245,27 @@
   animation: dashEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Pin Team Availability as a fixed right-hand panel on genuinely wide
+   screens — there's no spare margin to drop it into otherwise, so
+   .dash-content reserves space on its right edge to match. Below this
+   width it stays in its normal stacked position (no override needed). */
+@media (min-width: 1480px) {
+  .dash-content {
+    padding-right: 348px;
+  }
+
+  #dash-availability-card {
+    position: fixed;
+    top: 32px;
+    right: 24px;
+    width: 300px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    z-index: 75;
+    margin-bottom: 0;
+  }
+}
+
 @keyframes dashEnter {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
