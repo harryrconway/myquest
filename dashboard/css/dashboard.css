@@ -1889,6 +1889,43 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .avail-avatar__tip-dot--comfortable { background: #2563eb; }
 .avail-avatar__tip-dot--full { background: #dc2626; }
 
+/* ---- Settings hero: availability hover tooltip (view-only, for
+   managers/owners viewing someone else's profile) -------------- */
+.team-hero-avail-tip { cursor: default; }
+
+.team-hero-avail-tip__popup {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  border-radius: 10px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  z-index: 300;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  pointer-events: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.team-hero-avail-tip__popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #000;
+}
+
+.team-hero-avail-tip:hover .team-hero-avail-tip__popup,
+.team-hero-avail-tip:focus .team-hero-avail-tip__popup {
+  display: flex;
+}
+
 .avail-legend {
   display: flex;
   flex-wrap: wrap;

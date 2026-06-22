@@ -301,11 +301,15 @@
     }
 
     /* ── Hero section ───────────────────────────────────── */
+    var HERO_AVAIL_LABELS = { wants_more: 'Wants more work', comfortable: 'Comfortable', full: "I'm full" };
+
     function populateHero(s) {
+      var hero       = document.getElementById('team-member-hero');
       var heroAvatar = document.getElementById('team-hero-avatar');
       var heroName   = document.getElementById('team-hero-name');
       var heroEmail  = document.getElementById('team-hero-email');
       var heroBadges = document.getElementById('team-hero-badges');
+      var heroTip    = document.getElementById('team-hero-avail-tip');
       if (!heroAvatar) return;
       var ROLE_BADGE = {
         owner: 'badge--amber', manager: 'badge--blue',
@@ -326,6 +330,26 @@
       heroBadges.innerHTML =
         '<span class="badge ' + roleCls + '">' + escHtml(roleLabel) + '</span>' +
         '<span class="badge ' + statusCls + '">' + (s.active !== false ? 'Active' : 'Inactive') + '</span>';
+
+      /* Availability: editable pills for your own profile, a passive
+         hover tooltip on the hero (matching the dashboard home page's
+         avatar tooltips) for anyone you're not — your availability
+         isn't something a manager should be able to set for you. */
+      var isSelf = MQ.session && s.id === MQ.session.id;
+      var availSection = document.getElementById('team-avail-section');
+      var pref  = s.availability && s.availability.work_preference;
+      if (availSection) availSection.style.display = isSelf ? '' : 'none';
+      if (hero) {
+        hero.classList.toggle('team-hero-avail-tip', !isSelf);
+        if (!isSelf) hero.setAttribute('tabindex', '0'); else hero.removeAttribute('tabindex');
+      }
+      if (heroAvatar) heroAvatar.className = (!isSelf && pref) ? 'avail-avatar--' + pref : '';
+      if (heroTip) {
+        heroTip.innerHTML = (!isSelf && pref)
+          ? '<span class="avail-avatar__tip-name">' + escHtml(s.name || 'This person') + '</span>' +
+            '<span class="avail-avatar__tip-status"><span class="avail-avatar__tip-dot avail-avatar__tip-dot--' + pref + '"></span>' + escHtml(HERO_AVAIL_LABELS[pref] || pref) + '</span>'
+          : (!isSelf ? '<span class="avail-avatar__tip-name">' + escHtml(s.name || 'This person') + '</span><span class="avail-avatar__tip-status">No availability set</span>' : '');
+      }
     }
 
     function addMember(accountId) {
@@ -697,10 +721,11 @@
       MQ.ui.toast('Changes saved');
       var s = MQ.store.staff.getById(selectedStaffId);
       if (s) {
-        s.name   = updates.name;
-        s.mobile = updates.mobile;
-        s.colour = selectedColour;
-        s.role   = updates.role;
+        s.name         = updates.name;
+        s.mobile       = updates.mobile;
+        s.colour       = selectedColour;
+        s.role         = updates.role;
+        s.availability = updates.availability;
         MQ.store.staff.save(s);
       }
       renderAvatarGrid();
