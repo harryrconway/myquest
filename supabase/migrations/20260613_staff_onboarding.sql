@@ -16,10 +16,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS privacy_policy_signed_at        TI
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS company_policy_signed_at        TIMESTAMPTZ;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS onboarding_complete             BOOLEAN DEFAULT FALSE;
 
--- Storage bucket RLS (run AFTER creating the staff-documents bucket in Supabase Storage UI)
--- CREATE POLICY "staff upload own docs" ON storage.objects
---   FOR INSERT TO authenticated
---   WITH CHECK (bucket_id = 'staff-documents' AND (storage.foldername(name))[1] = auth.uid()::text);
--- CREATE POLICY "staff read own docs" ON storage.objects
---   FOR SELECT TO authenticated
---   USING (bucket_id = 'staff-documents' AND (storage.foldername(name))[1] = auth.uid()::text);
+-- Storage bucket RLS for staff-documents — superseded by
+-- 20260622_staff_documents_storage_policy.sql (this draft was never
+-- applied, and was missing an UPDATE policy, which is why replacing
+-- an existing document failed RLS). Run that migration instead.

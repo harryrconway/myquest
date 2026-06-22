@@ -94,11 +94,6 @@
   color: rgba(0, 0, 0, 0.35);
 }
 
-.dash-sidebar__divider {
-  margin: var(--space-2) var(--space-6);
-  border-top: 1px solid #eaedf0;
-}
-
 .dash-sidebar__footer {
   padding: var(--space-4) var(--space-6);
   padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));

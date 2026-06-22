@@ -127,6 +127,7 @@
         mobile:    p.mobile     || (existing && existing.mobile)    || '',
         role:      p.role       || 'junior-cleaner',
         startDate: p.start_date || (existing && existing.startDate) || '',
+        createdAt: p.created_at || (existing && existing.createdAt) || '',
         active:    p.status !== 'suspended',
         colour:    p.colour     || (existing && existing.colour)    || '',
       }));

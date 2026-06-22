@@ -315,8 +315,8 @@
       heroAvatar.textContent      = staffInitials(s.name);
       heroAvatar.style.background = s.colour || '#000';
       heroName.textContent        = s.name || s.email || '—';
-      var joinedStr = s.startDate
-        ? 'Joined ' + new Date(s.startDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      var joinedStr = s.createdAt
+        ? 'Joined ' + new Date(s.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
         : '';
       heroEmail.innerHTML = escHtml(s.email || '') +
         (joinedStr ? '<span style="margin-left:8px;font-size:11px;color:rgba(0,0,0,0.4);font-weight:500;">' + escHtml(joinedStr) + '</span>' : '');
@@ -493,7 +493,6 @@
       renderSwatches(selectedColour);
       document.getElementById('team-name').value  = s.name || '';
       document.getElementById('team-phone').value = s.mobile || s.phone || '';
-      document.getElementById('team-start').textContent = s.startDate ? new Date(s.startDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
       var acc = MQ.store.accounts.getById(id);
       document.getElementById('team-email').value = (acc && acc.email) || s.email || '';
       setRolePill(s.role);
@@ -550,10 +549,9 @@
           if (ecPhone) ecPhone.value = p.emergency_contact_number  || '';
           if (ecRel)   ecRel.value   = p.emergency_relation        || '';
           setAvailPill((p.availability && p.availability.work_preference) || '');
-          var startEl = document.getElementById('team-start');
-          if (startEl && p.start_date) {
-            startEl.textContent = new Date(p.start_date + 'T00:00:00')
-              .toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+          if (p.created_at) {
+            var s = MQ.store.staff.getById(staffId);
+            if (s) { s.createdAt = p.created_at; MQ.store.staff.save(s); populateHero(s); }
           }
           var html = DOC_FIELDS.map(function (d) {
             var url = p[d.field];
@@ -673,6 +671,7 @@
           mobile:    p.mobile     || (existing && existing.mobile)    || '',
           role:      p.role       || 'junior-cleaner',
           startDate: p.start_date || (existing && existing.startDate) || '',
+          createdAt: p.created_at || (existing && existing.createdAt) || '',
           active:    p.status !== 'suspended',
           colour:    p.colour     || (existing && existing.colour)    || '',
         }));
