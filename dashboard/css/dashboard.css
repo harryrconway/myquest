@@ -2543,6 +2543,11 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   .dash-sidebar.is-open .dash-sidebar__nav > *:nth-child(8)  { opacity: 1; transform: none; transition-delay: 0.33s; }
   .dash-sidebar.is-open .dash-sidebar__nav > *:nth-child(9)  { opacity: 1; transform: none; transition-delay: 0.36s; }
   .dash-sidebar.is-open .dash-sidebar__nav > *:nth-child(10) { opacity: 1; transform: none; transition-delay: 0.39s; }
+  /* Fallback for any nav child beyond the 10 explicitly staggered above
+     (e.g. Training/Settings section labels) — :nth-child is more specific
+     so items 1-10 keep their individual timing; this just stops anything
+     past item 10 from being stuck at opacity:0 forever. */
+  .dash-sidebar.is-open .dash-sidebar__nav > * { opacity: 1; transform: none; transition-delay: 0.42s; }
 
   /* Show mobile bar, collapse sidebar margin */
   .dash-mobile-bar { display: flex; }
