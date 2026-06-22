@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260622">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260725">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260726">
   <script src="js/supabase.js?v=20260622"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
-  <script src="js/auth.js?v=20260622"></script>
+  <script src="js/auth.js?v=20260726"></script>
 </head>
 <body class="dash-body" data-page="settings">
 
@@ -37,7 +37,7 @@
         <div class="dash-sidebar__section-label" data-min-role="manager">Clients</div>
         <a href="clients.html" data-page="clients" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Clients</a>
         <a href="training.html" data-page="training"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Training</a>
-        <a href="settings.html" data-page="settings" data-min-role="owner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</a>
+        <a href="settings.html" data-page="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</a>
       </nav>
       <div class="dash-sidebar__footer">
         <div class="dash-sidebar__user">
@@ -54,8 +54,22 @@
 
       <div class="page-header">
         <div>
-          <h1 class="page-header__title">Settings</h1>
-          <p class="page-header__sub">System configuration and administration</p>
+          <h1 class="page-header__title" id="settings-page-title">Settings</h1>
+          <p class="page-header__sub" id="settings-page-sub">System configuration and administration</p>
+        </div>
+      </div>
+
+      <!-- Message of the Week -->
+      <div class="dash-card mb-8" data-min-role="owner" style="border-radius:20px;border:1px solid #eaedf0;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 6px 24px rgba(0,0,0,0.06);">
+        <div class="dash-card__header" style="border-bottom:1px solid #f1f5f9;">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:16px;font-weight:800;color:#000;letter-spacing:-0.02em;">Message of the Week</span>
+            <span style="font-size:13px;color:rgba(0,0,0,0.45);font-weight:500;">Shown to everyone at the top of the dashboard. Leave blank to hide it.</span>
+          </div>
+        </div>
+        <div class="dash-card__body" style="padding:20px 24px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">
+          <textarea id="motw-text" class="form-input" rows="2" maxlength="280" placeholder="e.g. Reminder: no jobs scheduled this Friday for the public holiday." style="flex:1;min-width:240px;resize:vertical;"></textarea>
+          <button class="btn-primary" id="motw-save-btn" type="button">Save</button>
         </div>
       </div>
 
@@ -64,8 +78,8 @@
         <div class="dash-card__header" style="border-bottom:1px solid #f1f5f9;">
           <div class="settings-team-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;width:100%;">
             <div style="display:flex;flex-direction:column;gap:2px;">
-              <span style="font-size:16px;font-weight:800;color:#000;letter-spacing:-0.02em;">Team</span>
-              <span style="font-size:13px;color:rgba(0,0,0,0.45);font-weight:500;">Your team — profiles, roles and account management</span>
+              <span style="font-size:16px;font-weight:800;color:#000;letter-spacing:-0.02em;" id="team-card-title">Team</span>
+              <span style="font-size:13px;color:rgba(0,0,0,0.45);font-weight:500;" id="team-card-sub">Your team — profiles, roles and account management</span>
             </div>
             <button class="btn-primary" id="team-add-btn" data-min-role="manager" style="font-size:13px;padding:8px 16px;">+ Add Team Member</button>
           </div>
@@ -108,8 +122,8 @@
               <input type="email" id="team-email" class="form-input" readonly style="background:#f8fafc;color:rgba(0,0,0,0.5);cursor:default;">
             </div>
 
-            <p class="settings-section-label">Role</p>
-            <div class="form-group" style="margin-bottom:20px;">
+            <p class="settings-section-label" data-min-role="owner">Role</p>
+            <div class="form-group" data-min-role="owner" style="margin-bottom:20px;">
               <div class="role-pill-group" id="team-role-group">
                 <button type="button" class="role-pill" data-value="junior-cleaner">Junior Cleaner</button>
                 <button type="button" class="role-pill" data-value="mid-cleaner">Mid Level</button>
@@ -159,7 +173,7 @@
             </div>
 
             <div class="settings-team-actions" style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid #f1f5f9;margin-top:16px;flex-wrap:wrap;gap:8px;">
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;" data-min-role="owner">
                 <button class="btn-outline" id="team-reset-pwd-btn" style="font-size:13px;">Reset Password</button>
                 <button class="btn-outline" id="team-toggle-btn" style="font-size:13px;">Deactivate</button>
                 <button class="btn-danger" id="team-delete-btn">Delete Account</button>
@@ -171,7 +185,7 @@
       </div>
 
       <!-- Quote Rates -->
-      <details class="settings-accordion mb-8" id="accordion-rates">
+      <details class="settings-accordion mb-8" id="accordion-rates" data-min-role="owner">
         <summary class="settings-accordion__summary">
           <div class="settings-accordion__icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -255,7 +269,7 @@
       </details>
 
       <!-- Checklist Template -->
-      <details class="settings-accordion mb-8" id="accordion-checklist">
+      <details class="settings-accordion mb-8" id="accordion-checklist" data-min-role="owner">
         <summary class="settings-accordion__summary">
           <div class="settings-accordion__icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -279,7 +293,7 @@
       </details>
 
       <!-- Danger Zone -->
-      <div style="border-radius:20px;border:1.5px solid #fecaca;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 6px 24px rgba(239,68,68,0.06);overflow:hidden;">
+      <div data-min-role="owner" style="border-radius:20px;border:1.5px solid #fecaca;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 6px 24px rgba(239,68,68,0.06);overflow:hidden;">
         <div class="settings-section-head" style="padding:20px 24px;background:linear-gradient(135deg,#fff5f5 0%,#fff 100%);border-bottom:1px solid #fecaca;display:flex;align-items:center;gap:12px;">
           <div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -471,7 +485,7 @@
   </style>
 
   <script src="js/ui.js?v=20260622" defer></script>
-  <script src="js/settings.js?v=20260622" defer></script>
+  <script src="js/settings.js?v=20260726" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">

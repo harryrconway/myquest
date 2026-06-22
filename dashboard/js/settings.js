@@ -238,6 +238,27 @@
   }
 
   /* ══════════════════════════════════════════════════════════
+     MESSAGE OF THE WEEK
+  ══════════════════════════════════════════════════════════ */
+
+  function initMessageOfWeek(isOwner) {
+    if (!isOwner) return;
+    var textEl = document.getElementById('motw-text');
+    var saveBtn = document.getElementById('motw-save-btn');
+    if (!textEl || !saveBtn) return;
+    textEl.value = MQ.messageOfWeek || '';
+    saveBtn.addEventListener('click', async function () {
+      var text = textEl.value.trim();
+      saveBtn.textContent = 'Saving…'; saveBtn.disabled = true;
+      var result = await callApi('/api/save-settings', { key: 'message_of_week', value: { text: text } });
+      saveBtn.textContent = 'Save'; saveBtn.disabled = false;
+      if (result.error) { MQ.ui.toast(result.error, 'error'); return; }
+      MQ.messageOfWeek = text;
+      MQ.ui.toast(text ? 'Message of the week saved' : 'Message of the week cleared');
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
      TEAM SETTINGS
   ══════════════════════════════════════════════════════════ */
 
@@ -388,6 +409,11 @@
     function renderAvatarGrid() {
       var allStaff = MQ.store.staff.getAll()
         .sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+      // Anyone below manager only ever sees/selects their own profile here —
+      // this turns the Team card into a self-service "My Profile" view for them.
+      if (!MQ.hasRole('manager') && MQ.session && MQ.session.id) {
+        allStaff = allStaff.filter(function (s) { return s.id === MQ.session.id; });
+      }
       avatarsEl.innerHTML = '';
       if (!allStaff.length) {
         avatarsEl.innerHTML = '<p style="font-size:13px;color:#94a3b8;">No staff members found.</p>';
@@ -562,6 +588,12 @@
 
     renderAvatarGrid();
 
+    // Anyone below manager only has themselves in the grid — open their own
+    // form immediately rather than making them click their own avatar.
+    if (!MQ.hasRole('manager') && MQ.session && MQ.session.id && MQ.store.staff.getById(MQ.session.id)) {
+      selectStaff(MQ.session.id);
+    }
+
     // Sync profiles from Supabase into the in-memory store so the Team card
     // reflects the latest database state (auth.js also does this on every page load)
     MQ.supabase.from('profiles').select('*').then(function (r) {
@@ -640,14 +672,29 @@
   }
 
   document.addEventListener('mq:ready', function () {
-    if (!MQ.hasRole('owner')) {
-      window.location.href = 'index.html';
-      return;
+    // Settings is reachable by every role now — owner-only sections are
+    // hidden individually via data-min-role (applied by auth.js), and the
+    // Team card itself shows only the current user's own profile for
+    // anyone below manager (see initTeamCard's avatar-grid restriction).
+    var isOwner = MQ.hasRole('owner');
+
+    if (!MQ.hasRole('manager')) {
+      var titleEl = document.getElementById('settings-page-title');
+      var subEl   = document.getElementById('settings-page-sub');
+      if (titleEl) titleEl.textContent = 'My Profile';
+      if (subEl)   subEl.textContent   = 'Your personal details and availability';
+      var teamTitleEl = document.getElementById('team-card-title');
+      var teamSubEl   = document.getElementById('team-card-sub');
+      if (teamTitleEl) teamTitleEl.textContent = 'My Profile';
+      if (teamSubEl)   teamSubEl.textContent   = 'Update your details and let us know your availability';
     }
 
-    populateRates();
-    renderChecklistTemplate();
+    if (isOwner) {
+      populateRates();
+      renderChecklistTemplate();
+    }
     initTeamCard();
+    initMessageOfWeek(isOwner);
 
     // Deep-link: settings.html#staff:[uuid] — scroll to Team section and open that staff member
     var staffHash = window.location.hash;
@@ -661,19 +708,21 @@
       }
     }
 
-    // Load authoritative settings from Supabase and re-render forms
-    loadSettingsFromSupabase().then(function () {
-      populateRates();
-      renderChecklistTemplate();
-    }).catch(function () {});
+    if (isOwner) {
+      // Load authoritative settings from Supabase and re-render forms
+      loadSettingsFromSupabase().then(function () {
+        populateRates();
+        renderChecklistTemplate();
+      }).catch(function () {});
 
-    document.getElementById('save-rates-btn').addEventListener('click', saveRates);
-    document.getElementById('save-checklist-template-btn').addEventListener('click', saveChecklistTemplate);
-    document.getElementById('btn-add-checklist-item').addEventListener('click', addChecklistItem);
+      document.getElementById('save-rates-btn').addEventListener('click', saveRates);
+      document.getElementById('save-checklist-template-btn').addEventListener('click', saveChecklistTemplate);
+      document.getElementById('btn-add-checklist-item').addEventListener('click', addChecklistItem);
 
-    document.getElementById('btn-clear').addEventListener('click', function () {
-      MQ.ui.modal.open('modal-data-options');
-    });
+      document.getElementById('btn-clear').addEventListener('click', function () {
+        MQ.ui.modal.open('modal-data-options');
+      });
+    }
   });
 
   /* ══════════════════════════════════════════════════════════

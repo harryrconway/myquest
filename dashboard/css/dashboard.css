@@ -1767,6 +1767,52 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   padding: var(--space-5) var(--space-8);
 }
 
+/* ---- Message of the Week banner --------------------------- */
+.dash-motw-banner {
+  background: #FFD400;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.dash-motw-banner svg { flex-shrink: 0; margin-top: 2px; }
+
+.dash-motw-banner p {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: #000;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---- Team Availability badges ------------------------------ */
+.avail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+}
+
+.avail-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avail-badge__dot--wants_more { background: #16a34a; }
+.avail-badge__dot--comfortable { background: #94a3b8; }
+.avail-badge__dot--full { background: #dc2626; }
+
 /* ---- Welcome Banner -------------------------------------- */
 .dash-welcome {
   background: #fff;
@@ -4268,9 +4314,9 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 }
 .clients-filter-btn:hover { background: #f1f5f9; border-color: #cbd5e0; }
 .clients-filter-btn.is-active {
-  background: #fef3c7;
-  border-color: #fcd34d;
-  color: #92400e;
+  background: #000;
+  border-color: #000;
+  color: #fff;
 }
 .clients-followup-count {
   display: inline-flex;

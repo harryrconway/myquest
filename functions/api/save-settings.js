@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
   if (!key || typeof key !== 'string') return json({ error: 'key is required.' }, 400);
   if (value === undefined) return json({ error: 'value is required.' }, 400);
 
-  const ALLOWED_KEYS = ['rates', 'checklist_template'];
+  const ALLOWED_KEYS = ['rates', 'checklist_template', 'message_of_week'];
   if (!ALLOWED_KEYS.includes(key)) return json({ error: 'Invalid settings key.' }, 400);
 
   const upsertRes = await fetch(`${URL_BASE}/rest/v1/company_settings`, {

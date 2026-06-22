@@ -230,7 +230,7 @@ html:has(.login-page) {
 
 .login-resend:hover {
   background: #000;
-  color: #FFD400;
+  color: #fff;
 }
 
 .cf-turnstile {

@@ -3,11 +3,14 @@
   var escHtml = window.escHtml || function (s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 
   async function reload() {
-    await Promise.all([renderStats(), renderUpcomingJobs()]);
+    var tasks = [renderStats(), renderUpcomingJobs()];
+    if (MQ.hasRole('manager')) tasks.push(renderAvailability());
+    await Promise.all(tasks);
   }
 
   document.addEventListener('mq:ready', async function () {
     renderGreeting();
+    renderMessageOfWeek();
     await reload();
 
     MQ.supabase
@@ -30,6 +33,40 @@
       dateEl.textContent = new Date().toLocaleDateString('en-AU', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
       });
+    }
+  }
+
+  function renderMessageOfWeek() {
+    var banner = document.getElementById('dash-motw-banner');
+    var textEl = document.getElementById('dash-motw-text');
+    if (!banner || !textEl) return;
+    var msg = MQ.messageOfWeek || '';
+    if (!msg) { banner.hidden = true; return; }
+    textEl.textContent = msg;
+    banner.hidden = false;
+  }
+
+  var AVAIL_LABELS = { wants_more: 'Wants more work', comfortable: 'Comfortable', full: "I'm full" };
+
+  async function renderAvailability() {
+    var card = document.getElementById('dash-availability-card');
+    var body = document.getElementById('dash-availability-body');
+    if (!card || !body) return;
+    try {
+      var res = await MQ.supabase.from('profiles').select('id, name, colour, availability, status').neq('status', 'suspended');
+      if (res.error) throw res.error;
+      var staff = (res.data || []).filter(function (p) { return p.availability && p.availability.work_preference; });
+      if (!staff.length) { card.style.display = 'none'; return; }
+      staff.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+      body.innerHTML = staff.map(function (p) {
+        var pref = p.availability.work_preference;
+        var label = AVAIL_LABELS[pref] || pref;
+        return '<span class="avail-badge"><span class="avail-badge__dot avail-badge__dot--' + pref + '"></span>' +
+          escHtml(p.name || 'Unnamed') + ' — ' + escHtml(label) + '</span>';
+      }).join('');
+      card.style.display = '';
+    } catch (err) {
+      card.style.display = 'none';
     }
   }
 

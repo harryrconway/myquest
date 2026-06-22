@@ -94,6 +94,7 @@
   }
 
   function syncRatesToStore(rows) {
+    MQ.messageOfWeek = '';
     if (!rows || !rows.length) return;
     rows.forEach(function (row) {
       if (row.key === 'rates' && row.value && typeof row.value === 'object') {
@@ -105,6 +106,9 @@
         var r = MQ.store.rates.get();
         r.checklist = row.value;
         MQ.store.rates.save(r);
+      }
+      if (row.key === 'message_of_week' && row.value && typeof row.value === 'object') {
+        MQ.messageOfWeek = row.value.text || '';
       }
     });
   }
@@ -152,7 +156,7 @@
       if (fastCheck.data && fastCheck.data.session) {
         var _fastResults = await Promise.all([
           Promise.resolve(sb.from('profiles').select('*')).catch(function () { return { data: null }; }),
-          Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template'])).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template', 'message_of_week'])).catch(function () { return { data: null }; }),
         ]);
         syncProfilesToStore(_fastResults[0].data || []);
         syncRatesToStore(_fastResults[1].data || []);
@@ -193,7 +197,7 @@
     var _slowResults = await Promise.all([
       Promise.resolve(sb.from('profiles').select('*').eq('id', userId).limit(1)).catch(function () { return { data: null }; }),
       Promise.resolve(sb.from('profiles').select('*')).catch(function () { return { data: null }; }),
-      Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template'])).catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template', 'message_of_week'])).catch(function () { return { data: null }; }),
     ]);
     var myProfile   = (_slowResults[0].data && _slowResults[0].data[0]) || null; // authoritative for this user's role
     var allProfiles = _slowResults[1].data || [];
@@ -217,8 +221,9 @@
       }
     }
 
-    // Build / refresh MQ.session (same shape as before)
+    // Build / refresh MQ.session (same shape as before, plus id)
     var session = {
+      id:           userId,
       email:        email,
       name:         name,
       role:         role,

@@ -3,20 +3,19 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   const URL_BASE  = env.SUPABASE_URL;
   const SVC_KEY   = env.SUPABASE_SERVICE_KEY;
-  const ANON_KEY  = env.SUPABASE_ANON_KEY || SVC_KEY;
   if (!URL_BASE || !SVC_KEY) return json({ error: 'Server configuration error.' }, 500);
 
   const callerJwt = (request.headers.get('Authorization') || '').replace('Bearer ', '').trim();
   if (!callerJwt) return json({ error: 'Unauthorised.' }, 401);
 
   const userRes = await fetch(`${URL_BASE}/auth/v1/user`, {
-    headers: { 'Authorization': `Bearer ${callerJwt}`, 'apikey': ANON_KEY },
+    headers: { 'Authorization': `Bearer ${callerJwt}`, 'apikey': SVC_KEY },
   });
   if (!userRes.ok) return json({ error: 'Unauthorised.' }, 401);
   const user = await userRes.json();
 
   const profileRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${user.id}&select=role`, {
-    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': ANON_KEY },
+    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
   });
   if (!profileRes.ok) return json({ error: 'Profile lookup failed (' + profileRes.status + ').' }, 500);
   const profiles = await profileRes.json();
@@ -91,7 +90,7 @@ export async function onRequestPost(context) {
 
   const patchRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${userId}`, {
     method: 'PATCH',
-    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify(updates),
   });
   if (!patchRes.ok) {
