@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260622">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260728">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260731">
   <script src="js/supabase.js?v=20260622"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
@@ -108,6 +108,23 @@
               <input type="hidden" id="team-avail" value="">
             </div>
 
+            <p class="settings-section-label" data-min-role="owner">Role</p>
+            <div class="form-group" data-min-role="owner" style="margin-bottom:20px;">
+              <div class="role-pill-group" id="team-role-group">
+                <button type="button" class="role-pill" data-value="junior-cleaner">Junior Cleaner</button>
+                <button type="button" class="role-pill" data-value="mid-cleaner">Mid Level</button>
+                <button type="button" class="role-pill" data-value="senior-cleaner">Senior Cleaner</button>
+                <button type="button" class="role-pill" data-value="manager">Manager</button>
+                <button type="button" class="role-pill" data-value="owner">Owner</button>
+              </div>
+              <input type="hidden" id="team-role" value="">
+            </div>
+
+            <p class="settings-section-label">Colour</p>
+            <div class="form-group" style="margin-bottom:20px;">
+              <div id="team-colour-swatches" class="colour-swatches"></div>
+            </div>
+
             <p class="settings-section-label">Contact</p>
             <div class="form-grid form-grid--2" style="margin-bottom:12px;">
               <div class="form-group">
@@ -122,23 +139,6 @@
             <div class="form-group" style="margin-bottom:20px;">
               <label class="form-label" for="team-email">Email</label>
               <input type="email" id="team-email" class="form-input" readonly style="background:#f8fafc;color:rgba(0,0,0,0.5);cursor:default;">
-            </div>
-
-            <p class="settings-section-label" data-min-role="owner">Role</p>
-            <div class="form-group" data-min-role="owner" style="margin-bottom:20px;">
-              <div class="role-pill-group" id="team-role-group">
-                <button type="button" class="role-pill" data-value="junior-cleaner">Junior Cleaner</button>
-                <button type="button" class="role-pill" data-value="mid-cleaner">Mid Level</button>
-                <button type="button" class="role-pill" data-value="senior-cleaner">Senior Cleaner</button>
-                <button type="button" class="role-pill" data-value="manager">Manager</button>
-                <button type="button" class="role-pill" data-value="owner">Owner</button>
-              </div>
-              <input type="hidden" id="team-role" value="">
-            </div>
-
-            <p class="settings-section-label">Colour</p>
-            <div class="form-group" style="margin-bottom:4px;">
-              <div id="team-colour-swatches" class="colour-swatches"></div>
             </div>
 
             <!-- Emergency contact — read-only, populated from Supabase -->

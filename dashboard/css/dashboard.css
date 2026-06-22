@@ -1796,30 +1796,127 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   margin: 0;
 }
 
-/* ---- Team Availability badges ------------------------------ */
-.avail-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: var(--radius-full);
-  background: #f9fafb;
-  border: 1.5px solid #e5e7eb;
-  font-size: 13px;
-  font-weight: 600;
-  color: #000;
+/* ---- Team Availability: hover-avatar row -------------------- */
+.avail-avatar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.avail-badge__dot {
+.avail-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  cursor: default;
+  font-family: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.avail-avatar:hover,
+.avail-avatar:focus {
+  transform: scale(1.08);
+  outline: none;
+}
+
+.avail-avatar--wants_more { box-shadow: 0 0 0 3px #16a34a, 0 2px 6px rgba(0,0,0,0.18); }
+.avail-avatar--comfortable { box-shadow: 0 0 0 3px #2563eb, 0 2px 6px rgba(0,0,0,0.18); }
+.avail-avatar--full { box-shadow: 0 0 0 3px #dc2626, 0 2px 6px rgba(0,0,0,0.18); }
+
+.avail-avatar__tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  border-radius: 10px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  z-index: 300;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  pointer-events: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.avail-avatar__tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #000;
+}
+
+.avail-avatar:hover .avail-avatar__tip,
+.avail-avatar:focus .avail-avatar__tip {
+  display: flex;
+}
+
+.avail-avatar__tip-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.avail-avatar__tip-status {
+  font-size: 11px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.avail-avatar__tip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avail-avatar__tip-dot--wants_more { background: #16a34a; }
+.avail-avatar__tip-dot--comfortable { background: #2563eb; }
+.avail-avatar__tip-dot--full { background: #dc2626; }
+
+.avail-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.avail-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.55);
+}
+
+.avail-legend__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.avail-badge__dot--wants_more { background: #16a34a; }
-.avail-badge__dot--comfortable { background: #94a3b8; }
-.avail-badge__dot--full { background: #dc2626; }
+.avail-legend__dot--wants_more { background: #16a34a; }
+.avail-legend__dot--comfortable { background: #2563eb; }
+.avail-legend__dot--full { background: #dc2626; }
 
 /* ---- Welcome Banner -------------------------------------- */
 .dash-welcome {

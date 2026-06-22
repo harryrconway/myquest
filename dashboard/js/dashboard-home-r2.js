@@ -50,6 +50,10 @@
 
   var AVAIL_LABELS = { wants_more: 'Wants more work', comfortable: 'Comfortable', full: "I'm full" };
 
+  function availInitials(name) {
+    return (name || '').split(' ').map(function (w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase() || '?';
+  }
+
   async function renderAvailability() {
     var card = document.getElementById('dash-availability-card');
     var body = document.getElementById('dash-availability-body');
@@ -62,12 +66,22 @@
       });
       if (!staff.length) { card.style.display = 'none'; return; }
       staff.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
-      body.innerHTML = staff.map(function (p) {
-        var pref = p.availability.work_preference;
+      var avatarsHtml = staff.map(function (p) {
+        var pref  = p.availability.work_preference;
         var label = AVAIL_LABELS[pref] || pref;
-        return '<span class="avail-badge"><span class="avail-badge__dot avail-badge__dot--' + pref + '"></span>' +
-          escHtml(p.name || 'Unnamed') + ' — ' + escHtml(label) + '</span>';
+        var name  = p.name || 'Unnamed';
+        return '<button type="button" class="avail-avatar avail-avatar--' + pref + '" style="background:' + (p.colour || '#334155') + '" aria-label="' + escHtml(name) + ' — ' + escHtml(label) + '">' +
+          escHtml(availInitials(p.name)) +
+          '<span class="avail-avatar__tip">' +
+            '<span class="avail-avatar__tip-name">' + escHtml(name) + '</span>' +
+            '<span class="avail-avatar__tip-status"><span class="avail-avatar__tip-dot avail-avatar__tip-dot--' + pref + '"></span>' + escHtml(label) + '</span>' +
+          '</span>' +
+        '</button>';
       }).join('');
+      var legendHtml = '<div class="avail-legend">' + Object.keys(AVAIL_LABELS).map(function (pref) {
+        return '<span class="avail-legend__item"><span class="avail-legend__dot avail-legend__dot--' + pref + '"></span>' + escHtml(AVAIL_LABELS[pref]) + '</span>';
+      }).join('') + '</div>';
+      body.innerHTML = '<div class="avail-avatar-row">' + avatarsHtml + '</div>' + legendHtml;
       card.style.display = '';
     } catch (err) {
       console.error('Team availability error:', err);
