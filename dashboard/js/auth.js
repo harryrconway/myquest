@@ -156,12 +156,22 @@
       }
       var fastCheck = await sb.auth.getSession();
       if (fastCheck.data && fastCheck.data.session) {
+        // Two queries, same protection as the slow path below: a broad
+        // select (best-effort, may be restricted by RLS for non-managers)
+        // plus a targeted self-row select that should always succeed, so
+        // the logged-in user's own profile is never missing from the store.
         var _fastResults = await Promise.all([
           Promise.resolve(sb.from('profiles').select('*')).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('profiles').select('*').eq('id', cached.id).limit(1)).catch(function () { return { data: null }; }),
           Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template', 'message_of_week'])).catch(function () { return { data: null }; }),
         ]);
-        syncProfilesToStore(_fastResults[0].data || []);
-        syncRatesToStore(_fastResults[1].data || []);
+        var fastAllProfiles = _fastResults[0].data || [];
+        var fastMyProfile   = (_fastResults[1].data && _fastResults[1].data[0]) || null;
+        if (!fastAllProfiles.some(function (p) { return p.id === cached.id; }) && fastMyProfile) {
+          fastAllProfiles = fastAllProfiles.concat([fastMyProfile]);
+        }
+        syncProfilesToStore(fastAllProfiles);
+        syncRatesToStore(_fastResults[2].data || []);
         function doReady() {
           applyRoleGating(cached);
           populateUserInfo(cached);
