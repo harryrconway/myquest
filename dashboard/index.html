@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260622">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260811">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260812">
   <script src="js/supabase.js?v=20260622"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
@@ -94,39 +94,41 @@
           <div id="dash-open-shifts-body" style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;"></div>
         </div>
 
-        <!-- Team Availability -->
-        <div class="dash-card mb-6" id="dash-availability-card" data-min-role="manager" style="display:none;">
-          <div class="card-section-header">
-            <div class="card-section-header__left">
-              <h2 class="card-section-header__title">Team Availability</h2>
+        <!-- Team Availability + Stats — a single fixed side panel on wide screens -->
+        <div id="dash-side-panel">
+          <div class="dash-card mb-6" id="dash-availability-card" data-min-role="manager" style="display:none;">
+            <div class="card-section-header">
+              <div class="card-section-header__left">
+                <h2 class="card-section-header__title">Team Availability</h2>
+              </div>
             </div>
+            <div id="dash-availability-body" style="padding:16px 20px;"></div>
           </div>
-          <div id="dash-availability-body" style="padding:16px 20px;"></div>
-        </div>
 
-        <!-- Stat Cards -->
-        <div class="stats-grid mb-6" id="stats-grid">
-          <a href="unscheduled-jobs.html" class="stat-card stat-card--link" data-min-role="manager">
-            <div class="stat-card__icon stat-card__icon--amber">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
-            <div class="stat-card__value" id="stat-new-requests">—</div>
-            <div class="stat-card__label">Unscheduled Jobs</div>
-          </a>
-          <a href="scheduled-jobs.html" class="stat-card stat-card--link">
-            <div class="stat-card__icon stat-card__icon--blue">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div class="stat-card__value" id="stat-today-jobs">—</div>
-            <div class="stat-card__label">Scheduled Jobs</div>
-          </a>
-          <a href="completed-jobs.html" class="stat-card stat-card--link">
-            <div class="stat-card__icon stat-card__icon--green">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="stat-card__value" id="stat-week-jobs">—</div>
-            <div class="stat-card__label">Completed Jobs</div>
-          </a>
+          <!-- Stat Cards -->
+          <div class="stats-grid mb-6" id="stats-grid">
+            <a href="unscheduled-jobs.html" class="stat-card stat-card--link" data-min-role="manager">
+              <div class="stat-card__icon stat-card__icon--amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="stat-card__value" id="stat-new-requests">—</div>
+              <div class="stat-card__label">Unscheduled Jobs</div>
+            </a>
+            <a href="scheduled-jobs.html" class="stat-card stat-card--link">
+              <div class="stat-card__icon stat-card__icon--blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="stat-card__value" id="stat-today-jobs">—</div>
+              <div class="stat-card__label">Scheduled Jobs</div>
+            </a>
+            <a href="completed-jobs.html" class="stat-card stat-card--link">
+              <div class="stat-card__icon stat-card__icon--green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="stat-card__value" id="stat-week-jobs">—</div>
+              <div class="stat-card__label">Completed Jobs</div>
+            </a>
+          </div>
         </div>
 
 
