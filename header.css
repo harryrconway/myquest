@@ -211,6 +211,43 @@ body.menu-open .mobile-menu-backdrop {
 .mobile-menu.is-open .mobile-menu__list li:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.42s; }
 .mobile-menu.is-open .mobile-menu__list li:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.48s; }
 
+/* Staff Login — deliberately understated/professional, set apart from
+   the bold consumer nav above it so it doesn't read as a 6th marketing
+   link. Left-aligned with an icon, muted colour, own top border. */
+.mobile-menu__staff-login {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: rgba(0, 0, 0, 0.55);
+  text-align: left;
+  letter-spacing: 0;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.28s ease, transform 0.28s ease, color var(--transition-fast);
+}
+
+.mobile-menu__staff-login svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.mobile-menu__staff-login:hover {
+  color: #000;
+}
+
+.mobile-menu__staff-login:hover svg {
+  opacity: 1;
+}
+
+.mobile-menu.is-open .mobile-menu__staff-login { opacity: 1; transform: none; transition-delay: 0.54s; }
+
 .mobile-menu__list a,
 .mobile-menu__list button {
   display: block;
@@ -251,4 +288,44 @@ body.menu-open .mobile-menu-backdrop {
   .mobile-menu-backdrop {
     display: none !important;
   }
+
+  /* Desktop already has the subtle header Login link — no need for
+     a second, more prominent entry point there. */
+  .staff-login-fab {
+    display: none !important;
+  }
+}
+
+/* ---- Floating staff login button (mobile/tablet only) ----- */
+.staff-login-fab {
+  position: fixed;
+  right: 18px;
+  bottom: max(18px, env(safe-area-inset-bottom) + 10px);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 150;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.staff-login-fab:hover,
+.staff-login-fab:focus-visible {
+  transform: scale(1.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+}
+
+.staff-login-fab:active {
+  transform: scale(0.96);
+}
+
+/* Hide while the mobile menu panel is open, to avoid overlapping it */
+body.menu-open .staff-login-fab {
+  opacity: 0;
+  pointer-events: none;
 }

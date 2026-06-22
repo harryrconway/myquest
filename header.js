@@ -44,7 +44,7 @@
     const menu = document.getElementById('mobile-menu');
     const closeBtn = document.querySelector('.mobile-menu__close');
     const backdrop = document.getElementById('mobile-menu-backdrop');
-    const menuLinks = document.querySelectorAll('.mobile-menu__list a, .mobile-menu__footer a');
+    const menuLinks = document.querySelectorAll('.mobile-menu__list a, .mobile-menu__footer a, .mobile-menu__staff-login');
 
     if (!hamburger || !menu) return;
 
