@@ -124,12 +124,13 @@
       var existing = MQ.store.staff.getById(p.id);
       MQ.store.staff.save(Object.assign({}, existing || {}, {
         id: p.id, name: p.name || '', email: p.email || '',
-        mobile:    p.mobile     || (existing && existing.mobile)    || '',
-        role:      p.role       || 'junior-cleaner',
-        startDate: p.start_date || (existing && existing.startDate) || '',
-        createdAt: p.created_at || (existing && existing.createdAt) || '',
-        active:    p.status !== 'suspended',
-        colour:    p.colour     || (existing && existing.colour)    || '',
+        mobile:       p.mobile       || (existing && existing.mobile)       || '',
+        role:         p.role         || 'junior-cleaner',
+        startDate:    p.start_date   || (existing && existing.startDate)    || '',
+        createdAt:    p.created_at   || (existing && existing.createdAt)    || '',
+        active:       p.status !== 'suspended',
+        colour:       p.colour       || (existing && existing.colour)      || '',
+        availability: p.availability || (existing && existing.availability) || null,
       }));
     });
   }

@@ -1891,24 +1891,25 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 
 /* ---- Settings hero: availability hover tooltip (view-only, for
    managers/owners viewing someone else's profile) -------------- */
-.team-hero-avail-tip { cursor: default; }
+.team-hero-avail-tip { cursor: help; }
 
 .team-hero-avail-tip__popup {
   display: none;
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
   background: #000;
-  border-radius: 10px;
-  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px 16px;
   white-space: nowrap;
   z-index: 300;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
   pointer-events: none;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 5px;
 }
 
 .team-hero-avail-tip__popup::after {
@@ -1917,7 +1918,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 5px solid transparent;
+  border: 6px solid transparent;
   border-top-color: #000;
 }
 
@@ -1925,6 +1926,10 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .team-hero-avail-tip:focus .team-hero-avail-tip__popup {
   display: flex;
 }
+
+.team-hero-avail-tip .avail-avatar__tip-name { font-size: 13px; }
+.team-hero-avail-tip .avail-avatar__tip-status { font-size: 12px; }
+.team-hero-avail-tip .avail-avatar__tip-dot { width: 8px; height: 8px; }
 
 .avail-legend {
   display: flex;

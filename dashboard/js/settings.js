@@ -304,19 +304,20 @@
     var HERO_AVAIL_LABELS = { wants_more: 'Wants more work', comfortable: 'Comfortable', full: "I'm full" };
 
     function populateHero(s) {
-      var hero       = document.getElementById('team-member-hero');
-      var heroAvatar = document.getElementById('team-hero-avatar');
-      var heroName   = document.getElementById('team-hero-name');
-      var heroEmail  = document.getElementById('team-hero-email');
-      var heroBadges = document.getElementById('team-hero-badges');
-      var heroTip    = document.getElementById('team-hero-avail-tip');
+      var hero         = document.getElementById('team-member-hero');
+      var heroAvatar   = document.getElementById('team-hero-avatar');
+      var heroInitials = document.getElementById('team-hero-avatar-initials');
+      var heroName     = document.getElementById('team-hero-name');
+      var heroEmail    = document.getElementById('team-hero-email');
+      var heroBadges   = document.getElementById('team-hero-badges');
+      var heroTip      = document.getElementById('team-hero-avail-tip');
       if (!heroAvatar) return;
       var ROLE_BADGE = {
         owner: 'badge--amber', manager: 'badge--blue',
         'senior-cleaner': 'badge--green',
         'mid-cleaner': 'badge--grey', 'junior-cleaner': 'badge--grey', staff: 'badge--grey',
       };
-      heroAvatar.textContent      = staffInitials(s.name);
+      if (heroInitials) heroInitials.textContent = staffInitials(s.name);
       heroAvatar.style.background = s.colour || '#000';
       heroName.textContent        = s.name || s.email || '—';
       var joinedStr = s.createdAt
@@ -332,23 +333,26 @@
         '<span class="badge ' + statusCls + '">' + (s.active !== false ? 'Active' : 'Inactive') + '</span>';
 
       /* Availability: editable pills for your own profile, a passive
-         hover tooltip on the hero (matching the dashboard home page's
-         avatar tooltips) for anyone you're not — your availability
-         isn't something a manager should be able to set for you. */
+         hover tooltip on the hero avatar (matching the dashboard home
+         page's avatar tooltips) for anyone you're not — your
+         availability isn't something a manager should be able to
+         set for you. Only enabled when a status is actually set;
+         otherwise the avatar behaves like a normal avatar. */
       var isSelf = MQ.session && s.id === MQ.session.id;
       var availSection = document.getElementById('team-avail-section');
       var pref  = s.availability && s.availability.work_preference;
       if (availSection) availSection.style.display = isSelf ? '' : 'none';
+      var showTip = !isSelf && !!pref;
       if (hero) {
-        hero.classList.toggle('team-hero-avail-tip', !isSelf);
-        if (!isSelf) hero.setAttribute('tabindex', '0'); else hero.removeAttribute('tabindex');
+        hero.classList.toggle('team-hero-avail-tip', showTip);
+        if (showTip) hero.setAttribute('tabindex', '0'); else hero.removeAttribute('tabindex');
       }
-      if (heroAvatar) heroAvatar.className = (!isSelf && pref) ? 'avail-avatar--' + pref : '';
+      heroAvatar.className = showTip ? 'avail-avatar--' + pref : '';
       if (heroTip) {
-        heroTip.innerHTML = (!isSelf && pref)
+        heroTip.innerHTML = showTip
           ? '<span class="avail-avatar__tip-name">' + escHtml(s.name || 'This person') + '</span>' +
             '<span class="avail-avatar__tip-status"><span class="avail-avatar__tip-dot avail-avatar__tip-dot--' + pref + '"></span>' + escHtml(HERO_AVAIL_LABELS[pref] || pref) + '</span>'
-          : (!isSelf ? '<span class="avail-avatar__tip-name">' + escHtml(s.name || 'This person') + '</span><span class="avail-avatar__tip-status">No availability set</span>' : '');
+          : '';
       }
     }
 
@@ -692,12 +696,13 @@
         var existing = MQ.store.staff.getById(p.id);
         MQ.store.staff.save(Object.assign({}, existing || {}, {
           id: p.id, name: p.name || '', email: p.email || '',
-          mobile:    p.mobile     || (existing && existing.mobile)    || '',
-          role:      p.role       || 'junior-cleaner',
-          startDate: p.start_date || (existing && existing.startDate) || '',
-          createdAt: p.created_at || (existing && existing.createdAt) || '',
-          active:    p.status !== 'suspended',
-          colour:    p.colour     || (existing && existing.colour)    || '',
+          mobile:       p.mobile       || (existing && existing.mobile)       || '',
+          role:         p.role         || 'junior-cleaner',
+          startDate:    p.start_date   || (existing && existing.startDate)    || '',
+          createdAt:    p.created_at   || (existing && existing.createdAt)    || '',
+          active:       p.status !== 'suspended',
+          colour:       p.colour       || (existing && existing.colour)      || '',
+          availability: p.availability || (existing && existing.availability) || null,
         }));
         changed = true;
       });
