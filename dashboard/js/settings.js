@@ -503,6 +503,30 @@
       form.style.display = '';
     }
 
+    var DOC_FIELDS = [
+      { label: 'Police Check',      field: 'police_check_url',    slug: 'police-check' },
+      { label: 'Driver\'s Licence', field: 'drivers_licence_url', slug: 'drivers-licence' },
+      { label: 'Right to Work',     field: 'right_to_work_url',   slug: 'right-to-work' },
+    ];
+    var DOC_ALLOWED_EXTS = ['pdf', 'jpg', 'jpeg', 'png'];
+    var DOC_MAX_BYTES    = 5 * 1024 * 1024;
+
+    async function ensureStorageBucket() {
+      var jwt = await getJwt();
+      if (!jwt) throw new Error('Not authenticated.');
+      var res = await fetch('/api/ensure-storage', { method: 'POST', headers: { 'Authorization': 'Bearer ' + jwt } });
+      if (!res.ok) throw new Error('Could not initialise storage. Please try again.');
+    }
+
+    async function uploadStaffDoc(file, slug, staffId) {
+      var ext  = file.name.split('.').pop().toLowerCase();
+      var path = staffId + '/' + slug + '.' + ext;
+      var res  = await MQ.supabase.storage.from('staff-documents').upload(path, file, { upsert: true });
+      if (res.error) throw new Error(res.error.message);
+      var signed = await MQ.supabase.storage.from('staff-documents').createSignedUrl(path, 60 * 60 * 24 * 365);
+      return signed.data ? signed.data.signedUrl : path;
+    }
+
     function renderStaffDocuments(staffId) {
       var listEl = document.getElementById('team-docs-list');
       if (!listEl) return;
@@ -531,24 +555,62 @@
             startEl.textContent = new Date(p.start_date + 'T00:00:00')
               .toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
           }
-          var docs = [
-            { label: 'Police Check',        url: p.police_check_url },
-            { label: 'Driver\'s Licence',   url: p.drivers_licence_url },
-            { label: 'Right to Work',        url: p.right_to_work_url },
-          ];
-          var html = docs.map(function (d) {
-            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8fafc;border-radius:8px;font-size:13px;">' +
-              '<span style="font-weight:600;color:#374151;">' + d.label + '</span>' +
-              (d.url
-                ? '<a href="' + d.url + '" target="_blank" rel="noopener" style="color:#9A7700;font-weight:600;text-decoration:none;">View &rarr;</a>'
-                : '<span style="color:#94a3b8;">Not uploaded</span>') +
-            '</div>';
+          var html = DOC_FIELDS.map(function (d) {
+            var url = p[d.field];
+            var inputId = 'doc-upload-' + d.slug;
+            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f8fafc;border-radius:8px;font-size:13px;gap:10px;">' +
+              '<span style="font-weight:600;color:#374151;">' + escHtml(d.label) + '</span>' +
+              '<span style="display:flex;align-items:center;gap:14px;flex-shrink:0;">' +
+                (url
+                  ? '<a href="' + url + '" target="_blank" rel="noopener" style="color:#000;font-weight:600;text-decoration:none;">View &rarr;</a>'
+                  : '<span style="color:#94a3b8;">Not uploaded</span>') +
+                '<label for="' + inputId + '" style="color:#000;font-weight:600;text-decoration:underline;cursor:pointer;">' + (url ? 'Replace' : 'Upload') + '</label>' +
+                '<input type="file" id="' + inputId + '" data-field="' + d.field + '" data-slug="' + d.slug + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none">' +
+              '</span>' +
+            '</div>' +
+            '<p class="doc-upload-err" id="' + inputId + '-err" style="display:none;font-size:12px;color:#dc2626;margin:-4px 0 0;"></p>';
           }).join('');
           if (!p.onboarding_complete) {
             html += '<p style="font-size:12px;color:#f59e0b;margin-top:8px;">Onboarding not yet complete.</p>';
           }
           listEl.innerHTML = html;
+          DOC_FIELDS.forEach(function (d) {
+            var input = document.getElementById('doc-upload-' + d.slug);
+            if (input) wireDocUpload(input, staffId);
+          });
         });
+    }
+
+    function wireDocUpload(input, staffId) {
+      input.addEventListener('change', async function () {
+        var file = input.files && input.files[0];
+        if (!file) return;
+        var errEl = document.getElementById(input.id + '-err');
+        if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (DOC_ALLOWED_EXTS.indexOf(ext) === -1) {
+          if (errEl) { errEl.textContent = 'Please upload a PDF, JPG or PNG file.'; errEl.style.display = 'block'; }
+          return;
+        }
+        if (file.size > DOC_MAX_BYTES) {
+          if (errEl) { errEl.textContent = 'File must be under 5 MB.'; errEl.style.display = 'block'; }
+          return;
+        }
+        var field = input.dataset.field;
+        var slug  = input.dataset.slug;
+        try {
+          await ensureStorageBucket();
+          var url = await uploadStaffDoc(file, slug, staffId);
+          var updates = { userId: staffId };
+          updates[field] = url;
+          var result = await callApi('/api/update-profile', updates);
+          if (result.error) throw new Error(result.error);
+          MQ.ui.toast('Document uploaded');
+          renderStaffDocuments(staffId);
+        } catch (e) {
+          if (errEl) { errEl.textContent = e.message || 'Upload failed. Please try again.'; errEl.style.display = 'block'; }
+        }
+      });
     }
 
     var resetPwdBtn = document.getElementById('team-reset-pwd-btn');

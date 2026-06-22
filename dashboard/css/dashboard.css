@@ -94,6 +94,11 @@
   color: rgba(0, 0, 0, 0.35);
 }
 
+.dash-sidebar__divider {
+  margin: var(--space-2) var(--space-6);
+  border-top: 1px solid #eaedf0;
+}
+
 .dash-sidebar__footer {
   padding: var(--space-4) var(--space-6);
   padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
@@ -629,6 +634,14 @@
   outline: none;
 }
 
+/* Override style.css's yellow .form-input:focus ring everywhere in the dashboard,
+   not just inside modal forms */
+.dash-body .form-input:focus {
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+  outline: none;
+}
+
 /* Toggle chips */
 .mform-toggle-row {
   display: flex;
@@ -1102,7 +1115,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: 13px;
   border: none;
   cursor: pointer;
   background: transparent;
@@ -1769,7 +1782,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 
 /* ---- Message of the Week banner --------------------------- */
 .dash-motw-banner {
-  background: #FFD400;
+  background: #16a34a;
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-6);
   display: flex;
@@ -1783,7 +1796,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .dash-motw-banner p {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
-  color: #000;
+  color: #fff;
   line-height: 1.5;
   margin: 0;
 }
@@ -2601,7 +2614,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .jobs-search:focus {
   outline: none;
   border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
 /* ---- Action buttons for job tables ----------------------- */
@@ -2617,7 +2630,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   justify-content: center;
   gap: 6px;
   padding: 7px 10px;
-  border-radius: 10px;
+  border-radius: 14px;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -2730,7 +2743,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 }
 .recurrence-btn {
   padding: 7px 14px;
-  border-radius: 8px;
+  border-radius: 14px;
   border: 1.5px solid #e2e8f0;
   background: white;
   color: #000;
@@ -2756,7 +2769,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   height: 36px;
   padding: 0;
   border: 2px solid #000;
-  border-radius: 8px;
+  border-radius: 16px;
   background: transparent;
   color: #000;
   cursor: pointer;
@@ -2816,7 +2829,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .ts-picker__trigger:hover { border-color: #000; }
 .ts-picker--open .ts-picker__trigger {
   border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255,212,0,0.12);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
 }
 
 .ts-picker__dot {
@@ -3023,7 +3036,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .mq-select:focus {
   outline: none;
   border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255,212,0,0.12);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
 }
 
 /* ============================================================
@@ -3171,7 +3184,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .ctp-select:focus {
   outline: none;
   border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
 .ctp-colon {
@@ -3305,7 +3318,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .jobs-search-input:focus {
   outline: none;
   border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
 /* ============================================================
@@ -3657,7 +3670,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .cal-nav-btn {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 16px;
   background: white;
   border: 1.5px solid #e2e8f0;
   color: #000;
@@ -3672,7 +3685,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .cal-nav-btn:hover { background: #f8fafc; border-color: #000; }
 .cal-today-btn {
   padding: 7px 16px;
-  border-radius: 10px;
+  border-radius: 14px;
   background: white;
   border: 1.5px solid #e2e8f0;
   color: #000;
@@ -3688,13 +3701,13 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .cal-view-toggle {
   display: flex;
   background: #f1f5f9;
-  border-radius: 10px;
+  border-radius: 14px;
   padding: 3px;
   gap: 2px;
 }
 .cal-view-btn {
   padding: 6px 16px;
-  border-radius: 8px;
+  border-radius: 11px;
   background: transparent;
   border: none;
   font-size: 12.5px;
@@ -4123,7 +4136,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(255,212,0,0.28);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.28);
 }
 .client-detail__close {
   margin-left: auto;
@@ -4263,7 +4276,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   gap: 4px;
   background: none;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 600;
@@ -4303,7 +4316,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   gap: 6px;
   background: white;
   border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 14px;
   padding: 7px 14px;
   font-size: 13px;
   font-weight: 600;
@@ -4627,7 +4640,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 15px;
   border: 1.5px dashed #d1d5db;
   background: transparent;
   color: #000;
@@ -5149,7 +5162,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   font-size: 13px;
   font-weight: 600;
   padding: 7px 14px;
-  border-radius: 8px;
+  border-radius: 14px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
   display: inline-flex;
@@ -5258,7 +5271,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
 .dash-body .btn-secondary {
   height: 32px;
   padding: 0 12px;
-  border-radius: 6px;
+  border-radius: 14px;
   font-size: 14px;
   font-weight: 500;
   gap: 8px;

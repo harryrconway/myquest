@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260622">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260726">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260727">
   <script src="js/supabase.js?v=20260622"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
@@ -36,6 +36,7 @@
         <a href="completed-jobs.html" data-page="completed-jobs" data-min-role="owner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Completed Jobs</a>
         <div class="dash-sidebar__section-label" data-min-role="manager">Clients</div>
         <a href="clients.html" data-page="clients" data-min-role="manager"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Clients</a>
+        <div class="dash-sidebar__divider"></div>
         <a href="training.html" data-page="training"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Training</a>
         <a href="settings.html" data-page="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</a>
       </nav>
@@ -85,7 +86,7 @@
           </div>
         </div>
         <div class="dash-card__body" style="padding:20px 24px;">
-          <div id="team-staff-avatars" class="ts-avatar-grid"></div>
+          <div id="team-staff-avatars" class="ts-avatar-grid" data-min-role="manager"></div>
           <div id="team-staff-form" style="display:none;margin-top:4px;padding-top:20px;border-top:1px solid #f1f5f9;">
             <div id="team-member-hero" style="display:flex;align-items:center;gap:16px;padding-bottom:20px;margin-bottom:4px;">
               <div id="team-hero-avatar" style="width:52px;height:52px;border-radius:16px;background:#000;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;"></div>
@@ -164,8 +165,8 @@
               </div>
             </div>
 
-            <!-- Documents section — owner only -->
-            <div id="team-docs-section" data-min-role="owner" style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
+            <!-- Documents section — visible to managers/owners for anyone, and to staff for their own profile (the avatar grid above already restricts staff to selecting only themselves) -->
+            <div id="team-docs-section" style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
               <p class="settings-section-label">Documents</p>
               <div id="team-docs-list" style="display:flex;flex-direction:column;gap:8px;">
                 <p style="font-size:13px;color:rgba(0,0,0,0.45);">Select a team member to view their documents.</p>
@@ -485,7 +486,7 @@
   </style>
 
   <script src="js/ui.js?v=20260622" defer></script>
-  <script src="js/settings.js?v=20260726" defer></script>
+  <script src="js/settings.js?v=20260727" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
