@@ -17,6 +17,8 @@
       .channel('home-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' },
         function () { reload(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' },
+        function () { if (MQ.hasRole('manager')) renderAvailability(); })
       .subscribe();
   });
 
@@ -53,9 +55,11 @@
     var body = document.getElementById('dash-availability-body');
     if (!card || !body) return;
     try {
-      var res = await MQ.supabase.from('profiles').select('id, name, colour, availability, status').neq('status', 'suspended');
+      var res = await MQ.supabase.from('profiles').select('id, name, colour, availability, status');
       if (res.error) throw res.error;
-      var staff = (res.data || []).filter(function (p) { return p.availability && p.availability.work_preference; });
+      var staff = (res.data || []).filter(function (p) {
+        return (p.status || 'active') !== 'suspended' && p.availability && p.availability.work_preference;
+      });
       if (!staff.length) { card.style.display = 'none'; return; }
       staff.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
       body.innerHTML = staff.map(function (p) {
@@ -66,6 +70,7 @@
       }).join('');
       card.style.display = '';
     } catch (err) {
+      console.error('Team availability error:', err);
       card.style.display = 'none';
     }
   }
