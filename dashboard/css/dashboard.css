@@ -1796,6 +1796,52 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   margin: 0;
 }
 
+/* ---- Open Shifts ------------------------------------------- */
+.open-shift-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #fde68a;
+  background: #fffbeb;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.open-shift-row--urgent {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.open-shift-row__when {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #92400e;
+  margin-bottom: 3px;
+}
+
+.open-shift-row--urgent .open-shift-row__when { color: #991b1b; }
+
+.open-shift-row__client {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.open-shift-row__requester {
+  font-size: 12.5px;
+  color: rgba(0,0,0,0.5);
+  margin-top: 2px;
+}
+
+.open-shift-row__claim {
+  flex-shrink: 0;
+}
+
 /* ---- Team Availability: hover-avatar row -------------------- */
 .avail-avatar-row {
   display: flex;

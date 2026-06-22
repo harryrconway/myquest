@@ -240,10 +240,38 @@
 
     var footer = document.querySelector('#modal-ms-view .modal-footer');
     if (footer) {
+      var alreadyNeedsCover = !!j.needs_coverage;
       footer.innerHTML =
         '<button class="btn-outline" data-modal-close="modal-ms-view">Close</button>' +
+        (alreadyNeedsCover
+          ? '<button class="btn-outline" id="ms-cant-make-it-btn" disabled style="color:#dc2626;border-color:#fca5a5;">Coverage requested</button>'
+          : '<button class="btn-outline" id="ms-cant-make-it-btn" style="color:#dc2626;border-color:#fca5a5;">Can\'t make it</button>') +
         '<button class="btn-primary" id="ms-complete-btn">Mark Complete</button>';
       document.getElementById('ms-complete-btn').addEventListener('click', markComplete);
+      var cantMakeItBtn = document.getElementById('ms-cant-make-it-btn');
+      if (cantMakeItBtn && !alreadyNeedsCover) cantMakeItBtn.addEventListener('click', requestCoverage);
+    }
+  }
+
+  async function requestCoverage() {
+    if (!window.confirm("This will open the job up for another team member to claim. Continue?")) return;
+    var btn = document.getElementById('ms-cant-make-it-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Requesting…'; }
+    try {
+      var session = (await sb.auth.getSession()).data.session;
+      var res = await fetch('/api/request-coverage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ jobId: viewingJobId }),
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+      MQ.ui.modal.close('modal-ms-view');
+      MQ.ui.toast('Coverage requested — this job is now open for someone else to claim');
+      load();
+    } catch (err) {
+      MQ.ui.toast(err.message || 'Failed to request coverage', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = "Can't make it"; }
     }
   }
 

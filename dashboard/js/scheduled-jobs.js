@@ -189,6 +189,9 @@
           '<div class="job-card__btn-row">' +
             '<button class="action-btn action-btn--view"     onclick="SJPage.view(\''         + j.id + '\')">' + eyeIcon   + 'View</button>'     +
             '<button class="action-btn action-btn--accept"   onclick="SJPage.openEdit(\''     + j.id + '\')">' + editIcon  + 'Edit</button>'     +
+            (j.needs_coverage
+              ? '<button class="action-btn action-btn--archive" disabled>Needs Cover</button>'
+              : '<button class="action-btn action-btn--archive" onclick="SJPage.requestCoverage(\'' + j.id + '\')">Can\'t Make It</button>') +
             '<button class="action-btn action-btn--complete" onclick="SJPage.markComplete(\'' + j.id + '\')">' + checkIcon + 'Complete</button>' +
           '</div>' +
         '</div>';
@@ -403,6 +406,30 @@
         MQ.ui.toast('Job marked complete — thank-you email sent');
         load();
       }
+    } catch (err) {
+      MQ.ui.toast('Error: ' + err.message, 'error');
+    }
+  }
+
+  /* ─── Request coverage (manager-initiated "can't make it") ──── */
+
+  async function requestCoverage(id) {
+    var j = jobs.find(function (x) { return x.id === id; });
+    if (!j) return;
+    if (!window.confirm("This will open the job up for another team member to claim. Continue?")) return;
+
+    try {
+      var session = await MQ.supabase.auth.getSession();
+      var token   = session.data.session && session.data.session.access_token;
+      var res  = await fetch('/api/request-coverage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ jobId: id }),
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+      MQ.ui.toast('Coverage requested — this job is now an open shift');
+      load();
     } catch (err) {
       MQ.ui.toast('Error: ' + err.message, 'error');
     }
@@ -708,5 +735,5 @@
     }
   }
 
-  window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete, filterToClient: filterToClient };
+  window.SJPage = { view: view, openEdit: openEdit, markComplete: markComplete, requestCoverage: requestCoverage, filterToClient: filterToClient };
 })();

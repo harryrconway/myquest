@@ -3,7 +3,7 @@
   var escHtml = window.escHtml || function (s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 
   async function reload() {
-    var tasks = [renderStats(), renderUpcomingJobs()];
+    var tasks = [renderStats(), renderUpcomingJobs(), renderOpenShifts()];
     if (MQ.hasRole('manager')) tasks.push(renderAvailability());
     await Promise.all(tasks);
   }
@@ -46,6 +46,81 @@
     if (!msg) { banner.hidden = true; return; }
     textEl.textContent = msg;
     banner.hidden = false;
+  }
+
+  async function renderOpenShifts() {
+    var card = document.getElementById('dash-open-shifts-card');
+    var body = document.getElementById('dash-open-shifts-body');
+    if (!card || !body) return;
+    try {
+      var res = await MQ.supabase
+        .from('quote_requests')
+        .select('id, full_name, street_address, suburb, state, scheduled_date, scheduled_time, coverage_requested_by')
+        .eq('needs_coverage', true)
+        .eq('status', 'scheduled');
+      if (res.error) throw res.error;
+      var shifts = res.data || [];
+      if (!shifts.length) { card.style.display = 'none'; return; }
+      shifts.sort(function (a, b) {
+        return (a.scheduled_date + (a.scheduled_time || '')).localeCompare(b.scheduled_date + (b.scheduled_time || ''));
+      });
+      var now = Date.now();
+      body.innerHTML = shifts.map(function (j) {
+        var address = [j.street_address, j.suburb, j.state].filter(Boolean).join(', ');
+        var requester = MQ.store.staff.getById(j.coverage_requested_by);
+        var jobTime = j.scheduled_date && j.scheduled_time ? new Date(j.scheduled_date + 'T' + j.scheduled_time + ':00').getTime() : null;
+        var hoursUntil = jobTime ? (jobTime - now) / 3600000 : Infinity;
+        var urgency = hoursUntil <= 24 ? 'urgent' : 'soon';
+        var dateLabel = j.scheduled_date
+          ? new Date(j.scheduled_date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
+          : '—';
+        var timeLabel = j.scheduled_time ? fmtOpenShiftTime(j.scheduled_time) : '';
+        return '<div class="open-shift-row open-shift-row--' + urgency + '">' +
+          '<div class="open-shift-row__info">' +
+            '<div class="open-shift-row__when">' + escHtml(dateLabel) + (timeLabel ? ' · ' + escHtml(timeLabel) : '') + '</div>' +
+            '<div class="open-shift-row__client">' + escHtml(j.full_name || '') + (address ? ' — ' + escHtml(address) : '') + '</div>' +
+            (requester ? '<div class="open-shift-row__requester">' + escHtml(requester.name || '') + " can't make it</div>" : '') +
+          '</div>' +
+          '<button type="button" class="btn-primary open-shift-row__claim" data-job-id="' + escHtml(j.id) + '">Claim this job &rarr;</button>' +
+        '</div>';
+      }).join('');
+      body.querySelectorAll('.open-shift-row__claim').forEach(function (btn) {
+        btn.addEventListener('click', function () { claimOpenShift(btn.dataset.jobId, btn); });
+      });
+      card.style.display = '';
+    } catch (err) {
+      console.error('Open shifts error:', err);
+      card.style.display = 'none';
+    }
+  }
+
+  function fmtOpenShiftTime(t) {
+    try {
+      var p = t.split(':'), h = parseInt(p[0]), m = p[1];
+      return (h % 12 || 12) + ':' + m + (h >= 12 ? 'pm' : 'am');
+    } catch (e) { return t; }
+  }
+
+  async function claimOpenShift(jobId, btn) {
+    if (!window.confirm('Claim this job? It will be added to your schedule.')) return;
+    btn.disabled = true;
+    btn.textContent = 'Claiming…';
+    try {
+      var session = (await MQ.supabase.auth.getSession()).data.session;
+      var res = await fetch('/api/claim-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ jobId: jobId }),
+      });
+      var data = await res.json();
+      if (data.error) throw new Error(data.error);
+      MQ.ui.toast("You're on it! Check your schedule for details.");
+      renderOpenShifts();
+    } catch (err) {
+      MQ.ui.toast(err.message || 'Failed to claim job', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Claim this job →';
+    }
   }
 
   var AVAIL_LABELS = { wants_more: 'Wants more work', comfortable: 'Comfortable', full: "I'm full" };

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css?v=20260622">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260807">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260810">
   <script src="js/supabase.js?v=20260622"></script>
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
@@ -83,6 +83,17 @@
           <p id="dash-motw-text"></p>
         </div>
 
+        <!-- Open Shifts -->
+        <div class="dash-card mb-6" id="dash-open-shifts-card" style="display:none;">
+          <div class="card-section-header">
+            <div class="card-section-header__left">
+              <h2 class="card-section-header__title">Open Shifts</h2>
+              <span class="card-section-header__pill">Needs cover</span>
+            </div>
+          </div>
+          <div id="dash-open-shifts-body" style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
         <!-- Team Availability -->
         <div class="dash-card mb-6" id="dash-availability-card" data-min-role="manager" style="display:none;">
           <div class="card-section-header">
@@ -145,7 +156,7 @@
   </div>
 
   <script src="js/ui.js?v=20260622" defer></script>
-  <script src="js/dashboard-home-r2.js?v=20260731" defer></script>
+  <script src="js/dashboard-home-r2.js?v=20260810" defer></script>
 
   <!-- Guidelines popout -->
   <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
