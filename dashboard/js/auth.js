@@ -156,18 +156,29 @@
       }
       var fastCheck = await sb.auth.getSession();
       if (fastCheck.data && fastCheck.data.session) {
+        // cached.id may be missing on sessions stored before the `id` field
+        // existed — the fast path never re-writes sessionStorage, so a stale
+        // cache can be missing it indefinitely. The live Supabase session
+        // always has the real user id regardless of what's cached; use that,
+        // and patch + re-persist the cache so it self-heals going forward.
+        var fastUserId = cached.id || fastCheck.data.session.user.id;
+        if (!cached.id && fastUserId) {
+          cached.id = fastUserId;
+          MQ.session.id = fastUserId;
+          try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(cached)); } catch (e) {}
+        }
         // Two queries, same protection as the slow path below: a broad
         // select (best-effort, may be restricted by RLS for non-managers)
         // plus a targeted self-row select that should always succeed, so
         // the logged-in user's own profile is never missing from the store.
         var _fastResults = await Promise.all([
           Promise.resolve(sb.from('profiles').select('*')).catch(function () { return { data: null }; }),
-          Promise.resolve(sb.from('profiles').select('*').eq('id', cached.id).limit(1)).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('profiles').select('*').eq('id', fastUserId).limit(1)).catch(function () { return { data: null }; }),
           Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template', 'message_of_week'])).catch(function () { return { data: null }; }),
         ]);
         var fastAllProfiles = _fastResults[0].data || [];
         var fastMyProfile   = (_fastResults[1].data && _fastResults[1].data[0]) || null;
-        if (!fastAllProfiles.some(function (p) { return p.id === cached.id; }) && fastMyProfile) {
+        if (!fastAllProfiles.some(function (p) { return p.id === fastUserId; }) && fastMyProfile) {
           fastAllProfiles = fastAllProfiles.concat([fastMyProfile]);
         }
         syncProfilesToStore(fastAllProfiles);
