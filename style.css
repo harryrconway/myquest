@@ -862,6 +862,15 @@ textarea.form-input {
 
 
 @media (max-width: 1024px) {
+  /* --container-padding's clamp(1rem, 4vw, 3rem) grows with viewport
+     width, so tablets (768-1024px) land near the 48px max — far more
+     side padding than phones (clamped near the 16px min) get, making
+     full-bleed sections like .hero__inner look oddly inset specifically
+     in the tablet range. Cap it lower here. */
+  :root {
+    --container-padding: 20px;
+  }
+
   .hero__inner {
     grid-template-columns: 1fr;
     text-align: center;
