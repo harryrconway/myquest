@@ -3140,7 +3140,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 11px;
   background: none;
   border: none;
   cursor: pointer;
@@ -3176,9 +3176,10 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   transform: scale(1.07);
 }
 .ts-avatar-item__name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #0f172a;
   text-align: center;
   max-width: 64px;
   overflow: hidden;
@@ -3187,7 +3188,7 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   line-height: 1.2;
   transition: color 0.15s;
 }
-.ts-avatar-item--active .ts-avatar-item__name { color: #000; font-weight: 700; }
+.ts-avatar-item--active .ts-avatar-item__name { color: #000; font-weight: 800; }
 
 /* ---- Custom select ---------------------------------------- */
 .mq-select-wrap {
