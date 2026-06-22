@@ -2222,7 +2222,13 @@ textarea.form-input {
 }
 
 /* ── Mobile (< 768px): sidebar hidden, body scrolls within locked modal ── */
-@media (max-width: 767px) {
+/* Width-based for phones, height-based for short-but-wide viewports
+   (e.g. iPads in landscape: 1024-1366px wide but only ~768-834px
+   tall) — without this, the quote modal's bottom tab bar / submit
+   button can overflow past the card's clipped boundary on landscape
+   tablets, since the body never scrolls (overflowY is locked to
+   'hidden' by JS so content can't be clipped silently mid-step). */
+@media (max-width: 767px), (max-height: 850px) {
   .qm-footer {
     padding: 8px 16px max(10px, env(safe-area-inset-bottom));
   }
@@ -2267,6 +2273,7 @@ textarea.form-input {
   .qm-stepper { height: 32px; }
   .qm-helper { display: none; }
   .qm-dropdown__trigger { min-height: 32px; padding: 5px 10px; }
+  .qm-mob-review-cta { padding-top: 10px; }
 }
 
 /* ── Panel show/hide — applies on all screen sizes (tab navigation) ── */
