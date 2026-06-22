@@ -1900,48 +1900,13 @@ form.modal__body .modal__footer { position: static; border-top: 1px solid #f3f4f
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.avail-avatar:hover,
 .avail-avatar:focus {
-  transform: scale(1.08);
   outline: none;
 }
 
-.avail-avatar--wants_more { box-shadow: 0 0 0 3px #16a34a, 0 2px 6px rgba(0,0,0,0.18); }
-.avail-avatar--comfortable { box-shadow: 0 0 0 3px #2563eb, 0 2px 6px rgba(0,0,0,0.18); }
-.avail-avatar--full { box-shadow: 0 0 0 3px #dc2626, 0 2px 6px rgba(0,0,0,0.18); }
-
-.avail-avatar__tip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #000;
-  border-radius: 10px;
-  padding: 8px 12px;
-  white-space: nowrap;
-  z-index: 300;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  pointer-events: none;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.avail-avatar__tip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #000;
-}
-
-.avail-avatar:hover .avail-avatar__tip,
-.avail-avatar:focus .avail-avatar__tip {
-  display: flex;
-}
+.avail-avatar--wants_more { box-shadow: 0 0 0 4px #16a34a, 0 2px 6px rgba(0,0,0,0.18); }
+.avail-avatar--comfortable { box-shadow: 0 0 0 4px #2563eb, 0 2px 6px rgba(0,0,0,0.18); }
+.avail-avatar--full { box-shadow: 0 0 0 4px #dc2626, 0 2px 6px rgba(0,0,0,0.18); }
 
 .avail-avatar__tip-name {
   font-size: 12px;

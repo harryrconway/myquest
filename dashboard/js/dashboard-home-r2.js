@@ -147,10 +147,6 @@
         var name  = p.name || 'Unnamed';
         return '<button type="button" class="avail-avatar avail-avatar--' + pref + '" style="background:' + (p.colour || '#334155') + '" aria-label="' + escHtml(name) + ' — ' + escHtml(label) + '">' +
           escHtml(availInitials(p.name)) +
-          '<span class="avail-avatar__tip">' +
-            '<span class="avail-avatar__tip-name">' + escHtml(name) + '</span>' +
-            '<span class="avail-avatar__tip-status"><span class="avail-avatar__tip-dot avail-avatar__tip-dot--' + pref + '"></span>' + escHtml(label) + '</span>' +
-          '</span>' +
         '</button>';
       }).join('');
       var legendHtml = '<div class="avail-legend">' + Object.keys(AVAIL_LABELS).map(function (pref) {
