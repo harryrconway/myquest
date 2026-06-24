@@ -352,9 +352,6 @@ textarea.form-input {
 
 /* ---- Hero -------------------------------------------------- */
 .hero {
-  min-height: calc(100vh - var(--header-height));
-  display: flex;
-  align-items: center;
   background: var(--color-off-white);
   padding-block: var(--space-12);
 }
@@ -970,7 +967,79 @@ textarea.form-input {
 }
 
 /* ============================================================
-   QUOTE MODAL — Full-screen split-panel redesign v20260615
+   QUOTE MODAL — Simplified single-step form
+   ============================================================ */
+
+/* ── Simple card sizing — double class for specificity over .qm-card ── */
+.qm-card.qm-card--simple {
+  height: auto;
+  min-height: 0;
+  max-height: calc(100svh - 60px);
+}
+
+@media (min-width: 431px) {
+  .qm-card.qm-card--simple {
+    min-height: 0;
+    max-height: 90vh;
+  }
+}
+
+/* ── Form layout ── */
+.qm-simple-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 4px;
+}
+
+/* ── Service pills ── */
+.qm-svc-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.qm-svc-pill {
+  padding: 8px 18px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #000;
+  background: #fff;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qm-svc-pill:hover {
+  border-color: #000;
+  background: #f3f4f6;
+}
+
+.qm-svc-pill--on {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+/* ── Turnstile container ── */
+.qm-turnstile-wrap {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Submit button ── */
+.qm-submit-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+}
+
+/* ============================================================
+   QUOTE MODAL — Full-screen split-panel (legacy styles kept for reference)
    ============================================================ */
 
 /* ── Animation keyframes ── */

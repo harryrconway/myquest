@@ -27,6 +27,23 @@ export async function onRequestPost(context) {
     return json({ error: 'Name, phone and email are required.' }, 400);
   }
 
+  // Verify Cloudflare Turnstile token
+  const cfToken = body['cf-turnstile-response'];
+  if (!cfToken) return json({ error: 'Please complete the security check.' }, 400);
+  if (env.TURNSTILE_SECRET) {
+    const tsRes  = await fetch('https://challenges.cloudflare.com/turnstile/v1/siteverify', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        secret:   env.TURNSTILE_SECRET,
+        response: cfToken,
+        remoteip: request.headers.get('CF-Connecting-IP') || undefined,
+      }),
+    });
+    const tsData = await tsRes.json().catch(() => ({}));
+    if (!tsData.success) return json({ error: 'Security check failed. Please try again.' }, 400);
+  }
+
   // Insert to Supabase
   const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/quote_requests`, {
     method: 'POST',
