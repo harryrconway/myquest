@@ -215,6 +215,15 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.65;
 }
 
+.section-body {
+  font-size: var(--text-base);
+  color: var(--color-mid);
+  max-width: 60ch;
+  line-height: 1.7;
+  margin-top: var(--space-4);
+  opacity: 0.75;
+}
+
 /* ---- Button System ----------------------------------------- */
 .btn-primary,
 .btn-outline {
@@ -357,10 +366,7 @@ textarea.form-input {
 }
 
 .hero__inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: var(--space-16);
+  display: block;
   background: #FFD400;
   border-radius: 40px;
   padding: var(--space-20) var(--space-16);
@@ -383,6 +389,14 @@ textarea.form-input {
   color: var(--color-mid);
   line-height: 1.7;
   margin-bottom: var(--space-8);
+}
+
+.hero__body {
+  font-size: var(--text-base);
+  color: rgba(0,0,0,0.7);
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+  max-width: 48ch;
 }
 
 .hero__actions {
@@ -414,17 +428,92 @@ textarea.form-input {
   font-size: var(--text-xs);
 }
 
-/* ---- Hero map ---------------------------------------------- */
-.hero__map {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+/* ---- Now Servicing strip ----------------------------------- */
+.regions-strip {
+  background: white;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  padding-block: var(--space-6);
 }
 
-.hero-map-svg {
-  width: 100%;
-  aspect-ratio: 320 / 500;
-  max-height: 560px;
+.regions-strip__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.regions-strip__label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0,0,0,0.4);
+  white-space: nowrap;
+}
+
+.regions-strip__divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+
+/* ---- Hero regions panel (legacy — now used inside strip) --- */
+.hero__regions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.hero__regions-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0,0,0,0.5);
+  margin: 0;
+}
+
+.hero__regions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hero__region {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: rgba(0,0,0,0.07);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+}
+
+.hero__region svg {
+  flex-shrink: 0;
+  color: #000;
+}
+
+.hero__region div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero__region strong {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-bold);
+  color: #000;
+  line-height: 1.2;
+}
+
+.hero__region span {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: rgba(0,0,0,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* ---- Stats Bar --------------------------------------------- */
@@ -473,15 +562,18 @@ textarea.form-input {
   text-align: center;
 }
 
-.section-intro--center .section-sub {
+.section-intro--center .section-sub,
+.section-intro--center .section-body {
   margin-inline: auto;
 }
 
 /* ---- Services Icon Layout --------------------------------- */
 .svc-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0 var(--space-12);
+  max-width: 720px;
+  margin-inline: auto;
 }
 
 .svc-item {
@@ -880,7 +972,7 @@ textarea.form-input {
     padding: var(--space-10) var(--space-6);
   }
 
-  .hero__map {
+  .hero__regions {
     display: none;
   }
 

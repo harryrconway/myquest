@@ -151,7 +151,7 @@
       '<div class="qm-success">' +
         '<div class="qm-success__icon">✓</div>' +
         '<h3 class="qm-success__heading">You\'re all set!</h3>' +
-        '<p class="qm-success__body">We\'ll call you back within <strong>2 hours</strong>.</p>' +
+        '<p class="qm-success__body">We\'ll call you back <strong>as soon as possible</strong>.</p>' +
         '<p class="qm-success__sub">A confirmation has been sent to <strong>' + escHtml(email) + '</strong>.</p>' +
         '<button class="btn-primary qm-success__btn" id="qm-success-close">Close</button>' +
         '<p class="qm-success__countdown">Closing in <span id="qm-countdown-num">5</span>…</p>' +
