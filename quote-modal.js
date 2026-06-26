@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  // Replace with your Cloudflare Turnstile site key
+  // This key must be authorized for myquest.au and localhost in Cloudflare.
   var TURNSTILE_SITE_KEY = '0x4AAAAAADqM-GWUxyG0P402';
 
   var submitting = false;
@@ -78,6 +78,11 @@
   function renderTurnstile() {
     var container = document.getElementById('qm-turnstile');
     if (!container) return;
+    if (isLocalDev()) {
+      container.innerHTML = '';
+      setSubmitReady(true);
+      return;
+    }
     if (!window.turnstile) {
       setTimeout(renderTurnstile, 300);
       return;
@@ -87,11 +92,13 @@
       sitekey:  TURNSTILE_SITE_KEY,
       theme:    'light',
       size:     'flexible',
+      action:   'quote-request',
       callback: function () {
         setSubmitReady(true);
         hideError();
       },
-      'error-callback': function () {
+      'error-callback': function (code) {
+        if (window.console && console.warn) console.warn('Turnstile error', code);
         setSubmitReady(false);
         showError('Security check failed to load. Please disable any ad blocker and try again.');
       },
@@ -206,7 +213,7 @@
 
     var tokenInput = document.querySelector('[name="cf-turnstile-response"]');
     var token = tokenInput ? tokenInput.value : '';
-    if (!token) { showError('Please complete the security check.'); return; }
+    if (!token && !isLocalDev()) { showError('Please complete the security check.'); return; }
 
     submitting = true;
     hideError();
@@ -229,10 +236,18 @@
         'cf-turnstile-response': token,
       }),
     })
-    .then(function (res) { return res.json(); })
+    .then(function (res) {
+      return res.json()
+        .catch(function () { return { error: 'Server returned an invalid response.' }; })
+        .then(function (data) {
+          data._httpOk = res.ok;
+          data._status = res.status;
+          return data;
+        });
+    })
     .then(function (data) {
       submitting = false;
-      if (data.success) {
+      if (data._httpOk && data.success) {
         renderSuccess(email.trim());
       } else {
         resetSubmitBtn(btn);
@@ -261,6 +276,11 @@
   }
 
   /* ─── Helpers ─────────────────────────────────────────────────────────── */
+
+  function isLocalDev() {
+    var host = window.location.hostname;
+    return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0';
+  }
 
   function inputField(label, id, type, placeholder, required, autocomplete, maxlength) {
     return '<div class="qm-field">' +
