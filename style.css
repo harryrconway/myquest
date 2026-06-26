@@ -1063,14 +1063,17 @@ textarea.form-input {
    ============================================================ */
 
 /* ── Simple card sizing — double class for specificity over .qm-card ── */
+/* Mobile: definite height so flex body can actually scroll */
 .qm-card.qm-card--simple {
-  height: auto;
+  height: calc(100svh - 76px);
   min-height: 0;
-  max-height: calc(100svh - 60px);
+  max-height: calc(100svh - 76px);
 }
 
+/* Desktop: auto-height is fine, form fits within viewport */
 @media (min-width: 431px) {
   .qm-card.qm-card--simple {
+    height: auto;
     min-height: 0;
     max-height: 90vh;
   }
@@ -1104,6 +1107,7 @@ textarea.form-input {
   font-family: inherit;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .qm-svc-pill:hover {
@@ -1111,10 +1115,12 @@ textarea.form-input {
   background: #f3f4f6;
 }
 
-.qm-svc-pill--on {
+.qm-svc-pill--on,
+.qm-svc-pill--on:active {
   border-color: #000;
-  background: #000;
-  color: #fff;
+  background: #FFD400;
+  color: #000;
+  font-weight: 700;
 }
 
 /* ── Turnstile container ── */
