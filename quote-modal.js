@@ -61,9 +61,11 @@
 
   function resetTurnstile() {
     if (turnstileWidgetId !== null && window.turnstile) {
-      try { window.turnstile.reset(turnstileWidgetId); } catch (e) {}
+      try { window.turnstile.remove(turnstileWidgetId); } catch (e) {}
     }
     turnstileWidgetId = null;
+    var container = document.getElementById('qm-turnstile');
+    if (container) container.innerHTML = '';
   }
 
   function setSubmitReady(ready) {
@@ -85,9 +87,18 @@
       sitekey:  TURNSTILE_SITE_KEY,
       theme:    'light',
       size:     'flexible',
-      callback:           function () { setSubmitReady(true); },
-      'error-callback':   function () { setSubmitReady(false); },
-      'expired-callback': function () { setSubmitReady(false); },
+      callback: function () {
+        setSubmitReady(true);
+        hideError();
+      },
+      'error-callback': function () {
+        setSubmitReady(false);
+        showError('Security check failed to load. Please disable any ad blocker and try again.');
+      },
+      'expired-callback': function () {
+        setSubmitReady(false);
+        showError('Security check expired — please complete it again.');
+      },
     });
   }
 
