@@ -1,12 +1,18 @@
 /* POST /api/submit-quote — public endpoint, stores quote request + sends emails */
-export async function onRequestOptions() {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': 'https://myquest.au',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
+const ALLOWED_ORIGINS = ['https://myquest.au', 'http://localhost:8788', 'http://localhost:8789'];
+
+function corsHeaders(request) {
+  const origin = request.headers.get('Origin') || '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+
+export async function onRequestOptions({ request }) {
+  return new Response(null, { headers: corsHeaders(request) });
 }
 
 export async function onRequestPost(context) {
@@ -17,19 +23,26 @@ export async function onRequestPost(context) {
   const RESEND_KEY   = env.RESEND_API_KEY;
   const ADMIN_EMAIL  = env.ADMIN_EMAIL || 'hello@myquest.au';
 
-  if (!SUPABASE_URL || !SERVICE_KEY) return json({ error: 'Server configuration error.' }, 500);
+  if (!SUPABASE_URL || !SERVICE_KEY) return json({ error: 'Server configuration error.' }, 500, request);
 
   let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
+  try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400, request); }
 
   const { full_name, phone, email } = body;
   if (!full_name || !phone || !email) {
-    return json({ error: 'Name, phone and email are required.' }, 400);
+    return json({ error: 'Name, phone and email are required.' }, 400, request);
   }
+
+  const MAX = { name: 100, phone: 20, email: 254, suburb: 100, notes: 500, generic: 500 };
+  if (full_name.length > MAX.name)         return json({ error: 'Name is too long.'   }, 400, request);
+  if (phone.length    > MAX.phone)         return json({ error: 'Phone is too long.'  }, 400, request);
+  if (email.length    > MAX.email)         return json({ error: 'Email is too long.'  }, 400, request);
+  if (body.suburb  && body.suburb.length  > MAX.suburb) return json({ error: 'Suburb is too long.'  }, 400, request);
+  if (body.notes   && body.notes.length   > MAX.notes)  return json({ error: 'Notes are too long.'  }, 400, request);
 
   // Verify Cloudflare Turnstile token
   const cfToken = body['cf-turnstile-response'];
-  if (!cfToken) return json({ error: 'Please complete the security check.' }, 400);
+  if (!cfToken) return json({ error: 'Please complete the security check.' }, 400, request);
   if (env.TURNSTILE_SECRET) {
     const tsRes  = await fetch('https://challenges.cloudflare.com/turnstile/v1/siteverify', {
       method:  'POST',
@@ -41,7 +54,7 @@ export async function onRequestPost(context) {
       }),
     });
     const tsData = await tsRes.json().catch(() => ({}));
-    if (!tsData.success) return json({ error: 'Security check failed. Please try again.' }, 400);
+    if (!tsData.success) return json({ error: 'Security check failed. Please try again.' }, 400, request);
   }
 
   // Insert to Supabase
@@ -82,7 +95,7 @@ export async function onRequestPost(context) {
   });
 
   if (!insertRes.ok) {
-    return json({ error: 'Failed to save quote request. Please try again.' }, 500);
+    return json({ error: 'Failed to save quote request. Please try again.' }, 500, request);
   }
 
   const insertedRows = await insertRes.json().catch(() => []);
@@ -100,7 +113,7 @@ export async function onRequestPost(context) {
     waitUntil(sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, body }));
   }
 
-  return json({ success: true }, 200);
+  return json({ success: true }, 200, request);
 }
 
 async function upsertClient({ SUPABASE_URL, SERVICE_KEY, ANON_KEY, newJobId, body }) {
@@ -273,12 +286,14 @@ function escHtmlEmail(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function json(data, status = 200) {
+function json(data, status = 200, request = null) {
+  const origin = request ? (request.headers.get('Origin') || '') : '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'https://myquest.au',
+      'Access-Control-Allow-Origin': allowed,
     },
   });
 }

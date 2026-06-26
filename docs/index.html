@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyQuest Developer Wiki</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar__logo">
+    <a href="index.html">
+      <div class="sidebar__logo-mark">M</div>
+      <div>
+        <div class="sidebar__logo-text">MyQuest</div>
+        <div class="sidebar__logo-sub">Developer Wiki</div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Overview</div>
+    <a href="index.html" class="active">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="database.html">Database Schema</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Public Site</div>
+    <a href="public-site.html">Public Pages</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Dashboard</div>
+    <a href="dashboard-overview.html">Overview &amp; Auth</a>
+    <a href="dashboard-pages.html">All Pages</a>
+    <a href="js-modules.html">JS Modules</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Backend</div>
+    <a href="api-functions.html">API Functions</a>
+    <a href="emails.html">Emails &amp; Cron</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar__breadcrumb">
+      <span class="topbar__title">MyQuest Developer Wiki</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1>MyQuest Developer Wiki</h1>
+    <p class="page-intro">
+      Internal technical reference for the MyQuest cleaning business management platform.
+      This wiki covers the full stack — public site, internal dashboard, API functions, database schema,
+      and operational concerns. It is offline-only and not publicly hosted.
+    </p>
+
+    <h2>What is MyQuest?</h2>
+    <p>
+      MyQuest is a SaaS platform for cleaning businesses. It provides a public marketing site
+      with online quoting, and a private dashboard for staff, managers, and owners to manage
+      jobs, clients, rosters, training, and business settings.
+    </p>
+    <p>
+      The platform is deliberately simple in its tech stack — no frontend framework, no build step,
+      no bundler. Everything is plain HTML, CSS, and vanilla JS, deployed to Cloudflare Pages.
+      Backend logic lives in Cloudflare Functions (Workers). Data is stored in Supabase (PostgreSQL + Auth + Storage).
+    </p>
+
+    <h2>Quick Navigation</h2>
+    <div class="index-grid">
+      <a class="index-card" href="architecture.html">
+        <div class="index-card__icon">🏗️</div>
+        <div class="index-card__title">Architecture</div>
+        <div class="index-card__desc">Tech stack, hosting, deployment, data flow, and environment variables.</div>
+      </a>
+      <a class="index-card" href="database.html">
+        <div class="index-card__icon">🗄️</div>
+        <div class="index-card__title">Database Schema</div>
+        <div class="index-card__desc">All Supabase tables, columns, RLS policies, and migrations.</div>
+      </a>
+      <a class="index-card" href="public-site.html">
+        <div class="index-card__icon">🌐</div>
+        <div class="index-card__title">Public Site</div>
+        <div class="index-card__desc">Homepage, header/footer, login, password set, and quote modal.</div>
+      </a>
+      <a class="index-card" href="dashboard-overview.html">
+        <div class="index-card__icon">🔐</div>
+        <div class="index-card__title">Dashboard Auth</div>
+        <div class="index-card__desc">Auth flow, role system, session lifecycle, and <code>mq:ready</code> event.</div>
+      </a>
+      <a class="index-card" href="dashboard-pages.html">
+        <div class="index-card__icon">📋</div>
+        <div class="index-card__title">Dashboard Pages</div>
+        <div class="index-card__desc">Every dashboard page — what it does, its data sources, and actions.</div>
+      </a>
+      <a class="index-card" href="js-modules.html">
+        <div class="index-card__icon">⚙️</div>
+        <div class="index-card__title">JS Modules</div>
+        <div class="index-card__desc">Core shared modules: supabase-client, store, auth, ui.</div>
+      </a>
+      <a class="index-card" href="api-functions.html">
+        <div class="index-card__icon">🔌</div>
+        <div class="index-card__title">API Functions</div>
+        <div class="index-card__desc">All 18 Cloudflare Functions — inputs, auth requirements, outputs.</div>
+      </a>
+      <a class="index-card" href="emails.html">
+        <div class="index-card__icon">📧</div>
+        <div class="index-card__title">Emails &amp; Cron</div>
+        <div class="index-card__desc">Transactional emails (Resend), reminder cron job, open-shift alerts.</div>
+      </a>
+    </div>
+
+    <h2>Core Concepts at a Glance</h2>
+
+    <h3>Job Lifecycle</h3>
+    <div class="flow">
+      <div class="flow-step">Quote submitted<br><small>Public site</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step--grey">unscheduled<br><small>Awaiting manager</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step--blue">scheduled<br><small>Date + staff assigned</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step--green">completed<br><small>Staff marks done</small></div>
+    </div>
+    <p>Recurring jobs auto-clone on completion. Open shifts (when staff can't attend) can be claimed by any other staff member.</p>
+
+    <h3>Role Hierarchy</h3>
+    <table>
+      <thead><tr><th>Role</th><th>Level</th><th>Can do</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge--purple">owner</span></td><td>3</td><td>Everything — settings, billing, delete accounts, completed jobs, message of the week</td></tr>
+        <tr><td><span class="badge badge--blue">manager</span></td><td>2</td><td>Accept/schedule/edit jobs, manage clients, view all staff</td></tr>
+        <tr><td><span class="badge badge--grey">senior-cleaner<br>mid-cleaner<br>junior-cleaner<br>staff</span></td><td>1</td><td>My schedule, checklist, mark complete, request/claim coverage, training</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Key Environment Variables</h3>
+    <p>Set in Cloudflare Pages dashboard under Settings → Environment Variables:</p>
+    <table>
+      <thead><tr><th>Variable</th><th>Used by</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>SUPABASE_URL</code></td><td>All functions</td><td>Base URL e.g. <code>https://xxx.supabase.co</code></td></tr>
+        <tr><td><code>SUPABASE_ANON_KEY</code></td><td>All functions</td><td>Public anon key for API calls</td></tr>
+        <tr><td><code>SUPABASE_SERVICE_KEY</code></td><td>All functions</td><td>Service role key — bypasses RLS for writes</td></tr>
+        <tr><td><code>RESEND_API_KEY</code></td><td>Email-sending functions</td><td>Transactional emails via Resend</td></tr>
+        <tr><td><code>TURNSTILE_SECRET</code></td><td><code>submit-quote.js</code></td><td>Cloudflare Turnstile server-side validation</td></tr>
+        <tr><td><code>CRON_SECRET</code></td><td><code>send-reminders.js</code>, <code>check-open-shifts.js</code></td><td>Protects cron endpoints from public access</td></tr>
+        <tr><td><code>ADMIN_EMAIL</code></td><td><code>check-open-shifts.js</code></td><td>Where urgent shift alerts are sent</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Repository Layout</h3>
+    <pre><code>myquest/
+├── index.html              Public homepage
+├── login.html / login.js   Staff login
+├── set-password.html/.js   Invite &amp; reset password
+├── privacy.html            Privacy policy
+├── quote-modal.js          Public quote form
+├── header.html/.js         Shared site header
+├── footer.html             Shared site footer
+├── style.css               Global design tokens + public styles
+├── main.js                 Public site JS (counters, scroll animations)
+│
+├── dashboard/              Internal app (auth-gated)
+│   ├── *.html              One HTML file per page
+│   ├── css/dashboard.css   Dashboard-specific layout &amp; components
+│   └── js/                 One JS file per page + shared modules
+│       ├── supabase.js         CDN Supabase library
+│       ├── supabase-client.js  MQ.supabase client init
+│       ├── store.js            MQ.store in-memory cache
+│       ├── auth.js             Auth &amp; session (no defer)
+│       └── ui.js               Shared UI utilities
+│
+├── functions/
+│   └── api/                Cloudflare Pages Functions (18 endpoints)
+│
+├── supabase/
+│   └── migrations/         SQL migration files (source of truth for schema)
+│
+├── reminder-worker/        Standalone Cloudflare Worker for cron jobs
+│
+└── docs/                   ← You are here</code></pre>
+
+    <div class="info-box info-box--note">
+      <p><strong>No build step.</strong> There is no bundler, transpiler, or package.json. Files are served exactly as written. Cache-busting is done via <code>?v=YYYYMMDD</code> query strings on script/link tags.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

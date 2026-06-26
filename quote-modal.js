@@ -66,6 +66,13 @@
     turnstileWidgetId = null;
   }
 
+  function setSubmitReady(ready) {
+    var btn = document.getElementById('qm-submit');
+    if (!btn) return;
+    btn.disabled = !ready;
+    btn.style.opacity = ready ? '' : '0.55';
+  }
+
   function renderTurnstile() {
     var container = document.getElementById('qm-turnstile');
     if (!container) return;
@@ -75,9 +82,12 @@
     }
     resetTurnstile();
     turnstileWidgetId = window.turnstile.render(container, {
-      sitekey: TURNSTILE_SITE_KEY,
-      theme:   'light',
-      size:    'flexible',
+      sitekey:  TURNSTILE_SITE_KEY,
+      theme:    'light',
+      size:     'flexible',
+      callback:           function () { setSubmitReady(true); },
+      'error-callback':   function () { setSubmitReady(false); },
+      'expired-callback': function () { setSubmitReady(false); },
     });
   }
 
@@ -100,10 +110,10 @@
     body.style.overflowY = 'auto';
     body.innerHTML =
       '<div class="qm-simple-form">' +
-        inputField('Name',   'qm-name',   'text',  'Your name',         true,  'name') +
-        inputField('Mobile', 'qm-phone',  'tel',   '04XX XXX XXX',      true,  'tel') +
-        inputField('Email',  'qm-email',  'email', 'you@example.com',   true,  'email') +
-        inputField('Suburb', 'qm-suburb', 'text',  'e.g. Kingscliff',   true,  'address-level2') +
+        inputField('Name',   'qm-name',   'text',  'Your name',         true,  'name',           100) +
+        inputField('Mobile', 'qm-phone',  'tel',   '04XX XXX XXX',      true,  'tel',             20) +
+        inputField('Email',  'qm-email',  'email', 'you@example.com',   true,  'email',          254) +
+        inputField('Suburb', 'qm-suburb', 'text',  'e.g. Kingscliff',   true,  'address-level2', 100) +
         '<div class="qm-field">' +
           '<label class="qm-label">Service Needed</label>' +
           '<div class="qm-svc-row">' +
@@ -114,7 +124,8 @@
         '</div>' +
         '<div class="qm-field">' +
           '<label class="qm-label" for="qm-notes">Anything else? <span style="font-weight:400;opacity:0.5">(optional)</span></label>' +
-          '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="e.g. pets, access details, special requests…" rows="2"></textarea>' +
+          '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="e.g. pets, access details, special requests…" rows="2" maxlength="500"></textarea>' +
+          '<p style="font-size:0.78rem;color:rgba(0,0,0,0.45);margin:6px 0 0;line-height:1.5;">As soon as we receive your details we\'ll put together a quote and give you a call.</p>' +
         '</div>' +
         '<div id="qm-turnstile" class="qm-turnstile-wrap"></div>' +
         '<div id="qm-form-error" class="qm-error" style="display:none"></div>' +
@@ -232,7 +243,7 @@
 
   function validate(name, phone, email, suburb) {
     if (!name.trim())   return 'Please enter your name.';
-    if (!phone.trim() || phone.replace(/\D/g, '').length < 8) return 'Please enter a valid phone number.';
+    if (!phone.trim())  return 'Please enter your phone number.';
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email address.';
     if (!suburb.trim()) return 'Please enter your suburb.';
     return null;
@@ -240,7 +251,7 @@
 
   /* ─── Helpers ─────────────────────────────────────────────────────────── */
 
-  function inputField(label, id, type, placeholder, required, autocomplete) {
+  function inputField(label, id, type, placeholder, required, autocomplete, maxlength) {
     return '<div class="qm-field">' +
       '<label class="qm-label" for="' + id + '">' + label + (required ? ' <span class="qm-req">*</span>' : '') + '</label>' +
       '<input class="qm-input" type="' + type + '" id="' + id + '"' +
@@ -248,6 +259,7 @@
         (required      ? ' required'                               : '') +
         (autocomplete  ? ' autocomplete="' + autocomplete + '"'   : '') +
         (type === 'tel' ? ' inputmode="tel"'                      : '') +
+        (maxlength     ? ' maxlength="' + maxlength + '"'         : '') +
       '>' +
     '</div>';
   }

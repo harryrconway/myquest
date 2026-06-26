@@ -1081,7 +1081,7 @@ textarea.form-input {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding-bottom: 4px;
+  padding-bottom: 24px;
 }
 
 /* ── Service pills ── */
@@ -1467,6 +1467,7 @@ textarea.form-input {
   flex: 1;
   min-height: 0;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   padding: 8px 16px 0;
   box-sizing: border-box;
   scrollbar-width: thin;
@@ -1482,16 +1483,13 @@ textarea.form-input {
   overflow-y: hidden;
 }
 
-/* Allow dropdown lists to extend above the card on mobile */
 @media (max-width: 430px) {
-  .qm-card,
-  .qm-body {
-    overflow: visible;
+  .qm-card {
+    overflow: hidden;
   }
   .qm-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: safe center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture — MyQuest Wiki</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar__logo">
+    <a href="index.html">
+      <div class="sidebar__logo-mark">M</div>
+      <div>
+        <div class="sidebar__logo-text">MyQuest</div>
+        <div class="sidebar__logo-sub">Developer Wiki</div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Overview</div>
+    <a href="index.html">Home</a>
+    <a href="architecture.html" class="active">Architecture</a>
+    <a href="database.html">Database Schema</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Public Site</div>
+    <a href="public-site.html">Public Pages</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Dashboard</div>
+    <a href="dashboard-overview.html">Overview &amp; Auth</a>
+    <a href="dashboard-pages.html">All Pages</a>
+    <a href="js-modules.html">JS Modules</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Backend</div>
+    <a href="api-functions.html">API Functions</a>
+    <a href="emails.html">Emails &amp; Cron</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar__breadcrumb">
+      <a href="index.html">Wiki</a>
+      <span class="sep">›</span>
+      <span class="topbar__title">Architecture</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1>Architecture</h1>
+    <p class="page-intro">
+      MyQuest is a serverless, no-build-step web application. Static HTML/CSS/JS is served from
+      Cloudflare Pages; business logic runs in Cloudflare Functions (Workers); data lives in Supabase.
+    </p>
+
+    <div class="toc">
+      <div class="toc__title">On this page</div>
+      <ol>
+        <li><a href="#stack">Tech Stack</a></li>
+        <li><a href="#request-flow">Request Flow</a></li>
+        <li><a href="#hosting">Hosting &amp; Deployment</a></li>
+        <li><a href="#local-dev">Local Development</a></li>
+        <li><a href="#env-vars">Environment Variables</a></li>
+        <li><a href="#versioning">Cache Busting &amp; Versioning</a></li>
+        <li><a href="#security">Security Model</a></li>
+      </ol>
+    </div>
+
+    <h2 id="stack">Tech Stack</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>Frontend</h3>
+        <ul>
+          <li>Plain HTML5, CSS3, vanilla JS (ES2020)</li>
+          <li>No framework, no bundler, no build step</li>
+          <li>Plus Jakarta Sans (Google Fonts)</li>
+          <li>All JS in IIFEs (<code>(function(){...})()</code>)</li>
+          <li>Global namespace: <code>window.MQ</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Hosting</h3>
+        <ul>
+          <li><strong>Cloudflare Pages</strong> — static file CDN</li>
+          <li><strong>Cloudflare Functions</strong> — serverless Workers for API routes</li>
+          <li><strong>Cloudflare Turnstile</strong> — bot protection on public forms</li>
+          <li>Custom domain: <code>myquest.au</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Backend</h3>
+        <ul>
+          <li><strong>Supabase</strong> — PostgreSQL database</li>
+          <li>Supabase Auth — JWT-based authentication</li>
+          <li>Supabase Realtime — live data subscriptions</li>
+          <li>Supabase Storage — staff document uploads</li>
+          <li><strong>Resend</strong> — transactional email delivery</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Tooling</h3>
+        <ul>
+          <li>Wrangler CLI for local Pages dev</li>
+          <li>Supabase CLI for migrations</li>
+          <li>No test suite currently</li>
+          <li>No CI/CD pipeline (manual deploy via <code>git push</code> to Cloudflare Pages)</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 id="request-flow">Request Flow</h2>
+
+    <h3>Public page load</h3>
+    <div class="flow">
+      <div class="flow-step">Browser</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Cloudflare CDN<br><small>Static file</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">HTML + CSS + JS<br><small>Served from edge</small></div>
+    </div>
+
+    <h3>Quote form submission (public)</h3>
+    <div class="flow">
+      <div class="flow-step">User submits form</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Turnstile validation<br><small>Client-side</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">POST /api/submit-quote<br><small>Cloudflare Function</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Validate Turnstile<br><small>Server-side</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step--green">Insert to Supabase<br>+ Send email</div>
+    </div>
+
+    <h3>Dashboard API call (authenticated)</h3>
+    <div class="flow">
+      <div class="flow-step">JS page code</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Get JWT from<br>Supabase session</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">POST /api/endpoint<br>Authorization: Bearer JWT</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Function verifies JWT<br>+ checks role</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step--green">Write to Supabase<br>via service key</div>
+    </div>
+
+    <h3>Dashboard data reads</h3>
+    <p>
+      Dashboard pages read data <strong>directly from Supabase</strong> via the JS client — they don't go through Cloudflare Functions for reads. The Supabase anon key is embedded in <code>supabase-client.js</code>; Row Level Security policies control what each user can see.
+    </p>
+    <div class="flow">
+      <div class="flow-step">JS page code</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">MQ.supabase.from('table')<br><small>.select()</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Supabase REST API<br><small>JWT in header</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step--green">PostgreSQL<br>(RLS applied)</div>
+    </div>
+
+    <div class="info-box info-box--note">
+      <p><strong>Write path always goes through Functions.</strong> Direct client-side writes to sensitive tables are blocked by RLS. All mutations go through <code>/api/*</code> Functions which use the service key (bypasses RLS) after verifying the caller's JWT and role.</p>
+    </div>
+
+    <h2 id="hosting">Hosting &amp; Deployment</h2>
+    <p>
+      The repo is connected to Cloudflare Pages via Git integration. Pushing to <code>main</code> triggers an automatic deploy. There is no staging environment — <code>main</code> is production.
+    </p>
+    <ul>
+      <li><strong>Static assets</strong> are served directly from Cloudflare's CDN edge nodes.</li>
+      <li><strong>Functions</strong> in <code>/functions/api/</code> are deployed as Cloudflare Workers alongside the static site.</li>
+      <li><strong>Reminder Worker</strong> (<code>/reminder-worker/</code>) is a separate Cloudflare Worker deployed independently via <code>wrangler deploy</code> in that directory. It runs on a cron trigger (daily 9pm + every 30 minutes).</li>
+      <li>The <code>_headers</code> file in the root configures Cloudflare response headers (CSP, cache rules, etc.).</li>
+    </ul>
+
+    <h2 id="local-dev">Local Development</h2>
+    <p>
+      The intended local server is <code>wrangler pages dev .</code> which emulates Cloudflare Pages + Functions together. However, the local <code>workerd</code> binary may lag behind the live compatibility date — if you see a <em>"compatibility date not supported"</em> error, update Wrangler:
+    </p>
+    <pre><code>npm install -g wrangler@latest
+wrangler pages dev . --port 8788</code></pre>
+
+    <p>For frontend-only work (no API calls needed), a plain HTTP server works fine:</p>
+    <pre><code>python3 -m http.server 8788</code></pre>
+
+    <div class="info-box info-box--warn">
+      <p><strong>API calls won't work</strong> against the plain HTTP server — they'll 404. Functions only run under Wrangler or on Cloudflare. For API testing, use the production environment or a deployed preview branch.</p>
+    </div>
+
+    <p>The dashboard connects to the <strong>production Supabase instance</strong> even locally — the anon key is hardcoded in <code>supabase-client.js</code>. There is no separate dev database.</p>
+
+    <h2 id="env-vars">Environment Variables</h2>
+    <p>Set in the Cloudflare Pages dashboard under <strong>Settings → Environment Variables</strong>. All are production-only; there is no <code>.env</code> file in the repo.</p>
+
+    <table>
+      <thead><tr><th>Variable</th><th>Required by</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>SUPABASE_URL</code></td><td>All functions</td><td>Full Supabase project URL including <code>https://</code></td></tr>
+        <tr><td><code>SUPABASE_ANON_KEY</code></td><td>All functions</td><td>Anon key for authenticating user JWTs</td></tr>
+        <tr><td><code>SUPABASE_SERVICE_KEY</code></td><td>All functions</td><td>Service role key — bypasses RLS for writes. Keep secret.</td></tr>
+        <tr><td><code>RESEND_API_KEY</code></td><td>Email-sending functions</td><td>API key for Resend transactional email service</td></tr>
+        <tr><td><code>TURNSTILE_SECRET</code></td><td><code>submit-quote.js</code></td><td>Server-side Turnstile verification secret</td></tr>
+        <tr><td><code>CRON_SECRET</code></td><td><code>send-reminders.js</code>, <code>check-open-shifts.js</code></td><td>Shared secret passed as <code>?secret=</code> query param to protect cron endpoints</td></tr>
+        <tr><td><code>ADMIN_EMAIL</code></td><td><code>check-open-shifts.js</code></td><td>Email address to receive urgent open-shift alerts</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="versioning">Cache Busting &amp; Versioning</h2>
+    <p>
+      There is no asset fingerprinting. Instead, cache-busting is done by updating <code>?v=YYYYMMDD</code>
+      query strings on <code>&lt;link&gt;</code> and <code>&lt;script&gt;</code> tags whenever a file changes.
+    </p>
+    <pre><code>&lt;link rel="stylesheet" href="css/dashboard.css?v=20260814"&gt;
+&lt;script src="js/auth.js?v=20260809" defer&gt;&lt;/script&gt;</code></pre>
+    <p>
+      When editing a shared file (e.g. <code>style.css</code>, <code>auth.js</code>), bump the version suffix
+      on every page that loads that file. The <code>version.txt</code> file in the root is a human-readable record of the last deploy version.
+    </p>
+
+    <h2 id="security">Security Model</h2>
+
+    <h3>Authentication</h3>
+    <ul>
+      <li>Supabase Auth issues JWTs on login. JWTs are stored in <code>localStorage</code> (managed by Supabase JS client) and the decoded session is cached in <code>sessionStorage</code> as <code>mq_session</code>.</li>
+      <li>All dashboard pages call <code>auth.js</code> (no <code>defer</code>) which verifies the session before the DOM loads. Unauthenticated users are redirected to <code>login.html</code>.</li>
+      <li>Idle timeout: 30 minutes of inactivity signs the user out.</li>
+    </ul>
+
+    <h3>Authorisation</h3>
+    <ul>
+      <li><strong>Client-side role gating</strong>: <code>data-min-role</code> attributes on HTML elements hide UI that the user's role doesn't permit. This is a UX convenience only — not a security boundary.</li>
+      <li><strong>Server-side role checks</strong>: Every Cloudflare Function independently verifies the caller's JWT, fetches their role from Supabase, and rejects requests below the required level. This is the actual security enforcement.</li>
+      <li>Supabase RLS policies prevent direct client-side reads of sensitive data by lower-privilege users.</li>
+    </ul>
+
+    <h3>Secrets</h3>
+    <ul>
+      <li>The Supabase <strong>anon key</strong> is intentionally public — it's embedded in <code>supabase-client.js</code>. Security relies on RLS, not key secrecy.</li>
+      <li>The Supabase <strong>service key</strong> is secret and lives only in Cloudflare's encrypted environment variables. It is never exposed to the browser.</li>
+    </ul>
+
+    <h3>CORS</h3>
+    <p>
+      All API functions set <code>Access-Control-Allow-Origin: https://myquest.au</code> — only requests from the production domain are accepted. The <code>OPTIONS</code> preflight handler is implemented on each function.
+    </p>
+
+    <h3>Spam protection</h3>
+    <ul>
+      <li>The public quote form uses <strong>Cloudflare Turnstile</strong> (sitekey embedded in HTML, secret verified server-side in <code>submit-quote.js</code>).</li>
+      <li>The login form also uses Turnstile.</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

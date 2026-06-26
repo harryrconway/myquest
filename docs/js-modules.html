@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS Modules — MyQuest Wiki</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar__logo">
+    <a href="index.html">
+      <div class="sidebar__logo-mark">M</div>
+      <div>
+        <div class="sidebar__logo-text">MyQuest</div>
+        <div class="sidebar__logo-sub">Developer Wiki</div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Overview</div>
+    <a href="index.html">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="database.html">Database Schema</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Public Site</div>
+    <a href="public-site.html">Public Pages</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Dashboard</div>
+    <a href="dashboard-overview.html">Overview &amp; Auth</a>
+    <a href="dashboard-pages.html">All Pages</a>
+    <a href="js-modules.html" class="active">JS Modules</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Backend</div>
+    <a href="api-functions.html">API Functions</a>
+    <a href="emails.html">Emails &amp; Cron</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar__breadcrumb">
+      <a href="index.html">Wiki</a>
+      <span class="sep">›</span>
+      <span class="topbar__title">JS Modules</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1>JS Modules</h1>
+    <p class="page-intro">
+      Reference for the four shared JavaScript modules loaded on every dashboard page.
+      All are plain IIFE-wrapped scripts that attach to <code>window.MQ</code>.
+      No module system, no bundler.
+    </p>
+
+    <div class="toc">
+      <div class="toc__title">On this page</div>
+      <ol>
+        <li><a href="#supabase-client">supabase-client.js</a></li>
+        <li><a href="#store">store.js</a></li>
+        <li><a href="#auth">auth.js</a></li>
+        <li><a href="#ui">ui.js</a></li>
+        <li><a href="#global-helpers">Global helpers</a></li>
+        <li><a href="#page-js-pattern">Page JS pattern</a></li>
+      </ol>
+    </div>
+
+    <!-- ── SUPABASE CLIENT ─────────────────────────── -->
+    <h2 id="supabase-client">supabase-client.js</h2>
+    <p>Initialises the shared Supabase client and attaches it to <code>window.MQ.supabase</code>.</p>
+
+    <h3>What it does</h3>
+    <pre><code>MQ.supabase = window.supabase.createClient(
+  'https://mxgvkzyifphucndovypt.supabase.co',
+  '&lt;anon key&gt;',
+  {
+    auth: {
+      persistSession: true,    // Auth token stored in localStorage
+      autoRefreshToken: true,  // Refreshes JWT before expiry
+      detectSessionInUrl: true // Handles invite/reset tokens in URL
+    }
+  }
+)</code></pre>
+
+    <h3>Notes</h3>
+    <ul>
+      <li>The anon key is intentionally embedded — it's public. Security relies on RLS policies.</li>
+      <li><code>detectSessionInUrl: true</code> is needed for the <code>set-password.html</code> invite/reset flow.</li>
+      <li>Loaded before <code>store.js</code> and <code>auth.js</code> — no defer.</li>
+    </ul>
+
+    <!-- ── STORE ──────────────────────────────────── -->
+    <h2 id="store">store.js</h2>
+    <p>
+      A simple in-memory data cache. Acts as a synchronous source for data that was fetched during auth initialisation, so page scripts don't need to refetch common data.
+    </p>
+    <p>Exposes <code>MQ.store</code> with four entity stores:</p>
+
+    <table>
+      <thead><tr><th>Store</th><th>Contains</th><th>Populated by</th></tr></thead>
+      <tbody>
+        <tr><td><code>MQ.store.staff</code></td><td>All staff profiles (id, name, email, role, colour, mobile, availability, active)</td><td><code>auth.js</code> on every page load</td></tr>
+        <tr><td><code>MQ.store.accounts</code></td><td>Account records (id, name, email, role, status)</td><td><code>auth.js</code> on every page load</td></tr>
+        <tr><td><code>MQ.store.rates</code></td><td>Company rates object (residential + commercial rates + extras + checklist template)</td><td><code>auth.js</code> on every page load</td></tr>
+        <tr><td><code>MQ.store.clients</code></td><td>Client records (populated by clients.js only)</td><td><code>clients.js</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Entity API</h3>
+    <p>Each store has the same interface:</p>
+    <pre><code>MQ.store.staff.getAll()        // Returns array of all records
+MQ.store.staff.getById(id)     // Returns single record or null
+MQ.store.staff.save(obj)       // Upsert — updates if id exists, inserts if new
+MQ.store.staff.delete(id)      // Removes from in-memory array</code></pre>
+
+    <h3>Special: <code>MQ.store.rates</code></h3>
+    <p>
+      Unlike the others, rates is a single-object store (not an array). It uses <code>get()</code> and <code>save(obj)</code>:
+    </p>
+    <pre><code>var rates = MQ.store.rates.get();  // Returns the full rates object
+MQ.store.rates.save({ ...rates, bedroomBase: 50 });  // Merges updates</code></pre>
+
+    <h3>Important: store is page-session only</h3>
+    <p>
+      The store resets on every full page navigation. It's not a persistent cache — it only prevents redundant fetches within a single page session. Staff/rates data loaded by <code>auth.js</code> is available immediately inside <code>mq:ready</code> handlers without additional fetches.
+    </p>
+
+    <!-- ── AUTH ──────────────────────────────────── -->
+    <h2 id="auth">auth.js</h2>
+    <p>
+      See <a href="dashboard-overview.html#auth-flow">Dashboard Overview → Auth Flow</a> for the full auth walkthrough.
+      This section covers the public API exposed on <code>window.MQ</code>.
+    </p>
+
+    <h3>Public API</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>MQ.session</code></td>
+          <td>Object</td>
+          <td><code>{ id, email, name, role, loginTime, lastActivity }</code>. Set synchronously on fast path (from cache), asynchronously on slow path. May be <code>null</code> before <code>mq:ready</code> fires.</td>
+        </tr>
+        <tr>
+          <td><code>MQ.hasRole(minRole)</code></td>
+          <td>Function → Boolean</td>
+          <td>Returns <code>true</code> if current user's role level ≥ the required level. E.g. <code>MQ.hasRole('manager')</code> is true for manager and owner.</td>
+        </tr>
+        <tr>
+          <td><code>MQ.onReady(fn)</code></td>
+          <td>Function</td>
+          <td>Calls <code>fn</code> immediately if auth is already complete, or queues it to be called when <code>mq:ready</code> fires. Preferred over <code>addEventListener('mq:ready', fn)</code> for imperative code.</td>
+        </tr>
+        <tr>
+          <td><code>MQ.messageOfWeek</code></td>
+          <td>String</td>
+          <td>The current "message of the week" text from <code>company_settings</code>. Empty string if none set.</td>
+        </tr>
+        <tr>
+          <td><code>MQ._ready</code></td>
+          <td>Boolean</td>
+          <td>Internal flag — <code>true</code> after <code>mq:ready</code> has fired. Do not depend on this directly; use <code>MQ.onReady()</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Events dispatched</h3>
+    <table>
+      <thead><tr><th>Event</th><th>When</th></tr></thead>
+      <tbody>
+        <tr><td><code>mq:ready</code></td><td>Auth complete, session established, store populated. Safe to read all MQ.* properties.</td></tr>
+        <tr><td><code>mq:pageshow</code></td><td>bfcache restoration (browser back/forward). Page scripts should reload their data.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── UI ────────────────────────────────────── -->
+    <h2 id="ui">ui.js</h2>
+    <p>
+      Shared UI utilities. Loaded with <code>defer</code> — available after DOM is parsed.
+      All utilities live on <code>MQ.ui</code>.
+    </p>
+
+    <h3>MQ.ui.modal</h3>
+    <pre><code>MQ.ui.modal.open('modal-id')   // Opens modal, locks scroll, traps focus
+MQ.ui.modal.close('modal-id')  // Closes modal, restores scroll
+MQ.ui.modal.closeAll()         // Closes all open modals</code></pre>
+    <p>
+      Modals are standard <code>.modal-overlay</code> elements in the DOM. Opening adds <code>.is-open</code>
+      and removes the <code>hidden</code> attribute. Closing reverses both. ESC key and clicking the overlay
+      backdrop close the modal automatically.
+    </p>
+    <p>
+      HTML shorthand: add <code>data-modal-open="modal-id"</code> to any button to open without JS.
+      Add <code>data-modal-close</code> to close the nearest parent overlay.
+    </p>
+
+    <h3>MQ.ui.toast</h3>
+    <pre><code>MQ.ui.toast('Message text')              // Success toast (3s)
+MQ.ui.toast('Something went wrong', 'error')  // Error toast (3s)
+MQ.ui.toast('Saved', 'success', {         // Toast with link (6s)
+  href: 'scheduled-jobs.html',
+  label: 'View jobs'
+})</code></pre>
+    <p>Toasts appear in a fixed <code>#toast-container</code> in the bottom-right. They auto-dismiss after 3s (6s with a link). Types: <code>success</code>, <code>error</code>, <code>info</code>.</p>
+
+    <h3>MQ.ui.saving / MQ.ui.saved</h3>
+    <p>A "Saving… / Saved ✓" overlay for form submissions. Shows for at least 1 second.</p>
+    <pre><code>MQ.ui.saving();          // Shows "Saving…" overlay
+await doSomeApiCall();
+MQ.ui.saved();           // Transitions to "Saved ✓" then hides after 800ms</code></pre>
+
+    <h3>MQ.ui.confirmDelete</h3>
+    <pre><code>MQ.ui.confirmDelete('Are you sure? This cannot be undone.', function () {
+  // Called only if user clicks OK
+  doDelete();
+});</code></pre>
+    <p>Uses native <code>window.confirm()</code>. The message parameter is optional.</p>
+
+    <h3>MQ.ui formatters</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Input</th><th>Output example</th></tr></thead>
+      <tbody>
+        <tr><td><code>MQ.ui.formatDate(iso)</code></td><td><code>"2026-06-25"</code></td><td><code>"25 Jun 2026"</code></td></tr>
+        <tr><td><code>MQ.ui.formatTime(time24)</code></td><td><code>"09:30"</code></td><td><code>"9:30 am"</code></td></tr>
+        <tr><td><code>MQ.ui.formatCurrency(n)</code></td><td><code>150</code></td><td><code>"$150"</code></td></tr>
+        <tr><td><code>MQ.ui.statusBadge(status)</code></td><td><code>"scheduled"</code></td><td><code>'&lt;span class="badge badge--blue"&gt;Scheduled&lt;/span&gt;'</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>MQ.ui.statusBadge — colour map</h3>
+    <table>
+      <thead><tr><th>Status</th><th>Badge colour</th></tr></thead>
+      <tbody>
+        <tr><td>scheduled, sent</td><td><span class="badge badge--blue">Blue</span></td></tr>
+        <tr><td>in-progress</td><td><span class="badge badge--amber">Amber</span></td></tr>
+        <tr><td>completed, accepted, ok, pass, resolved</td><td><span class="badge badge--green">Green</span></td></tr>
+        <tr><td>cancelled, draft</td><td><span class="badge badge--grey">Grey</span></td></tr>
+        <tr><td>declined, needs-revisit</td><td><span class="badge badge--red">Red</span></td></tr>
+        <tr><td>low, pending</td><td><span class="badge badge--yellow">Yellow</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>MQ.ui.initTabs</h3>
+    <pre><code>MQ.ui.initTabs()               // Init all .dash-tabs on the page
+MQ.ui.initTabs(containerEl)    // Init only within a specific container</code></pre>
+    <p>Tab buttons have <code>data-tab="panel-id"</code>. The corresponding <code>.dash-tab-panel</code> with that id gets <code>.is-active</code>. Called automatically on DOMContentLoaded.</p>
+
+    <h3>MQ.ui.initStarRating</h3>
+    <pre><code>var rating = MQ.ui.initStarRating(containerEl, function (val) {
+  console.log('Rating changed to', val);
+});
+rating.getValue()   // Returns current value (1-5)
+rating.setValue(3)  // Sets value programmatically</code></pre>
+
+    <h3>DOM helpers</h3>
+    <pre><code>MQ.ui.el('div', 'my-class', '&lt;span&gt;inner html&lt;/span&gt;')  // Creates element
+MQ.ui.emptyState(iconPath, 'No items', 'Add one to get started')  // Returns HTML string</code></pre>
+
+    <!-- ── GLOBAL HELPERS ────────────────────────── -->
+    <h2 id="global-helpers">Global helpers</h2>
+
+    <h3>escHtml</h3>
+    <p>
+      Defined on <code>window.escHtml</code> in <code>ui.js</code> (and defensively re-defined as a local var inside each page IIFE). Escapes HTML entities to prevent XSS when rendering user-provided data into innerHTML.
+    </p>
+    <pre><code>escHtml('&lt;script&gt;alert(1)&lt;/script&gt;')
+// → '&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;'</code></pre>
+    <div class="info-box info-box--caution">
+      <p><strong>Always use <code>escHtml()</code></strong> when inserting user-provided strings (names, addresses, notes) into <code>innerHTML</code>. Never insert raw data directly.</p>
+    </div>
+
+    <!-- ── PAGE JS PATTERN ──────────────────────── -->
+    <h2 id="page-js-pattern">Page JS pattern</h2>
+    <p>Every page-specific JS file follows this structure:</p>
+    <pre><code>(function () {
+  'use strict';
+
+  // Defensive local escHtml in case ui.js loads out of order
+  var escHtml = window.escHtml || function (s) {
+    return String(s || '').replace(/&/g, '&amp;amp;').replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;').replace(/"/g, '&amp;quot;');
+  };
+
+  // Module-level state
+  var data = [];
+
+  // ── Data loading ──────────────────────────────────────
+  async function load() {
+    var res = await MQ.supabase.from('quote_requests').select('*').eq('status', 'scheduled');
+    if (res.error) { console.error(res.error); return; }
+    data = res.data || [];
+    render();
+  }
+
+  // ── Rendering ─────────────────────────────────────────
+  function render() {
+    var container = document.getElementById('content');
+    container.innerHTML = data.map(function (job) {
+      return '&lt;div class="job-card"&gt;' + escHtml(job.full_name) + '&lt;/div&gt;';
+    }).join('');
+  }
+
+  // ── API calls ─────────────────────────────────────────
+  async function callApi(path, body) {
+    var sess = await MQ.supabase.auth.getSession();
+    var jwt = sess.data && sess.data.session && sess.data.session.access_token;
+    var res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  }
+
+  // ── Entrypoint ────────────────────────────────────────
+  document.addEventListener('mq:ready', function () {
+    load();
+
+    // Realtime (if needed)
+    MQ.supabase
+      .channel('my-page-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' },
+        function () { load(); })
+      .subscribe();
+  });
+
+  // Handle bfcache restore
+  document.addEventListener('mq:pageshow', function () { load(); });
+
+})();</code></pre>
+  </div>
+</div>
+
+</body>
+</html>

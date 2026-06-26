@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Schema — MyQuest Wiki</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar__logo">
+    <a href="index.html">
+      <div class="sidebar__logo-mark">M</div>
+      <div>
+        <div class="sidebar__logo-text">MyQuest</div>
+        <div class="sidebar__logo-sub">Developer Wiki</div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Overview</div>
+    <a href="index.html">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="database.html" class="active">Database Schema</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Public Site</div>
+    <a href="public-site.html">Public Pages</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Dashboard</div>
+    <a href="dashboard-overview.html">Overview &amp; Auth</a>
+    <a href="dashboard-pages.html">All Pages</a>
+    <a href="js-modules.html">JS Modules</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Backend</div>
+    <a href="api-functions.html">API Functions</a>
+    <a href="emails.html">Emails &amp; Cron</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar__breadcrumb">
+      <a href="index.html">Wiki</a>
+      <span class="sep">›</span>
+      <span class="topbar__title">Database Schema</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1>Database Schema</h1>
+    <p class="page-intro">
+      MyQuest uses Supabase (PostgreSQL) for all persistent data. This page documents every table,
+      its columns, and the Row Level Security policies. Schema changes are tracked as SQL migration
+      files in <code>/supabase/migrations/</code>.
+    </p>
+
+    <div class="toc">
+      <div class="toc__title">On this page</div>
+      <ol>
+        <li><a href="#quote-requests">quote_requests</a></li>
+        <li><a href="#profiles">profiles</a></li>
+        <li><a href="#clients">clients</a></li>
+        <li><a href="#company-settings">company_settings</a></li>
+        <li><a href="#storage">Storage: staff-documents</a></li>
+        <li><a href="#migrations">Migrations Log</a></li>
+        <li><a href="#rls">Row Level Security Summary</a></li>
+      </ol>
+    </div>
+
+    <div class="info-box info-box--note">
+      <p><strong>Source of truth:</strong> The SQL migration files in <code>/supabase/migrations/</code> define the schema. Some columns were added directly in the Supabase dashboard and recorded in migrations retroactively with <code>IF NOT EXISTS</code> guards.</p>
+    </div>
+
+    <h2 id="quote-requests">quote_requests</h2>
+    <p>
+      The central table for the entire job workflow. Every inbound quote becomes a row here and progresses through statuses until completion. Also used for recurrence tracking and open-shift coverage.
+    </p>
+
+    <h4>Identity &amp; contact</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID</td><td>Primary key, auto-generated</td></tr>
+        <tr><td><code>full_name</code></td><td>TEXT</td><td>Customer name (from quote form)</td></tr>
+        <tr><td><code>phone</code></td><td>TEXT</td><td>Customer phone</td></tr>
+        <tr><td><code>email</code></td><td>TEXT</td><td>Customer email — used for confirmation + reminder emails</td></tr>
+        <tr><td><code>suburb</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>street_address</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>state</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>postcode</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>notes</code></td><td>TEXT</td><td>Customer-submitted notes from quote form</td></tr>
+        <tr><td><code>internal_notes</code></td><td>TEXT</td><td>Manager-only notes added on accept</td></tr>
+        <tr><td><code>client_id</code></td><td>UUID</td><td>FK to <code>clients.id</code> — nullable; set when manager links job to a client record</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Property details</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>property_type</code></td><td>TEXT</td><td>e.g. "house", "apartment", "commercial"</td></tr>
+        <tr><td><code>bedrooms</code></td><td>INTEGER</td><td></td></tr>
+        <tr><td><code>bathrooms</code></td><td>INTEGER</td><td></td></tr>
+        <tr><td><code>living_areas</code></td><td>INTEGER</td><td></td></tr>
+        <tr><td><code>floor_area_sqm</code></td><td>NUMERIC</td><td>For commercial jobs</td></tr>
+        <tr><td><code>services</code></td><td>TEXT[]</td><td>Array of service types requested</td></tr>
+        <tr><td><code>service_type</code></td><td>TEXT</td><td>e.g. "General Clean", "Deep Clean"</td></tr>
+        <tr><td><code>frequency</code></td><td>TEXT</td><td>e.g. "weekly", "fortnightly", "one-off"</td></tr>
+        <tr><td><code>condition</code></td><td>TEXT</td><td>Property condition descriptor</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Status &amp; scheduling</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>status</code></td><td>TEXT</td><td><code>unscheduled</code> | <code>scheduled</code> | <code>completed</code> | <code>archived</code></td></tr>
+        <tr><td><code>scheduled_date</code></td><td>DATE</td><td>ISO date string e.g. "2026-07-01"</td></tr>
+        <tr><td><code>scheduled_time</code></td><td>TEXT</td><td>24h time string e.g. "09:00"</td></tr>
+        <tr><td><code>job_accepted_at</code></td><td>TIMESTAMPTZ</td><td>When manager scheduled the job</td></tr>
+        <tr><td><code>job_completed_at</code></td><td>TIMESTAMPTZ</td><td>When staff marked complete</td></tr>
+        <tr><td><code>invoice_reference</code></td><td>TEXT</td><td>Optional invoice number added by owner</td></tr>
+        <tr><td><code>invoice_sent_at</code></td><td>TIMESTAMPTZ</td><td>When invoice was marked sent</td></tr>
+        <tr><td><code>schedule_reminder_sent_at</code></td><td>TIMESTAMPTZ</td><td>Prevents duplicate reminder emails</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Staff assignment</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>assigned_staff_ids</code></td><td>UUID[]</td><td>Array of profile IDs assigned to this job</td></tr>
+        <tr><td><code>assigned_staff_name</code></td><td>TEXT</td><td>Comma-separated display names (denormalised for email templates)</td></tr>
+        <tr><td><code>assigned_staff_colour</code></td><td>TEXT</td><td>Primary colour of first assigned staff member (for calendar display)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Checklist</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>checklist</code></td><td>JSONB</td><td>Array of <code>{ id: string, text: string, done: boolean }</code>. Copied from company checklist template on job acceptance; staff tick off during the job.</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Recurrence</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>recurrence</code></td><td>TEXT</td><td><code>none</code> | <code>weekly</code> | <code>fortnightly</code> | <code>monthly</code></td></tr>
+        <tr><td><code>recurrence_parent_id</code></td><td>UUID</td><td>For cloned recurring jobs — points to the original job ID. Used to find the latest instance when cloning the next occurrence.</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Open shift coverage</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>needs_coverage</code></td><td>BOOLEAN</td><td>Set true when assigned staff can't make it</td></tr>
+        <tr><td><code>coverage_requested_by</code></td><td>UUID</td><td>Profile ID of staff who flagged they can't attend</td></tr>
+        <tr><td><code>coverage_requested_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+        <tr><td><code>coverage_claimed_by</code></td><td>UUID</td><td>Profile ID of staff who claimed the shift</td></tr>
+        <tr><td><code>coverage_claimed_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+        <tr><td><code>coverage_alert_sent_at</code></td><td>TIMESTAMPTZ</td><td>Throttles urgent admin alerts — no re-alert within 2 hours</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Timestamps</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>Auto-set on insert</td></tr>
+        <tr><td><code>updated_at</code></td><td>TIMESTAMPTZ</td><td>Updated by functions on each mutation</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="profiles">profiles</h2>
+    <p>
+      Linked 1:1 to <code>auth.users</code> — the Supabase auth table. Contains all staff member
+      information beyond what Supabase stores natively. Realtime is enabled on this table
+      (used by the home dashboard's Team Availability widget).
+    </p>
+
+    <h4>Identity</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID</td><td>Primary key — same as <code>auth.users.id</code></td></tr>
+        <tr><td><code>name</code></td><td>TEXT</td><td>Display name</td></tr>
+        <tr><td><code>email</code></td><td>TEXT</td><td>Denormalised from auth.users for quick display</td></tr>
+        <tr><td><code>phone</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>mobile</code></td><td>TEXT</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Role &amp; status</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>role</code></td><td>TEXT</td><td><code>owner</code> | <code>manager</code> | <code>senior-cleaner</code> | <code>mid-cleaner</code> | <code>junior-cleaner</code> | <code>staff</code></td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td><code>active</code> | <code>invited</code> | <code>suspended</code>. Invited = onboarding not complete; redirected to onboarding.html on login.</td></tr>
+        <tr><td><code>colour</code></td><td>TEXT</td><td>Hex colour for calendar/job cards (e.g. <code>#FFD400</code>)</td></tr>
+        <tr><td><code>cleaning_level</code></td><td>INTEGER</td><td>Skill level integer (1+)</td></tr>
+        <tr><td><code>start_date</code></td><td>DATE</td><td>Employment start date</td></tr>
+        <tr><td><code>availability</code></td><td>JSONB</td><td><code>{ work_preference: 'wants_more' | 'comfortable' | 'full' }</code></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Personal details (collected during onboarding)</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>date_of_birth</code></td><td>DATE</td><td></td></tr>
+        <tr><td><code>address</code></td><td>TEXT</td><td>Street address</td></tr>
+        <tr><td><code>suburb</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>state</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>postcode</code></td><td>TEXT</td><td>4 digits</td></tr>
+        <tr><td><code>residential_address</code></td><td>TEXT</td><td>Full formatted address (concatenated)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Emergency contact</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>emergency_contact_name</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>emergency_contact_number</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>emergency_relation</code></td><td>TEXT</td><td>e.g. "Partner", "Parent"</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Documents &amp; onboarding</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>profile_photo_url</code></td><td>TEXT</td><td>Signed URL to Supabase Storage</td></tr>
+        <tr><td><code>police_check_url</code></td><td>TEXT</td><td>Required onboarding document</td></tr>
+        <tr><td><code>drivers_licence_url</code></td><td>TEXT</td><td>Required onboarding document</td></tr>
+        <tr><td><code>right_to_work_url</code></td><td>TEXT</td><td>Optional onboarding document</td></tr>
+        <tr><td><code>onboarding_complete</code></td><td>BOOLEAN</td><td>Set true after 5-step onboarding + <code>/api/training-complete</code></td></tr>
+        <tr><td><code>employment_agreement_signed_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of checkbox tick in onboarding step 5</td></tr>
+        <tr><td><code>company_policy_signed_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+        <tr><td><code>privacy_policy_signed_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Timestamps</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+        <tr><td><code>updated_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="clients">clients</h2>
+    <p>
+      Separate from <code>quote_requests</code> — managers create client records to group jobs under a customer.
+      Jobs reference clients via <code>quote_requests.client_id</code> (nullable).
+    </p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID</td><td>Primary key</td></tr>
+        <tr><td><code>full_name</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>email</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>phone</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>street_address</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>suburb</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>state</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>postcode</code></td><td>TEXT</td><td></td></tr>
+        <tr><td><code>notes</code></td><td>TEXT</td><td>Internal notes about this client</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+        <tr><td><code>updated_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+      </tbody>
+    </table>
+    <p>
+      The Clients page also calculates derived fields in JS: <code>job_count</code>, <code>last_date</code>, <code>days_since</code>, and <code>needs_follow_up</code> (true if <code>days_since &gt; 60</code>). These are not stored in the database.
+    </p>
+
+    <h2 id="company-settings">company_settings</h2>
+    <p>
+      A simple key-value store for company-wide configuration. All authenticated users can read;
+      only the service role (via <code>/api/save-settings</code>) can write.
+    </p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>key</code></td><td>TEXT</td><td>Primary key</td></tr>
+        <tr><td><code>value</code></td><td>JSONB</td><td>The setting value</td></tr>
+        <tr><td><code>updated_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Known keys</h4>
+    <table>
+      <thead><tr><th>Key</th><th>Value shape</th><th>Used by</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>rates</code></td>
+          <td>Object with residential rates (bedroom base, bathroom base, flat base, hourly rate, staff-per-hours) + commercial rates (base per sqm, hourly) + extras (oven, windows, balcony, garage, fridge, walls)</td>
+          <td>Settings page (edit), quote calculator in unscheduled-jobs</td>
+        </tr>
+        <tr>
+          <td><code>checklist_template</code></td>
+          <td>Array of <code>{ id, text }</code> objects — the default checklist items</td>
+          <td>Copied into <code>quote_requests.checklist</code> (with <code>done: false</code>) when a job is accepted</td>
+        </tr>
+        <tr>
+          <td><code>message_of_week</code></td>
+          <td><code>{ text: "..." }</code></td>
+          <td>Displayed as a banner on the dashboard home page for all staff</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="storage">Storage: staff-documents</h2>
+    <p>
+      A private Supabase Storage bucket used during onboarding to store staff compliance documents.
+    </p>
+    <ul>
+      <li><strong>Bucket name:</strong> <code>staff-documents</code></li>
+      <li><strong>Access:</strong> Private — not publicly accessible</li>
+      <li><strong>Path structure:</strong> <code>{userId}/{filename}.{ext}</code></li>
+      <li><strong>Allowed types:</strong> PDF, JPG, PNG (max 5MB per file)</li>
+      <li><strong>Documents uploaded:</strong> National Police Check (required), Driver's Licence (required), Right to Work (optional)</li>
+      <li><strong>URLs:</strong> Signed URLs generated for 365 days at upload time, stored in <code>profiles.*_url</code> columns</li>
+      <li><strong>Bucket creation:</strong> <code>/api/ensure-storage</code> creates the bucket idempotently before onboarding uploads begin</li>
+      <li><strong>Deletion:</strong> <code>/api/delete-account</code> lists and deletes all files under <code>{userId}/</code> before deleting the auth record</li>
+    </ul>
+
+    <h2 id="migrations">Migrations Log</h2>
+    <p>All migrations are in <code>/supabase/migrations/</code> and are safe to run multiple times.</p>
+    <table>
+      <thead><tr><th>File</th><th>What it adds</th></tr></thead>
+      <tbody>
+        <tr><td><code>20260612_company_settings.sql</code></td><td>Creates <code>company_settings</code> table with RLS</td></tr>
+        <tr><td><code>20260612_staff_colour.sql</code></td><td>Adds <code>colour</code> column to <code>profiles</code></td></tr>
+        <tr><td><code>20260613_staff_onboarding.sql</code></td><td>Adds onboarding fields to <code>profiles</code> (documents, agreements, DOB, address)</td></tr>
+        <tr><td><code>20260614_onboarding_extra.sql</code></td><td>Additional onboarding columns</td></tr>
+        <tr><td><code>20260617_schedule_reminder_sent.sql</code></td><td>Adds <code>schedule_reminder_sent_at</code> to <code>quote_requests</code></td></tr>
+        <tr><td><code>20260618_recurrence_columns.sql</code></td><td>Adds <code>recurrence</code> and <code>recurrence_parent_id</code> to <code>quote_requests</code></td></tr>
+        <tr><td><code>20260622_open_shift_coverage.sql</code></td><td>Adds all <code>coverage_*</code> columns to <code>quote_requests</code></td></tr>
+        <tr><td><code>20260622_profiles_realtime.sql</code></td><td>Enables Supabase Realtime on the <code>profiles</code> table</td></tr>
+        <tr><td><code>20260622_staff_documents_storage_policy.sql</code></td><td>RLS policy for the staff-documents Storage bucket</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="rls">Row Level Security Summary</h2>
+    <table>
+      <thead><tr><th>Table</th><th>SELECT</th><th>INSERT / UPDATE / DELETE</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>quote_requests</code></td>
+          <td>Authenticated users (staff see all scheduled jobs; RLS may restrict certain statuses)</td>
+          <td>Service role only (via Cloudflare Functions)</td>
+        </tr>
+        <tr>
+          <td><code>profiles</code></td>
+          <td>Authenticated users; own row always readable; all rows readable by manager+ (RLS checks role)</td>
+          <td>Service role only (via Cloudflare Functions)</td>
+        </tr>
+        <tr>
+          <td><code>clients</code></td>
+          <td>Authenticated users (manager+)</td>
+          <td>Authenticated users (manager+) for insert/update; service role for delete</td>
+        </tr>
+        <tr>
+          <td><code>company_settings</code></td>
+          <td>All authenticated users (needed so staff can load checklist template)</td>
+          <td>Service role only (via <code>/api/save-settings</code>)</td>
+        </tr>
+        <tr>
+          <td><code>staff-documents</code> bucket</td>
+          <td>Owner of files (authenticated, matching userId path prefix)</td>
+          <td>Authenticated users for upload to own path; service role for delete</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
