@@ -5,6 +5,7 @@
 
   var submitting = false;
   var selectedService = '';
+  var formDirty = false;
   var _savedScrollY = 0;
 
   var SERVICES = ['General Clean', 'Deep Clean', 'Commercial', 'Other'];
@@ -14,6 +15,7 @@
   function openModal() {
     selectedService = '';
     submitting = false;
+    formDirty = false;
 
     var overlay = document.getElementById('quote-modal');
     overlay.hidden = false;
@@ -50,6 +52,14 @@
       }, 280);
     }
 
+  }
+
+  function requestCloseModal() {
+    if (submitting) return;
+    if (formDirty && !window.confirm('Are you sure you want to leave? Your quote details will be lost.')) {
+      return;
+    }
+    closeModal();
   }
 
   /* ─── Submit state ──────────────────────────────────────────────────── */
@@ -107,6 +117,13 @@
         body.querySelectorAll('.qm-svc-pill').forEach(function (b) { b.classList.remove('qm-svc-pill--on'); });
         this.classList.add('qm-svc-pill--on');
         selectedService = this.dataset.value;
+        formDirty = true;
+      });
+    });
+
+    body.querySelectorAll('input, textarea').forEach(function (field) {
+      field.addEventListener('input', function () {
+        formDirty = true;
       });
     });
 
@@ -192,6 +209,7 @@
     .then(function (data) {
       submitting = false;
       if (data._httpOk && data.success) {
+        formDirty = false;
         renderSuccess(email.trim());
       } else {
         resetSubmitBtn(btn);
@@ -273,16 +291,16 @@
     });
 
     document.addEventListener('click', function (e) {
-      if (e.target.id === 'qm-close')    closeModal();
-      if (e.target.id === 'quote-modal') closeModal();
+      if (e.target.id === 'qm-close')    requestCloseModal();
+      if (e.target.id === 'quote-modal') requestCloseModal();
     });
 
     document.addEventListener('keydown', function (e) {
       var overlay = document.getElementById('quote-modal');
       if (!overlay || overlay.hidden) return;
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') requestCloseModal();
     });
   });
 
-  window.QuoteModal = { open: openModal, close: closeModal };
+  window.QuoteModal = { open: openModal, close: requestCloseModal };
 })();
