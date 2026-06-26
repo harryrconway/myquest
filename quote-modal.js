@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  // This key must be authorized for myquest.au and localhost in Cloudflare.
+  // Cloudflare Turnstile site key for the public quote form.
   var TURNSTILE_SITE_KEY = '0x4AAAAAADqM-GWUxyG0P402';
 
   var submitting = false;
@@ -78,11 +78,6 @@
   function renderTurnstile() {
     var container = document.getElementById('qm-turnstile');
     if (!container) return;
-    if (isLocalDev()) {
-      container.innerHTML = '';
-      setSubmitReady(true);
-      return;
-    }
     if (!window.turnstile) {
       setTimeout(renderTurnstile, 300);
       return;
@@ -213,7 +208,7 @@
 
     var tokenInput = document.querySelector('[name="cf-turnstile-response"]');
     var token = tokenInput ? tokenInput.value : '';
-    if (!token && !isLocalDev()) { showError('Please complete the security check.'); return; }
+    if (!token) { showError('Please complete the security check.'); return; }
 
     submitting = true;
     hideError();
@@ -223,7 +218,7 @@
 
     var notes = val('qm-notes');
 
-    fetch(getQuoteEndpoint(), {
+    fetch('/api/submit-quote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -276,19 +271,6 @@
   }
 
   /* ─── Helpers ─────────────────────────────────────────────────────────── */
-
-  function isLocalDev() {
-    var host = window.location.hostname;
-    return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0';
-  }
-
-  function getQuoteEndpoint() {
-    var host = window.location.hostname;
-    if (host === 'myquest.au' || host === 'www.myquest.au') {
-      return 'https://myquest.pages.dev/api/submit-quote';
-    }
-    return '/api/submit-quote';
-  }
 
   function inputField(label, id, type, placeholder, required, autocomplete, maxlength) {
     return '<div class="qm-field">' +
