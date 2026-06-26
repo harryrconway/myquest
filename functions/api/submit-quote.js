@@ -40,21 +40,25 @@ export async function onRequestPost(context) {
   if (body.suburb  && body.suburb.length  > MAX.suburb) return json({ error: 'Suburb is too long.'  }, 400, request);
   if (body.notes   && body.notes.length   > MAX.notes)  return json({ error: 'Notes are too long.'  }, 400, request);
 
-  // Verify Cloudflare Turnstile token
-  const cfToken = body['cf-turnstile-response'];
-  if (!cfToken) return json({ error: 'Please complete the security check.' }, 400, request);
-  if (env.TURNSTILE_SECRET) {
-    const tsRes  = await fetch('https://challenges.cloudflare.com/turnstile/v1/siteverify', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        secret:   env.TURNSTILE_SECRET,
-        response: cfToken,
-        remoteip: request.headers.get('CF-Connecting-IP') || undefined,
-      }),
-    });
-    const tsData = await tsRes.json().catch(() => ({}));
-    if (!tsData.success) return json({ error: 'Security check failed. Please try again.' }, 400, request);
+  // Verify Cloudflare Turnstile token (skipped on localhost for dev)
+  const origin   = request.headers.get('Origin') || '';
+  const localDev = origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1');
+  const cfToken  = body['cf-turnstile-response'];
+  if (!localDev) {
+    if (!cfToken) return json({ error: 'Please complete the security check.' }, 400, request);
+    if (env.TURNSTILE_SECRET) {
+      const tsRes  = await fetch('https://challenges.cloudflare.com/turnstile/v1/siteverify', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          secret:   env.TURNSTILE_SECRET,
+          response: cfToken,
+          remoteip: request.headers.get('CF-Connecting-IP') || undefined,
+        }),
+      });
+      const tsData = await tsRes.json().catch(() => ({}));
+      if (!tsData.success) return json({ error: 'Security check failed. Please try again.' }, 400, request);
+    }
   }
 
   // Insert to Supabase
