@@ -223,7 +223,7 @@
 
     var notes = val('qm-notes');
 
-    fetch('/api/submit-quote', {
+    fetch(getQuoteEndpoint(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -280,6 +280,14 @@
   function isLocalDev() {
     var host = window.location.hostname;
     return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0';
+  }
+
+  function getQuoteEndpoint() {
+    var host = window.location.hostname;
+    if (host === 'myquest.au' || host === 'www.myquest.au') {
+      return 'https://myquest.pages.dev/api/submit-quote';
+    }
+    return '/api/submit-quote';
   }
 
   function inputField(label, id, type, placeholder, required, autocomplete, maxlength) {
