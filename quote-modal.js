@@ -1,14 +1,10 @@
-/* Public site — single-step quote modal with Cloudflare Turnstile */
+/* Public site — single-step quote modal */
 
 (function () {
   'use strict';
 
-  // Cloudflare Turnstile site key for the public quote form.
-  var TURNSTILE_SITE_KEY = '0x4AAAAAADrS9KAqBaLCdRA0';
-
   var submitting = false;
   var selectedService = '';
-  var turnstileWidgetId = null;
   var _savedScrollY = 0;
 
   var SERVICES = ['General Clean', 'Deep Clean', 'Commercial', 'Other'];
@@ -54,54 +50,15 @@
       }, 280);
     }
 
-    resetTurnstile();
   }
 
-  /* ─── Turnstile ─────────────────────────────────────────────────────── */
-
-  function resetTurnstile() {
-    if (turnstileWidgetId !== null && window.turnstile) {
-      try { window.turnstile.remove(turnstileWidgetId); } catch (e) {}
-    }
-    turnstileWidgetId = null;
-    var container = document.getElementById('qm-turnstile');
-    if (container) container.innerHTML = '';
-  }
+  /* ─── Submit state ──────────────────────────────────────────────────── */
 
   function setSubmitReady(ready) {
     var btn = document.getElementById('qm-submit');
     if (!btn) return;
     btn.disabled = !ready;
     btn.style.opacity = ready ? '' : '0.55';
-  }
-
-  function renderTurnstile() {
-    var container = document.getElementById('qm-turnstile');
-    if (!container) return;
-    if (!window.turnstile) {
-      setTimeout(renderTurnstile, 300);
-      return;
-    }
-    resetTurnstile();
-    turnstileWidgetId = window.turnstile.render(container, {
-      sitekey:  TURNSTILE_SITE_KEY,
-      theme:    'light',
-      size:     'flexible',
-      action:   'quote-request',
-      callback: function () {
-        setSubmitReady(true);
-        hideError();
-      },
-      'error-callback': function (code) {
-        if (window.console && console.warn) console.warn('Turnstile error', code);
-        setSubmitReady(false);
-        showError('Security check failed to load. Please disable any ad blocker and try again.');
-      },
-      'expired-callback': function () {
-        setSubmitReady(false);
-        showError('Security check expired — please complete it again.');
-      },
-    });
   }
 
   /* ─── Render ─────────────────────────────────────────────────────────── */
@@ -140,7 +97,6 @@
           '<textarea class="qm-input qm-textarea" id="qm-notes" placeholder="e.g. pets, access details, special requests…" rows="2" maxlength="500"></textarea>' +
           '<p style="font-size:0.78rem;color:rgba(0,0,0,0.45);margin:6px 0 0;line-height:1.5;">As soon as we receive your details we\'ll put together a quote and give you a call.</p>' +
         '</div>' +
-        '<div id="qm-turnstile" class="qm-turnstile-wrap"></div>' +
         '<div id="qm-form-error" class="qm-error" style="display:none"></div>' +
         '<button type="button" class="btn-primary qm-submit-btn" id="qm-submit">Get My Free Quote</button>' +
       '</div>';
@@ -160,8 +116,6 @@
     advanceOnEnter('qm-email', 'qm-suburb');
 
     document.getElementById('qm-submit').addEventListener('click', handleSubmit);
-
-    renderTurnstile();
   }
 
   function renderSuccess(email) {
@@ -206,10 +160,6 @@
     var err = validate(name, phone, email, suburb);
     if (err) { showError(err); return; }
 
-    var tokenInput = document.querySelector('[name="cf-turnstile-response"]');
-    var token = tokenInput ? tokenInput.value : '';
-    if (!token) { showError('Please complete the security check.'); return; }
-
     submitting = true;
     hideError();
 
@@ -228,7 +178,6 @@
         suburb:                  suburb.trim(),
         services:                selectedService ? [selectedService] : [],
         notes:                   notes.trim() || null,
-        'cf-turnstile-response': token,
       }),
     })
     .then(function (res) {
@@ -247,16 +196,12 @@
       } else {
         resetSubmitBtn(btn);
         showError(data.error || 'Something went wrong. Please try again.');
-        resetTurnstile();
-        renderTurnstile();
       }
     })
     .catch(function () {
       submitting = false;
       resetSubmitBtn(btn);
       showError('Network error. Please check your connection and try again.');
-      resetTurnstile();
-      renderTurnstile();
     });
   }
 
