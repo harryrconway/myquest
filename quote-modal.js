@@ -4,7 +4,7 @@
   'use strict';
 
   // Cloudflare Turnstile site key for the public quote form.
-  var TURNSTILE_SITE_KEY = '0x4AAAAAADqM-GWUxyG0P402';
+  var TURNSTILE_SITE_KEY = '0x4AAAAAADrS9KAqBaLCdRA0';
 
   var submitting = false;
   var selectedService = '';
