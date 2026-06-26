@@ -1394,6 +1394,7 @@ textarea.form-input {
   flex-direction: column;
   background: #fff;
   min-width: 0;
+  min-height: 0;
 }
 
 /* ── Header (right panel) ── */
