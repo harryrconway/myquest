@@ -15,8 +15,93 @@
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
   <script src="js/auth.js?v=20260809"></script>
+  <style>
+    .staff-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 14px; border-radius: 10px; cursor: pointer;
+      transition: background .12s; border: 1.5px solid transparent;
+    }
+    .staff-row:hover    { background: #f8fafc; }
+    .staff-row.is-selected { background: #f0f9ff; border-color: #bae6fd; }
+
+    .staff-row__photo {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg,#334155,#1e293b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .staff-row__photo img { width: 100%; height: 100%; object-fit: cover; }
+    .staff-row__info { flex: 1; min-width: 0; }
+    .staff-row__name { font-size: 14px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .staff-row__role { font-size: 11.5px; color: #64748b; margin-top: 2px; text-transform: capitalize; }
+    .staff-row__badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .staff-tick { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .staff-tick--ok { background: #dcfce7; color: #16a34a; }
+    .staff-tick--no { background: #f1f5f9; color: #cbd5e1; }
+
+    .staff-badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; }
+    .staff-badge--suspended { background: #fee2e2; color: #dc2626; }
+    .staff-badge--invited   { background: #fef9c3; color: #92400e; }
+
+    /* Detail panel tabs */
+    .staff-panel-tabs { display: flex; gap: 0; border-bottom: 1px solid #f1f5f9; padding: 0 20px; overflow-x: auto; }
+    .staff-panel-tab {
+      padding: 10px 10px; font-size: 12px; font-weight: 600; color: #94a3b8;
+      background: none; border: none; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      font-family: inherit; transition: color .12s, border-color .12s; white-space: nowrap;
+    }
+    .staff-panel-tab:hover     { color: #475569; }
+    .staff-panel-tab.is-active { color: #0f172a; border-bottom-color: #000; }
+
+    .staff-panel-body { padding: 16px 20px; max-height: calc(100vh - 260px); overflow-y: auto; }
+
+    .sp-field { margin-bottom: 12px; }
+    .sp-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; display: block; }
+    .sp-input {
+      width: 100%; padding: 8px 11px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-family: inherit; font-size: 13px; color: #0f172a;
+      background: #fff; outline: none; transition: border-color .12s;
+    }
+    .sp-input:focus { border-color: #000; }
+    .sp-input[readonly] { background: #f8fafc; color: #64748b; cursor: default; }
+    .sp-input[readonly]:focus { border-color: #e2e8f0; }
+    .sp-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sp-save-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+    .sp-msg-ok  { font-size: 12px; font-weight: 600; color: #059669; }
+    .sp-msg-err { font-size: 12px; font-weight: 600; color: #dc2626; }
+
+    .doc-slot { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; }
+    .doc-slot__info { flex: 1; min-width: 0; }
+    .doc-slot__name   { font-size: 13px; font-weight: 600; color: #0f172a; }
+    .doc-slot__status { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .doc-slot__actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+    .btn-micro {
+      font-size: 11.5px; font-weight: 600; padding: 5px 10px;
+      border-radius: 7px; border: 1.5px solid #e2e8f0; background: #fff;
+      color: #374151; cursor: pointer; font-family: inherit; transition: all .12s; white-space: nowrap;
+    }
+    .btn-micro:hover { border-color: #94a3b8; background: #f8fafc; }
+    .btn-micro--primary { background: #000; color: #fff; border-color: #000; }
+    .btn-micro--primary:hover { background: #333; }
+    .btn-micro--danger { color: #dc2626; border-color: #fecaca; }
+    .btn-micro--danger:hover { background: #fef2f2; }
+
+    .staff-colour-swatches { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
+    .staff-swatch { width: 26px; height: 26px; border-radius: 7px; cursor: pointer; border: 2px solid transparent; transition: transform .12s, border-color .12s; }
+    .staff-swatch:hover { transform: scale(1.15); }
+    .staff-swatch.is-active { border-color: #000; }
+
+    .staff-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; }
+    .staff-empty-state svg { margin-bottom: 12px; opacity: .25; }
+    .staff-empty-state p { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+  </style>
 </head>
-<body class="dash-body" data-page="staff">
+<body class="dash-body" data-page="staff" data-min-role="owner">
 
   <div class="dash-sidebar__backdrop" id="dash-backdrop"></div>
   <div class="dash-mobile-bar">
@@ -28,6 +113,7 @@
     <aside class="dash-sidebar" id="dash-sidebar">
       <div class="dash-sidebar__logo"><a href="index.html"><img src="/myquest-logo-512.png?v=20260622" width="40" height="40" alt="MyQuest"></a></div>
       <nav class="dash-sidebar__nav">
+        <a href="staff.html" data-page="staff" data-min-role="owner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Staff</a>
         <a href="index.html" data-page="dashboard"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</a>
         <a href="calendar.html" data-page="calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="15" r="1" fill="currentColor" stroke="none"/></svg> Calendar</a>
         <a href="my-schedule.html" data-page="my-schedule"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> My Schedule</a>
@@ -42,13 +128,13 @@
         <a href="settings.html" data-page="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</a>
       </nav>
       <div class="dash-sidebar__footer">
-        <div class="dash-sidebar__user">
+        <a href="my-profile.html" class="dash-sidebar__user">
           <div class="dash-sidebar__avatar js-user-avatar">H</div>
           <div class="dash-sidebar__user-info">
             <div class="dash-sidebar__user-name js-user-name">Loading…</div>
             <div class="dash-sidebar__user-role js-user-role">staff</div>
           </div>
-        </div>
+        </a>
         <button class="dash-sidebar__logout js-logout">Sign Out</button>
       </div>
     </aside>
@@ -61,7 +147,7 @@
           </div>
           <div>
             <h1 class="jobs-hero__title">Staff</h1>
-            <p class="jobs-hero__sub">Manage your team members</p>
+            <p class="jobs-hero__sub">Manage your team</p>
           </div>
         </div>
         <div class="jobs-hero__right">
@@ -69,101 +155,75 @@
             <span class="jobs-hero__count" id="staff-count">—</span>
             <div class="jobs-hero__count-label">members</div>
           </div>
-          <button class="btn-outline" id="btn-add-staff" data-min-role="manager">+ Add Member</button>
+          <button class="btn-outline" id="btn-add-staff">+ Add Member</button>
         </div>
       </div>
 
-      <!-- Search bar -->
       <div class="jobs-searchbar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" id="staff-search" class="jobs-search-input" placeholder="Search by name…">
+        <input type="search" id="staff-search" class="jobs-search-input" placeholder="Search by name or role…">
       </div>
 
-      <div class="dash-card">
-        <div id="staff-list" class="staff-list">
-          <!-- Rows rendered by JS -->
+      <div class="clients-layout no-panel" id="staff-layout">
+        <div>
+          <div class="dash-card" style="border-radius:16px;border:1.5px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden;padding:8px;">
+            <div id="staff-list"></div>
+          </div>
+        </div>
+        <div class="client-detail" id="staff-detail" style="display:none;">
+          <div id="staff-detail-inner"></div>
         </div>
       </div>
 
     </div></div>
   </div>
 
-  <!-- Modal: Add Staff (account picker) -->
+  <!-- Modal: Add Staff Member -->
   <div class="modal-overlay" id="modal-add-staff" hidden>
     <div class="modal-card" style="max-width:460px;">
       <div class="modal-header">
         <div>
           <h2 class="modal-title">Add Staff Member</h2>
-          <p style="font-size:13px;color:#94a3b8;font-weight:500;margin-top:3px;">Select an account to add to your team</p>
+          <p style="font-size:13px;color:#94a3b8;font-weight:500;margin-top:3px;">Send an invite to join your team</p>
         </div>
-        <button class="modal-close" data-modal-close="modal-add-staff" aria-label="Close">
+        <button class="modal-close" id="modal-add-close" aria-label="Close">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div class="modal-body" style="padding:16px 20px 20px;">
-        <div id="staff-account-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="display:grid;gap:14px;">
+          <div>
+            <label class="form-label" for="add-name">Full name <span style="color:#dc2626">*</span></label>
+            <input type="text" id="add-name" class="form-input" placeholder="Jane Smith" maxlength="100">
+          </div>
+          <div>
+            <label class="form-label" for="add-email">Email address <span style="color:#dc2626">*</span></label>
+            <input type="email" id="add-email" class="form-input" placeholder="jane@example.com" maxlength="200">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label class="form-label" for="add-role">Role <span style="color:#dc2626">*</span></label>
+              <select id="add-role" class="form-input">
+                <option value="staff">Staff</option>
+                <option value="junior-cleaner">Junior Cleaner</option>
+                <option value="mid-cleaner">Mid Cleaner</option>
+                <option value="senior-cleaner">Senior Cleaner</option>
+                <option value="manager">Manager</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="add-start">Start date</label>
+              <input type="date" id="add-start" class="form-input">
+            </div>
+          </div>
+          <p id="add-staff-error" style="font-size:13px;color:#dc2626;display:none;padding:10px 12px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;margin:0;"></p>
+          <button id="add-staff-submit" class="btn-primary" style="width:100%;padding:12px;">Send Invitation</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="js/ui.js?v=20260622" defer></script>
-  <script src="js/staff.js?v=20260622" defer></script>
-
-  <!-- Guidelines popout -->
-  <div class="guidelines-popout" id="guidelines-popout" style="display:none;">
-    <div class="guidelines-popout__header">
-      <span class="guidelines-popout__title">How to use MyQuest</span>
-      <button class="guidelines-popout__close" onclick="closeGuidelines()">&times;</button>
-    </div>
-    <div class="guidelines-popout__body">
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">1</span>
-        <div><p class="guidelines-step__title">Add your clients</p><p class="guidelines-step__desc">Go to the Clients page and add each customer — name, phone, email, address.</p></div>
-      </div>
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">2</span>
-        <div><p class="guidelines-step__title">Add their property</p><p class="guidelines-step__desc">On the client's card, click Add Property. Fill in bedrooms, bathrooms, clean type, access notes and alarm code.</p></div>
-      </div>
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">3</span>
-        <div><p class="guidelines-step__title">Create a quote</p><p class="guidelines-step__desc">Click New Quote on the client's card. The calculator uses the property details and your rates from Settings to generate a price.</p></div>
-      </div>
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">4</span>
-        <div><p class="guidelines-step__title">Add your staff</p><p class="guidelines-step__desc">Go to the Staff page and add your team members — name, contact, role, and start date.</p></div>
-      </div>
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">5</span>
-        <div><p class="guidelines-step__title">Build a roster</p><p class="guidelines-step__desc">Go to the Roster page and schedule who is working which days.</p></div>
-      </div>
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">6</span>
-        <div><p class="guidelines-step__title">Add jobs</p><p class="guidelines-step__desc">Once a client confirms, click Add Job on their card. Assign the property, date, time, and which staff member is doing it.</p></div>
-      </div>
-      <div class="guidelines-step">
-        <span class="guidelines-step__num">7</span>
-        <div><p class="guidelines-step__title">Track on the day</p><p class="guidelines-step__desc">The dashboard shows today's jobs at a glance — who's working, what properties, and completion status.</p></div>
-      </div>
-    </div>
-  </div>
-  <script>
-    function toggleGuidelines(e) {
-      e.stopPropagation();
-      var p = document.getElementById('guidelines-popout');
-      p.style.display = p.style.display === 'none' ? 'block' : 'none';
-    }
-    function closeGuidelines() {
-      document.getElementById('guidelines-popout').style.display = 'none';
-    }
-    document.addEventListener('click', function(e) {
-      var p = document.getElementById('guidelines-popout');
-      if (p && p.style.display !== 'none' && !p.contains(e.target)) {
-        p.style.display = 'none';
-      }
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeGuidelines();
-    });
-  </script>
+  <script src="js/staff.js?v=20260627" defer></script>
 
 </body></html>

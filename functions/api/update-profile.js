@@ -25,13 +25,15 @@ export async function onRequestPost(context) {
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
   const {
     userId, role, cleaning_level, status, phone, colour, name, start_date,
-    // Onboarding fields — any authenticated user can update their own profile
-    mobile, date_of_birth, residential_address,
+    // Onboarding / profile fields — any authenticated user can update their own profile
+    mobile, date_of_birth, address, suburb, state: addressState, postcode, residential_address,
     emergency_contact_name, emergency_contact_number, emergency_relation,
     profile_photo_url, police_check_url, drivers_licence_url,
     vehicle_make, vehicle_model, vehicle_registration, right_to_work_url,
     availability, employment_agreement_signed_at, privacy_policy_signed_at,
     company_policy_signed_at, onboarding_complete,
+    // HR fields — owner only
+    hr_notes, employment_agreement_url, employment_agreement_received_at,
   } = body;
   if (!userId) return json({ error: 'userId is required.' }, 400);
 
@@ -53,6 +55,10 @@ export async function onRequestPost(context) {
   // Onboarding fields (self or manager+)
   if (mobile                    !== undefined) updates.mobile                    = textField(mobile, 30);
   if (date_of_birth             !== undefined) updates.date_of_birth             = textField(date_of_birth, 10);
+  if (address                   !== undefined) updates.address                   = textField(address, 100);
+  if (suburb                    !== undefined) updates.suburb                    = textField(suburb, 60);
+  if (addressState              !== undefined) updates.state                     = textField(addressState, 3);
+  if (postcode                  !== undefined) updates.postcode                  = textField(postcode, 4);
   if (residential_address       !== undefined) updates.residential_address       = textField(residential_address, 200);
   if (emergency_contact_name    !== undefined) updates.emergency_contact_name    = textField(emergency_contact_name, 100);
   if (emergency_contact_number  !== undefined) updates.emergency_contact_number  = textField(emergency_contact_number, 30);
@@ -72,6 +78,13 @@ export async function onRequestPost(context) {
     updates.onboarding_complete = Boolean(onboarding_complete);
     // Auto-activate own account when onboarding completes (status update requires service role)
     if (Boolean(onboarding_complete) && isSelf) updates.status = 'active';
+  }
+
+  // Owner-only HR fields
+  if (callerRole === 'owner') {
+    if (hr_notes                        !== undefined) updates.hr_notes                        = textField(hr_notes, 2000);
+    if (employment_agreement_url        !== undefined) updates.employment_agreement_url        = textField(employment_agreement_url, 500);
+    if (employment_agreement_received_at !== undefined) updates.employment_agreement_received_at = employment_agreement_received_at || null;
   }
 
   // Only owners can change role, level, or account status
