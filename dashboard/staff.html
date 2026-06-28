@@ -18,7 +18,7 @@
   <style>
     /* ── HRIS table ─────────────────────────────────────── */
     .hris-wrap {
-      background: #fff;
+      background: #f8fafc;
       border-radius: 20px;
       border: 1.5px solid #e2e8f0;
       box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 32px rgba(0,0,0,.04);
@@ -162,7 +162,7 @@
     .hris-swatch.is-active { border-color:#000; box-shadow:0 0 0 1px #fff inset; }
 
     /* filter pills */
-    .hris-filter-bar { display:flex; gap:6px; flex-wrap:wrap; padding:14px 20px 0; }
+    .hris-filter-bar { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
     .hris-filter-pill {
       padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
       border: 1.5px solid #e2e8f0; background: #fff; color: #64748b;
@@ -241,7 +241,7 @@
             <span class="jobs-hero__count" id="staff-count">—</span>
             <div class="jobs-hero__count-label">members</div>
           </div>
-          <button class="btn-outline" id="btn-add-staff">+ Add Member</button>
+          <button class="btn-outline" id="btn-add-staff">+ Add Staff</button>
         </div>
       </div>
 
@@ -250,14 +250,15 @@
         <input type="search" id="staff-search" class="jobs-search-input" placeholder="Search by name or role…">
       </div>
 
+      <div class="hris-filter-bar">
+        <button class="hris-filter-pill is-active" data-filter="current">Current</button>
+        <button class="hris-filter-pill" data-filter="onboarding">Onboarding</button>
+        <button class="hris-filter-pill" data-filter="active">Active</button>
+        <button class="hris-filter-pill" data-filter="exited">Exited</button>
+        <button class="hris-filter-pill" data-filter="all">All</button>
+      </div>
+
       <div class="hris-wrap">
-        <div class="hris-filter-bar">
-          <button class="hris-filter-pill is-active" data-filter="current">Current</button>
-          <button class="hris-filter-pill" data-filter="onboarding">Onboarding</button>
-          <button class="hris-filter-pill" data-filter="active">Active</button>
-          <button class="hris-filter-pill" data-filter="exited">Exited</button>
-          <button class="hris-filter-pill" data-filter="all">All</button>
-        </div>
         <div class="hris-table-scroll">
           <table class="hris-table">
             <thead>
@@ -283,7 +284,7 @@
   </div>
 
   <!-- Modal: Add Staff Member -->
-  <div class="modal-overlay" id="modal-add-staff" hidden>
+  <div class="modal-overlay" id="modal-add-staff">
     <div class="modal-card" style="max-width:500px;">
       <div class="modal-header">
         <div>
@@ -364,7 +365,7 @@
     .add-colour-swatch.is-active { border-color: #000 !important; box-shadow: 0 0 0 1px #fff inset; }
   </style>
   <script src="js/ui.js?v=20260622" defer></script>
-  <script src="js/staff.js?v=20260628c" defer></script>
+  <script src="js/staff.js?v=20260628e" defer></script>
 
 </body>
 </html>

@@ -40,6 +40,7 @@ export async function onRequestPost(context) {
     'hr_notes', 'employment_agreement_url', 'employment_agreement_received_at',
     'onboarding_complete', 'employment_agreement_signed_at',
     'company_policy_signed_at', 'privacy_policy_signed_at',
+    'invited_at',
   ];
   const selfFields = [
     'id', 'name', 'email', 'phone', 'mobile', 'role', 'status', 'colour',

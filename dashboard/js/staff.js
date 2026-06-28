@@ -54,7 +54,7 @@
     if (!sb) return;
     var result = await sb
       .from('profiles')
-      .select('id,name,email,role,status,colour,phone,mobile,start_date,invited_at,profile_photo_url,police_check_url,employment_agreement_url,drivers_licence_url,right_to_work_url')
+      .select('id,name,email,role,status,colour,phone,mobile,start_date,profile_photo_url,police_check_url,employment_agreement_url,drivers_licence_url,right_to_work_url')
       .neq('role', 'owner')
       .order('name');
     if (result.error) { console.error(result.error); return; }
@@ -192,7 +192,8 @@
     function vField(label, val, isMissing) {
       var empty = !val;
       var style = (empty && isMissing) ? ' style="color:#dc2626;font-style:italic;"' : (empty ? ' style="color:#94a3b8;"' : '');
-      return '<div class="a2-field"><div class="a2-field-label">' + esc(label) + '</div><div class="a2-field-value"' + style + '>' + esc(val || (isMissing ? 'Not provided' : '&mdash;')) + '</div></div>';
+      var display = val ? esc(val) : (isMissing ? 'Not provided' : '—');
+      return '<div class="a2-field"><div class="a2-field-label">' + esc(label) + '</div><div class="a2-field-value"' + style + '>' + display + '</div></div>';
     }
 
     function docActions(url, docType) {
@@ -296,9 +297,9 @@
     var roleOpts   = ['staff','junior-cleaner','mid-cleaner','senior-cleaner','manager'].map(function (r) { return { value: r, label: r.replace(/-/g, ' ') }; });
     var levelOpts  = [1,2,3,4,5].map(function (n) { return { value: n, label: 'Level ' + n }; });
     var statusOpts = [
-      { value: 'onboarding', label: 'Onboarding' },
       { value: 'active',     label: 'Active' },
       { value: 'exited',     label: 'Exited' },
+      { value: 'onboarding', label: 'Onboarding' },
     ];
     var stateOpts  = ['ACT','NSW','NT','QLD','SA','TAS','VIC','WA'];
     var currentColour = p.colour || '#64748b';
@@ -636,12 +637,12 @@
     if (!btn || !modal) return;
 
     btn.addEventListener('click', function () {
-      modal.hidden = false;
+      MQ.ui.modal.open('modal-add-staff');
       var el = document.getElementById('add-name');
       if (el) el.focus();
     });
-    if (closeBtn) closeBtn.addEventListener('click', function () { modal.hidden = true; });
-    modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
+    if (closeBtn) closeBtn.addEventListener('click', function () { MQ.ui.modal.close('modal-add-staff'); });
+    modal.addEventListener('click', function (e) { if (e.target === modal) MQ.ui.modal.close('modal-add-staff'); });
     if (submitBtn) submitBtn.addEventListener('click', submitAddStaff);
 
     // Wire colour swatches in the add modal
@@ -685,7 +686,7 @@
       var data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      document.getElementById('modal-add-staff').hidden = true;
+      MQ.ui.modal.close('modal-add-staff');
       // Clear all fields
       ['add-name', 'add-email', 'add-start', 'add-phone'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
       var roleEl = document.getElementById('add-role');   if (roleEl) roleEl.value = 'staff';
