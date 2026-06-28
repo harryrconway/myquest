@@ -30,16 +30,24 @@ export async function onRequestPost(context) {
   const isOwner = callerRole === 'owner';
   if (!isSelf && !isOwner) return json({ error: 'Insufficient permissions.' }, 403);
 
-  const fields = [
+  // Owners get full HR data; staff only get their own personal/contact fields
+  const ownerFields = [
     'id', 'name', 'email', 'phone', 'mobile', 'role', 'status', 'colour',
     'cleaning_level', 'start_date', 'availability',
-    'date_of_birth', 'address', 'suburb', 'state', 'postcode', 'residential_address',
+    'address', 'suburb', 'state', 'postcode', 'residential_address',
     'emergency_contact_name', 'emergency_contact_number', 'emergency_relation',
     'profile_photo_url', 'police_check_url', 'drivers_licence_url', 'right_to_work_url',
     'hr_notes', 'employment_agreement_url', 'employment_agreement_received_at',
     'onboarding_complete', 'employment_agreement_signed_at',
     'company_policy_signed_at', 'privacy_policy_signed_at',
-  ].join(',');
+  ];
+  const selfFields = [
+    'id', 'name', 'email', 'phone', 'mobile', 'role', 'status', 'colour',
+    'profile_photo_url', 'address', 'suburb', 'state', 'postcode',
+    'emergency_contact_name', 'emergency_contact_number', 'emergency_relation',
+    'onboarding_complete',
+  ];
+  const fields = (isOwner ? ownerFields : selfFields).join(',');
 
   const targetRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${userId}&select=${fields}`, {
     headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },

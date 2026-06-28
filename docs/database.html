@@ -23,6 +23,7 @@
     <a href="index.html">Home</a>
     <a href="architecture.html">Architecture</a>
     <a href="database.html" class="active">Database Schema</a>
+    <a href="security.html">Security &amp; RLS</a>
   </div>
   <div class="sidebar__section">
     <div class="sidebar__section-label">Public Site</div>
@@ -210,16 +211,15 @@
       </tbody>
     </table>
 
-    <h4>Personal details (collected during onboarding)</h4>
+    <h4>Personal details (self-service via My Profile)</h4>
     <table>
       <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td><code>date_of_birth</code></td><td>DATE</td><td></td></tr>
         <tr><td><code>address</code></td><td>TEXT</td><td>Street address</td></tr>
         <tr><td><code>suburb</code></td><td>TEXT</td><td></td></tr>
         <tr><td><code>state</code></td><td>TEXT</td><td></td></tr>
         <tr><td><code>postcode</code></td><td>TEXT</td><td>4 digits</td></tr>
-        <tr><td><code>residential_address</code></td><td>TEXT</td><td>Full formatted address (concatenated)</td></tr>
+        <tr><td><code>residential_address</code></td><td>TEXT</td><td>Full formatted address (concatenated from above fields)</td></tr>
       </tbody>
     </table>
 
@@ -237,14 +237,24 @@
     <table>
       <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td><code>profile_photo_url</code></td><td>TEXT</td><td>Signed URL to Supabase Storage</td></tr>
-        <tr><td><code>police_check_url</code></td><td>TEXT</td><td>Required onboarding document</td></tr>
-        <tr><td><code>drivers_licence_url</code></td><td>TEXT</td><td>Required onboarding document</td></tr>
-        <tr><td><code>right_to_work_url</code></td><td>TEXT</td><td>Optional onboarding document</td></tr>
-        <tr><td><code>onboarding_complete</code></td><td>BOOLEAN</td><td>Set true after 5-step onboarding + <code>/api/training-complete</code></td></tr>
-        <tr><td><code>employment_agreement_signed_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of checkbox tick in onboarding step 5</td></tr>
-        <tr><td><code>company_policy_signed_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
-        <tr><td><code>privacy_policy_signed_at</code></td><td>TIMESTAMPTZ</td><td></td></tr>
+        <tr><td><code>profile_photo_url</code></td><td>TEXT</td><td>Signed URL — staff can upload/replace their own photo</td></tr>
+        <tr><td><code>police_check_url</code></td><td>TEXT</td><td>Admin-upload only (owner via HRIS)</td></tr>
+        <tr><td><code>drivers_licence_url</code></td><td>TEXT</td><td>Admin-upload only (owner via HRIS)</td></tr>
+        <tr><td><code>right_to_work_url</code></td><td>TEXT</td><td>Admin-upload only (owner via HRIS)</td></tr>
+        <tr><td><code>onboarding_complete</code></td><td>BOOLEAN</td><td>Set true when staff completes the onboarding wizard. Auto-sets <code>status='active'</code>.</td></tr>
+        <tr><td><code>employment_agreement_signed_at</code></td><td>TIMESTAMPTZ</td><td>Timestamp of checkbox tick in onboarding step 4</td></tr>
+        <tr><td><code>company_policy_signed_at</code></td><td>TIMESTAMPTZ</td><td>Onboarding step 4</td></tr>
+        <tr><td><code>privacy_policy_signed_at</code></td><td>TIMESTAMPTZ</td><td>Onboarding step 4</td></tr>
+      </tbody>
+    </table>
+
+    <h4>HR fields (owner-only, never exposed to staff)</h4>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>hr_notes</code></td><td>TEXT</td><td>Internal admin notes. Only returned by <code>/api/get-staff-profile</code> when caller is owner.</td></tr>
+        <tr><td><code>employment_agreement_url</code></td><td>TEXT</td><td>Signed URL to uploaded employment contract (admin-upload only)</td></tr>
+        <tr><td><code>employment_agreement_received_at</code></td><td>TIMESTAMPTZ</td><td>Set automatically when contract is uploaded</td></tr>
       </tbody>
     </table>
 
@@ -320,33 +330,37 @@
 
     <h2 id="storage">Storage: staff-documents</h2>
     <p>
-      A private Supabase Storage bucket used during onboarding to store staff compliance documents.
+      A private Supabase Storage bucket for staff profile photos and compliance documents.
     </p>
     <ul>
       <li><strong>Bucket name:</strong> <code>staff-documents</code></li>
       <li><strong>Access:</strong> Private — not publicly accessible</li>
-      <li><strong>Path structure:</strong> <code>{userId}/{filename}.{ext}</code></li>
-      <li><strong>Allowed types:</strong> PDF, JPG, PNG (max 5MB per file)</li>
-      <li><strong>Documents uploaded:</strong> National Police Check (required), Driver's Licence (required), Right to Work (optional)</li>
+      <li><strong>Path structure:</strong> <code>{userId}/{docType}</code> — no file extension, so replacing a document always overwrites the same key with no orphaned files</li>
+      <li><strong>Profile photos:</strong> <code>{userId}/profile-photo.{ext}</code> — staff can upload/replace their own photo</li>
+      <li><strong>Compliance documents:</strong> Police check, driver licence, right to work, employment contract — admin-upload only via HRIS page. Staff cannot view or upload these.</li>
+      <li><strong>Allowed types:</strong> PDF, JPG, PNG (max 20 MB for compliance docs; 5 MB for photos)</li>
       <li><strong>URLs:</strong> Signed URLs generated for 365 days at upload time, stored in <code>profiles.*_url</code> columns</li>
-      <li><strong>Bucket creation:</strong> <code>/api/ensure-storage</code> creates the bucket idempotently before onboarding uploads begin</li>
+      <li><strong>Bucket creation:</strong> <code>/api/ensure-storage</code> creates the bucket idempotently before any upload</li>
       <li><strong>Deletion:</strong> <code>/api/delete-account</code> lists and deletes all files under <code>{userId}/</code> before deleting the auth record</li>
     </ul>
 
     <h2 id="migrations">Migrations Log</h2>
-    <p>All migrations are in <code>/supabase/migrations/</code> and are safe to run multiple times.</p>
+    <p>All migrations are in <code>/supabase/migrations/</code> and are safe to run multiple times (all use <code>IF NOT EXISTS</code> guards).</p>
     <table>
       <thead><tr><th>File</th><th>What it adds</th></tr></thead>
       <tbody>
         <tr><td><code>20260612_company_settings.sql</code></td><td>Creates <code>company_settings</code> table with RLS</td></tr>
         <tr><td><code>20260612_staff_colour.sql</code></td><td>Adds <code>colour</code> column to <code>profiles</code></td></tr>
-        <tr><td><code>20260613_staff_onboarding.sql</code></td><td>Adds onboarding fields to <code>profiles</code> (documents, agreements, DOB, address)</td></tr>
-        <tr><td><code>20260614_onboarding_extra.sql</code></td><td>Additional onboarding columns</td></tr>
+        <tr><td><code>20260613_staff_onboarding.sql</code></td><td>Adds onboarding fields to <code>profiles</code>: mobile, residential_address, emergency contact, profile photo, document URLs, agreement timestamps, onboarding_complete</td></tr>
+        <tr><td><code>20260614_onboarding_extra.sql</code></td><td>Adds <code>date_of_birth</code> and <code>emergency_relation</code> to <code>profiles</code> (date_of_birth is no longer collected but column retained)</td></tr>
         <tr><td><code>20260617_schedule_reminder_sent.sql</code></td><td>Adds <code>schedule_reminder_sent_at</code> to <code>quote_requests</code></td></tr>
         <tr><td><code>20260618_recurrence_columns.sql</code></td><td>Adds <code>recurrence</code> and <code>recurrence_parent_id</code> to <code>quote_requests</code></td></tr>
         <tr><td><code>20260622_open_shift_coverage.sql</code></td><td>Adds all <code>coverage_*</code> columns to <code>quote_requests</code></td></tr>
         <tr><td><code>20260622_profiles_realtime.sql</code></td><td>Enables Supabase Realtime on the <code>profiles</code> table</td></tr>
-        <tr><td><code>20260622_staff_documents_storage_policy.sql</code></td><td>RLS policy for the staff-documents Storage bucket</td></tr>
+        <tr><td><code>20260622_staff_documents_storage_policy.sql</code></td><td>RLS policies for the <code>staff-documents</code> Storage bucket (includes UPDATE policy for replacing files)</td></tr>
+        <tr><td><code>20260625_input_length_constraints.sql</code></td><td>Input length validation constraints</td></tr>
+        <tr><td><code>20260627_staff_hr_fields.sql</code></td><td>Adds HR-only fields to <code>profiles</code>: <code>hr_notes</code>, <code>employment_agreement_url</code>, <code>employment_agreement_received_at</code></td></tr>
+        <tr><td><code>20260628_profiles_hris_columns.sql</code></td><td>Adds individual address columns and cleaning level to <code>profiles</code>: <code>phone</code>, <code>address</code>, <code>suburb</code>, <code>state</code>, <code>postcode</code>, <code>cleaning_level</code></td></tr>
       </tbody>
     </table>
 

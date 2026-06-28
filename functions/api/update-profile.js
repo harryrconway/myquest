@@ -64,8 +64,6 @@ export async function onRequestPost(context) {
   if (emergency_contact_number  !== undefined) updates.emergency_contact_number  = textField(emergency_contact_number, 30);
   if (emergency_relation        !== undefined) updates.emergency_relation        = textField(emergency_relation, 50);
   if (profile_photo_url         !== undefined) updates.profile_photo_url         = textField(profile_photo_url, 500);
-  if (police_check_url          !== undefined) updates.police_check_url          = textField(police_check_url, 500);
-  if (drivers_licence_url       !== undefined) updates.drivers_licence_url       = textField(drivers_licence_url, 500);
   if (vehicle_make              !== undefined) updates.vehicle_make              = textField(vehicle_make, 50);
   if (vehicle_model             !== undefined) updates.vehicle_model             = textField(vehicle_model, 50);
   if (vehicle_registration      !== undefined) updates.vehicle_registration      = textField(vehicle_registration, 20);
@@ -80,11 +78,14 @@ export async function onRequestPost(context) {
     if (Boolean(onboarding_complete) && isSelf) updates.status = 'active';
   }
 
-  // Owner-only HR fields
+  // Owner-only fields — HR data and compliance documents
   if (callerRole === 'owner') {
-    if (hr_notes                        !== undefined) updates.hr_notes                        = textField(hr_notes, 2000);
-    if (employment_agreement_url        !== undefined) updates.employment_agreement_url        = textField(employment_agreement_url, 500);
+    if (hr_notes                         !== undefined) updates.hr_notes                         = textField(hr_notes, 2000);
+    if (employment_agreement_url         !== undefined) updates.employment_agreement_url         = textField(employment_agreement_url, 500);
     if (employment_agreement_received_at !== undefined) updates.employment_agreement_received_at = employment_agreement_received_at || null;
+    if (police_check_url                 !== undefined) updates.police_check_url                 = textField(police_check_url, 500);
+    if (drivers_licence_url              !== undefined) updates.drivers_licence_url              = textField(drivers_licence_url, 500);
+    if (right_to_work_url                !== undefined) updates.right_to_work_url                = textField(right_to_work_url, 500);
   }
 
   // Only owners can change role, level, or account status
@@ -95,7 +96,7 @@ export async function onRequestPost(context) {
     }
     if (cleaning_level !== undefined) updates.cleaning_level = Number(cleaning_level) || 1;
     if (status !== undefined) {
-      if (!['active','suspended'].includes(status)) return json({ error: 'Invalid status.' }, 400);
+      if (!['onboarding','active','exited'].includes(status)) return json({ error: 'Invalid status.' }, 400);
       updates.status = status;
     }
   }

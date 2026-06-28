@@ -23,6 +23,7 @@
     <a href="index.html">Home</a>
     <a href="architecture.html">Architecture</a>
     <a href="database.html">Database Schema</a>
+    <a href="security.html">Security &amp; RLS</a>
   </div>
   <div class="sidebar__section">
     <div class="sidebar__section-label">Public Site</div>
@@ -67,7 +68,8 @@
         <li><a href="#scheduled-jobs">Scheduled Jobs</a></li>
         <li><a href="#completed-jobs">Completed Jobs</a></li>
         <li><a href="#clients">Clients</a></li>
-        <li><a href="#staff">Staff</a></li>
+        <li><a href="#staff">Staff (HRIS)</a></li>
+        <li><a href="#my-profile">My Profile</a></li>
         <li><a href="#training">Training</a></li>
         <li><a href="#settings">Settings</a></li>
         <li><a href="#onboarding">Onboarding</a></li>
@@ -298,34 +300,78 @@
     <p>Calculated in JS (not stored in DB): <code>needs_follow_up = days_since_last_job > 60</code>. This is derived from the most recent <code>scheduled_date</code> or <code>created_at</code> across all jobs for that client.</p>
 
     <!-- ── STAFF ───────────────────────────────────────── -->
-    <h2 id="staff">Staff — <code>staff.html</code></h2>
-    <p><span class="badge badge--blue">Manager+</span></p>
+    <h2 id="staff">Staff (HRIS) — <code>staff.html</code></h2>
+    <p><span class="badge badge--purple">Owner only</span></p>
 
-    <p>Team management — view and manage all staff members and their profile information.</p>
+    <p>
+      Full HRIS (HR Information System) for managing staff. Displays as a spreadsheet-style table with
+      a click-to-expand inline profile card (A2 design). Owner-only — staff cannot access this page.
+    </p>
 
-    <h3>Staff list</h3>
+    <h3>HRIS table</h3>
+    <p>Each row shows: name + avatar, status chip, phone, start date, and four document status columns (Police Check, Contract, Driver Licence, Right to Work) with a tick/missing indicator. Clicking any row expands an inline profile card below it. Only one row can be open at a time.</p>
+
+    <h3>Expanded profile card (view mode)</h3>
+    <p>Four columns:</p>
     <ul>
-      <li>Search by name</li>
-      <li>Sorted: active first, then alphabetically by name</li>
-      <li>Cards: initials avatar (with colour), name + colour dot, email, phone, joined date, role badge, active/suspended badge</li>
+      <li><strong>Staff Member</strong> — avatar, name, role + cleaning level, status chip. Suspend/Reinstate button.</li>
+      <li><strong>Personal Details</strong> — phone, address, start date, availability</li>
+      <li><strong>Emergency Contact</strong> — name, relationship, phone. Missing fields highlighted in red.</li>
+      <li><strong>Documents</strong> — Police Check, Contract, Driver Licence, Right to Work. Each slot shows On File / Missing badge + View link (if uploaded) + Upload/Replace button. HR Notes field (owner-only, never shown to staff).</li>
     </ul>
 
-    <h3>Profile modal</h3>
-    <p>Opens on "View Profile". Shows full personal details from the onboarding data: address, DOB, emergency contact, employment dates, document links, onboarding status.</p>
+    <h3>Expanded profile card (edit mode)</h3>
+    <p>Clicking "Edit Profile" switches the card to inline edit mode — all fields editable at once with a single Save button. No modal. Fields:</p>
+    <ul>
+      <li>Name (admin-controlled — staff cannot change their own name)</li>
+      <li>Role, Cleaning Level, Start Date, Status</li>
+      <li>Colour — 10-swatch palette, selected colour saved to <code>profiles.colour</code> and used on calendar job chips</li>
+      <li>Phone, Street Address, Suburb, State, Postcode</li>
+      <li>Emergency contact (name, relationship, phone)</li>
+      <li>HR Notes (free text, owner-only, never exposed via API to staff)</li>
+    </ul>
+    <p>On save: calls <code>/api/update-profile</code>, updates the summary row in-place, shows "Saved ✓". Cancel reverts to view mode.</p>
 
-    <h3>Colour picker</h3>
-    <p>A 30-colour swatch palette for assigning staff calendar colours. Already-used colours are visually marked. Saved via <code>/api/update-profile</code>.</p>
+    <h3>Document upload</h3>
+    <p>Upload/Replace buttons in both view and edit mode. Flow: file picker → <code>/api/ensure-storage</code> → Supabase Storage upload to <code>{userId}/{docType}</code> (no extension — overwrites same key) → signed URL (365 days) → <code>/api/update-profile</code> to save URL → card refreshes. All doc uploads are owner-only via API (<code>update-profile.js</code> enforces this server-side).</p>
 
-    <h3>Actions</h3>
+    <h3>Add staff member</h3>
+    <p>Modal: name, email, role, start date → <code>/api/create-account</code> → invite email sent. Table reloads automatically. Form fully clears on success.</p>
+
+    <h3>Search</h3>
+    <p>Live search filters by name or role. Clears row expand state (closes open card) when results change.</p>
+
+    <h3>Data fetched</h3>
+    <ul>
+      <li>Table rows: direct Supabase query on <code>profiles</code> (excluding owner), selecting identity + doc URL columns</li>
+      <li>Expand card: <code>POST /api/get-staff-profile</code> — returns full HR field set for owners. Cached in memory per session (<code>profileCache</code>) to avoid repeat fetches.</li>
+    </ul>
+
+    <!-- ── MY PROFILE ─────────────────────────────────── -->
+    <h2 id="my-profile">My Profile — <code>my-profile.html</code></h2>
+    <p><span class="badge badge--grey">All roles</span></p>
+
+    <p>
+      Self-service page where staff can view and update their own contact details, address, emergency contact,
+      and profile photo. Intentionally limited — staff cannot see HR notes, compliance documents, or other
+      admin-only fields.
+    </p>
+
+    <h3>Sections</h3>
     <table>
-      <thead><tr><th>Action</th><th>Min role</th><th>Notes</th></tr></thead>
+      <thead><tr><th>Section</th><th>Fields</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td>View profile</td><td>Manager+</td><td>Read-only view of full profile</td></tr>
-        <tr><td>Activate / Suspend</td><td>Manager+</td><td>Toggles <code>status</code> between active and suspended</td></tr>
-        <tr><td>Edit role / colour</td><td>Manager+</td><td>Updates role and colour via <code>/api/update-profile</code></td></tr>
-        <tr><td>Delete</td><td>Owner only</td><td>Calls <code>/api/delete-account</code> — removes Storage files, profile, and auth user</td></tr>
+        <tr><td>Profile header</td><td>Photo, name, role badge</td><td>Read-only display. Name is admin-controlled.</td></tr>
+        <tr><td>Personal Details</td><td>Phone, Street Address, Suburb, State, Postcode</td><td>Saved via <code>/api/update-profile</code>. Updates both <code>phone</code>/<code>mobile</code> and <code>residential_address</code> (concatenated).</td></tr>
+        <tr><td>Emergency Contact</td><td>Name, Relationship, Phone</td><td>Separate Save button. Saved via <code>/api/update-profile</code>.</td></tr>
+        <tr><td>Profile Photo</td><td>File input (JPG/PNG, max 5 MB)</td><td>Uploads to <code>staff-documents/{userId}/profile-photo.{ext}</code>, generates 365-day signed URL, saves to <code>profiles.profile_photo_url</code>. Updates sidebar avatar immediately.</td></tr>
       </tbody>
     </table>
+
+    <h3>Data fetched</h3>
+    <ul>
+      <li><code>POST /api/get-staff-profile</code> with <code>userId = self</code> — returns the self field set only (no HR data, no document URLs). See <a href="api-functions.html">API Functions</a> for the exact field list.</li>
+    </ul>
 
     <!-- ── TRAINING ────────────────────────────────────── -->
     <h2 id="training">Training — <code>training.html</code></h2>
@@ -382,7 +428,7 @@
     <p><span class="badge badge--grey">New staff (invited status)</span></p>
 
     <p>
-      A 5-step wizard that new staff complete after setting their password. Auth.js redirects any user with <code>status='invited'</code> and role != owner to this page instead of the dashboard.
+      A 4-step wizard that new staff complete after setting their password. Auth.js redirects any user with <code>status='invited'</code> and role != owner to this page instead of the dashboard.
     </p>
 
     <h3>Steps</h3>
@@ -391,8 +437,8 @@
       <tbody>
         <tr>
           <td>1 — Personal</td>
-          <td>First name, last name, phone, date of birth (DD/MM/YYYY with auto-advance)</td>
-          <td>Names non-empty, phone 8+ digits, DOB 1920–current year minus 14</td>
+          <td>First name, last name, phone</td>
+          <td>Names non-empty, phone 8+ digits</td>
         </tr>
         <tr>
           <td>2 — Address</td>
@@ -405,25 +451,15 @@
           <td>All required, phone valid</td>
         </tr>
         <tr>
-          <td>4 — Documents</td>
-          <td>National Police Check (PDF/JPG/PNG, required), Driver's Licence (required), Right to Work (optional)</td>
-          <td>Police check + licence required; max 5MB each; file type checked</td>
-        </tr>
-        <tr>
-          <td>5 — Agreements</td>
+          <td>4 — Agreements</td>
           <td>3 checkboxes: Employment Agreement, Company Policies, Privacy Policy</td>
           <td>All 3 must be checked to proceed</td>
         </tr>
       </tbody>
     </table>
 
-    <h3>Document upload flow</h3>
-    <ol>
-      <li>Call <code>/api/ensure-storage</code> to create the bucket if it doesn't exist</li>
-      <li>Upload files directly to Supabase Storage: <code>staff-documents/{userId}/{filename}.{ext}</code></li>
-      <li>Generate signed URL valid 365 days</li>
-      <li>Include URLs in the profile update payload</li>
-    </ol>
+    <h3>Document upload</h3>
+    <p>Compliance documents (police check, licence, right to work) are <strong>admin-upload only</strong> via the HRIS page. Staff no longer upload these during onboarding. Onboarding only collects personal details, address, emergency contact, and policy agreements.</p>
 
     <h3>Submission</h3>
     <p>Calls <code>/api/update-profile</code> with all collected data plus <code>onboarding_complete: true</code> and agreement timestamps. On success, redirects to <code>dashboard/index.html</code> after a 2.4s success animation.</p>

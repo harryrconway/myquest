@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security &amp; RLS — MyQuest Wiki</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar__logo">
+    <a href="index.html">
+      <div class="sidebar__logo-mark">M</div>
+      <div>
+        <div class="sidebar__logo-text">MyQuest</div>
+        <div class="sidebar__logo-sub">Developer Wiki</div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Overview</div>
+    <a href="index.html">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="database.html">Database Schema</a>
+    <a href="security.html" class="active">Security &amp; RLS</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Public Site</div>
+    <a href="public-site.html">Public Pages</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Dashboard</div>
+    <a href="dashboard-overview.html">Overview &amp; Auth</a>
+    <a href="dashboard-pages.html">All Pages</a>
+    <a href="js-modules.html">JS Modules</a>
+  </div>
+  <div class="sidebar__section">
+    <div class="sidebar__section-label">Backend</div>
+    <a href="api-functions.html">API Functions</a>
+    <a href="emails.html">Emails &amp; Cron</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar__breadcrumb">
+      <a href="index.html">Wiki</a>
+      <span class="sep">›</span>
+      <span class="topbar__title">Security &amp; RLS</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1>Security &amp; RLS</h1>
+    <p class="page-intro">
+      MyQuest uses a three-layer security model: frontend role gating, API-level role enforcement,
+      and Supabase Row Level Security. This page documents each layer, the RLS policies in effect,
+      and the rules for keeping them consistent when making changes.
+    </p>
+
+    <div class="toc">
+      <div class="toc__title">On this page</div>
+      <ol>
+        <li><a href="#layers">Three-Layer Model</a></li>
+        <li><a href="#rls-profiles">RLS: profiles table</a></li>
+        <li><a href="#rls-storage">RLS: staff-documents storage</a></li>
+        <li><a href="#rls-other">RLS: other tables</a></li>
+        <li><a href="#api-tiers">API field security tiers</a></li>
+        <li><a href="#client-queries">Client-side query rules</a></li>
+        <li><a href="#checklist">Change checklist</a></li>
+      </ol>
+    </div>
+
+    <div class="info-box info-box--caution">
+      <p><strong>Never expose <code>SUPABASE_SERVICE_KEY</code> to the client.</strong> It bypasses all RLS and has full database access. It must only ever exist in Cloudflare Function environment variables.</p>
+    </div>
+
+    <!-- ── LAYERS ──────────────────────────────────────── -->
+    <h2 id="layers">Three-Layer Model</h2>
+    <table>
+      <thead><tr><th>Layer</th><th>Where</th><th>What it enforces</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Frontend gating</strong></td>
+          <td><code>auth.js</code>, <code>data-min-role</code> attributes</td>
+          <td>Hides nav items and entire pages below the required role. Redirects invited-status users to onboarding. Redirects unauthenticated users to login. <em>This is UX only — not a security boundary.</em></td>
+        </tr>
+        <tr>
+          <td><strong>2. API enforcement</strong></td>
+          <td><code>/functions/api/*.js</code></td>
+          <td>Every function verifies the Bearer JWT, fetches the caller's role, and returns 401/403 before doing anything. Owner-only fields are gated server-side regardless of what the client sends. This is the primary security boundary for writes.</td>
+        </tr>
+        <tr>
+          <td><strong>3. Database RLS</strong></td>
+          <td>Supabase PostgreSQL</td>
+          <td>Blocks direct client-side writes to sensitive tables. The service key (used by Functions) bypasses RLS. Authenticated user JWTs are subject to RLS policies. This is the backstop against console-level attacks.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box info-box--note">
+      <p><strong>Layer 1 is not a security boundary.</strong> A user who inspects the page source can see hidden elements. Security must be enforced at layers 2 and 3. Layer 1 is purely for usability.</p>
+    </div>
+
+    <!-- ── RLS: PROFILES ───────────────────────────────── -->
+    <h2 id="rls-profiles">RLS: profiles table</h2>
+    <p>RLS is enabled. Migration: <code>20260628_rls_security_hardening.sql</code></p>
+
+    <table>
+      <thead><tr><th>Operation</th><th>Policy</th><th>Reasoning</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>SELECT</td>
+          <td>All authenticated users</td>
+          <td><code>auth.js</code> loads all profiles at login for the in-memory store (team availability, staff dropdowns). Restricting this would break the store for all users. Sensitive fields are protected at the API and query level instead.</td>
+        </tr>
+        <tr>
+          <td>INSERT</td>
+          <td>Service role only (no policy)</td>
+          <td>New profiles are created via <code>/api/create-account</code> using the service key.</td>
+        </tr>
+        <tr>
+          <td>UPDATE</td>
+          <td>Service role only (no policy)</td>
+          <td>All profile updates go through <code>/api/update-profile</code>. This prevents a staff member from directly setting <code>role='owner'</code> or <code>status='active'</code> via the Supabase client.</td>
+        </tr>
+        <tr>
+          <td>DELETE</td>
+          <td>Service role only (no policy)</td>
+          <td>Account deletion goes through <code>/api/delete-account</code> which also removes Storage files and the auth user.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Why SELECT is open</h3>
+    <p>
+      Supabase does not support column-level RLS. A restrictive SELECT policy (e.g. own row only) would
+      break <code>auth.js</code>'s store load without a significant refactor to route all profile reads
+      through the API. The sensitive field protection instead relies on:
+    </p>
+    <ul>
+      <li><code>auth.js</code> selecting only <code>id, name, email, role, status, colour, phone, mobile, profile_photo_url, availability, start_date</code> — HR fields are never in the store</li>
+      <li><code>/api/get-staff-profile</code> returning different field sets based on caller role (owner vs self)</li>
+      <li><code>staff.html</code> being owner-only, so the HRIS expand card (which fetches full HR data) is never accessible to staff</li>
+    </ul>
+
+    <!-- ── RLS: STORAGE ────────────────────────────────── -->
+    <h2 id="rls-storage">RLS: staff-documents storage</h2>
+    <p>Migration: <code>20260622_staff_documents_storage_policy.sql</code> (INSERT/UPDATE) and <code>20260628_rls_security_hardening.sql</code> (SELECT override).</p>
+
+    <h3>INSERT / UPDATE</h3>
+    <table>
+      <thead><tr><th>Who</th><th>Can upload to</th></tr></thead>
+      <tbody>
+        <tr><td>Owner / Manager</td><td>Any path in <code>staff-documents</code></td></tr>
+        <tr><td>Staff</td><td>Their own folder only: <code>{userId}/*</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>SELECT</h3>
+    <table>
+      <thead><tr><th>Who</th><th>Can read</th></tr></thead>
+      <tbody>
+        <tr><td>Owner / Manager</td><td>Any file in <code>staff-documents</code></td></tr>
+        <tr><td>Staff</td><td>Only their own <code>{userId}/profile-photo.*</code> — compliance docs are blocked</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Storage path conventions</h3>
+    <ul>
+      <li><strong>Profile photos:</strong> <code>{userId}/profile-photo.{ext}</code> — staff manage their own</li>
+      <li><strong>Compliance docs:</strong> <code>{userId}/{docType}</code> with no file extension (e.g. <code>{userId}/police_check</code>) — admin-upload only. No extension means replacing a doc always overwrites the same key, so no orphaned files accumulate.</li>
+    </ul>
+
+    <!-- ── RLS: OTHER TABLES ───────────────────────────── -->
+    <h2 id="rls-other">RLS: other tables</h2>
+    <table>
+      <thead><tr><th>Table</th><th>RLS</th><th>SELECT</th><th>INSERT / UPDATE / DELETE</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>quote_requests</code></td>
+          <td>Enabled</td>
+          <td>All authenticated users</td>
+          <td>Service role only (via Functions)</td>
+        </tr>
+        <tr>
+          <td><code>clients</code></td>
+          <td>Enabled</td>
+          <td>Authenticated manager+</td>
+          <td>Authenticated manager+ for insert/update; service role for delete</td>
+        </tr>
+        <tr>
+          <td><code>company_settings</code></td>
+          <td>Enabled</td>
+          <td>All authenticated users</td>
+          <td>Service role only (via <code>/api/save-settings</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ── API FIELD TIERS ─────────────────────────────── -->
+    <h2 id="api-tiers">API field security tiers</h2>
+    <p>
+      <code>/api/update-profile</code> and <code>/api/get-staff-profile</code> enforce field-level access
+      based on the caller's role. These tiers are defined server-side — the client cannot bypass them.
+    </p>
+
+    <h3>update-profile field tiers</h3>
+    <table>
+      <thead><tr><th>Tier</th><th>Who can set</th><th>Fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Any authenticated user (own profile)</td>
+          <td>Self, manager, owner</td>
+          <td><code>name</code>, <code>phone</code>, <code>mobile</code>, <code>colour</code>, <code>start_date</code>, <code>address</code>, <code>suburb</code>, <code>state</code>, <code>postcode</code>, <code>residential_address</code>, <code>emergency_contact_*</code>, <code>profile_photo_url</code>, <code>availability</code>, <code>onboarding_complete</code>, agreement timestamps</td>
+        </tr>
+        <tr>
+          <td>Owner only</td>
+          <td>Owner</td>
+          <td><code>role</code>, <code>cleaning_level</code>, <code>status</code>, <code>hr_notes</code>, <code>police_check_url</code>, <code>drivers_licence_url</code>, <code>right_to_work_url</code>, <code>employment_agreement_url</code>, <code>employment_agreement_received_at</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>get-staff-profile field sets</h3>
+    <table>
+      <thead><tr><th>Caller</th><th>Field set returned</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Owner (viewing any staff member)</td>
+          <td>All fields including <code>hr_notes</code>, all doc URLs, <code>employment_agreement_received_at</code>, all agreement timestamps, <code>cleaning_level</code></td>
+        </tr>
+        <tr>
+          <td>Staff member (viewing own profile)</td>
+          <td>Identity, contact, address, emergency contact, <code>profile_photo_url</code>, <code>onboarding_complete</code> only. No HR notes, no compliance doc URLs.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ── CLIENT QUERY RULES ─────────────────────────── -->
+    <h2 id="client-queries">Client-side query rules</h2>
+    <p>Direct Supabase client queries (using the user's JWT) must follow these rules:</p>
+    <ul>
+      <li><strong>Never use <code>select('*')</code></strong> on profiles or any table containing sensitive data. Always list specific columns.</li>
+      <li><strong>Never select HR fields client-side:</strong> <code>hr_notes</code>, <code>police_check_url</code>, <code>drivers_licence_url</code>, <code>right_to_work_url</code>, <code>employment_agreement_url</code>, <code>employment_agreement_received_at</code> must never appear in client-side queries.</li>
+      <li><strong>Sensitive reads go through the API:</strong> Use <code>POST /api/get-staff-profile</code> — it enforces role-based field filtering server-side.</li>
+      <li><strong>No direct writes from client JS</strong> to profiles, quote_requests, or company_settings. All mutations go through <code>/functions/api/*</code>.</li>
+    </ul>
+
+    <!-- ── CHANGE CHECKLIST ────────────────────────────── -->
+    <h2 id="checklist">Change checklist</h2>
+    <p>Run through this when making any security-relevant change:</p>
+
+    <h3>Adding a field to profiles</h3>
+    <ol>
+      <li>Write a migration: <code>supabase/migrations/YYYYMMDD_description.sql</code> with <code>ADD COLUMN IF NOT EXISTS</code></li>
+      <li>Decide the tier: should staff be able to set/read this? → place in correct tier in <code>update-profile.js</code> and <code>get-staff-profile.js</code></li>
+      <li>Update <code>docs/database.html</code> — profiles table + migrations log</li>
+      <li>If needed for the store: add to the column list in <code>auth.js</code> (both fast and slow path queries)</li>
+      <li>Update this page if the security model changes</li>
+    </ol>
+
+    <h3>Adding a new API endpoint</h3>
+    <ol>
+      <li>Verify JWT → fetch caller role → check minimum role → return 401/403 before any data access</li>
+      <li>Use service key for all DB writes</li>
+      <li>Never trust <code>userId</code> from the request body for permission checks — derive from the verified JWT</li>
+      <li>Add the endpoint to <code>docs/api-functions.html</code> and its TOC</li>
+    </ol>
+
+    <h3>Changing storage access</h3>
+    <ol>
+      <li>Update the policy in a new migration file</li>
+      <li>Update the storage section in <code>docs/database.html</code> and this page</li>
+      <li>Test both the staff path and the owner/manager path</li>
+    </ol>
+  </div>
+</div>
+
+</body>
+</html>

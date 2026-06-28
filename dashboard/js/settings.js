@@ -268,24 +268,6 @@
            STAFF_PALETTE[used.length % STAFF_PALETTE.length];
   }
 
-  function openUnifiedAddModal() {
-    var formEl    = document.getElementById('add-team-form');
-    var successEl = document.getElementById('at-success-panel');
-    var errorEl   = document.getElementById('add-team-error');
-    var submitBtn = document.getElementById('at-submit');
-    if (formEl)    { formEl.reset(); formEl.style.display = ''; }
-    if (successEl) successEl.hidden = true;
-    if (errorEl)   errorEl.hidden = true;
-    if (submitBtn) { submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false; }
-    MQ.ui.modal.open('modal-add-team-member');
-  }
-
-  // Wire Add Team Member button immediately — don't wait for mq:ready (Safari mobile timing)
-  document.addEventListener('DOMContentLoaded', function () {
-    var addBtn = document.getElementById('team-add-btn');
-    if (addBtn) addBtn.addEventListener('click', openUnifiedAddModal);
-  });
-
   function initTeamCard() {
     var avatarsEl = document.getElementById('team-staff-avatars');
     var form      = document.getElementById('team-staff-form');
@@ -355,84 +337,6 @@
           : '';
       }
     }
-
-    function addMember(accountId) {
-      var acc = MQ.store.accounts.getById(accountId);
-      if (!acc) return;
-      var colour = pickStaffColour();
-      MQ.store.staff.save({
-        id: acc.id, name: acc.name || '', email: acc.email || '', phone: '',
-        role: acc.role || 'junior-cleaner',
-        startDate: '', active: true, colour: colour,
-      });
-      callApi('/api/update-profile', { userId: acc.id, colour: colour }).catch(function () {});
-      MQ.ui.modal.close('modal-add-team-member');
-      renderAvatarGrid();
-      MQ.ui.toast((acc.name || acc.email) + ' added to the team');
-    }
-
-    function initAddTeamForm() {
-      var formEl    = document.getElementById('add-team-form');
-      var errorEl   = document.getElementById('add-team-error');
-      var submitBtn = document.getElementById('at-submit');
-      var doneBtn   = document.getElementById('at-success-done');
-      var anotherBtn= document.getElementById('at-success-another');
-      if (doneBtn)    doneBtn.addEventListener('click', function () { MQ.ui.modal.close('modal-add-team-member'); });
-      if (anotherBtn) anotherBtn.addEventListener('click', function () {
-        var successEl = document.getElementById('at-success-panel');
-        if (successEl) successEl.hidden = true;
-        if (formEl) { formEl.reset(); formEl.style.display = ''; }
-        if (errorEl) errorEl.hidden = true;
-        if (submitBtn) { submitBtn.textContent = 'Send Invitation'; submitBtn.disabled = false; }
-      });
-      if (!formEl) return;
-      formEl.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        if (errorEl) errorEl.hidden = true;
-        var name      = document.getElementById('at-name').value.trim();
-        var email     = document.getElementById('at-email').value.trim().toLowerCase();
-        var role      = document.getElementById('at-role').value;
-        var startDate = document.getElementById('at-start').value || null;
-        if (!name || !email) {
-          if (errorEl) { errorEl.textContent = 'Name and email are required.'; errorEl.hidden = false; }
-          return;
-        }
-        submitBtn.textContent = 'Sending…'; submitBtn.disabled = true;
-        var result;
-        try {
-          result = await callApi('/api/create-account', { name: name, email: email, role: role });
-        } catch (e) {
-          submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false;
-          if (errorEl) { errorEl.textContent = 'Request failed. Please try again.'; errorEl.hidden = false; }
-          return;
-        }
-        submitBtn.textContent = 'Send Invite'; submitBtn.disabled = false;
-        if (result.error) {
-          if (errorEl) { errorEl.textContent = result.error; errorEl.hidden = false; }
-          return;
-        }
-        if (result.id) {
-          var colour = pickStaffColour();
-          MQ.store.accounts.save({
-            id: result.id, name: name, email: email,
-            role: role, status: 'invited',
-          });
-          MQ.store.staff.save({
-            id: result.id, name: name, email: email, phone: '',
-            role: role, startDate: startDate || '', active: true, colour: colour,
-          });
-          callApi('/api/update-profile', { userId: result.id, colour: colour, start_date: startDate }).catch(function () {});
-          renderAvatarGrid();
-        }
-        if (formEl) formEl.style.display = 'none';
-        var successEl = document.getElementById('at-success-panel');
-        var emailEl   = document.getElementById('at-success-email');
-        if (emailEl) emailEl.textContent = email;
-        if (successEl) successEl.hidden = false;
-      });
-    }
-
-    initAddTeamForm();
 
     function renderAvatarGrid() {
       var allStaff = MQ.store.staff.getAll()
@@ -736,7 +640,6 @@
       renderAvatarGrid();
     });
 
-    SettingsPage.addMember    = addMember;
     SettingsPage.selectStaff  = selectStaff;
   }
 

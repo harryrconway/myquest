@@ -35,12 +35,6 @@
 
     // Personal details
     setVal('mp-phone', p.mobile || p.phone || '');
-
-    if (p.date_of_birth) {
-      var parts = p.date_of_birth.split('-');
-      setVal('mp-dob', (parts[2] || '') + '/' + (parts[1] || '') + '/' + (parts[0] || ''));
-    }
-
     setVal('mp-address',  p.address  || '');
     setVal('mp-suburb',   p.suburb   || '');
     setVal('mp-postcode', p.postcode || '');
@@ -86,16 +80,6 @@
     if (loading) loading.textContent = msg || 'Loading…';
   }
 
-  /* ── parse DOB from DD/MM/YYYY ───────────────────────────── */
-
-  function parseDOB(raw) {
-    var parts = (raw || '').split('/');
-    if (parts.length !== 3) return null;
-    var dd = parts[0].padStart(2,'0'), mm = parts[1].padStart(2,'0'), yyyy = parts[2];
-    if (!dd || !mm || !yyyy || yyyy.length !== 4) return null;
-    return yyyy + '-' + mm + '-' + dd;
-  }
-
   /* ── save personal details ───────────────────────────────── */
 
   async function saveDetails() {
@@ -104,7 +88,6 @@
     if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
     if (msg) msg.style.display = 'none';
 
-    var dobISO    = parseDOB(getVal('mp-dob'));
     var phone     = sanitizePhone(getVal('mp-phone'));
     var address   = sanitize(getVal('mp-address'), 100);
     var suburb    = sanitize(getVal('mp-suburb'), 60);
@@ -121,7 +104,6 @@
       postcode: postcode,
       residential_address: [address, suburb, addressState, postcode].filter(Boolean).join(', '),
     };
-    if (dobISO) payload.date_of_birth = dobISO;
 
     try {
       var res = await fetch('/api/update-profile', {

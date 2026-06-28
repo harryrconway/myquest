@@ -8,7 +8,7 @@
   var state = {
     userId: null,
     name: '',
-    phone: '', dob: '',
+    phone: '',
     address: '', suburb: '', stateVal: 'QLD', postcode: '',
     emergencyName: '', emergencyPhone: '', emergencyRel: '',
     photoFile: null, photoUrl: null,
@@ -24,32 +24,6 @@
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
-
-  /* ── DOB picker wiring ───────────────────────────────────── */
-
-  function wireDOB() {
-    var dd   = document.getElementById('ob-dob-dd');
-    var mm   = document.getElementById('ob-dob-mm');
-    var yyyy = document.getElementById('ob-dob-yyyy');
-    if (!dd || !mm || !yyyy) return;
-
-    function digitsOnly(input) {
-      input.addEventListener('input', function () {
-        var pos = input.selectionStart;
-        input.value = input.value.replace(/\D/g, '');
-        try { input.setSelectionRange(pos, pos); } catch(e) {}
-      });
-    }
-    digitsOnly(dd); digitsOnly(mm); digitsOnly(yyyy);
-    dd.addEventListener('input', function () { if (dd.value.length >= 2) { mm.focus(); mm.select(); } });
-    mm.addEventListener('input', function () { if (mm.value.length >= 2) { yyyy.focus(); yyyy.select(); } });
-    mm.addEventListener('keydown', function (e) {
-      if (e.key === 'Backspace' && mm.value === '') { dd.focus(); dd.setSelectionRange(2, 2); }
-    });
-    yyyy.addEventListener('keydown', function (e) {
-      if (e.key === 'Backspace' && yyyy.value === '') { mm.focus(); mm.setSelectionRange(2, 2); }
-    });
-  }
 
   /* ── photo upload ────────────────────────────────────────── */
 
@@ -80,11 +54,6 @@
   /* ── step renders ────────────────────────────────────────── */
 
   function renderS1() {
-    var dobDD = '', dobMM = '', dobYYYY = '';
-    if (state.dob) {
-      var parts = state.dob.split('-');
-      dobYYYY = parts[0] || ''; dobMM = parts[1] || ''; dobDD = parts[2] || '';
-    }
     var stateOpts = ['ACT','NSW','NT','QLD','SA','TAS','VIC','WA'].map(function (s) {
       return '<option value="' + s + '"' + (s === state.stateVal ? ' selected' : '') + '>' + s + '</option>';
     }).join('');
@@ -107,16 +76,6 @@
       '<hr class="ob-divider">',
       '<div class="ob-field"><label class="ob-label" for="ob-phone">Mobile number</label>',
         '<input class="ob-input" id="ob-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0400 000 000" maxlength="20" value="' + esc(state.phone) + '"></div>',
-      '<div class="ob-field">',
-        '<label class="ob-label">Date of birth</label>',
-        '<div class="ob-dob-wrap">',
-          '<input class="ob-input ob-dob-part" id="ob-dob-dd" type="text" inputmode="numeric" placeholder="DD" maxlength="2" value="' + esc(dobDD) + '">',
-          '<span class="ob-dob-sep">/</span>',
-          '<input class="ob-input ob-dob-part" id="ob-dob-mm" type="text" inputmode="numeric" placeholder="MM" maxlength="2" value="' + esc(dobMM) + '">',
-          '<span class="ob-dob-sep">/</span>',
-          '<input class="ob-input ob-dob-part ob-dob-yyyy" id="ob-dob-yyyy" type="text" inputmode="numeric" placeholder="YYYY" maxlength="4" value="' + esc(dobYYYY) + '">',
-        '</div>',
-      '</div>',
       '<p class="ob-section-label" style="margin-top:4px;">Home address</p>',
       '<div class="ob-field"><label class="ob-label" for="ob-address">Street address</label>',
         '<input class="ob-input" id="ob-address" type="text" autocomplete="street-address" placeholder="123 Main Street" maxlength="100" value="' + esc(state.address) + '"></div>',
@@ -137,20 +96,11 @@
     state.suburb   = sanitize((qs('#ob-suburb')   || {}).value, 60);
     state.stateVal = sanitize((qs('#ob-state')    || {}).value, 3);
     state.postcode = sanitize((qs('#ob-postcode') || {}).value, 4).replace(/\D/g, '');
-    var dd   = sanitize((qs('#ob-dob-dd')   || {}).value, 2);
-    var mm   = sanitize((qs('#ob-dob-mm')   || {}).value, 2);
-    var yyyy = sanitize((qs('#ob-dob-yyyy') || {}).value, 4);
-    state.dob = (dd && mm && yyyy) ? yyyy + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0') : '';
   }
 
   function validateS1() {
     collectS1();
-    if (!state.phone)     return 'Please enter your mobile number.';
-    if (!state.dob) return 'Please enter your date of birth.';
-    var parts = state.dob.split('-');
-    var yy = parseInt(parts[0]), mo = parseInt(parts[1]), dd = parseInt(parts[2]);
-    if (dd < 1 || dd > 31 || mo < 1 || mo > 12) return 'Please enter a valid date of birth.';
-    if (yy < 1920 || yy > new Date().getFullYear() - 14) return 'Please enter a valid year.';
+    if (!state.phone)    return 'Please enter your mobile number.';
     if (!state.address)  return 'Please enter your street address.';
     if (!state.suburb)   return 'Please enter your suburb.';
     if (!state.postcode || state.postcode.length < 4) return 'Please enter a valid 4-digit postcode.';
@@ -234,7 +184,7 @@
       '</div>',
     ].join('');
 
-    if (n === 1) { wireDOB(); wirePhotoUpload(); }
+    if (n === 1) { wirePhotoUpload(); }
 
     var backEl = document.getElementById('ob-back');
     if (backEl) backEl.addEventListener('click', function () { showStep(n - 1); });
@@ -308,7 +258,6 @@
         userId:                   state.userId,
         phone:                    state.phone,
         mobile:                   state.phone,
-        date_of_birth:            state.dob,
         address:                  state.address,
         suburb:                   state.suburb,
         state:                    state.stateVal,

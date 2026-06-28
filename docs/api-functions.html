@@ -23,6 +23,7 @@
     <a href="index.html">Home</a>
     <a href="architecture.html">Architecture</a>
     <a href="database.html">Database Schema</a>
+    <a href="security.html">Security &amp; RLS</a>
   </div>
   <div class="sidebar__section">
     <div class="sidebar__section-label">Public Site</div>
@@ -73,6 +74,7 @@
         <li><a href="#claim-job">claim-job</a></li>
         <li><a href="#save-checklist">save-checklist</a></li>
         <li><a href="#create-account">create-account</a></li>
+        <li><a href="#get-staff-profile">get-staff-profile</a></li>
         <li><a href="#update-profile">update-profile</a></li>
         <li><a href="#delete-account">delete-account</a></li>
         <li><a href="#reset-password">reset-password</a></li>
@@ -291,43 +293,102 @@
     <p>If Supabase returns an "already registered" error, the function checks for an existing profile row. If no profile exists (orphaned auth record), it deletes the auth user and retries the invite.</p>
 
     <!-- ─────────────────────────────────────────── -->
+    <h2 id="get-staff-profile">POST /api/get-staff-profile</h2>
+    <p><span class="badge badge--grey">Authenticated</span> <em>(self or owner only)</em></p>
+    <p>
+      Returns a profile with role-appropriate field filtering. A staff member can only fetch their own profile
+      and receives a limited field set. An owner can fetch any profile and receives the full HR field set.
+      Used by the HRIS expand card (<code>staff.html</code>) and My Profile page.
+    </p>
+
+    <h4>Request body</h4>
+    <pre><code>{ "userId": "uuid" }</code></pre>
+
+    <h4>Permission rules</h4>
+    <ul>
+      <li>Returns <strong>403</strong> if <code>userId</code> is not the caller's own ID and caller is not owner</li>
+      <li>Returns <strong>404</strong> if the profile doesn't exist</li>
+    </ul>
+
+    <h4>Response — owner calling (full set)</h4>
+    <pre><code>{
+  "profile": {
+    "id", "name", "email", "phone", "mobile", "role", "status", "colour",
+    "cleaning_level", "start_date", "availability",
+    "address", "suburb", "state", "postcode", "residential_address",
+    "emergency_contact_name", "emergency_contact_number", "emergency_relation",
+    "profile_photo_url", "police_check_url", "drivers_licence_url",
+    "right_to_work_url", "hr_notes",
+    "employment_agreement_url", "employment_agreement_received_at",
+    "onboarding_complete", "employment_agreement_signed_at",
+    "company_policy_signed_at", "privacy_policy_signed_at"
+  }
+}</code></pre>
+
+    <h4>Response — staff calling for own profile (limited set)</h4>
+    <pre><code>{
+  "profile": {
+    "id", "name", "email", "phone", "mobile", "role", "status", "colour",
+    "profile_photo_url", "address", "suburb", "state", "postcode",
+    "emergency_contact_name", "emergency_contact_number", "emergency_relation",
+    "onboarding_complete"
+    // hr_notes, doc URLs, and all agreement timestamps are NOT returned
+  }
+}</code></pre>
+
+    <!-- ─────────────────────────────────────────── -->
     <h2 id="update-profile">POST /api/update-profile</h2>
-    <p><span class="badge badge--grey">All authenticated roles</span> <em>(can only update own profile unless owner)</em></p>
-    <p>Updates a staff profile. Used by onboarding, settings, and staff management. All fields are optional.</p>
+    <p><span class="badge badge--grey">All authenticated roles</span> <em>(self or manager/owner for others)</em></p>
+    <p>
+      Updates a staff profile. Fields are gated by caller role — owner-only fields are silently ignored
+      if sent by a lower role. Used by onboarding, My Profile, and the HRIS edit card.
+    </p>
+
+    <h4>Field tiers</h4>
+    <table>
+      <thead><tr><th>Tier</th><th>Who</th><th>Fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>General</td>
+          <td>Self, manager, owner</td>
+          <td><code>name</code>, <code>phone</code>, <code>mobile</code>, <code>colour</code>, <code>start_date</code>, <code>address</code>, <code>suburb</code>, <code>state</code>, <code>postcode</code>, <code>residential_address</code>, <code>emergency_contact_name</code>, <code>emergency_contact_number</code>, <code>emergency_relation</code>, <code>profile_photo_url</code>, <code>availability</code>, <code>onboarding_complete</code>, agreement timestamps</td>
+        </tr>
+        <tr>
+          <td>Owner only</td>
+          <td>Owner</td>
+          <td><code>role</code>, <code>cleaning_level</code>, <code>status</code> (active|suspended), <code>hr_notes</code>, <code>police_check_url</code>, <code>drivers_licence_url</code>, <code>right_to_work_url</code>, <code>employment_agreement_url</code>, <code>employment_agreement_received_at</code></td>
+        </tr>
+      </tbody>
+    </table>
 
     <h4>Request body (all optional except userId)</h4>
     <pre><code>{
-  "userId": "uuid",           // required — which profile to update
+  "userId": "uuid",                          // required
   "name": "Jane Smith",
-  "email": "jane@example.com",
   "phone": "0412345678",
-  "mobile": "0412345678",
-  "colour": "#FFD400",
-  "status": "active",         // active | suspended
-  "role": "manager",
+  "colour": "#1e40af",
+  "status": "active",                        // active | suspended (owner only)
+  "role": "manager",                         // owner only
   "start_date": "2026-01-15",
-  "date_of_birth": "1990-03-20",
   "address": "12 Main St",
   "suburb": "Glenelg",
   "state": "SA",
   "postcode": "5045",
-  "residential_address": "12 Main St, Glenelg SA 5045",
   "emergency_contact_name": "John Smith",
   "emergency_contact_number": "0400000000",
   "emergency_relation": "Partner",
   "profile_photo_url": "https://...",
-  "police_check_url": "https://...",
-  "drivers_licence_url": "https://...",
-  "right_to_work_url": "https://...",
-  "onboarding_complete": true,
-  "employment_agreement_signed_at": "2026-06-25T09:00:00Z",
-  "company_policy_signed_at": "2026-06-25T09:00:00Z",
-  "privacy_policy_signed_at": "2026-06-25T09:00:00Z"
+  "hr_notes": "...",                         // owner only
+  "police_check_url": "https://...",         // owner only
+  "drivers_licence_url": "https://...",      // owner only
+  "right_to_work_url": "https://...",        // owner only
+  "employment_agreement_url": "https://...", // owner only
+  "onboarding_complete": true
 }</code></pre>
 
-    <h4>What it writes</h4>
+    <h4>Side effects</h4>
     <ul>
-      <li>UPSERTs the <code>profiles</code> table row with all provided fields</li>
+      <li>If <code>onboarding_complete: true</code> and caller is updating their own profile: automatically sets <code>status = 'active'</code></li>
     </ul>
 
     <!-- ─────────────────────────────────────────── -->

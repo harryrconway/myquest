@@ -23,6 +23,7 @@
     <a href="index.html">Home</a>
     <a href="architecture.html" class="active">Architecture</a>
     <a href="database.html">Database Schema</a>
+    <a href="security.html">Security &amp; RLS</a>
   </div>
   <div class="sidebar__section">
     <div class="sidebar__section-label">Public Site</div>
@@ -179,34 +180,83 @@
     </ul>
 
     <h2 id="local-dev">Local Development</h2>
+
+    <h3>What you need to run the site locally</h3>
     <p>
-      The intended local server is <code>wrangler pages dev .</code> which emulates Cloudflare Pages + Functions together. However, the local <code>workerd</code> binary may lag behind the live compatibility date — if you see a <em>"compatibility date not supported"</em> error, update Wrangler:
+      There are two ways to run MyQuest on your computer, depending on what you're working on:
     </p>
-    <pre><code>npm install -g wrangler@latest
-wrangler pages dev . --port 8788</code></pre>
 
-    <p>For frontend-only work (no API calls needed), a plain HTTP server works fine:</p>
-    <pre><code>python3 -m http.server 8788</code></pre>
+    <table>
+      <thead><tr><th>Method</th><th>Command</th><th>What works</th><th>What doesn't</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Simple (pages only)</strong></td>
+          <td><code>python3 -m http.server 8788</code></td>
+          <td>All HTML pages, CSS, JS, dashboard UI</td>
+          <td>Any <code>/api/*</code> call (login actions, saving data, etc.)</td>
+        </tr>
+        <tr>
+          <td><strong>Full (pages + API)</strong></td>
+          <td><code>npx wrangler pages dev . --port 8788</code></td>
+          <td>Everything — pages and API functions</td>
+          <td>Requires <code>.dev.vars</code> to be set up first (see below)</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <div class="info-box info-box--warn">
-      <p><strong>API calls won't work</strong> against the plain HTTP server — they'll 404. Functions only run under Wrangler or on Cloudflare. For API testing, use the production environment or a deployed preview branch.</p>
+    <p>The dashboard always connects to the <strong>live Supabase database</strong> even when running locally. There is no separate test database.</p>
+
+    <h3 id="dev-vars">Setting up .dev.vars (one-time setup)</h3>
+
+    <p>
+      Think of <code>.dev.vars</code> as a private notepad that sits on your computer only.
+      It tells the local API functions your secret keys — the same keys that are stored securely
+      in Cloudflare for the live site. Without it, API calls will fail locally because the functions
+      won't know how to connect to Supabase, send emails, etc.
+    </p>
+
+    <p><strong>How to set it up:</strong></p>
+    <ol>
+      <li>In the project root, duplicate the file <code>.dev.vars.example</code> and name the copy <code>.dev.vars</code></li>
+      <li>Open <code>.dev.vars</code> and replace each placeholder with your real key</li>
+      <li>Save the file — that's it. Wrangler picks it up automatically next time you run it</li>
+    </ol>
+
+    <div class="info-box info-box--caution">
+      <p><strong>.dev.vars is never committed to git.</strong> It's in <code>.gitignore</code>. This is intentional — it contains your real secret keys. Never upload or share this file. The <code>.dev.vars.example</code> file is the safe committed version with placeholder values.</p>
     </div>
 
-    <p>The dashboard connects to the <strong>production Supabase instance</strong> even locally — the anon key is hardcoded in <code>supabase-client.js</code>. There is no separate dev database.</p>
+    <p><strong>Where to find each key:</strong></p>
+    <table>
+      <thead><tr><th>Key</th><th>Where to find it</th></tr></thead>
+      <tbody>
+        <tr><td><code>SUPABASE_URL</code></td><td>Supabase dashboard → Project Settings → API → Project URL</td></tr>
+        <tr><td><code>SUPABASE_ANON_KEY</code></td><td>Supabase dashboard → Project Settings → API → anon / public key</td></tr>
+        <tr><td><code>SUPABASE_SERVICE_KEY</code></td><td>Supabase dashboard → Project Settings → API → service_role key (keep this secret)</td></tr>
+        <tr><td><code>RESEND_API_KEY</code></td><td>Resend dashboard → API Keys</td></tr>
+        <tr><td><code>TURNSTILE_SECRET</code></td><td>Cloudflare dashboard → Turnstile → your site → Secret Key</td></tr>
+        <tr><td><code>CRON_SECRET</code></td><td>Make up any random string — just match it in the reminder worker config</td></tr>
+        <tr><td><code>ADMIN_EMAIL</code></td><td>Your email address — where shift alerts get sent</td></tr>
+      </tbody>
+    </table>
 
-    <h2 id="env-vars">Environment Variables</h2>
-    <p>Set in the Cloudflare Pages dashboard under <strong>Settings → Environment Variables</strong>. All are production-only; there is no <code>.env</code> file in the repo.</p>
+    <h2 id="env-vars">Environment Variables (production)</h2>
+    <p>
+      The same keys from <code>.dev.vars</code> need to be stored in Cloudflare for the live site.
+      Set them in the Cloudflare Pages dashboard under <strong>Settings → Environment Variables</strong>.
+      You only need to do this once (or when a key changes).
+    </p>
 
     <table>
       <thead><tr><th>Variable</th><th>Required by</th><th>Purpose</th></tr></thead>
       <tbody>
-        <tr><td><code>SUPABASE_URL</code></td><td>All functions</td><td>Full Supabase project URL including <code>https://</code></td></tr>
-        <tr><td><code>SUPABASE_ANON_KEY</code></td><td>All functions</td><td>Anon key for authenticating user JWTs</td></tr>
-        <tr><td><code>SUPABASE_SERVICE_KEY</code></td><td>All functions</td><td>Service role key — bypasses RLS for writes. Keep secret.</td></tr>
-        <tr><td><code>RESEND_API_KEY</code></td><td>Email-sending functions</td><td>API key for Resend transactional email service</td></tr>
-        <tr><td><code>TURNSTILE_SECRET</code></td><td><code>submit-quote.js</code></td><td>Server-side Turnstile verification secret</td></tr>
-        <tr><td><code>CRON_SECRET</code></td><td><code>send-reminders.js</code>, <code>check-open-shifts.js</code></td><td>Shared secret passed as <code>?secret=</code> query param to protect cron endpoints</td></tr>
-        <tr><td><code>ADMIN_EMAIL</code></td><td><code>check-open-shifts.js</code></td><td>Email address to receive urgent open-shift alerts</td></tr>
+        <tr><td><code>SUPABASE_URL</code></td><td>All functions</td><td>Your Supabase project URL</td></tr>
+        <tr><td><code>SUPABASE_ANON_KEY</code></td><td>All functions</td><td>Public key — safe to expose, RLS enforces access</td></tr>
+        <tr><td><code>SUPABASE_SERVICE_KEY</code></td><td>All functions</td><td>Secret key — bypasses RLS. Never expose to browser.</td></tr>
+        <tr><td><code>RESEND_API_KEY</code></td><td>Email-sending functions</td><td>Sends transactional emails via Resend</td></tr>
+        <tr><td><code>TURNSTILE_SECRET</code></td><td><code>submit-quote.js</code></td><td>Validates Turnstile bot-check on the quote form</td></tr>
+        <tr><td><code>CRON_SECRET</code></td><td><code>send-reminders.js</code>, <code>check-open-shifts.js</code></td><td>Protects cron endpoints — must match the reminder worker config</td></tr>
+        <tr><td><code>ADMIN_EMAIL</code></td><td><code>check-open-shifts.js</code></td><td>Where urgent uncovered shift alerts are emailed</td></tr>
       </tbody>
     </table>
 

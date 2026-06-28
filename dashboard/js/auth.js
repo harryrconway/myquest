@@ -119,7 +119,7 @@
       MQ.store.accounts.save({
         id: p.id, name: p.name || '', email: p.email || '',
         role: p.role || 'junior-cleaner',
-        status: p.status === 'suspended' ? 'suspended' : (p.status || 'active'),
+        status: p.status || 'active',
       });
       var existing = MQ.store.staff.getById(p.id);
       MQ.store.staff.save(Object.assign({}, existing || {}, {
@@ -128,7 +128,7 @@
         role:         p.role         || 'junior-cleaner',
         startDate:    p.start_date   || (existing && existing.startDate)    || '',
         createdAt:    p.created_at   || (existing && existing.createdAt)    || '',
-        active:       p.status !== 'suspended',
+        active:       p.status !== 'exited',
         colour:       p.colour       || (existing && existing.colour)      || '',
         availability: p.availability || (existing && existing.availability) || null,
       }));
@@ -172,8 +172,8 @@
         // plus a targeted self-row select that should always succeed, so
         // the logged-in user's own profile is never missing from the store.
         var _fastResults = await Promise.all([
-          Promise.resolve(sb.from('profiles').select('*')).catch(function () { return { data: null }; }),
-          Promise.resolve(sb.from('profiles').select('*').eq('id', fastUserId).limit(1)).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('profiles').select('id,name,email,role,status,colour,phone,mobile,profile_photo_url,availability,start_date')).catch(function () { return { data: null }; }),
+          Promise.resolve(sb.from('profiles').select('id,name,email,role,status,colour,phone,mobile,profile_photo_url,availability,start_date').eq('id', fastUserId).limit(1)).catch(function () { return { data: null }; }),
           Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template', 'message_of_week'])).catch(function () { return { data: null }; }),
         ]);
         var fastAllProfiles = _fastResults[0].data || [];
@@ -218,8 +218,8 @@
     // [1] All profiles — best-effort, used only to populate the in-memory store for display
     // [2] Company settings — rates + checklist template
     var _slowResults = await Promise.all([
-      Promise.resolve(sb.from('profiles').select('*').eq('id', userId).limit(1)).catch(function () { return { data: null }; }),
-      Promise.resolve(sb.from('profiles').select('*')).catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('profiles').select('id,name,email,role,status,colour,phone,mobile,profile_photo_url,availability,start_date').eq('id', userId).limit(1)).catch(function () { return { data: null }; }),
+      Promise.resolve(sb.from('profiles').select('id,name,email,role,status,colour,phone,mobile,profile_photo_url,availability,start_date')).catch(function () { return { data: null }; }),
       Promise.resolve(sb.from('company_settings').select('key, value').in('key', ['rates', 'checklist_template', 'message_of_week'])).catch(function () { return { data: null }; }),
     ]);
     var myProfile   = (_slowResults[0].data && _slowResults[0].data[0]) || null; // authoritative for this user's role
@@ -236,7 +236,7 @@
     if (myProfile) {
       name = myProfile.name || email;
       role = myProfile.role || 'staff';
-      if (myProfile.status === 'invited' && role !== 'owner') {
+      if (myProfile.status === 'onboarding' && role !== 'owner') {
         if (!window.location.pathname.includes('onboarding')) {
           window.location.href = 'onboarding.html';
           return;
