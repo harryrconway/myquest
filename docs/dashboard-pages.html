@@ -62,6 +62,7 @@
       <div class="toc__title">On this page</div>
       <ol>
         <li><a href="#home">Home (index.html)</a></li>
+        <li><a href="#quotes">Quotes</a></li>
         <li><a href="#calendar">Calendar</a></li>
         <li><a href="#my-schedule">My Schedule</a></li>
         <li><a href="#unscheduled-jobs">Unscheduled Jobs</a></li>
@@ -106,6 +107,32 @@
 
     <h3>JS file</h3>
     <p><code>dashboard-home-r2.js</code> — listens for <code>mq:ready</code>, then in parallel: <code>renderStats()</code>, <code>renderUpcomingJobs()</code>, <code>renderOpenShifts()</code>, and (if manager+) <code>renderAvailability()</code>. Realtime subscription on <code>quote_requests</code> and <code>profiles</code> auto-reloads relevant sections.</p>
+
+    <!-- ── QUOTES ──────────────────────────────────────── -->
+    <h2 id="quotes">Quotes — <code>quotes.html</code></h2>
+    <p><span class="badge badge--blue">Manager+</span></p>
+    <p>Internal quoting tool for staff to log phone/walk-in enquiries, calculate a price, and optionally email the quote to the client.</p>
+    <h4>List view</h4>
+    <ul>
+      <li>Table of all internally-created quotes (rows with <code>quote_type IS NOT NULL</code>)</li>
+      <li>Filter pills: All / Draft / Sent / Accepted / Declined</li>
+      <li>Click any row to open the full quote form in edit mode</li>
+    </ul>
+    <h4>Quote builder (new / edit)</h4>
+    <ul>
+      <li>Full-screen overlay with back chevron to return to the list</li>
+      <li>Left panel: long-form quote details (type, location, job details, extras, timing, client)</li>
+      <li>Right panel: live calculator (estimates hours + price from bedrooms/sqm/condition/extras), preferred days, preferred time, save/email buttons</li>
+      <li>Map: Leaflet + Nominatim geocoding on suburb/postcode input</li>
+      <li>Email history section (edit mode only): shows all previous email sends from <code>email_log</code> JSONB</li>
+    </ul>
+    <h4>Data sources</h4>
+    <ul>
+      <li>List: direct Supabase query (<code>quote_requests</code>, subset of columns)</li>
+      <li>Edit form: direct Supabase query (full column list, explicit — no <code>select *</code>)</li>
+      <li>Save: <code>POST /api/save-quote</code></li>
+      <li>Email: <code>POST /api/email-quote</code></li>
+    </ul>
 
     <!-- ── CALENDAR ─────────────────────────────────────── -->
     <h2 id="calendar">Calendar — <code>calendar.html</code></h2>

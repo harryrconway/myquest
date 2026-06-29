@@ -77,6 +77,7 @@ supabase/migrations/20260627_staff_hr_fields.sql
 supabase/migrations/20260628_profiles_hris_columns.sql
 supabase/migrations/20260628_rls_security_hardening.sql
 supabase/migrations/20260628_status_workflow.sql
+supabase/migrations/20260629_quote_internal_fields.sql
 ```
 
 All migrations use `IF NOT EXISTS` and are safe to re-run.

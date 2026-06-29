@@ -82,6 +82,8 @@
         <li><a href="#save-settings">save-settings</a></li>
         <li><a href="#ensure-storage">ensure-storage</a></li>
         <li><a href="#training-complete">training-complete</a></li>
+        <li><a href="#save-quote">save-quote</a></li>
+        <li><a href="#email-quote">email-quote</a></li>
         <li><a href="#send-reminders">send-reminders (cron)</a></li>
         <li><a href="#check-open-shifts">check-open-shifts (cron)</a></li>
         <li><a href="#clear-jobs">clear-jobs (danger)</a></li>
@@ -470,6 +472,50 @@
     <p>Empty — uses the caller's JWT to identify the user.</p>
 
     <!-- ─────────────────────────────────────────── -->
+    <!-- ─────────────────────────────────────────── -->
+    <h2 id="save-quote">POST /api/save-quote</h2>
+    <p><span class="badge badge--blue">Manager+</span></p>
+    <p>Creates or updates an internally-created quote. If <code>id</code> is omitted a new row is inserted. If <code>id</code> is present the existing row is patched. If an email is provided the client record is upserted (matched by email) and linked via <code>client_id</code>.</p>
+    <h4>Request body (all optional except where noted)</h4>
+    <pre><code>{
+  "id": "uuid (omit for new)",
+  "quote_type": "residential | commercial",
+  "client_type": "private | ndis | dva | office | construction | real-estate | aged-care | other",
+  "quote_status": "draft | sent | accepted | declined",
+  "quoted_price": 320.00,
+  "quote_source": "phone | walk-in | website",
+  "suburb": "Norwood", "postcode": "5067", "street_address": "14 Elm St", "state": "SA",
+  "parking_type": "On-site / driveway",
+  "access_instructions": "Someone will be home",
+  "service_type": "regular | eol | custom | deep | builders",
+  "bedrooms": 3, "bathrooms": 2, "living_areas": 2, "num_floors": 1,
+  "floor_area_sqm": 200, "restroom_count": 2,
+  "condition": "standard | poor | heavy",
+  "furnished_status": "furnished | partly | unfurnished",
+  "pet_info": "Dogs: Labrador",
+  "property_size_tag": "Medium (100–200 sqm)",
+  "extras": ["Oven", "Internal windows"],
+  "urgency": "asap | this-week | next-week | specific | flexible",
+  "vacate_date": "2026-07-04",
+  "is_recurring": true, "frequency": "Fortnightly", "recurrence": "fortnightly",
+  "preferred_days": ["Mon", "Wed"], "preferred_time": "Morning — 8:00 AM",
+  "lead_source": "Google",
+  "full_name": "Jane Smith", "phone": "0412345678", "email": "jane@example.com",
+  "internal_notes": "Eco-friendly products preferred"
+}</code></pre>
+    <h4>Response</h4>
+    <pre><code>{ "success": true, "id": "uuid" }</code></pre>
+
+    <!-- ─────────────────────────────────────────── -->
+    <h2 id="email-quote">POST /api/email-quote</h2>
+    <p><span class="badge badge--blue">Manager+</span></p>
+    <p>Sends a formatted HTML quote email to the client. Requires the quote row to have an <code>email</code> address. On success: appends an entry to <code>email_log</code> JSONB, sets <code>quote_status = 'sent'</code> and <code>quote_sent_at = now()</code>.</p>
+    <h4>Request body</h4>
+    <pre><code>{ "id": "quote uuid" }</code></pre>
+    <h4>Response</h4>
+    <pre><code>{ "success": true }</code></pre>
+    <p>Email log entry format: <code>{ sent_at, sent_by_id, sent_by_name, subject }</code></p>
+
     <h2 id="send-reminders">GET /api/send-reminders?secret=…</h2>
     <p><span class="badge badge--amber">Cron — secret required</span></p>
     <p>
