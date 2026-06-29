@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotes — Design Preview</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0f172a; }
+    body { background: #f1f5f9; }
+
+    /* ── Shared atoms ───────────────────────── */
+    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; }
+    .chip--draft    { background: #f1f5f9; color: #475569; }
+    .chip--sent     { background: #eff6ff; color: #1d4ed8; }
+    .chip--accepted { background: #f0fdf4; color: #15803d; }
+    .chip--declined { background: #fff1f2; color: #be123c; }
+    .chip--res      { background: #fdf4ff; color: #7e22ce; }
+    .chip--com      { background: #fff7ed; color: #c2410c; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .dot--draft { background: #94a3b8; } .dot--sent { background: #3b82f6; }
+    .dot--accepted { background: #16a34a; } .dot--declined { background: #ef4444; }
+
+    .btn { padding: 7px 15px; border-radius: 9px; font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; border: none; transition: opacity .15s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .btn:hover { opacity: .82; }
+    .btn--black   { background: #0f172a; color: #fff; }
+    .btn--outline { background: #fff; border: 1.5px solid #e2e8f0; color: #374151; }
+    .btn--yellow  { background: #FFD400; color: #000; }
+
+    /* ══════════════════════════════════════════
+       LIST PAGE
+    ══════════════════════════════════════════ */
+    #listPage { min-height: 100vh; }
+    .list-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+    .page-meta { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 6px; }
+
+    .hero-bar { background: #fff; border-radius: 20px; border: 1.5px solid #e2e8f0; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .hero-title { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+    .hero-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .stat-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sp { padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; background: #f8fafc; border: 1.5px solid #e2e8f0; color: #374151; cursor: pointer; transition: all .14s; }
+    .sp.on { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+    .card { background: #fff; border-radius: 20px; border: 1.5px solid #e2e8f0; overflow: hidden; }
+    .card-bar { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; }
+    .search { padding: 7px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-family: inherit; font-size: 13px; outline: none; width: 210px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 10px 14px; font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; text-align: left; background: #f8fafc; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    th:first-child, td:first-child { padding-left: 20px; }
+    td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #374151; vertical-align: middle; white-space: nowrap; }
+    tbody tr { cursor: pointer; } tbody tr:hover td { background: #f8fafc; }
+    tbody tr:last-child td { border-bottom: none; }
+    .cn { font-weight: 700; color: #0f172a; display: block; font-size: 13.5px; }
+    .ce { font-size: 11.5px; color: #94a3b8; }
+    .nc { font-style: italic; color: #94a3b8; font-size: 12px; }
+    .price-cell { font-size: 14px; font-weight: 800; color: #0f172a; }
+    .acts { display: flex; gap: 6px; }
+
+    /* ══════════════════════════════════════════
+       NEW QUOTE PAGE
+    ══════════════════════════════════════════ */
+    #quotePage { display: none; height: 100vh; flex-direction: column; }
+    #quotePage.on { display: flex; }
+
+    /* Sticky header */
+    .nq-header { flex-shrink: 0; background: #fff; border-bottom: 1.5px solid #e2e8f0; padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9px; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; color: #374151; transition: background .12s; }
+    .back-btn:hover { background: #f8fafc; }
+    .back-btn svg { flex-shrink: 0; }
+    .nq-header h1 { font-size: 16px; font-weight: 800; }
+    .nq-header-right { margin-left: auto; display: flex; gap: 8px; }
+
+    /* Body: form + calc side by side */
+    .nq-body { flex: 1; display: flex; overflow: hidden; }
+
+    /* Scrollable form column */
+    .nq-form { flex: 1; overflow-y: auto; padding: 28px 36px 60px; }
+    .form-inner { max-width: 780px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* Section label */
+    .sec-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; margin-top: 8px; margin-bottom: -4px; padding-left: 2px; }
+
+    /* Form cards */
+    .fc { background: #fff; border-radius: 16px; border: 1.5px solid #e2e8f0; overflow: hidden; }
+    .fc-head { padding: 13px 18px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; }
+    .fc-icon { font-size: 16px; }
+    .fc-title { font-size: 13.5px; font-weight: 700; }
+    .fc-sub { font-size: 11.5px; color: #94a3b8; margin-left: 4px; }
+    .fc-body { padding: 18px 20px; }
+
+    /* Type cards */
+    .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tc { border: 2px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; cursor: pointer; transition: all .15s; background: #fff; text-align: left; width: 100%; }
+    .tc:hover { border-color: #cbd5e1; }
+    .tc.on { border-color: #0f172a; background: #0f172a; color: #fff; }
+    .tc__icon { font-size: 24px; display: block; margin-bottom: 7px; }
+    .tc__name { font-size: 14px; font-weight: 800; display: block; margin-bottom: 2px; }
+    .tc__sub  { font-size: 11.5px; opacity: .55; line-height: 1.5; }
+
+    /* Sub-type pills inline */
+    .subtype-wrap { border-top: 1px solid #f1f5f9; padding: 12px 18px; display: none; }
+    .subtype-wrap.on { display: block; }
+    .subtype-lbl { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+    .pg { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pill { padding: 6px 13px; border-radius: 99px; border: 1.5px solid #e2e8f0; font-size: 12.5px; font-weight: 600; cursor: pointer; background: #fff; color: #374151; transition: all .12s; white-space: nowrap; }
+    .pill:hover { border-color: #94a3b8; }
+    .pill.on  { background: #0f172a; border-color: #0f172a; color: #fff; }
+    .pill.y.on { background: #FFD400; border-color: #FFD400; color: #000; }
+    .pill.blk { border-radius: 9px; }
+    .pill.blk.on { background: #0f172a; border-color: #0f172a; color: #fff; }
+
+    /* Field layout */
+    .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .f3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .f4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+    .fg { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .fg:last-child { margin-bottom: 0; }
+    .fl { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; }
+    .fl-note { font-size: 10px; font-weight: 500; color: #94a3b8; text-transform: none; letter-spacing: 0; margin-left: 4px; }
+    .fi { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-family: inherit; font-size: 13.5px; color: #0f172a; outline: none; width: 100%; background: #fff; }
+    .fi:focus { border-color: #94a3b8; }
+    .fs { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-family: inherit; font-size: 13.5px; color: #0f172a; outline: none; width: 100%; background: #fff; cursor: pointer; }
+    .fta { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-family: inherit; font-size: 13.5px; color: #0f172a; outline: none; width: 100%; background: #fff; resize: vertical; min-height: 76px; }
+    .fta:focus { border-color: #94a3b8; }
+    .f-divider { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 10px; }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 9px; overflow: hidden; background: #fff; height: 40px; }
+    .st-btn { width: 40px; height: 100%; border: none; background: #f8fafc; cursor: pointer; font-size: 18px; color: #374151; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .1s; }
+    .st-btn:hover { background: #f1f5f9; }
+    .st-val { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: #0f172a; }
+
+    /* Map */
+    #quoteMap { height: 190px; border-radius: 10px; border: 1.5px solid #e2e8f0; width: 100%; margin-top: 14px; }
+
+    /* Toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .toggle-lbl { font-size: 13.5px; font-weight: 600; color: #0f172a; }
+    .toggle { width: 44px; height: 24px; border-radius: 99px; background: #e2e8f0; cursor: pointer; position: relative; transition: background .2s; border: none; flex-shrink: 0; }
+    .toggle.on { background: #0f172a; }
+    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* Source selector */
+    .src-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .src { padding: 8px 16px; border-radius: 9px; border: 1.5px solid #e2e8f0; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; color: #374151; transition: all .12s; }
+    .src.on { background: #0f172a; border-color: #0f172a; color: #fff; }
+
+    /* Opt badge */
+    .opt { font-size: 11px; font-weight: 600; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 6px; margin-left: 6px; }
+
+    /* Conditional sections */
+    .cond { display: none; }
+    .cond.on { display: flex; flex-direction: column; gap: 16px; }
+    .fc.cond { display: none; }
+    .fc.cond.on { display: block; }
+
+    /* ══════════════════════════════════════════
+       CALCULATOR PANEL
+    ══════════════════════════════════════════ */
+    .nq-calc { width: 320px; flex-shrink: 0; background: #fff; border-left: 1.5px solid #e2e8f0; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px; }
+
+    .cl { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .cbox { background: #f8fafc; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 12px 14px; }
+    .crow { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; }
+    .crow + .crow { border-top: 1px solid #f1f5f9; }
+    .ck { font-size: 12.5px; color: #64748b; }
+    .cv { font-size: 13px; font-weight: 700; color: #0f172a; }
+
+    .rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .rf { display: flex; flex-direction: column; gap: 4px; }
+    .rl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; }
+    .ri { padding: 7px 8px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #0f172a; outline: none; width: 100%; text-align: center; background: #fff; }
+    .ri:focus { border-color: #94a3b8; }
+
+    .price-block { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; }
+    .price-block__top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .price-block__lbl { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; }
+    .price-block__hint { font-size: 11px; color: #94a3b8; }
+    .pi { width: 100%; padding: 10px 8px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: inherit; font-size: 28px; font-weight: 800; color: #0f172a; text-align: center; outline: none; background: #fff; }
+    .pi:focus { border-color: #0f172a; }
+
+    .saving { font-size: 12px; font-weight: 600; color: #15803d; background: #f0fdf4; border-radius: 8px; padding: 7px 10px; text-align: center; display: none; }
+
+    /* Days / time pills in calc */
+    .days-row { display: flex; gap: 5px; flex-wrap: wrap; }
+    .dp { padding: 5px 10px; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #fff; color: #374151; transition: all .12s; }
+    .dp.on { background: #0f172a; border-color: #0f172a; color: #fff; }
+
+    .calc-divider { border: none; border-top: 1.5px solid #f1f5f9; margin: 0; }
+
+    .c-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 14px; border-top: 1.5px solid #f1f5f9; }
+    .bf { width: 100%; padding: 11px; border-radius: 10px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; border: none; transition: opacity .15s; }
+    .bf:hover { opacity: .85; }
+    .bf--yellow  { background: #FFD400; color: #000; }
+    .bf--black   { background: #0f172a; color: #fff; }
+    .bf--outline { background: #fff; border: 1.5px solid #e2e8f0; color: #374151; }
+  </style>
+</head>
+<body>
+
+<!-- ══ LIST PAGE ═══════════════════════════════════ -->
+<div id="listPage">
+  <div class="list-wrap">
+    <p class="page-meta">Quotes — Design Preview</p>
+
+    <div class="hero-bar">
+      <div class="hero-left">
+        <span class="hero-title">Quotes</span>
+        <div class="stat-pills">
+          <button class="sp on" onclick="spick(this)">All <strong>12</strong></button>
+          <button class="sp" onclick="spick(this)">Draft <strong>5</strong></button>
+          <button class="sp" onclick="spick(this)">Sent <strong>4</strong></button>
+          <button class="sp" onclick="spick(this)">Accepted <strong>2</strong></button>
+          <button class="sp" onclick="spick(this)">Declined <strong>1</strong></button>
+        </div>
+      </div>
+      <button class="btn btn--black" onclick="showQuotePage()">+ New Quote</button>
+    </div>
+
+    <div class="card">
+      <div class="card-bar"><input class="search" type="search" placeholder="Search quotes…"></div>
+      <table>
+        <thead><tr><th>Client</th><th>Type</th><th>Service</th><th>Frequency</th><th>Price</th><th>Status</th><th>Created</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><span class="cn">Sarah Mitchell</span><span class="ce">sarah@example.com</span></td><td><span class="chip chip--res">Residential</span></td><td>Deep Clean</td><td>Fortnightly</td><td class="price-cell">$320</td><td><span class="chip chip--sent"><span class="dot dot--sent"></span> Sent</span></td><td>29 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button><button class="btn btn--yellow">Accept</button></div></td></tr>
+          <tr><td><span class="cn">Tom Nguyen</span><span class="ce">tom.n@gmail.com</span></td><td><span class="chip chip--com">Commercial</span></td><td>Regular</td><td>Weekly</td><td class="price-cell">$580</td><td><span class="chip chip--accepted"><span class="dot dot--accepted"></span> Accepted</span></td><td>28 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button></div></td></tr>
+          <tr><td><span class="nc">No client yet</span></td><td><span class="chip chip--res">Residential</span></td><td>Regular</td><td>Weekly</td><td class="price-cell">$195</td><td><span class="chip chip--draft"><span class="dot dot--draft"></span> Draft</span></td><td>29 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button><button class="btn btn--outline">Email</button></div></td></tr>
+          <tr><td><span class="cn">Priya Sharma</span><span class="ce">priya@example.com</span></td><td><span class="chip chip--res">Residential</span></td><td>End of Lease</td><td>One-off</td><td class="price-cell">$495</td><td><span class="chip chip--draft"><span class="dot dot--draft"></span> Draft</span></td><td>28 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button><button class="btn btn--outline">Email</button></div></td></tr>
+          <tr><td><span class="cn">Marcus Webb</span><span class="ce">m.webb@outlook.com</span></td><td><span class="chip chip--com">Commercial</span></td><td>Deep Clean</td><td>Monthly</td><td class="price-cell">$1,240</td><td><span class="chip chip--declined"><span class="dot dot--declined"></span> Declined</span></td><td>25 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ NEW QUOTE PAGE ═══════════════════════════════ -->
+<div id="quotePage">
+
+  <!-- Sticky header -->
+  <div class="nq-header">
+    <button class="back-btn" onclick="showListPage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Quotes
+    </button>
+    <h1>New Quote</h1>
+    <div class="nq-header-right">
+      <button class="btn btn--outline">Save Draft</button>
+      <button class="btn btn--yellow">✉ Save &amp; Email Quote</button>
+    </div>
+  </div>
+
+  <!-- Body: form + calc -->
+  <div class="nq-body">
+
+    <!-- ══ FORM ══════════════════════════════ -->
+    <div class="nq-form">
+      <div class="form-inner">
+
+        <!-- ─ Job type ─────────────────────── -->
+        <div class="sec-label">Job type</div>
+        <div class="fc">
+          <div class="fc-body">
+            <div class="type-grid">
+              <button class="tc" id="tc-res" onclick="setType('res')">
+                <span class="tc__icon">🏠</span>
+                <span class="tc__name">Residential</span>
+                <span class="tc__sub">Houses, apartments, townhouses, units</span>
+              </button>
+              <button class="tc" id="tc-com" onclick="setType('com')">
+                <span class="tc__icon">🏢</span>
+                <span class="tc__name">Commercial</span>
+                <span class="tc__sub">Offices, construction, real estate, aged care</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="subtype-wrap" id="res-sub">
+            <div class="subtype-lbl">Who is this clean for?</div>
+            <div class="pg">
+              <button class="pill blk" onclick="setSubtype(this,'private')">Private client</button>
+              <button class="pill blk" onclick="setSubtype(this,'ndis')">NDIS participant</button>
+              <button class="pill blk" onclick="setSubtype(this,'dva')">DVA client</button>
+            </div>
+          </div>
+
+          <div class="subtype-wrap" id="com-sub">
+            <div class="subtype-lbl">Type of commercial site</div>
+            <div class="pg">
+              <button class="pill blk" onclick="setSubtype(this,'office')">Office</button>
+              <button class="pill blk" onclick="setSubtype(this,'construction')">Construction / Builders</button>
+              <button class="pill blk" onclick="setSubtype(this,'real-estate')">Real Estate</button>
+              <button class="pill blk" onclick="setSubtype(this,'aged-care')">Aged Care</button>
+              <button class="pill blk" onclick="setSubtype(this,'other')">Other</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Location ──────────────────────── -->
+        <div class="sec-label">Location</div>
+        <div class="fc">
+          <div class="fc-head"><span class="fc-icon">📍</span><span class="fc-title">Property address</span></div>
+          <div class="fc-body">
+            <div class="f2" style="margin-bottom:14px;">
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Suburb</div>
+                <input class="fi" id="iSuburb" type="text" placeholder="e.g. Norwood" oninput="geocode()" autocomplete="off">
+              </div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Postcode</div>
+                <input class="fi" id="iPostcode" type="text" placeholder="e.g. 5067" maxlength="4" oninput="geocode()">
+              </div>
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="fl">Street address <span class="fl-note">optional at this stage</span></div>
+              <input class="fi" type="text" placeholder="123 Example St">
+            </div>
+            <div id="quoteMap"></div>
+          </div>
+        </div>
+
+        <div class="fc">
+          <div class="fc-head"><span class="fc-icon">🔑</span><span class="fc-title">Access &amp; parking</span></div>
+          <div class="fc-body">
+            <div class="f2">
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Parking</div>
+                <div class="pg" style="flex-direction:column;gap:6px;margin-top:4px;" id="parkPills">
+                  <button class="pill blk" onclick="selPill(this,'parkPills')">On-site / driveway</button>
+                  <button class="pill blk" onclick="selPill(this,'parkPills')">Street parking</button>
+                  <button class="pill blk" onclick="selPill(this,'parkPills')">Paid parking nearby</button>
+                  <button class="pill blk" onclick="selPill(this,'parkPills')">No parking available</button>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Access</div>
+                <div class="pg" style="flex-direction:column;gap:6px;margin-top:4px;" id="accessPills">
+                  <button class="pill blk" onclick="selPill(this,'accessPills')">Someone will be home</button>
+                  <button class="pill blk" onclick="selPill(this,'accessPills')">Key left on site</button>
+                  <button class="pill blk" onclick="selPill(this,'accessPills')">Lockbox</button>
+                  <button class="pill blk" onclick="selPill(this,'accessPills')">Via agent / property manager</button>
+                  <button class="pill blk" onclick="selPill(this,'accessPills')">Security access required</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Job details ───────────────────── -->
+        <div class="sec-label">Job details</div>
+
+        <!-- placeholder when no type chosen -->
+        <div class="fc" id="det-placeholder">
+          <div class="fc-body" style="text-align:center;padding:28px;color:#94a3b8;font-size:13.5px;">
+            Select a job type above to see job details
+          </div>
+        </div>
+
+        <!-- RESIDENTIAL details -->
+        <div class="cond" id="resDet">
+          <div class="fc">
+            <div class="fc-head"><span class="fc-icon">🧹</span><span class="fc-title">Type of clean</span></div>
+            <div class="fc-body">
+              <div class="pg" id="cleanTypePills">
+                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('regular')">Regular clean</button>
+                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('deep')">Deep clean</button>
+                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('eol')">End of lease / Bond</button>
+                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('spring')">Spring clean</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fc">
+            <div class="fc-head"><span class="fc-icon">🏠</span><span class="fc-title">Property size</span></div>
+            <div class="fc-body">
+              <div class="f4" style="margin-bottom:14px;">
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Bedrooms</div>
+                  <div class="stepper"><button class="st-btn" onclick="step('beds',-1)">−</button><div class="st-val" id="bedsV">3</div><button class="st-btn" onclick="step('beds',1)">+</button></div>
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Bathrooms</div>
+                  <div class="stepper"><button class="st-btn" onclick="step('baths',-1)">−</button><div class="st-val" id="bathsV">2</div><button class="st-btn" onclick="step('baths',1)">+</button></div>
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Other rooms</div>
+                  <div class="stepper"><button class="st-btn" onclick="step('rooms',-1)">−</button><div class="st-val" id="roomsV">2</div><button class="st-btn" onclick="step('rooms',1)">+</button></div>
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Floors</div>
+                  <div class="stepper"><button class="st-btn" onclick="step('floors',-1)">−</button><div class="st-val" id="floorsV">1</div><button class="st-btn" onclick="step('floors',1)">+</button></div>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Approximate size</div>
+                <div class="pg" id="sizePills">
+                  <button class="pill" onclick="selPill(this,'sizePills')">Small (under 100 sqm)</button>
+                  <button class="pill" onclick="selPill(this,'sizePills')">Medium (100–200 sqm)</button>
+                  <button class="pill" onclick="selPill(this,'sizePills')">Large (200–300 sqm)</button>
+                  <button class="pill" onclick="selPill(this,'sizePills')">Very large (300 sqm+)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fc">
+            <div class="fc-head"><span class="fc-icon">📋</span><span class="fc-title">Condition &amp; details</span></div>
+            <div class="fc-body">
+              <div class="fg">
+                <div class="fl">Property condition</div>
+                <div class="pg" id="condPills">
+                  <button class="pill on" onclick="selPill(this,'condPills')" data-v="standard">Standard</button>
+                  <button class="pill" onclick="selPill(this,'condPills')" data-v="poor">Needs attention</button>
+                  <button class="pill" onclick="selPill(this,'condPills')" data-v="heavy">Heavy clean</button>
+                </div>
+              </div>
+              <div class="fg">
+                <div class="fl">Furnished status</div>
+                <div class="pg" id="furnPills">
+                  <button class="pill" onclick="selPill(this,'furnPills')">Fully furnished</button>
+                  <button class="pill" onclick="selPill(this,'furnPills')">Partly furnished</button>
+                  <button class="pill" onclick="selPill(this,'furnPills')">Unfurnished</button>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Pets on site?</div>
+                <div class="pg" id="petPills">
+                  <button class="pill" onclick="selPill(this,'petPills');showEl('petNote',false)">No pets</button>
+                  <button class="pill" onclick="selPill(this,'petPills');showEl('petNote',true)">Dogs</button>
+                  <button class="pill" onclick="selPill(this,'petPills');showEl('petNote',true)">Cats</button>
+                  <button class="pill" onclick="selPill(this,'petPills');showEl('petNote',true)">Other</button>
+                </div>
+                <input class="fi" id="petNote" type="text" placeholder="Breed, number, any concerns…" style="display:none;margin-top:8px;">
+              </div>
+            </div>
+          </div>
+
+          <!-- NDIS conditional -->
+          <div class="fc cond" id="cond-ndis">
+            <div class="fc-head"><span class="fc-icon">♿</span><span class="fc-title">NDIS details <span class="fc-sub">optional</span></span></div>
+            <div class="fc-body">
+              <div class="f2">
+                <div class="fg" style="margin-bottom:0;"><div class="fl">NDIS number</div><input class="fi" type="text" placeholder="43 000 000 0000"></div>
+                <div class="fg" style="margin-bottom:0;"><div class="fl">Support coordinator</div><input class="fi" type="text" placeholder="Name"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DVA conditional -->
+          <div class="fc cond" id="cond-dva">
+            <div class="fc-head"><span class="fc-icon">🎖</span><span class="fc-title">DVA details <span class="fc-sub">optional</span></span></div>
+            <div class="fc-body">
+              <div class="f2">
+                <div class="fg" style="margin-bottom:0;"><div class="fl">DVA file number</div><input class="fi" type="text" placeholder="File number"></div>
+                <div class="fg" style="margin-bottom:0;"><div class="fl">Card type</div><select class="fs"><option value="">—</option><option>Gold card</option><option>White card</option><option>Orange card</option></select></div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /resDet -->
+
+        <!-- COMMERCIAL details -->
+        <div class="cond" id="comDet">
+          <div class="fc">
+            <div class="fc-head"><span class="fc-icon">🧹</span><span class="fc-title">Type of clean</span></div>
+            <div class="fc-body">
+              <div class="pg" id="comCleanPills">
+                <button class="pill" onclick="selPill(this,'comCleanPills')">Regular clean</button>
+                <button class="pill" onclick="selPill(this,'comCleanPills')">Deep clean</button>
+                <button class="pill" onclick="selPill(this,'comCleanPills')">Builders / post-construction</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fc">
+            <div class="fc-head"><span class="fc-icon">🏢</span><span class="fc-title">Premises details</span></div>
+            <div class="fc-body">
+              <div class="f3" style="margin-bottom:14px;">
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Floor area (sqm)</div>
+                  <input class="fi" id="comSqm" type="number" value="200" min="10" oninput="calc()">
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Number of floors</div>
+                  <div class="stepper"><button class="st-btn" onclick="step('comFloors',-1)">−</button><div class="st-val" id="comFloorsV">1</div><button class="st-btn" onclick="step('comFloors',1)">+</button></div>
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="fl">Restrooms</div>
+                  <div class="stepper"><button class="st-btn" onclick="step('restrooms',-1)">−</button><div class="st-val" id="restroomsV">2</div><button class="st-btn" onclick="step('restrooms',1)">+</button></div>
+                </div>
+              </div>
+              <div class="fg">
+                <div class="fl">Foot traffic</div>
+                <div class="pg" id="ftPills">
+                  <button class="pill" onclick="selPill(this,'ftPills')">Low</button>
+                  <button class="pill on" onclick="selPill(this,'ftPills')">Medium</button>
+                  <button class="pill" onclick="selPill(this,'ftPills')">High</button>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0;">
+                <div class="fl">Preferred clean time</div>
+                <div class="pg" id="cleanTimePills">
+                  <button class="pill" onclick="selPill(this,'cleanTimePills')">After hours</button>
+                  <button class="pill" onclick="selPill(this,'cleanTimePills')">Before opening</button>
+                  <button class="pill" onclick="selPill(this,'cleanTimePills')">During business hours</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Construction conditional -->
+          <div class="fc cond" id="cond-construction">
+            <div class="fc-head"><span class="fc-icon">🏗</span><span class="fc-title">Handover / completion date</span></div>
+            <div class="fc-body"><div class="fg" style="margin-bottom:0;"><div class="fl">Date keys/site handed over</div><input class="fi" type="date"></div></div>
+          </div>
+
+          <!-- Real estate conditional -->
+          <div class="fc cond" id="cond-real-estate">
+            <div class="fc-head"><span class="fc-icon">🏘</span><span class="fc-title">Property manager details</span></div>
+            <div class="fc-body">
+              <div class="f2">
+                <div class="fg" style="margin-bottom:0;"><div class="fl">Property manager</div><input class="fi" type="text" placeholder="Name"></div>
+                <div class="fg" style="margin-bottom:0;"><div class="fl">PM phone</div><input class="fi" type="tel" placeholder="0400 000 000"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aged care conditional -->
+          <div class="fc cond" id="cond-aged-care">
+            <div class="fc-head"><span class="fc-icon">🏥</span><span class="fc-title">Aged care notes</span></div>
+            <div class="fc-body"><textarea class="fta" placeholder="Compliance requirements, infection control, special instructions…"></textarea></div>
+          </div>
+        </div><!-- /comDet -->
+
+        <!-- ─ Extras ─────────────────────────── -->
+        <div class="sec-label">Extras</div>
+
+        <div class="fc" id="resExtras" style="display:none;">
+          <div class="fc-head"><span class="fc-icon">✨</span><span class="fc-title">Add-ons <span class="fc-sub">tap to include</span></span></div>
+          <div class="fc-body">
+            <div class="pg" id="extrasPills">
+              <button class="pill y" onclick="togPill(this)">Oven</button>
+              <button class="pill y" onclick="togPill(this)">Fridge</button>
+              <button class="pill y" onclick="togPill(this)">Internal windows</button>
+              <button class="pill y" onclick="togPill(this)">Balcony</button>
+              <button class="pill y" onclick="togPill(this)">Garage</button>
+              <button class="pill y" onclick="togPill(this)">Walls</button>
+              <button class="pill y" onclick="togPill(this)">Carpet steam</button>
+              <button class="pill y" onclick="togPill(this)">Laundry</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fc" id="comExtras" style="display:none;">
+          <div class="fc-head"><span class="fc-icon">✨</span><span class="fc-title">Add-ons <span class="fc-sub">tap to include</span></span></div>
+          <div class="fc-body">
+            <div class="pg" id="comExtrasPills">
+              <button class="pill y" onclick="togPill(this)">Kitchen</button>
+              <button class="pill y" onclick="togPill(this)">External windows</button>
+              <button class="pill y" onclick="togPill(this)">Carpet steam</button>
+              <button class="pill y" onclick="togPill(this)">Floor strip &amp; wax</button>
+              <button class="pill y" onclick="togPill(this)">High-touch sanitisation</button>
+              <button class="pill y" onclick="togPill(this)">Waste removal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fc" id="extras-placeholder" style="display:none;">
+          <div class="fc-body" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">Select a job type to see available extras</div>
+        </div>
+
+        <!-- ─ Timing ──────────────────────────── -->
+        <div class="sec-label">Timing</div>
+        <div class="fc">
+          <div class="fc-head"><span class="fc-icon">📅</span><span class="fc-title">When is this needed?</span></div>
+          <div class="fc-body">
+            <div class="fg">
+              <div class="fl">Urgency</div>
+              <div class="pg" id="urgencyPills">
+                <button class="pill" onclick="selPill(this,'urgencyPills');showEl('specDate',false)">As soon as possible</button>
+                <button class="pill" onclick="selPill(this,'urgencyPills');showEl('specDate',false)">This week</button>
+                <button class="pill" onclick="selPill(this,'urgencyPills');showEl('specDate',false)">Next week</button>
+                <button class="pill" onclick="selPill(this,'urgencyPills');showEl('specDate',true)">Specific date</button>
+                <button class="pill" onclick="selPill(this,'urgencyPills');showEl('specDate',false)">Flexible</button>
+              </div>
+              <input class="fi" id="specDate" type="date" style="display:none;margin-top:8px;">
+            </div>
+            <!-- Vacate date: shown for EOL/bond -->
+            <div class="fg cond fc" id="cond-vacate" style="background:#fffbeb;border-color:#fde68a;padding:14px 16px;margin-bottom:14px;">
+              <div class="fl" style="color:#92400e;">Vacate / key-handover date</div>
+              <input class="fi" type="date" style="border-color:#fde68a;">
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-lbl">Recurring / ongoing service</span>
+              <button class="toggle" id="recurToggle" onclick="togRecur()"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fc" id="freqCard" style="display:none;">
+          <div class="fc-head"><span class="fc-icon">🔁</span><span class="fc-title">Frequency</span></div>
+          <div class="fc-body">
+            <div class="pg" id="freqPills">
+              <button class="pill" onclick="selPill(this,'freqPills')">Weekly</button>
+              <button class="pill on" onclick="selPill(this,'freqPills')">Fortnightly</button>
+              <button class="pill" onclick="selPill(this,'freqPills')">Monthly</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Client details ─────────────────── -->
+        <div class="sec-label">Client details <span class="opt">optional — save the quote without these</span></div>
+        <div class="fc">
+          <div class="fc-head"><span class="fc-icon">👤</span><span class="fc-title">Contact</span></div>
+          <div class="fc-body">
+            <div class="src-row">
+              <button class="src on" onclick="selSrc(this)">📞 Phone call</button>
+              <button class="src" onclick="selSrc(this)">🚪 Walk-in</button>
+            </div>
+            <div class="f3" style="margin-bottom:14px;">
+              <div class="fg" style="margin-bottom:0;"><div class="fl">Full name</div><input class="fi" type="text" placeholder="Jane Smith"></div>
+              <div class="fg" style="margin-bottom:0;"><div class="fl">Mobile</div><input class="fi" type="tel" placeholder="0400 000 000"></div>
+              <div class="fg" style="margin-bottom:0;"><div class="fl">Email <span class="fl-note">required to email quote</span></div><input class="fi" type="email" placeholder="jane@example.com"></div>
+            </div>
+            <div class="fg">
+              <div class="fl">How did they hear about us?</div>
+              <div class="pg" id="leadPills">
+                <button class="pill" onclick="selPill(this,'leadPills')">Google</button>
+                <button class="pill" onclick="selPill(this,'leadPills')">Referral</button>
+                <button class="pill" onclick="selPill(this,'leadPills')">Facebook</button>
+                <button class="pill" onclick="selPill(this,'leadPills')">Repeat client</button>
+                <button class="pill" onclick="selPill(this,'leadPills')">Other</button>
+              </div>
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="fl">Internal notes</div>
+              <textarea class="fta" placeholder="Visible to managers only — follow-up reminders, client preferences, anything to flag…"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /form-inner -->
+    </div><!-- /nq-form -->
+
+    <!-- ══ CALCULATOR ══════════════════════ -->
+    <div class="nq-calc">
+
+      <div>
+        <div class="cl">Estimate</div>
+        <div class="cbox">
+          <div class="crow"><span class="ck">Est. hours</span><span class="cv" id="cHours">—</span></div>
+          <div class="crow"><span class="ck">Staff needed</span><span class="cv" id="cStaff">—</span></div>
+          <div class="crow"><span class="ck">Service mult.</span><span class="cv" id="cMult">—</span></div>
+          <div class="crow"><span class="ck">Extras</span><span class="cv" id="cExtras">—</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="cl">Rates <span style="font-weight:500;text-transform:none;letter-spacing:0;font-size:10px;color:#94a3b8;">editable</span></div>
+        <div class="rate-grid">
+          <div class="rf"><div class="rl">Hourly rate $</div><input class="ri" id="rHourly" type="number" value="45" min="1" oninput="calc()"></div>
+          <div class="rf"><div class="rl">Hrs / cleaner</div><input class="ri" id="rPerStaff" type="number" value="3" min="1" oninput="calc()"></div>
+          <div class="rf"><div class="rl">Oven (mins)</div><input class="ri" id="rOven" type="number" value="45" min="0" oninput="calc()"></div>
+          <div class="rf"><div class="rl">Fridge (mins)</div><input class="ri" id="rFridge" type="number" value="30" min="0" oninput="calc()"></div>
+          <div class="rf"><div class="rl">Windows (min)</div><input class="ri" id="rWin" type="number" value="60" min="0" oninput="calc()"></div>
+          <div class="rf"><div class="rl">Walls (mins)</div><input class="ri" id="rWalls" type="number" value="90" min="0" oninput="calc()"></div>
+        </div>
+      </div>
+
+      <div class="price-block">
+        <div class="price-block__top">
+          <div class="price-block__lbl">Quoted price</div>
+          <div class="price-block__hint">tap to override</div>
+        </div>
+        <input class="pi" id="cPrice" type="text" value="—">
+      </div>
+
+      <div class="saving" id="saving"></div>
+
+      <hr class="calc-divider">
+
+      <div>
+        <div class="cl">Preferred days</div>
+        <div class="days-row">
+          <button class="dp" onclick="this.classList.toggle('on')">Mon</button>
+          <button class="dp" onclick="this.classList.toggle('on')">Tue</button>
+          <button class="dp on" onclick="this.classList.toggle('on')">Wed</button>
+          <button class="dp" onclick="this.classList.toggle('on')">Thu</button>
+          <button class="dp" onclick="this.classList.toggle('on')">Fri</button>
+          <button class="dp" onclick="this.classList.toggle('on')">Sat</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="cl">Preferred time</div>
+        <div class="pg" id="calcTimePills">
+          <button class="pill blk" onclick="selPill(this,'calcTimePills')">Morning</button>
+          <button class="pill blk" onclick="selPill(this,'calcTimePills')">Afternoon</button>
+          <button class="pill blk" onclick="selPill(this,'calcTimePills')">Either</button>
+        </div>
+      </div>
+
+      <div class="c-actions">
+        <button class="bf bf--yellow">✉ Save &amp; Email Quote</button>
+        <button class="bf bf--black">💾 Save Draft</button>
+      </div>
+
+    </div><!-- /nq-calc -->
+  </div><!-- /nq-body -->
+</div><!-- /quotePage -->
+
+<script>
+  /* ── State ──────────────────────────────── */
+  var jobType = null, clientType = null, cleanType = null;
+  var sv = { beds:3, baths:2, rooms:2, floors:1, comFloors:1, restrooms:2 };
+  var map = null, marker = null, geocodeTimer = null;
+
+  /* ── Page switch ────────────────────────── */
+  function showQuotePage() {
+    document.getElementById('listPage').style.display = 'none';
+    document.getElementById('quotePage').classList.add('on');
+    document.body.style.overflow = 'hidden';
+    // Init map on first open
+    setTimeout(initMap, 100);
+  }
+  function showListPage() {
+    document.getElementById('listPage').style.display = '';
+    document.getElementById('quotePage').classList.remove('on');
+    document.body.style.overflow = '';
+  }
+
+  /* ── List filter pills ──────────────────── */
+  function spick(el) {
+    el.closest('.stat-pills').querySelectorAll('.sp').forEach(function(p){ p.classList.remove('on'); });
+    el.classList.add('on');
+  }
+
+  /* ── Job type ───────────────────────────── */
+  function setType(type) {
+    jobType = type;
+    document.getElementById('tc-res').classList.toggle('on', type === 'res');
+    document.getElementById('tc-com').classList.toggle('on', type === 'com');
+    document.getElementById('res-sub').classList.toggle('on', type === 'res');
+    document.getElementById('com-sub').classList.toggle('on', type === 'com');
+
+    // Details sections
+    document.getElementById('det-placeholder').style.display = 'none';
+    setCondClass('resDet', type === 'res');
+    setCondClass('comDet', type === 'com');
+
+    // Extras
+    document.getElementById('resExtras').style.display    = type === 'res' ? '' : 'none';
+    document.getElementById('comExtras').style.display    = type === 'com' ? '' : 'none';
+    document.getElementById('extras-placeholder').style.display = 'none';
+
+    // Clear sub-type selection & conditionals
+    clientType = null;
+    document.querySelectorAll('#res-sub .pill, #com-sub .pill').forEach(function(p){ p.classList.remove('on'); });
+    clearCondFields();
+    calc();
+  }
+
+  function setCondClass(id, on) {
+    var el = document.getElementById(id);
+    if (on) { el.classList.add('on'); } else { el.classList.remove('on'); }
+  }
+
+  /* ── Sub-type ───────────────────────────── */
+  function setSubtype(el, type) {
+    clientType = type;
+    var parent = el.closest('.pg');
+    parent.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('on'); });
+    el.classList.add('on');
+    clearCondFields();
+    var cf = document.getElementById('cond-' + type);
+    if (cf) cf.classList.add('on');
+  }
+
+  function clearCondFields() {
+    ['cond-ndis','cond-dva','cond-construction','cond-real-estate','cond-aged-care'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('on');
+    });
+  }
+
+  /* ── Clean type ─────────────────────────── */
+  function setCleanType(type) {
+    cleanType = type;
+    var showVacate = (type === 'eol');
+    var cv = document.getElementById('cond-vacate');
+    if (showVacate) { cv.classList.add('on'); } else { cv.classList.remove('on'); }
+    calc();
+  }
+
+  /* ── Map ────────────────────────────────── */
+  function initMap() {
+    if (map) { map.invalidateSize(); return; }
+    map = L.map('quoteMap').setView([-34.9285, 138.6007], 11);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+    marker = L.marker([-34.9285, 138.6007]).addTo(map);
+  }
+
+  function geocode() {
+    clearTimeout(geocodeTimer);
+    geocodeTimer = setTimeout(function() {
+      if (!map) return;
+      var suburb = document.getElementById('iSuburb').value.trim();
+      var post   = document.getElementById('iPostcode').value.trim();
+      var q = (suburb + ' ' + post + ' Australia').trim();
+      if (q.length < 4) return;
+      fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=1')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          if (data && data[0]) {
+            var lat = +data[0].lat, lng = +data[0].lon;
+            map.setView([lat, lng], 14);
+            marker.setLatLng([lat, lng]);
+          }
+        }).catch(function(){});
+    }, 700);
+  }
+
+  /* ── Pill helpers ───────────────────────── */
+  function selPill(el, groupId) {
+    var g = groupId ? document.getElementById(groupId) : el.closest('.pg');
+    if (g) g.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('on'); });
+    el.classList.add('on');
+    calc();
+  }
+  function togPill(el) { el.classList.toggle('on'); calc(); }
+  function selSrc(el) {
+    el.closest('.src-row').querySelectorAll('.src').forEach(function(b){ b.classList.remove('on'); });
+    el.classList.add('on');
+  }
+  function showEl(id, show) { document.getElementById(id).style.display = show ? '' : 'none'; }
+
+  /* ── Steppers ───────────────────────────── */
+  function step(key, d) {
+    sv[key] = Math.max(0, sv[key] + d);
+    var ids = { beds:'bedsV', baths:'bathsV', rooms:'roomsV', floors:'floorsV', comFloors:'comFloorsV', restrooms:'restroomsV' };
+    document.getElementById(ids[key]).textContent = sv[key];
+    calc();
+  }
+
+  /* ── Recurring toggle ───────────────────── */
+  function togRecur() {
+    var t = document.getElementById('recurToggle');
+    t.classList.toggle('on');
+    document.getElementById('freqCard').style.display = t.classList.contains('on') ? '' : 'none';
+    calc();
+  }
+
+  /* ── Calculator ─────────────────────────── */
+  function getPillVal(groupId) {
+    var el = document.querySelector('#' + groupId + ' .pill.on');
+    return el ? (el.dataset.v || el.textContent.trim()) : null;
+  }
+
+  function calc() {
+    if (!jobType) { setCalcOutput('—','—','—','—','—',null); return; }
+
+    var hourly   = parseFloat(document.getElementById('rHourly').value)   || 45;
+    var perStaff = parseFloat(document.getElementById('rPerStaff').value) || 3;
+    var extraMap = {
+      'Oven':             parseFloat(document.getElementById('rOven').value)   || 45,
+      'Fridge':           parseFloat(document.getElementById('rFridge').value) || 30,
+      'Internal windows': parseFloat(document.getElementById('rWin').value)    || 60,
+      'Walls':            parseFloat(document.getElementById('rWalls').value)  || 90,
+      'Balcony':20, 'Garage':30, 'Carpet steam':60, 'Laundry':20
+    };
+
+    var hours, staff, price, multLabel, extrasLabel, saving = null;
+    var isRecur = document.getElementById('recurToggle').classList.contains('on');
+    var freq = isRecur ? (getPillVal('freqPills') || 'Fortnightly') : 'One-off';
+
+    if (jobType === 'com') {
+      var sqm   = parseFloat((document.getElementById('comSqm')||{}).value) || 200;
+      var ft    = getPillVal('ftPills') || 'Medium';
+      var cMult = { Low:1, Medium:1.25, High:1.6 }[ft] || 1.25;
+      var fMult = { Weekly:4.3, Fortnightly:2.15, Monthly:1, 'One-off':1 }[freq] || 1;
+      hours     = sqm / 100;
+      staff     = Math.ceil(hours / perStaff);
+      price     = hours * hourly * cMult * (isRecur ? fMult : 1);
+      multLabel = '× ' + cMult + ' (' + ft + ')';
+      extrasLabel = '—';
+      saving    = isRecur ? '📋 ' + freq + ' ongoing' : null;
+    } else {
+      var svc   = cleanType || 'regular';
+      var cond  = getPillVal('condPills') || 'standard';
+      var condM = { standard:1, poor:1.3, heavy:1.6 }[cond] || 1;
+      var svcM  = { regular:1, deep:1.4, eol:1.8, spring:1.5 }[svc] || 1;
+      var freqD = { 'One-off':1, Monthly:0.95, Fortnightly:0.9, Weekly:0.85 }[freq] || 1;
+      var savingMap = { 'One-off':null, Monthly:'5% saving — monthly', Fortnightly:'10% saving — fortnightly', Weekly:'15% saving — weekly' };
+
+      var extMins = 0, extNames = [];
+      document.querySelectorAll('#extrasPills .pill.on').forEach(function(p){
+        var n = p.textContent.trim();
+        extMins += (extraMap[n] || 0);
+        extNames.push(n);
+      });
+      var baseH = (sv.beds * 0.5) + (sv.baths * 0.75) + (sv.rooms * 0.25) + (sv.floors * 0.25) + 0.5;
+      hours     = (baseH * condM * svcM) + (extMins / 60);
+      staff     = Math.ceil(hours / perStaff);
+      price     = hours * hourly * freqD;
+      multLabel = '× ' + svcM.toFixed(1) + ' (' + svc + ')';
+      extrasLabel = extNames.length ? extNames.join(', ') : '—';
+      saving    = savingMap[freq] ? '🎉 ' + savingMap[freq] : null;
+    }
+
+    setCalcOutput(hours.toFixed(1) + ' hrs', staff + ' cleaner' + (staff !== 1 ? 's' : ''), multLabel, extrasLabel, '$' + Math.round(price), saving);
+  }
+
+  function setCalcOutput(hours, staff, mult, extras, price, saving) {
+    document.getElementById('cHours').textContent  = hours;
+    document.getElementById('cStaff').textContent  = staff;
+    document.getElementById('cMult').textContent   = mult;
+    document.getElementById('cExtras').textContent = extras;
+    document.getElementById('cPrice').value        = price;
+    var s = document.getElementById('saving');
+    if (saving) { s.textContent = saving; s.style.display = 'block'; }
+    else { s.style.display = 'none'; }
+  }
+
+  calc();
+</script>
+</body>
+</html>
