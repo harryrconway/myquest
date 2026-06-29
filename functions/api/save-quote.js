@@ -42,50 +42,26 @@ export async function onRequestPost(context) {
   if (body.suburb        && body.suburb.length        > MAX.suburb) return json({ error: 'Suburb too long.' }, 400);
   if (body.internal_notes && body.internal_notes.length > MAX.notes) return json({ error: 'Notes too long.' }, 400);
 
-  // ── Build row ─────────────────────────────────────────────────────────────
-  const row = {
-    quote_type:          body.quote_type          || null,
-    client_type:         body.client_type         || null,
-    quote_status:        body.quote_status        || 'draft',
-    quoted_price:        body.quoted_price != null ? parseFloat(body.quoted_price) : null,
-    quote_source:        body.quote_source        || 'phone',
-    suburb:              body.suburb              || null,
-    postcode:            body.postcode            || null,
-    street_address:      body.street_address      || null,
-    state:               body.state               || null,
-    parking_type:        body.parking_type        || null,
-    access_instructions: body.access_instructions || null,
-    service_type:        body.service_type        || null,
-    bedrooms:            body.bedrooms     != null ? parseInt(body.bedrooms)     : null,
-    bathrooms:           body.bathrooms    != null ? parseInt(body.bathrooms)    : null,
-    living_areas:        body.living_areas != null ? parseInt(body.living_areas) : null,
-    floor_area_sqm:      body.floor_area_sqm != null ? parseFloat(body.floor_area_sqm) : null,
-    num_floors:          body.num_floors   != null ? parseInt(body.num_floors)   : null,
-    restroom_count:      body.restroom_count != null ? parseInt(body.restroom_count) : null,
-    condition:           body.condition           || null,
-    furnished_status:    body.furnished_status    || null,
-    pet_info:            body.pet_info            || null,
-    property_size_tag:   body.property_size_tag   || null,
-    extras:              body.extras              || [],
-    urgency:             body.urgency             || null,
-    vacate_date:         body.vacate_date         || null,
-    is_recurring:        body.is_recurring        || false,
-    frequency:           body.frequency           || null,
-    recurrence:          body.recurrence          || 'none',
-    preferred_days:      body.preferred_days      || [],
-    preferred_time:      body.preferred_time      || null,
-    lead_source:         body.lead_source         || null,
-    full_name:           body.full_name           || null,
-    phone:               body.phone               || null,
-    email:               body.email               || null,
-    internal_notes:      body.internal_notes      || null,
-    updated_at:          new Date().toISOString(),
-  };
-
   // ── Save ──────────────────────────────────────────────────────────────────
-  let quoteId = body.id || null;
+  const quoteId = body.id || null;
 
   if (quoteId) {
+    // Sparse PATCH — only update fields explicitly provided in the request body.
+    // This lets acceptQuote send just {id, quote_status} without clobbering other data.
+    const PATCHABLE = [
+      'quote_type', 'client_type', 'quote_status', 'quoted_price', 'quote_source',
+      'suburb', 'postcode', 'street_address', 'state', 'parking_type', 'access_instructions',
+      'service_type', 'bedrooms', 'bathrooms', 'living_areas', 'floor_area_sqm',
+      'num_floors', 'restroom_count', 'condition', 'furnished_status', 'pet_info',
+      'property_size_tag', 'extras', 'urgency', 'vacate_date', 'is_recurring',
+      'frequency', 'recurrence', 'preferred_days', 'preferred_time', 'lead_source',
+      'full_name', 'phone', 'email', 'internal_notes', 'hours', 'hourly_rate',
+    ];
+    const patchRow = { updated_at: new Date().toISOString() };
+    for (const key of PATCHABLE) {
+      if (key in body) patchRow[key] = body[key] ?? null;
+    }
+
     const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/quote_requests?id=eq.${quoteId}`, {
       method: 'PATCH',
       headers: {
@@ -94,10 +70,59 @@ export async function onRequestPost(context) {
         'Content-Type':  'application/json',
         'Prefer':        'return=minimal',
       },
-      body: JSON.stringify(row),
+      body: JSON.stringify(patchRow),
     });
-    if (!patchRes.ok) return json({ error: 'Failed to update quote.' }, 500);
+    if (!patchRes.ok) {
+      const errBody = await patchRes.json().catch(() => ({}));
+      console.error('Supabase patch error:', JSON.stringify(errBody));
+      return json({ error: 'Failed to update quote.', detail: errBody }, 500);
+    }
   } else {
+    // Full INSERT with defaults for all fields
+    const insertRow = {
+      quote_type:          body.quote_type          || null,
+      client_type:         body.client_type         || null,
+      quote_status:        body.quote_status        || 'draft',
+      quoted_price:        body.quoted_price != null ? parseFloat(body.quoted_price) : null,
+      quote_source:        body.quote_source        || 'phone',
+      suburb:              body.suburb              || null,
+      postcode:            body.postcode            || null,
+      street_address:      body.street_address      || null,
+      state:               body.state               || null,
+      parking_type:        body.parking_type        || null,
+      access_instructions: body.access_instructions || null,
+      service_type:        body.service_type        || null,
+      bedrooms:            body.bedrooms     != null ? parseInt(body.bedrooms)     : null,
+      bathrooms:           body.bathrooms    != null ? parseInt(body.bathrooms)    : null,
+      living_areas:        body.living_areas != null ? parseInt(body.living_areas) : null,
+      floor_area_sqm:      body.floor_area_sqm != null ? parseFloat(body.floor_area_sqm) : null,
+      num_floors:          body.num_floors   != null ? parseInt(body.num_floors)   : null,
+      restroom_count:      body.restroom_count != null ? parseInt(body.restroom_count) : null,
+      condition:           body.condition           || null,
+      furnished_status:    body.furnished_status    || null,
+      pet_info:            body.pet_info            || null,
+      property_size_tag:   body.property_size_tag   || null,
+      extras:              body.extras              || [],
+      urgency:             body.urgency             || null,
+      vacate_date:         body.vacate_date         || null,
+      is_recurring:        body.is_recurring        || false,
+      frequency:           body.frequency           || null,
+      recurrence:          body.recurrence          || 'none',
+      preferred_days:      body.preferred_days      || [],
+      preferred_time:      body.preferred_time      || null,
+      lead_source:         body.lead_source         || null,
+      full_name:           body.full_name           || null,
+      phone:               body.phone               || null,
+      email:               body.email               || null,
+      internal_notes:      body.internal_notes      || null,
+      hours:               body.hours        != null ? parseFloat(body.hours)        : null,
+      hourly_rate:         body.hourly_rate  != null ? parseFloat(body.hourly_rate)  : null,
+      status:              'unscheduled',
+      created_by:          user.id,
+      created_at:          new Date().toISOString(),
+      updated_at:          new Date().toISOString(),
+    };
+
     const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/quote_requests`, {
       method: 'POST',
       headers: {
@@ -106,85 +131,20 @@ export async function onRequestPost(context) {
         'Content-Type':  'application/json',
         'Prefer':        'return=representation',
       },
-      body: JSON.stringify({
-        ...row,
-        status:     'unscheduled',
-        created_by: user.id,
-        created_at: new Date().toISOString(),
-      }),
+      body: JSON.stringify(insertRow),
     });
-    if (!insertRes.ok) return json({ error: 'Failed to create quote.' }, 500);
+    if (!insertRes.ok) {
+      const errBody = await insertRes.json().catch(() => ({}));
+      console.error('Supabase insert error:', JSON.stringify(errBody));
+      return json({ error: 'Failed to create quote.', detail: errBody }, 500);
+    }
     const inserted = await insertRes.json().catch(() => []);
-    quoteId = inserted && inserted[0] ? inserted[0].id : null;
-    if (!quoteId) return json({ error: 'Failed to retrieve new quote ID.' }, 500);
-  }
-
-  // ── Upsert client (if email provided) ────────────────────────────────────
-  if (body.email) {
-    await upsertClient({ SUPABASE_URL, SERVICE_KEY, quoteId, body });
+    const newId = inserted && inserted[0] ? inserted[0].id : null;
+    if (!newId) return json({ error: 'Failed to retrieve new quote ID.' }, 500);
+    return json({ success: true, id: newId });
   }
 
   return json({ success: true, id: quoteId });
-}
-
-async function upsertClient({ SUPABASE_URL, SERVICE_KEY, quoteId, body }) {
-  try {
-    const { full_name, email, phone } = body;
-    const existingRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/clients?email=eq.${encodeURIComponent(email)}&select=id`,
-      { headers: { 'Authorization': `Bearer ${SERVICE_KEY}`, 'apikey': SERVICE_KEY } }
-    );
-    const existing = await existingRes.json().catch(() => []);
-    const clientBody = {
-      full_name:      full_name           || null,
-      email,
-      phone:          phone               || null,
-      street_address: body.street_address || null,
-      suburb:         body.suburb         || null,
-      state:          body.state          || null,
-      postcode:       body.postcode       || null,
-      updated_at:     new Date().toISOString(),
-    };
-    let clientId;
-    if (existing && existing[0]) {
-      clientId = existing[0].id;
-      await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${SERVICE_KEY}`,
-          'apikey':        SERVICE_KEY,
-          'Content-Type':  'application/json',
-          'Prefer':        'return=minimal',
-        },
-        body: JSON.stringify(clientBody),
-      });
-    } else {
-      const createRes = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SERVICE_KEY}`,
-          'apikey':        SERVICE_KEY,
-          'Content-Type':  'application/json',
-          'Prefer':        'return=representation',
-        },
-        body: JSON.stringify({ ...clientBody, created_at: new Date().toISOString() }),
-      });
-      const created = await createRes.json().catch(() => []);
-      clientId = created && created[0] ? created[0].id : null;
-    }
-    if (clientId) {
-      await fetch(`${SUPABASE_URL}/rest/v1/quote_requests?id=eq.${quoteId}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${SERVICE_KEY}`,
-          'apikey':        SERVICE_KEY,
-          'Content-Type':  'application/json',
-          'Prefer':        'return=minimal',
-        },
-        body: JSON.stringify({ client_id: clientId }),
-      });
-    }
-  } catch (_) { /* swallow — client upsert failure doesn't block the save */ }
 }
 
 function json(data, status = 200) {

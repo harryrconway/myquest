@@ -29,6 +29,7 @@
     .btn--black   { background: #0f172a; color: #fff; }
     .btn--outline { background: #fff; border: 1.5px solid #e2e8f0; color: #374151; }
     .btn--yellow  { background: #FFD400; color: #000; }
+    .btn--green   { background: #16a34a; color: #fff; }
 
     /* ══════════════════════════════════════════
        LIST PAGE
@@ -60,30 +61,25 @@
     .acts { display: flex; gap: 6px; }
 
     /* ══════════════════════════════════════════
-       NEW QUOTE PAGE
+       QUOTE BUILDER / EDIT PAGE
     ══════════════════════════════════════════ */
     #quotePage { display: none; height: 100vh; flex-direction: column; }
     #quotePage.on { display: flex; }
 
-    /* Sticky header */
-    .nq-header { flex-shrink: 0; background: #fff; border-bottom: 1.5px solid #e2e8f0; padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 16px; }
-    .back-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9px; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; color: #374151; transition: background .12s; }
+    .nq-header { flex-shrink: 0; background: #fff; border-bottom: 1.5px solid #e2e8f0; padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 12px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9px; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; color: #374151; transition: background .12s; white-space: nowrap; }
     .back-btn:hover { background: #f8fafc; }
     .back-btn svg { flex-shrink: 0; }
-    .nq-header h1 { font-size: 16px; font-weight: 800; }
+    .nq-header h1 { font-size: 15px; font-weight: 800; }
+    .nq-header-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; }
     .nq-header-right { margin-left: auto; display: flex; gap: 8px; }
 
-    /* Body: form + calc side by side */
     .nq-body { flex: 1; display: flex; overflow: hidden; }
-
-    /* Scrollable form column */
     .nq-form { flex: 1; overflow-y: auto; padding: 28px 36px 60px; }
     .form-inner { max-width: 780px; display: flex; flex-direction: column; gap: 16px; }
 
-    /* Section label */
     .sec-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; margin-top: 8px; margin-bottom: -4px; padding-left: 2px; }
 
-    /* Form cards */
     .fc { background: #fff; border-radius: 16px; border: 1.5px solid #e2e8f0; overflow: hidden; }
     .fc-head { padding: 13px 18px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; }
     .fc-icon { font-size: 16px; }
@@ -91,7 +87,6 @@
     .fc-sub { font-size: 11.5px; color: #94a3b8; margin-left: 4px; }
     .fc-body { padding: 18px 20px; }
 
-    /* Type cards */
     .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .tc { border: 2px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; cursor: pointer; transition: all .15s; background: #fff; text-align: left; width: 100%; }
     .tc:hover { border-color: #cbd5e1; }
@@ -100,7 +95,6 @@
     .tc__name { font-size: 14px; font-weight: 800; display: block; margin-bottom: 2px; }
     .tc__sub  { font-size: 11.5px; opacity: .55; line-height: 1.5; }
 
-    /* Sub-type pills inline */
     .subtype-wrap { border-top: 1px solid #f1f5f9; padding: 12px 18px; display: none; }
     .subtype-wrap.on { display: block; }
     .subtype-lbl { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
@@ -112,7 +106,6 @@
     .pill.blk { border-radius: 9px; }
     .pill.blk.on { background: #0f172a; border-color: #0f172a; color: #fff; }
 
-    /* Field layout */
     .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .f3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     .f4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
@@ -125,18 +118,14 @@
     .fs { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-family: inherit; font-size: 13.5px; color: #0f172a; outline: none; width: 100%; background: #fff; cursor: pointer; }
     .fta { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-family: inherit; font-size: 13.5px; color: #0f172a; outline: none; width: 100%; background: #fff; resize: vertical; min-height: 76px; }
     .fta:focus { border-color: #94a3b8; }
-    .f-divider { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 10px; }
 
-    /* Stepper */
     .stepper { display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 9px; overflow: hidden; background: #fff; height: 40px; }
     .st-btn { width: 40px; height: 100%; border: none; background: #f8fafc; cursor: pointer; font-size: 18px; color: #374151; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .1s; }
     .st-btn:hover { background: #f1f5f9; }
     .st-val { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: #0f172a; }
 
-    /* Map */
     #quoteMap { height: 190px; border-radius: 10px; border: 1.5px solid #e2e8f0; width: 100%; margin-top: 14px; }
 
-    /* Toggle */
     .toggle-row { display: flex; align-items: center; justify-content: space-between; }
     .toggle-lbl { font-size: 13.5px; font-weight: 600; color: #0f172a; }
     .toggle { width: 44px; height: 24px; border-radius: 99px; background: #e2e8f0; cursor: pointer; position: relative; transition: background .2s; border: none; flex-shrink: 0; }
@@ -144,19 +133,30 @@
     .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
     .toggle.on::after { transform: translateX(20px); }
 
-    /* Source selector */
     .src-row { display: flex; gap: 8px; margin-bottom: 16px; }
     .src { padding: 8px 16px; border-radius: 9px; border: 1.5px solid #e2e8f0; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; color: #374151; transition: all .12s; }
     .src.on { background: #0f172a; border-color: #0f172a; color: #fff; }
 
-    /* Opt badge */
     .opt { font-size: 11px; font-weight: 600; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 6px; margin-left: 6px; }
 
-    /* Conditional sections */
     .cond { display: none; }
     .cond.on { display: flex; flex-direction: column; gap: 16px; }
     .fc.cond { display: none; }
     .fc.cond.on { display: block; }
+
+    /* Email history */
+    .eh-section { display: none; }
+    .eh-section.on { display: block; }
+    .eh-empty { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+    .eh-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+    .eh-item:last-child { border-bottom: none; }
+    .eh-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+    .eh-meta { flex: 1; }
+    .eh-date { font-size: 12px; font-weight: 700; color: #0f172a; }
+    .eh-sender { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+    .eh-subject { font-size: 12.5px; color: #374151; margin-top: 3px; font-style: italic; }
+    .eh-resend { padding: 4px 10px; border-radius: 7px; border: 1.5px solid #e2e8f0; background: #fff; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; color: #374151; white-space: nowrap; flex-shrink: 0; }
+    .eh-resend:hover { background: #f8fafc; }
 
     /* ══════════════════════════════════════════
        CALCULATOR PANEL
@@ -185,19 +185,65 @@
 
     .saving { font-size: 12px; font-weight: 600; color: #15803d; background: #f0fdf4; border-radius: 8px; padding: 7px 10px; text-align: center; display: none; }
 
-    /* Days / time pills in calc */
     .days-row { display: flex; gap: 5px; flex-wrap: wrap; }
     .dp { padding: 5px 10px; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #fff; color: #374151; transition: all .12s; }
     .dp.on { background: #0f172a; border-color: #0f172a; color: #fff; }
 
     .calc-divider { border: none; border-top: 1.5px solid #f1f5f9; margin: 0; }
 
-    .c-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 14px; border-top: 1.5px solid #f1f5f9; }
+    .c-actions { display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1.5px solid #f1f5f9; }
     .bf { width: 100%; padding: 11px; border-radius: 10px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; border: none; transition: opacity .15s; }
     .bf:hover { opacity: .85; }
     .bf--yellow  { background: #FFD400; color: #000; }
     .bf--black   { background: #0f172a; color: #fff; }
     .bf--outline { background: #fff; border: 1.5px solid #e2e8f0; color: #374151; }
+    .bf--green   { background: #16a34a; color: #fff; }
+
+    /* ══════════════════════════════════════════
+       CLIENT QUOTE PREVIEW MODAL
+    ══════════════════════════════════════════ */
+    #previewModal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(15,23,42,.45); backdrop-filter: blur(3px); align-items: flex-start; justify-content: center; overflow-y: auto; padding: 32px 16px 60px; }
+    #previewModal.on { display: flex; }
+
+    .preview-sheet { background: #fff; border-radius: 20px; width: 100%; max-width: 660px; box-shadow: 0 24px 60px rgba(0,0,0,.18); }
+    .preview-topbar { padding: 14px 20px; border-bottom: 1.5px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .preview-doc { padding: 36px 40px; }
+
+    .pq-logo { font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: #0f172a; }
+    .pq-logo span { color: #FFD400; }
+    .pq-tagline { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+
+    .pq-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+    .pq-title { text-align: right; }
+    .pq-title h2 { font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -.02em; }
+    .pq-title .pq-id { font-size: 13px; color: #64748b; font-weight: 600; margin-top: 2px; }
+    .pq-title .pq-date { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    .pq-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 2px solid #f1f5f9; }
+    .pq-party-lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; margin-bottom: 6px; }
+    .pq-party-name { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .pq-party-line { font-size: 13px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+
+    .pq-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .pq-table th { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; padding: 0 0 8px; border-bottom: 2px solid #e2e8f0; text-align: left; }
+    .pq-table th:last-child { text-align: right; }
+    .pq-table td { padding: 14px 0; border-bottom: 1px solid #f8fafc; vertical-align: top; }
+    .pq-table td:last-child { text-align: right; font-weight: 800; font-size: 15px; }
+    .pq-item-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .pq-item-sub  { font-size: 12px; color: #64748b; margin-top: 4px; line-height: 1.5; }
+
+    .pq-total-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-top: 2.5px solid #0f172a; margin-top: 4px; }
+    .pq-total-lbl { font-size: 13px; font-weight: 700; color: #0f172a; }
+    .pq-total-price { font-size: 26px; font-weight: 800; color: #0f172a; }
+    .pq-total-note { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+    .pq-prefs { background: #f8fafc; border-radius: 12px; padding: 14px 16px; margin: 20px 0; font-size: 13px; color: #374151; line-height: 1.8; }
+    .pq-prefs strong { color: #0f172a; font-weight: 700; }
+
+    .pq-footer { border-top: 1.5px solid #f1f5f9; padding-top: 20px; margin-top: 20px; }
+    .pq-footer-text { font-size: 12.5px; color: #64748b; line-height: 1.7; }
+    .pq-accept { display: block; margin-top: 20px; padding: 14px; background: #FFD400; border: none; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; width: 100%; text-align: center; transition: opacity .15s; }
+    .pq-accept:hover { opacity: .85; }
   </style>
 </head>
 <body>
@@ -211,14 +257,13 @@
       <div class="hero-left">
         <span class="hero-title">Quotes</span>
         <div class="stat-pills">
-          <button class="sp on" onclick="spick(this)">All <strong>12</strong></button>
-          <button class="sp" onclick="spick(this)">Draft <strong>5</strong></button>
-          <button class="sp" onclick="spick(this)">Sent <strong>4</strong></button>
-          <button class="sp" onclick="spick(this)">Accepted <strong>2</strong></button>
-          <button class="sp" onclick="spick(this)">Declined <strong>1</strong></button>
+          <button class="sp on" onclick="spick(this)">All <strong>3</strong></button>
+          <button class="sp" onclick="spick(this)">Draft <strong>1</strong></button>
+          <button class="sp" onclick="spick(this)">Sent <strong>1</strong></button>
+          <button class="sp" onclick="spick(this)">Accepted <strong>1</strong></button>
         </div>
       </div>
-      <button class="btn btn--black" onclick="showQuotePage()">+ New Quote</button>
+      <button class="btn btn--black" onclick="showNewQuote()">+ New Quote</button>
     </div>
 
     <div class="card">
@@ -226,11 +271,36 @@
       <table>
         <thead><tr><th>Client</th><th>Type</th><th>Service</th><th>Frequency</th><th>Price</th><th>Status</th><th>Created</th><th></th></tr></thead>
         <tbody>
-          <tr><td><span class="cn">Sarah Mitchell</span><span class="ce">sarah@example.com</span></td><td><span class="chip chip--res">Residential</span></td><td>Deep Clean</td><td>Fortnightly</td><td class="price-cell">$320</td><td><span class="chip chip--sent"><span class="dot dot--sent"></span> Sent</span></td><td>29 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button><button class="btn btn--yellow">Accept</button></div></td></tr>
-          <tr><td><span class="cn">Tom Nguyen</span><span class="ce">tom.n@gmail.com</span></td><td><span class="chip chip--com">Commercial</span></td><td>Regular</td><td>Weekly</td><td class="price-cell">$580</td><td><span class="chip chip--accepted"><span class="dot dot--accepted"></span> Accepted</span></td><td>28 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button></div></td></tr>
-          <tr><td><span class="nc">No client yet</span></td><td><span class="chip chip--res">Residential</span></td><td>Regular</td><td>Weekly</td><td class="price-cell">$195</td><td><span class="chip chip--draft"><span class="dot dot--draft"></span> Draft</span></td><td>29 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button><button class="btn btn--outline">Email</button></div></td></tr>
-          <tr><td><span class="cn">Priya Sharma</span><span class="ce">priya@example.com</span></td><td><span class="chip chip--res">Residential</span></td><td>End of Lease</td><td>One-off</td><td class="price-cell">$495</td><td><span class="chip chip--draft"><span class="dot dot--draft"></span> Draft</span></td><td>28 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button><button class="btn btn--outline">Email</button></div></td></tr>
-          <tr><td><span class="cn">Marcus Webb</span><span class="ce">m.webb@outlook.com</span></td><td><span class="chip chip--com">Commercial</span></td><td>Deep Clean</td><td>Monthly</td><td class="price-cell">$1,240</td><td><span class="chip chip--declined"><span class="dot dot--declined"></span> Declined</span></td><td>25 Jun</td><td><div class="acts"><button class="btn btn--outline">View</button></div></td></tr>
+          <tr onclick="openQuote('QT-001')">
+            <td><span class="cn">Sarah Mitchell</span><span class="ce">sarah@example.com</span></td>
+            <td><span class="chip chip--res">Residential</span></td>
+            <td>Regular clean</td>
+            <td>Fortnightly</td>
+            <td class="price-cell">$320</td>
+            <td><span class="chip chip--sent"><span class="dot dot--sent"></span> Sent</span></td>
+            <td>29 Jun</td>
+            <td><div class="acts" onclick="event.stopPropagation()"><button class="btn btn--outline" onclick="openQuote('QT-001')">View</button><button class="btn btn--yellow">Accept</button></div></td>
+          </tr>
+          <tr onclick="openQuote('QT-002')">
+            <td><span class="cn">Tom Nguyen</span><span class="ce">tom.n@gmail.com</span></td>
+            <td><span class="chip chip--com">Commercial</span></td>
+            <td>Regular clean</td>
+            <td>Weekly</td>
+            <td class="price-cell">$580</td>
+            <td><span class="chip chip--accepted"><span class="dot dot--accepted"></span> Accepted</span></td>
+            <td>28 Jun</td>
+            <td><div class="acts" onclick="event.stopPropagation()"><button class="btn btn--outline" onclick="openQuote('QT-002')">View</button><button class="btn btn--green">Convert to Job</button></div></td>
+          </tr>
+          <tr onclick="openQuote('QT-003')">
+            <td><span class="nc">No client yet</span></td>
+            <td><span class="chip chip--res">Residential</span></td>
+            <td>End of lease</td>
+            <td>One-off</td>
+            <td class="price-cell">$495</td>
+            <td><span class="chip chip--draft"><span class="dot dot--draft"></span> Draft</span></td>
+            <td>29 Jun</td>
+            <td><div class="acts" onclick="event.stopPropagation()"><button class="btn btn--outline" onclick="openQuote('QT-003')">View</button></div></td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -238,30 +308,32 @@
 </div>
 
 
-<!-- ══ NEW QUOTE PAGE ═══════════════════════════════ -->
+<!-- ══ QUOTE BUILDER / EDIT PAGE ════════════════════ -->
 <div id="quotePage">
 
-  <!-- Sticky header -->
+  <!-- Header -->
   <div class="nq-header">
     <button class="back-btn" onclick="showListPage()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       Quotes
     </button>
-    <h1>New Quote</h1>
+    <h1 id="pageTitle">New Quote</h1>
+    <div id="headerStatusBadge"></div>
     <div class="nq-header-right">
-      <button class="btn btn--outline">Save Draft</button>
-      <button class="btn btn--yellow">✉ Save &amp; Email Quote</button>
+      <button id="btnViewQuote" class="btn btn--outline" style="display:none;" onclick="showPreviewModal()">👁 View Quote</button>
+      <button id="btnHeaderSave" class="btn btn--outline">Save Draft</button>
+      <button id="btnHeaderEmail" class="btn btn--yellow">✉ Save &amp; Email Quote</button>
     </div>
   </div>
 
-  <!-- Body: form + calc -->
+  <!-- Body -->
   <div class="nq-body">
 
     <!-- ══ FORM ══════════════════════════════ -->
     <div class="nq-form">
       <div class="form-inner">
 
-        <!-- ─ Job type ─────────────────────── -->
+        <!-- Job type -->
         <div class="sec-label">Job type</div>
         <div class="fc">
           <div class="fc-body">
@@ -278,7 +350,6 @@
               </button>
             </div>
           </div>
-
           <div class="subtype-wrap" id="res-sub">
             <div class="subtype-lbl">Who is this clean for?</div>
             <div class="pg">
@@ -287,7 +358,6 @@
               <button class="pill blk" onclick="setSubtype(this,'dva')">DVA client</button>
             </div>
           </div>
-
           <div class="subtype-wrap" id="com-sub">
             <div class="subtype-lbl">Type of commercial site</div>
             <div class="pg">
@@ -300,7 +370,7 @@
           </div>
         </div>
 
-        <!-- ─ Location ──────────────────────── -->
+        <!-- Location -->
         <div class="sec-label">Location</div>
         <div class="fc">
           <div class="fc-head"><span class="fc-icon">📍</span><span class="fc-title">Property address</span></div>
@@ -317,7 +387,7 @@
             </div>
             <div class="fg" style="margin-bottom:0;">
               <div class="fl">Street address <span class="fl-note">optional at this stage</span></div>
-              <input class="fi" type="text" placeholder="123 Example St">
+              <input class="fi" id="iStreet" type="text" placeholder="123 Example St">
             </div>
             <div id="quoteMap"></div>
           </div>
@@ -350,26 +420,21 @@
           </div>
         </div>
 
-        <!-- ─ Job details ───────────────────── -->
+        <!-- Job details -->
         <div class="sec-label">Job details</div>
-
-        <!-- placeholder when no type chosen -->
         <div class="fc" id="det-placeholder">
-          <div class="fc-body" style="text-align:center;padding:28px;color:#94a3b8;font-size:13.5px;">
-            Select a job type above to see job details
-          </div>
+          <div class="fc-body" style="text-align:center;padding:28px;color:#94a3b8;font-size:13.5px;">Select a job type above to see job details</div>
         </div>
 
-        <!-- RESIDENTIAL details -->
+        <!-- Residential -->
         <div class="cond" id="resDet">
           <div class="fc">
             <div class="fc-head"><span class="fc-icon">🧹</span><span class="fc-title">Type of clean</span></div>
             <div class="fc-body">
               <div class="pg" id="cleanTypePills">
                 <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('regular')">Regular clean</button>
-                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('deep')">Deep clean</button>
                 <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('eol')">End of lease / Bond</button>
-                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('spring')">Spring clean</button>
+                <button class="pill" onclick="selPill(this,'cleanTypePills');setCleanType('custom')">Custom</button>
               </div>
             </div>
           </div>
@@ -439,7 +504,6 @@
             </div>
           </div>
 
-          <!-- NDIS conditional -->
           <div class="fc cond" id="cond-ndis">
             <div class="fc-head"><span class="fc-icon">♿</span><span class="fc-title">NDIS details <span class="fc-sub">optional</span></span></div>
             <div class="fc-body">
@@ -450,7 +514,6 @@
             </div>
           </div>
 
-          <!-- DVA conditional -->
           <div class="fc cond" id="cond-dva">
             <div class="fc-head"><span class="fc-icon">🎖</span><span class="fc-title">DVA details <span class="fc-sub">optional</span></span></div>
             <div class="fc-body">
@@ -462,7 +525,7 @@
           </div>
         </div><!-- /resDet -->
 
-        <!-- COMMERCIAL details -->
+        <!-- Commercial -->
         <div class="cond" id="comDet">
           <div class="fc">
             <div class="fc-head"><span class="fc-icon">🧹</span><span class="fc-title">Type of clean</span></div>
@@ -470,7 +533,8 @@
               <div class="pg" id="comCleanPills">
                 <button class="pill" onclick="selPill(this,'comCleanPills')">Regular clean</button>
                 <button class="pill" onclick="selPill(this,'comCleanPills')">Deep clean</button>
-                <button class="pill" onclick="selPill(this,'comCleanPills')">Builders / post-construction</button>
+                <button class="pill" onclick="selPill(this,'comCleanPills')">Builders clean</button>
+                <button class="pill" onclick="selPill(this,'comCleanPills')">Custom</button>
               </div>
             </div>
           </div>
@@ -492,14 +556,6 @@
                   <div class="stepper"><button class="st-btn" onclick="step('restrooms',-1)">−</button><div class="st-val" id="restroomsV">2</div><button class="st-btn" onclick="step('restrooms',1)">+</button></div>
                 </div>
               </div>
-              <div class="fg">
-                <div class="fl">Foot traffic</div>
-                <div class="pg" id="ftPills">
-                  <button class="pill" onclick="selPill(this,'ftPills')">Low</button>
-                  <button class="pill on" onclick="selPill(this,'ftPills')">Medium</button>
-                  <button class="pill" onclick="selPill(this,'ftPills')">High</button>
-                </div>
-              </div>
               <div class="fg" style="margin-bottom:0;">
                 <div class="fl">Preferred clean time</div>
                 <div class="pg" id="cleanTimePills">
@@ -511,13 +567,10 @@
             </div>
           </div>
 
-          <!-- Construction conditional -->
           <div class="fc cond" id="cond-construction">
             <div class="fc-head"><span class="fc-icon">🏗</span><span class="fc-title">Handover / completion date</span></div>
             <div class="fc-body"><div class="fg" style="margin-bottom:0;"><div class="fl">Date keys/site handed over</div><input class="fi" type="date"></div></div>
           </div>
-
-          <!-- Real estate conditional -->
           <div class="fc cond" id="cond-real-estate">
             <div class="fc-head"><span class="fc-icon">🏘</span><span class="fc-title">Property manager details</span></div>
             <div class="fc-body">
@@ -527,17 +580,14 @@
               </div>
             </div>
           </div>
-
-          <!-- Aged care conditional -->
           <div class="fc cond" id="cond-aged-care">
             <div class="fc-head"><span class="fc-icon">🏥</span><span class="fc-title">Aged care notes</span></div>
             <div class="fc-body"><textarea class="fta" placeholder="Compliance requirements, infection control, special instructions…"></textarea></div>
           </div>
         </div><!-- /comDet -->
 
-        <!-- ─ Extras ─────────────────────────── -->
+        <!-- Extras -->
         <div class="sec-label">Extras</div>
-
         <div class="fc" id="resExtras" style="display:none;">
           <div class="fc-head"><span class="fc-icon">✨</span><span class="fc-title">Add-ons <span class="fc-sub">tap to include</span></span></div>
           <div class="fc-body">
@@ -553,7 +603,6 @@
             </div>
           </div>
         </div>
-
         <div class="fc" id="comExtras" style="display:none;">
           <div class="fc-head"><span class="fc-icon">✨</span><span class="fc-title">Add-ons <span class="fc-sub">tap to include</span></span></div>
           <div class="fc-body">
@@ -568,11 +617,7 @@
           </div>
         </div>
 
-        <div class="fc" id="extras-placeholder" style="display:none;">
-          <div class="fc-body" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">Select a job type to see available extras</div>
-        </div>
-
-        <!-- ─ Timing ──────────────────────────── -->
+        <!-- Timing -->
         <div class="sec-label">Timing</div>
         <div class="fc">
           <div class="fc-head"><span class="fc-icon">📅</span><span class="fc-title">When is this needed?</span></div>
@@ -588,10 +633,9 @@
               </div>
               <input class="fi" id="specDate" type="date" style="display:none;margin-top:8px;">
             </div>
-            <!-- Vacate date: shown for EOL/bond -->
             <div class="fg cond fc" id="cond-vacate" style="background:#fffbeb;border-color:#fde68a;padding:14px 16px;margin-bottom:14px;">
               <div class="fl" style="color:#92400e;">Vacate / key-handover date</div>
-              <input class="fi" type="date" style="border-color:#fde68a;">
+              <input class="fi" id="vacateDate" type="date" style="border-color:#fde68a;">
             </div>
             <div class="toggle-row">
               <span class="toggle-lbl">Recurring / ongoing service</span>
@@ -599,7 +643,6 @@
             </div>
           </div>
         </div>
-
         <div class="fc" id="freqCard" style="display:none;">
           <div class="fc-head"><span class="fc-icon">🔁</span><span class="fc-title">Frequency</span></div>
           <div class="fc-body">
@@ -611,7 +654,7 @@
           </div>
         </div>
 
-        <!-- ─ Client details ─────────────────── -->
+        <!-- Client details -->
         <div class="sec-label">Client details <span class="opt">optional — save the quote without these</span></div>
         <div class="fc">
           <div class="fc-head"><span class="fc-icon">👤</span><span class="fc-title">Contact</span></div>
@@ -621,9 +664,9 @@
               <button class="src" onclick="selSrc(this)">🚪 Walk-in</button>
             </div>
             <div class="f3" style="margin-bottom:14px;">
-              <div class="fg" style="margin-bottom:0;"><div class="fl">Full name</div><input class="fi" type="text" placeholder="Jane Smith"></div>
-              <div class="fg" style="margin-bottom:0;"><div class="fl">Mobile</div><input class="fi" type="tel" placeholder="0400 000 000"></div>
-              <div class="fg" style="margin-bottom:0;"><div class="fl">Email <span class="fl-note">required to email quote</span></div><input class="fi" type="email" placeholder="jane@example.com"></div>
+              <div class="fg" style="margin-bottom:0;"><div class="fl">Full name</div><input class="fi" id="iClientName" type="text" placeholder="Jane Smith"></div>
+              <div class="fg" style="margin-bottom:0;"><div class="fl">Mobile</div><input class="fi" id="iClientMobile" type="tel" placeholder="0400 000 000"></div>
+              <div class="fg" style="margin-bottom:0;"><div class="fl">Email <span class="fl-note">required to email quote</span></div><input class="fi" id="iClientEmail" type="email" placeholder="jane@example.com"></div>
             </div>
             <div class="fg">
               <div class="fl">How did they hear about us?</div>
@@ -637,8 +680,21 @@
             </div>
             <div class="fg" style="margin-bottom:0;">
               <div class="fl">Internal notes</div>
-              <textarea class="fta" placeholder="Visible to managers only — follow-up reminders, client preferences, anything to flag…"></textarea>
+              <textarea class="fta" id="iClientNotes" placeholder="Visible to managers only — follow-up reminders, client preferences, anything to flag…"></textarea>
             </div>
+          </div>
+        </div>
+
+        <!-- Email history (edit mode only) -->
+        <div class="sec-label eh-section" id="ehSection">Email history</div>
+        <div class="fc eh-section" id="ehCard">
+          <div class="fc-head">
+            <span class="fc-icon">✉</span>
+            <span class="fc-title">Outbound emails</span>
+            <button class="btn btn--yellow" style="margin-left:auto;font-size:12px;padding:5px 12px;" onclick="showPreviewModal()">+ Send email</button>
+          </div>
+          <div class="fc-body" id="ehBody">
+            <div class="eh-empty">No emails sent yet</div>
           </div>
         </div>
 
@@ -652,7 +708,6 @@
         <div class="cl">Estimate</div>
         <div class="cbox">
           <div class="crow"><span class="ck">Est. hours</span><span class="cv" id="cHours">—</span></div>
-          <div class="crow"><span class="ck">Staff needed</span><span class="cv" id="cStaff">—</span></div>
           <div class="crow"><span class="ck">Service mult.</span><span class="cv" id="cMult">—</span></div>
           <div class="crow"><span class="ck">Extras</span><span class="cv" id="cExtras">—</span></div>
         </div>
@@ -662,7 +717,6 @@
         <div class="cl">Rates <span style="font-weight:500;text-transform:none;letter-spacing:0;font-size:10px;color:#94a3b8;">editable</span></div>
         <div class="rate-grid">
           <div class="rf"><div class="rl">Hourly rate $</div><input class="ri" id="rHourly" type="number" value="45" min="1" oninput="calc()"></div>
-          <div class="rf"><div class="rl">Hrs / cleaner</div><input class="ri" id="rPerStaff" type="number" value="3" min="1" oninput="calc()"></div>
           <div class="rf"><div class="rl">Oven (mins)</div><input class="ri" id="rOven" type="number" value="45" min="0" oninput="calc()"></div>
           <div class="rf"><div class="rl">Fridge (mins)</div><input class="ri" id="rFridge" type="number" value="30" min="0" oninput="calc()"></div>
           <div class="rf"><div class="rl">Windows (min)</div><input class="ri" id="rWin" type="number" value="60" min="0" oninput="calc()"></div>
@@ -684,10 +738,10 @@
 
       <div>
         <div class="cl">Preferred days</div>
-        <div class="days-row">
+        <div class="days-row" id="prefDays">
           <button class="dp" onclick="this.classList.toggle('on')">Mon</button>
           <button class="dp" onclick="this.classList.toggle('on')">Tue</button>
-          <button class="dp on" onclick="this.classList.toggle('on')">Wed</button>
+          <button class="dp" onclick="this.classList.toggle('on')">Wed</button>
           <button class="dp" onclick="this.classList.toggle('on')">Thu</button>
           <button class="dp" onclick="this.classList.toggle('on')">Fri</button>
           <button class="dp" onclick="this.classList.toggle('on')">Sat</button>
@@ -696,70 +750,461 @@
 
       <div>
         <div class="cl">Preferred time</div>
-        <div class="pg" id="calcTimePills">
+        <div class="pg" id="calcTimePills" style="margin-bottom:8px;">
           <button class="pill blk" onclick="selPill(this,'calcTimePills')">Morning</button>
           <button class="pill blk" onclick="selPill(this,'calcTimePills')">Afternoon</button>
           <button class="pill blk" onclick="selPill(this,'calcTimePills')">Either</button>
         </div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <input class="ri" id="tHour" type="number" min="1" max="12" placeholder="8" style="flex:1;text-align:center;padding:7px 6px;">
+          <span style="font-size:12px;color:#94a3b8;font-weight:600;">:</span>
+          <select class="ri" id="tMin" style="flex:1;padding:7px 6px;cursor:pointer;">
+            <option>00</option><option>15</option><option>30</option><option>45</option>
+          </select>
+          <div class="pg" id="ampmPills" style="gap:5px;">
+            <button class="pill blk" onclick="selPill(this,'ampmPills')">AM</button>
+            <button class="pill blk" onclick="selPill(this,'ampmPills')">PM</button>
+          </div>
+        </div>
       </div>
 
       <div class="c-actions">
-        <button class="bf bf--yellow">✉ Save &amp; Email Quote</button>
-        <button class="bf bf--black">💾 Save Draft</button>
+        <button class="bf bf--yellow" id="btnCalcEmail">✉ Save &amp; Email Quote</button>
+        <button class="bf bf--black" id="btnCalcSave">💾 Save Draft</button>
+        <button class="bf bf--outline" id="btnCalcViewQuote" style="display:none;" onclick="showPreviewModal()">👁 View Quote</button>
       </div>
 
     </div><!-- /nq-calc -->
   </div><!-- /nq-body -->
 </div><!-- /quotePage -->
 
+
+<!-- ══ CLIENT QUOTE PREVIEW MODAL ══════════════════ -->
+<div id="previewModal">
+  <div class="preview-sheet">
+    <div class="preview-topbar">
+      <button class="back-btn" onclick="closePreviewModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to quote
+      </button>
+      <button class="btn btn--yellow" onclick="alert('Email sent! (demo)')">✉ Email this quote</button>
+    </div>
+    <div class="preview-doc" id="previewDoc">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+
 <script>
-  /* ── State ──────────────────────────────── */
-  var jobType = null, clientType = null, cleanType = null;
+  /* ══ Demo data ══════════════════════════════════════ */
+  var DEMOS = {
+    'QT-001': {
+      id: 'QT-001', status: 'sent', jobType: 'res', clientType: 'private', cleanType: 'regular',
+      suburb: 'Norwood', postcode: '5067', street: '14 Elm Street',
+      parking: 'On-site / driveway', access: 'Someone will be home',
+      beds: 3, baths: 2, rooms: 2, floors: 1,
+      condition: 'standard', furnished: 'Fully furnished', pets: 'Dogs', petNote: 'Labrador, very friendly',
+      size: 'Medium (100–200 sqm)',
+      extras: ['Oven', 'Internal windows'],
+      urgency: 'This week', recurring: true, freq: 'Fortnightly',
+      days: ['Wed', 'Fri'], timeOfDay: 'Morning', tHour: '8', tMin: '00', tAmPm: 'AM',
+      price: '$320',
+      clientName: 'Sarah Mitchell', clientMobile: '0412 345 678', clientEmail: 'sarah@example.com',
+      lead: 'Google',
+      notes: 'Client prefers eco-friendly products. Has a labrador — confirm it will be secured during the clean.',
+      emails: [
+        { date: '29 Jun 2026 — 10:42 AM', sender: 'James (Owner)', subject: 'Your cleaning quote — MyQuest' }
+      ]
+    },
+    'QT-002': {
+      id: 'QT-002', status: 'accepted', jobType: 'com', clientType: 'office', cleanType: 'regular',
+      suburb: 'Adelaide CBD', postcode: '5000', street: 'Level 3, 80 King William St',
+      parking: 'Paid parking nearby', access: 'Security access required',
+      comSqm: 450, comFloors: 3, restrooms: 4,
+      comClean: 'Regular clean', comCleanTime: 'After hours',
+      extras: [],
+      urgency: 'As soon as possible', recurring: true, freq: 'Weekly',
+      days: ['Mon', 'Wed', 'Fri'], timeOfDay: 'Afternoon', tHour: '5', tMin: '30', tAmPm: 'PM',
+      price: '$580',
+      clientName: 'Tom Nguyen', clientMobile: '0428 901 234', clientEmail: 'tom.n@gmail.com',
+      lead: 'Referral',
+      notes: 'Security access code provided by Tom before first clean. Building manager contact: reception@kingwilliam.com.au',
+      emails: [
+        { date: '28 Jun 2026 — 3:15 PM', sender: 'James (Owner)', subject: 'Your cleaning quote — MyQuest' },
+        { date: '28 Jun 2026 — 5:44 PM', sender: 'James (Owner)', subject: 'Re: Cleaning quote — updated pricing' }
+      ]
+    },
+    'QT-003': {
+      id: 'QT-003', status: 'draft', jobType: 'res', clientType: 'private', cleanType: 'eol',
+      suburb: 'Glenelg', postcode: '5045', street: '22 Jetty Road',
+      parking: 'Street parking', access: 'Key left on site',
+      beds: 4, baths: 2, rooms: 3, floors: 2,
+      condition: 'poor', furnished: 'Partly furnished', pets: 'No pets',
+      size: 'Large (200–300 sqm)',
+      extras: ['Oven', 'Fridge', 'Walls', 'Carpet steam'],
+      urgency: 'Specific date', specDate: '2026-07-05', vacateDate: '2026-07-04',
+      recurring: false,
+      days: [], timeOfDay: 'Morning', tHour: '9', tMin: '00', tAmPm: 'AM',
+      price: '$495',
+      clientName: '', clientMobile: '', clientEmail: '',
+      lead: null, notes: '',
+      emails: []
+    }
+  };
+
+  /* ══ State ══════════════════════════════════════════ */
+  var jobType = null, clientType = null, cleanType = null, pageMode = 'new', currentQuoteId = null;
   var sv = { beds:3, baths:2, rooms:2, floors:1, comFloors:1, restrooms:2 };
   var map = null, marker = null, geocodeTimer = null;
 
-  /* ── Page switch ────────────────────────── */
-  function showQuotePage() {
-    document.getElementById('listPage').style.display = 'none';
-    document.getElementById('quotePage').classList.add('on');
-    document.body.style.overflow = 'hidden';
-    // Init map on first open
-    setTimeout(initMap, 100);
-  }
+  /* ══ Page navigation ════════════════════════════════ */
   function showListPage() {
     document.getElementById('listPage').style.display = '';
     document.getElementById('quotePage').classList.remove('on');
     document.body.style.overflow = '';
   }
 
-  /* ── List filter pills ──────────────────── */
+  function showNewQuote() {
+    pageMode = 'new'; currentQuoteId = null;
+    resetForm();
+    document.getElementById('pageTitle').textContent = 'New Quote';
+    document.getElementById('headerStatusBadge').innerHTML = '';
+    document.getElementById('btnViewQuote').style.display = 'none';
+    document.getElementById('btnHeaderSave').textContent = 'Save Draft';
+    document.getElementById('btnHeaderEmail').textContent = '✉ Save & Email Quote';
+    document.getElementById('btnCalcEmail').textContent = '✉ Save & Email Quote';
+    document.getElementById('btnCalcSave').textContent = '💾 Save Draft';
+    document.getElementById('btnCalcViewQuote').style.display = 'none';
+    document.getElementById('ehSection').classList.remove('on');
+    document.getElementById('ehCard').classList.remove('on');
+    document.getElementById('listPage').style.display = 'none';
+    document.getElementById('quotePage').classList.add('on');
+    document.body.style.overflow = 'hidden';
+    setTimeout(initMap, 100);
+  }
+
+  function openQuote(id) {
+    var q = DEMOS[id];
+    if (!q) return;
+    pageMode = 'edit'; currentQuoteId = id;
+    resetForm();
+
+    var statusMap = {
+      sent:     '<span class="nq-header-badge chip chip--sent"><span class="dot dot--sent"></span> Sent</span>',
+      accepted: '<span class="nq-header-badge chip chip--accepted"><span class="dot dot--accepted"></span> Accepted</span>',
+      draft:    '<span class="nq-header-badge chip chip--draft"><span class="dot dot--draft"></span> Draft</span>',
+      declined: '<span class="nq-header-badge chip chip--declined"><span class="dot dot--declined"></span> Declined</span>'
+    };
+
+    document.getElementById('pageTitle').textContent = id + (q.clientName ? ' — ' + q.clientName : '');
+    document.getElementById('headerStatusBadge').innerHTML = statusMap[q.status] || '';
+    document.getElementById('btnViewQuote').style.display = '';
+    document.getElementById('btnHeaderSave').textContent = 'Save Changes';
+    document.getElementById('btnHeaderEmail').textContent = '✉ Email Quote';
+    document.getElementById('btnCalcEmail').textContent = '✉ Email Quote';
+    document.getElementById('btnCalcSave').textContent = '💾 Save Changes';
+    document.getElementById('btnCalcViewQuote').style.display = '';
+
+    // Job type + subtype
+    setType(q.jobType);
+    if (q.clientType) {
+      var subEl = document.querySelector((q.jobType === 'res' ? '#res-sub' : '#com-sub') + ' .pill.blk');
+      var allSubs = document.querySelectorAll((q.jobType === 'res' ? '#res-sub' : '#com-sub') + ' .pill.blk');
+      var subtypeMap = { private:'Private client', ndis:'NDIS participant', dva:'DVA client', office:'Office', construction:'Construction / Builders', 'real-estate':'Real Estate', 'aged-care':'Aged Care', other:'Other' };
+      allSubs.forEach(function(p) {
+        if (p.textContent.trim() === subtypeMap[q.clientType]) { setSubtype(p, q.clientType); }
+      });
+    }
+
+    // Location
+    document.getElementById('iSuburb').value   = q.suburb || '';
+    document.getElementById('iPostcode').value = q.postcode || '';
+    document.getElementById('iStreet').value   = q.street || '';
+
+    // Parking + access
+    setPillByText('parkPills', q.parking);
+    setPillByText('accessPills', q.access);
+
+    if (q.jobType === 'res') {
+      // Clean type
+      var ctMap = { regular:'Regular clean', eol:'End of lease / Bond', custom:'Custom' };
+      setPillByText('cleanTypePills', ctMap[q.cleanType]);
+      setCleanType(q.cleanType);
+
+      // Steppers
+      setSteppers({ beds: q.beds||0, baths: q.baths||0, rooms: q.rooms||0, floors: q.floors||1 });
+
+      // Size
+      if (q.size) setPillByText('sizePills', q.size);
+
+      // Condition
+      var condMap = { standard:'Standard', poor:'Needs attention', heavy:'Heavy clean' };
+      setPillByText('condPills', condMap[q.condition] || 'Standard');
+
+      // Furnished
+      if (q.furnished) setPillByText('furnPills', q.furnished);
+
+      // Pets
+      if (q.pets) {
+        setPillByText('petPills', q.pets);
+        if (q.pets !== 'No pets') {
+          document.getElementById('petNote').style.display = '';
+          document.getElementById('petNote').value = q.petNote || '';
+        }
+      }
+
+      // Extras
+      if (q.extras) {
+        document.querySelectorAll('#extrasPills .pill').forEach(function(p) {
+          if (q.extras.indexOf(p.textContent.trim()) !== -1) p.classList.add('on');
+        });
+      }
+    } else {
+      // Commercial
+      if (q.comClean) setPillByText('comCleanPills', q.comClean);
+      if (q.comCleanTime) setPillByText('cleanTimePills', q.comCleanTime);
+      if (q.comSqm) document.getElementById('comSqm').value = q.comSqm;
+      setSteppers({ comFloors: q.comFloors||1, restrooms: q.restrooms||1 });
+    }
+
+    // Urgency
+    if (q.urgency) {
+      setPillByText('urgencyPills', q.urgency);
+      if (q.urgency === 'Specific date') {
+        document.getElementById('specDate').style.display = '';
+        if (q.specDate) document.getElementById('specDate').value = q.specDate;
+      }
+    }
+
+    // Vacate date
+    if (q.vacateDate) document.getElementById('vacateDate').value = q.vacateDate;
+
+    // Recurring
+    if (q.recurring) {
+      document.getElementById('recurToggle').classList.add('on');
+      document.getElementById('freqCard').style.display = '';
+      if (q.freq) setPillByText('freqPills', q.freq);
+    }
+
+    // Preferred days
+    if (q.days) {
+      document.querySelectorAll('#prefDays .dp').forEach(function(b) {
+        if (q.days.indexOf(b.textContent.trim()) !== -1) b.classList.add('on');
+      });
+    }
+
+    // Preferred time
+    if (q.timeOfDay) setPillByText('calcTimePills', q.timeOfDay);
+    if (q.tHour) document.getElementById('tHour').value = q.tHour;
+    if (q.tMin) document.getElementById('tMin').value = q.tMin;
+    if (q.tAmPm) setPillByText('ampmPills', q.tAmPm);
+
+    // Price override
+    document.getElementById('cPrice').value = q.price || '—';
+
+    // Client
+    document.getElementById('iClientName').value   = q.clientName || '';
+    document.getElementById('iClientMobile').value = q.clientMobile || '';
+    document.getElementById('iClientEmail').value  = q.clientEmail || '';
+    document.getElementById('iClientNotes').value  = q.notes || '';
+    if (q.lead) setPillByText('leadPills', q.lead);
+
+    // Email history
+    renderEmailHistory(q.emails || []);
+    document.getElementById('ehSection').classList.add('on');
+    document.getElementById('ehCard').classList.add('on');
+
+    document.getElementById('listPage').style.display = 'none';
+    document.getElementById('quotePage').classList.add('on');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() { initMap(); if (q.suburb) geocode(); }, 100);
+  }
+
+  function renderEmailHistory(emails) {
+    var body = document.getElementById('ehBody');
+    if (!emails.length) { body.innerHTML = '<div class="eh-empty">No emails sent yet — use the button above to send this quote</div>'; return; }
+    body.innerHTML = emails.map(function(e) {
+      return '<div class="eh-item">'
+        + '<div class="eh-icon">✉</div>'
+        + '<div class="eh-meta">'
+        +   '<div class="eh-date">' + e.date + '</div>'
+        +   '<div class="eh-sender">Sent by: ' + e.sender + '</div>'
+        +   '<div class="eh-subject">"' + e.subject + '"</div>'
+        + '</div>'
+        + '<button class="eh-resend" onclick="alert(\'Resend demo — email queued!\')">Resend</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* ══ Preview modal ══════════════════════════════════ */
+  function showPreviewModal() {
+    var q = currentQuoteId ? DEMOS[currentQuoteId] : null;
+    var name    = (q && q.clientName) ? q.clientName : 'Valued Client';
+    var email   = (q && q.clientEmail) ? q.clientEmail : '—';
+    var suburb  = document.getElementById('iSuburb').value || (q && q.suburb) || '';
+    var street  = document.getElementById('iStreet').value || (q && q.street) || '';
+    var postcode= document.getElementById('iPostcode').value || (q && q.postcode) || '';
+    var price   = document.getElementById('cPrice').value || (q && q.price) || '—';
+    var qId     = currentQuoteId || 'QT-NEW';
+    var today   = '29 Jun 2026';
+    var expiry  = '29 Jul 2026';
+
+    var serviceLabel = '—';
+    var serviceDetail = '';
+    var isRes = (jobType === 'res');
+
+    if (isRes) {
+      var ctLabels = { regular:'Regular clean', eol:'End of lease / Bond clean', custom:'Custom clean' };
+      serviceLabel = ctLabels[cleanType] || 'Cleaning service';
+      serviceDetail = sv.beds + ' bed, ' + sv.baths + ' bath';
+      var xtr = [];
+      document.querySelectorAll('#extrasPills .pill.on').forEach(function(p){ xtr.push(p.textContent.trim()); });
+      if (xtr.length) serviceDetail += '<br>Includes: ' + xtr.join(', ');
+    } else {
+      serviceLabel = 'Commercial cleaning service';
+      var sqm = document.getElementById('comSqm').value || (q && q.comSqm) || '—';
+      serviceDetail = sqm + ' sqm';
+    }
+
+    var isRecur = document.getElementById('recurToggle').classList.contains('on');
+    var freqTxt = isRecur ? (getPillVal('freqPills') || 'Ongoing') + ' service' : 'One-off service';
+
+    var dayBtns = [], prefTime = getPillVal('calcTimePills') || '';
+    document.querySelectorAll('#prefDays .dp.on').forEach(function(b){ dayBtns.push(b.textContent.trim()); });
+    var prefStr = '';
+    if (dayBtns.length) prefStr += '<strong>Preferred days:</strong> ' + dayBtns.join(', ') + '<br>';
+    if (prefTime) prefStr += '<strong>Preferred time:</strong> ' + prefTime;
+    var tH = document.getElementById('tHour').value;
+    var tM = document.getElementById('tMin').value;
+    var tAP = getPillVal('ampmPills') || '';
+    if (tH) prefStr += ' — ' + tH + ':' + (tM||'00') + ' ' + tAP;
+
+    document.getElementById('previewDoc').innerHTML = ''
+      + '<div class="pq-header">'
+      +   '<div>'
+      +     '<div class="pq-logo">My<span>Quest</span></div>'
+      +     '<div class="pq-tagline">Professional Cleaning Services</div>'
+      +   '</div>'
+      +   '<div class="pq-title">'
+      +     '<h2>QUOTE</h2>'
+      +     '<div class="pq-id">' + qId + '</div>'
+      +     '<div class="pq-date">Prepared: ' + today + ' · Valid until: ' + expiry + '</div>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="pq-parties">'
+      +   '<div><div class="pq-party-lbl">From</div>'
+      +     '<div class="pq-party-name">MyQuest Cleaning</div>'
+      +     '<div class="pq-party-line">Adelaide, SA<br>info@myquest.com.au<br>08 8000 0000</div>'
+      +   '</div>'
+      +   '<div><div class="pq-party-lbl">Prepared for</div>'
+      +     '<div class="pq-party-name">' + name + '</div>'
+      +     '<div class="pq-party-line">' + (street ? street + '<br>' : '') + (suburb ? suburb + (postcode ? ' SA ' + postcode : '') : '') + '<br>' + email + '</div>'
+      +   '</div>'
+      + '</div>'
+      + '<table class="pq-table">'
+      +   '<thead><tr><th>Service</th><th>Amount</th></tr></thead>'
+      +   '<tbody><tr>'
+      +     '<td><div class="pq-item-name">' + serviceLabel + '</div><div class="pq-item-sub">' + freqTxt + '<br>' + serviceDetail + '</div></td>'
+      +     '<td>' + price + '</td>'
+      +   '</tr></tbody>'
+      + '</table>'
+      + '<div class="pq-total-row">'
+      +   '<div><div class="pq-total-lbl">Total quoted price</div><div class="pq-total-note">Per service · Includes GST</div></div>'
+      +   '<div class="pq-total-price">' + price + '</div>'
+      + '</div>'
+      + (prefStr ? '<div class="pq-prefs">' + prefStr + '</div>' : '')
+      + '<div class="pq-footer">'
+      +   '<div class="pq-footer-text">This quote is valid for 30 days from the date above. Pricing is based on the property details provided and may be adjusted after an on-site assessment. To accept, simply reply to our email or give us a call.</div>'
+      +   '<button class="pq-accept" onclick="alert(\'Accept flow — demo\')">✓ Accept this quote</button>'
+      + '</div>';
+
+    document.getElementById('previewModal').classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePreviewModal() {
+    document.getElementById('previewModal').classList.remove('on');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /* ══ Form reset ══════════════════════════════════════ */
+  function resetForm() {
+    jobType = null; clientType = null; cleanType = null;
+    sv = { beds:3, baths:2, rooms:2, floors:1, comFloors:1, restrooms:2 };
+
+    document.getElementById('tc-res').classList.remove('on');
+    document.getElementById('tc-com').classList.remove('on');
+    document.getElementById('res-sub').classList.remove('on');
+    document.getElementById('com-sub').classList.remove('on');
+    document.getElementById('det-placeholder').style.display = '';
+    document.getElementById('resDet').classList.remove('on');
+    document.getElementById('comDet').classList.remove('on');
+    document.getElementById('resExtras').style.display = 'none';
+    document.getElementById('comExtras').style.display = 'none';
+
+    document.querySelectorAll('#res-sub .pill, #com-sub .pill').forEach(function(p){ p.classList.remove('on'); });
+    ['condPills','furnPills','petPills','cleanTypePills','comCleanPills','sizePills',
+     'urgencyPills','freqPills','leadPills','parkPills','accessPills','cleanTimePills',
+     'calcTimePills','ampmPills','extrasPills','comExtrasPills'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('on'); });
+    });
+    // Reset condition to Standard default
+    var condDefault = document.querySelector('#condPills .pill');
+    if (condDefault) condDefault.classList.add('on');
+
+    ['bedsV','bathsV','roomsV','floorsV','comFloorsV','restroomsV'].forEach(function(id, i) {
+      var defaults = [3,2,2,1,1,2];
+      var el = document.getElementById(id);
+      if (el) el.textContent = defaults[i];
+    });
+    sv = { beds:3, baths:2, rooms:2, floors:1, comFloors:1, restrooms:2 };
+
+    ['iSuburb','iPostcode','iStreet','iClientName','iClientMobile','iClientEmail'].forEach(function(id){
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('iClientNotes').value = '';
+    document.getElementById('specDate').style.display = 'none';
+    document.getElementById('specDate').value = '';
+    document.getElementById('petNote').style.display = 'none';
+    document.getElementById('petNote').value = '';
+    document.getElementById('recurToggle').classList.remove('on');
+    document.getElementById('freqCard').style.display = 'none';
+    document.getElementById('cond-vacate').classList.remove('on');
+    clearCondFields();
+
+    document.querySelectorAll('#prefDays .dp').forEach(function(b){ b.classList.remove('on'); });
+    document.getElementById('tHour').value = '';
+    document.getElementById('tMin').value = '00';
+    document.getElementById('comSqm').value = 200;
+
+    setCalcOutput('—','—','—','—',null);
+  }
+
+  /* ══ List filter pills ══════════════════════════════ */
   function spick(el) {
     el.closest('.stat-pills').querySelectorAll('.sp').forEach(function(p){ p.classList.remove('on'); });
     el.classList.add('on');
   }
 
-  /* ── Job type ───────────────────────────── */
+  /* ══ Job type ════════════════════════════════════════ */
   function setType(type) {
     jobType = type;
     document.getElementById('tc-res').classList.toggle('on', type === 'res');
     document.getElementById('tc-com').classList.toggle('on', type === 'com');
     document.getElementById('res-sub').classList.toggle('on', type === 'res');
     document.getElementById('com-sub').classList.toggle('on', type === 'com');
-
-    // Details sections
     document.getElementById('det-placeholder').style.display = 'none';
     setCondClass('resDet', type === 'res');
     setCondClass('comDet', type === 'com');
-
-    // Extras
-    document.getElementById('resExtras').style.display    = type === 'res' ? '' : 'none';
-    document.getElementById('comExtras').style.display    = type === 'com' ? '' : 'none';
-    document.getElementById('extras-placeholder').style.display = 'none';
-
-    // Clear sub-type selection & conditionals
-    clientType = null;
-    document.querySelectorAll('#res-sub .pill, #com-sub .pill').forEach(function(p){ p.classList.remove('on'); });
-    clearCondFields();
+    document.getElementById('resExtras').style.display = type === 'res' ? '' : 'none';
+    document.getElementById('comExtras').style.display = type === 'com' ? '' : 'none';
+    if (pageMode !== 'edit') {
+      clientType = null;
+      document.querySelectorAll('#res-sub .pill, #com-sub .pill').forEach(function(p){ p.classList.remove('on'); });
+      clearCondFields();
+    }
     calc();
   }
 
@@ -768,7 +1213,7 @@
     if (on) { el.classList.add('on'); } else { el.classList.remove('on'); }
   }
 
-  /* ── Sub-type ───────────────────────────── */
+  /* ══ Sub-type ════════════════════════════════════════ */
   function setSubtype(el, type) {
     clientType = type;
     var parent = el.closest('.pg');
@@ -786,16 +1231,15 @@
     });
   }
 
-  /* ── Clean type ─────────────────────────── */
+  /* ══ Clean type ══════════════════════════════════════ */
   function setCleanType(type) {
     cleanType = type;
-    var showVacate = (type === 'eol');
     var cv = document.getElementById('cond-vacate');
-    if (showVacate) { cv.classList.add('on'); } else { cv.classList.remove('on'); }
+    if (type === 'eol') { cv.classList.add('on'); } else { cv.classList.remove('on'); }
     calc();
   }
 
-  /* ── Map ────────────────────────────────── */
+  /* ══ Map ══════════════════════════════════════════════ */
   function initMap() {
     if (map) { map.invalidateSize(); return; }
     map = L.map('quoteMap').setView([-34.9285, 138.6007], 11);
@@ -826,12 +1270,20 @@
     }, 700);
   }
 
-  /* ── Pill helpers ───────────────────────── */
+  /* ══ Pill helpers ════════════════════════════════════ */
   function selPill(el, groupId) {
     var g = groupId ? document.getElementById(groupId) : el.closest('.pg');
     if (g) g.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('on'); });
     el.classList.add('on');
     calc();
+  }
+  function setPillByText(groupId, text) {
+    if (!text) return;
+    var g = document.getElementById(groupId);
+    if (!g) return;
+    g.querySelectorAll('.pill').forEach(function(p){
+      p.classList.toggle('on', p.textContent.trim() === text);
+    });
   }
   function togPill(el) { el.classList.toggle('on'); calc(); }
   function selSrc(el) {
@@ -840,15 +1292,23 @@
   }
   function showEl(id, show) { document.getElementById(id).style.display = show ? '' : 'none'; }
 
-  /* ── Steppers ───────────────────────────── */
+  /* ══ Steppers ════════════════════════════════════════ */
   function step(key, d) {
     sv[key] = Math.max(0, sv[key] + d);
     var ids = { beds:'bedsV', baths:'bathsV', rooms:'roomsV', floors:'floorsV', comFloors:'comFloorsV', restrooms:'restroomsV' };
     document.getElementById(ids[key]).textContent = sv[key];
     calc();
   }
+  function setSteppers(vals) {
+    Object.keys(vals).forEach(function(k) {
+      sv[k] = vals[k];
+      var ids = { beds:'bedsV', baths:'bathsV', rooms:'roomsV', floors:'floorsV', comFloors:'comFloorsV', restrooms:'restroomsV' };
+      var el = document.getElementById(ids[k]);
+      if (el) el.textContent = vals[k];
+    });
+  }
 
-  /* ── Recurring toggle ───────────────────── */
+  /* ══ Recurring ════════════════════════════════════════ */
   function togRecur() {
     var t = document.getElementById('recurToggle');
     t.classList.toggle('on');
@@ -856,17 +1316,15 @@
     calc();
   }
 
-  /* ── Calculator ─────────────────────────── */
+  /* ══ Calculator ══════════════════════════════════════ */
   function getPillVal(groupId) {
     var el = document.querySelector('#' + groupId + ' .pill.on');
     return el ? (el.dataset.v || el.textContent.trim()) : null;
   }
 
   function calc() {
-    if (!jobType) { setCalcOutput('—','—','—','—','—',null); return; }
-
-    var hourly   = parseFloat(document.getElementById('rHourly').value)   || 45;
-    var perStaff = parseFloat(document.getElementById('rPerStaff').value) || 3;
+    if (!jobType) { setCalcOutput('—','—','—','—',null); return; }
+    var hourly = parseFloat(document.getElementById('rHourly').value) || 45;
     var extraMap = {
       'Oven':             parseFloat(document.getElementById('rOven').value)   || 45,
       'Fridge':           parseFloat(document.getElementById('rFridge').value) || 30,
@@ -874,51 +1332,42 @@
       'Walls':            parseFloat(document.getElementById('rWalls').value)  || 90,
       'Balcony':20, 'Garage':30, 'Carpet steam':60, 'Laundry':20
     };
-
-    var hours, staff, price, multLabel, extrasLabel, saving = null;
+    var hours, price, multLabel, extrasLabel, saving = null;
     var isRecur = document.getElementById('recurToggle').classList.contains('on');
     var freq = isRecur ? (getPillVal('freqPills') || 'Fortnightly') : 'One-off';
 
     if (jobType === 'com') {
-      var sqm   = parseFloat((document.getElementById('comSqm')||{}).value) || 200;
-      var ft    = getPillVal('ftPills') || 'Medium';
-      var cMult = { Low:1, Medium:1.25, High:1.6 }[ft] || 1.25;
+      var sqm   = parseFloat(document.getElementById('comSqm').value) || 200;
+      var cMult = 1.25;
       var fMult = { Weekly:4.3, Fortnightly:2.15, Monthly:1, 'One-off':1 }[freq] || 1;
-      hours     = sqm / 100;
-      staff     = Math.ceil(hours / perStaff);
-      price     = hours * hourly * cMult * (isRecur ? fMult : 1);
-      multLabel = '× ' + cMult + ' (' + ft + ')';
+      hours       = sqm / 100;
+      price       = hours * hourly * cMult * (isRecur ? fMult : 1);
+      multLabel   = '× ' + cMult;
       extrasLabel = '—';
-      saving    = isRecur ? '📋 ' + freq + ' ongoing' : null;
+      saving      = isRecur ? '📋 ' + freq + ' ongoing' : null;
     } else {
       var svc   = cleanType || 'regular';
       var cond  = getPillVal('condPills') || 'standard';
       var condM = { standard:1, poor:1.3, heavy:1.6 }[cond] || 1;
-      var svcM  = { regular:1, deep:1.4, eol:1.8, spring:1.5 }[svc] || 1;
+      var svcM  = { regular:1, eol:1.8, custom:1 }[svc] || 1;
       var freqD = { 'One-off':1, Monthly:0.95, Fortnightly:0.9, Weekly:0.85 }[freq] || 1;
       var savingMap = { 'One-off':null, Monthly:'5% saving — monthly', Fortnightly:'10% saving — fortnightly', Weekly:'15% saving — weekly' };
-
       var extMins = 0, extNames = [];
       document.querySelectorAll('#extrasPills .pill.on').forEach(function(p){
-        var n = p.textContent.trim();
-        extMins += (extraMap[n] || 0);
-        extNames.push(n);
+        var n = p.textContent.trim(); extMins += (extraMap[n] || 0); extNames.push(n);
       });
-      var baseH = (sv.beds * 0.5) + (sv.baths * 0.75) + (sv.rooms * 0.25) + (sv.floors * 0.25) + 0.5;
-      hours     = (baseH * condM * svcM) + (extMins / 60);
-      staff     = Math.ceil(hours / perStaff);
-      price     = hours * hourly * freqD;
-      multLabel = '× ' + svcM.toFixed(1) + ' (' + svc + ')';
+      var baseH = (sv.beds*0.5) + (sv.baths*0.75) + (sv.rooms*0.25) + (sv.floors*0.25) + 0.5;
+      hours       = (baseH * condM * svcM) + (extMins / 60);
+      price       = hours * hourly * freqD;
+      multLabel   = '× ' + svcM.toFixed(1) + ' (' + svc + ')';
       extrasLabel = extNames.length ? extNames.join(', ') : '—';
-      saving    = savingMap[freq] ? '🎉 ' + savingMap[freq] : null;
+      saving      = savingMap[freq] ? '🎉 ' + savingMap[freq] : null;
     }
-
-    setCalcOutput(hours.toFixed(1) + ' hrs', staff + ' cleaner' + (staff !== 1 ? 's' : ''), multLabel, extrasLabel, '$' + Math.round(price), saving);
+    setCalcOutput(hours.toFixed(1) + ' hrs', multLabel, extrasLabel, '$' + Math.round(price), saving);
   }
 
-  function setCalcOutput(hours, staff, mult, extras, price, saving) {
+  function setCalcOutput(hours, mult, extras, price, saving) {
     document.getElementById('cHours').textContent  = hours;
-    document.getElementById('cStaff').textContent  = staff;
     document.getElementById('cMult').textContent   = mult;
     document.getElementById('cExtras').textContent = extras;
     document.getElementById('cPrice').value        = price;

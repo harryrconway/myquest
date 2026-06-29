@@ -150,11 +150,10 @@
     document.getElementById('qPageTitle').textContent = 'New Quote';
     document.getElementById('qHeaderBadge').innerHTML = '';
     document.getElementById('btnViewQuote').style.display = 'none';
-    document.getElementById('btnCalcViewQuote').style.display = 'none';
+    document.getElementById('btnCalcViewQuote').style.display = '';
     document.getElementById('btnHeaderSave').textContent = 'Save Draft';
-    document.getElementById('btnHeaderEmail').textContent = '✉ Save & Email Quote';
-    document.getElementById('btnCalcEmail').textContent = '✉ Save & Email Quote';
-    document.getElementById('btnCalcSave').textContent = '💾 Save Draft';
+    document.getElementById('btnHeaderEmail').textContent = 'Save & Email Quote';
+    document.getElementById('btnCalcSave').textContent = 'Save Draft';
     document.getElementById('ehSection').classList.remove('on');
     document.getElementById('ehCard').classList.remove('on');
     document.getElementById('q-list-wrap').style.display = 'none';
@@ -165,7 +164,7 @@
 
   async function openQuote(id) {
     var res = await sb.from('quote_requests')
-      .select('id, quote_type, client_type, quote_status, quoted_price, quote_source, suburb, postcode, street_address, state, parking_type, access_instructions, service_type, bedrooms, bathrooms, living_areas, num_floors, floor_area_sqm, restroom_count, condition, furnished_status, pet_info, property_size_tag, extras, urgency, vacate_date, is_recurring, frequency, recurrence, preferred_days, preferred_time, lead_source, full_name, phone, email, internal_notes, email_log, created_at')
+      .select('id, quote_type, client_type, quote_status, quoted_price, quote_source, suburb, postcode, street_address, state, parking_type, access_instructions, service_type, bedrooms, bathrooms, living_areas, num_floors, floor_area_sqm, restroom_count, condition, furnished_status, pet_info, property_size_tag, extras, urgency, vacate_date, is_recurring, frequency, recurrence, preferred_days, preferred_time, lead_source, full_name, phone, email, internal_notes, email_log, hours, hourly_rate, created_at')
       .eq('id', id)
       .single();
 
@@ -189,9 +188,8 @@
     document.getElementById('btnViewQuote').style.display = '';
     document.getElementById('btnCalcViewQuote').style.display = '';
     document.getElementById('btnHeaderSave').textContent = 'Save Changes';
-    document.getElementById('btnHeaderEmail').textContent = '✉ Email Quote';
-    document.getElementById('btnCalcEmail').textContent = '✉ Email Quote';
-    document.getElementById('btnCalcSave').textContent = '💾 Save Changes';
+    document.getElementById('btnHeaderEmail').textContent = 'Email Quote';
+    document.getElementById('btnCalcSave').textContent = 'Save Changes';
 
     // Job type
     if (q.quote_type) {
@@ -244,9 +242,38 @@
         }
       }
       if (q.extras && q.extras.length) {
-        document.querySelectorAll('#extrasPills .qpill').forEach(function (p) {
-          if (q.extras.indexOf(p.textContent.trim()) !== -1) p.classList.add('on');
+        var extraNames  = q.extras.map(function (e) { return typeof e === 'string' ? e : e.name; });
+        var extraPrices = {};
+        q.extras.forEach(function (e) { if (typeof e !== 'string') extraPrices[e.name] = e.price; });
+
+        var pillNames = [];
+        document.querySelectorAll('#extrasPills .qpill, #comExtrasPills .qpill').forEach(function (p) {
+          pillNames.push(p.textContent.trim());
         });
+
+        document.querySelectorAll('#extrasPills .qpill, #comExtrasPills .qpill').forEach(function (p) {
+          if (extraNames.indexOf(p.textContent.trim()) !== -1) p.classList.add('on');
+        });
+        updateExtrasInCalc();
+        Object.keys(extraPrices).forEach(function (name) {
+          var inp = document.getElementById('ep-' + name.replace(/[^a-zA-Z0-9]/g, '-'));
+          if (inp) inp.value = extraPrices[name];
+        });
+
+        var ctr = document.getElementById('calcExtrasList');
+        extraNames.forEach(function (name) {
+          if (pillNames.indexOf(name) === -1) {
+            var row = document.createElement('div');
+            row.className = 'calc-extra-row';
+            row.dataset.custom = 'true';
+            row.innerHTML = '<input class="ri calc-extra-name-input" type="text" value="' + esc(name) + '" placeholder="Description">'
+              + '<input class="ri" type="number" min="0" step="1" placeholder="$" value="' + (extraPrices[name] || 0) + '">'
+              + '<button class="calc-extra-remove" title="Remove">&times;</button>';
+            ctr.appendChild(row);
+            document.getElementById('calcExtras').style.display = '';
+          }
+        });
+        calcTotal();
       }
     } else {
       if (q.service_type) setPillByDataV('comCleanPills', q.service_type);
@@ -284,8 +311,10 @@
       if (tp.ampm) setPillByText('ampmPills', tp.ampm);
     }
 
-    // Price
-    if (q.quoted_price) document.getElementById('cPrice').value = '$' + parseFloat(q.quoted_price).toFixed(0);
+    // Calculator
+    if (q.hours)       document.getElementById('rHours').value  = q.hours;
+    if (q.hourly_rate) document.getElementById('rHourly').value = q.hourly_rate;
+    if (q.hours || q.hourly_rate) calcTotal();
 
     // Lead source
     if (q.lead_source) setPillByText('leadPills', q.lead_source);
@@ -328,7 +357,7 @@
     }
     body.innerHTML = emailLog.map(function (e) {
       return '<div class="eh-item">'
-        + '<div class="eh-icon">✉</div>'
+        + '<div class="eh-icon"></div>'
         + '<div class="eh-meta">'
         +   '<div class="eh-date">' + esc(fmtDateTime(e.sent_at)) + '</div>'
         +   '<div class="eh-sender">Sent by: ' + esc(e.sent_by_name || 'Staff') + '</div>'
@@ -355,8 +384,13 @@
     if (tod) { prefTime = tod; if (tHour) prefTime += ' — ' + tHour + ':' + tMin + (ampm ? ' ' + ampm : ''); }
 
     var extras = [];
-    document.querySelectorAll('#extrasPills .qpill.on, #comExtrasPills .qpill.on').forEach(function (p) {
-      extras.push(p.textContent.trim());
+    document.querySelectorAll('#calcExtrasList .calc-extra-row').forEach(function (row) {
+      var nameEl  = row.querySelector('.calc-extra-name');
+      var nameInp = row.querySelector('.calc-extra-name-input');
+      var priceInp = row.querySelector('input[type="number"]');
+      var name  = nameEl ? nameEl.textContent.trim() : (nameInp ? nameInp.value.trim() : '');
+      var price = priceInp ? (parseFloat(priceInp.value) || 0) : 0;
+      if (name) extras.push({ name: name, price: price });
     });
 
     var petPillSel = document.querySelector('#petPills .qpill.on');
@@ -431,6 +465,8 @@
       phone:            document.getElementById('iClientMobile').value.trim() || null,
       email:            document.getElementById('iClientEmail').value.trim() || null,
       internal_notes:   document.getElementById('iClientNotes').value.trim() || null,
+      hours:            parseFloat(document.getElementById('rHours').value)  || null,
+      hourly_rate:      parseFloat(document.getElementById('rHourly').value) || null,
     };
   }
 
@@ -445,7 +481,7 @@
 
     if (result.error) {
       MQ.ui.toast(result.error, 'error');
-      if (btn) { btn.disabled = false; btn.textContent = asDraft !== false ? '💾 ' + (view === 'edit' ? 'Save Changes' : 'Save Draft') : '✉ Email Quote'; }
+      if (btn) { btn.disabled = false; btn.textContent = asDraft !== false ? '' + (view === 'edit' ? 'Save Changes' : 'Save Draft') : 'Email Quote'; }
       return;
     }
 
@@ -457,16 +493,16 @@
       document.getElementById('btnViewQuote').style.display = '';
       document.getElementById('btnCalcViewQuote').style.display = '';
       document.getElementById('btnHeaderSave').textContent = 'Save Changes';
-      document.getElementById('btnHeaderEmail').textContent = '✉ Email Quote';
-      document.getElementById('btnCalcEmail').textContent = '✉ Email Quote';
-      document.getElementById('btnCalcSave').textContent = '💾 Save Changes';
+      document.getElementById('btnHeaderEmail').textContent = 'Email Quote';
+      document.getElementById('btnCalcEmail').textContent = 'Email Quote';
+      document.getElementById('btnCalcSave').textContent = 'Save Changes';
       document.getElementById('ehSection').classList.add('on');
       document.getElementById('ehCard').classList.add('on');
       renderEmailHistory([]);
     }
 
     MQ.ui.toast(asDraft !== false ? 'Draft saved.' : 'Quote saved.');
-    if (btn) { btn.disabled = false; btn.textContent = asDraft !== false ? '💾 Save Changes' : '✉ Email Quote'; }
+    if (btn) { btn.disabled = false; btn.textContent = asDraft !== false ? 'Save Changes' : 'Email Quote'; }
     loadQuotes();
   }
 
@@ -487,12 +523,12 @@
     var result = await callApi('/api/email-quote', { id: currentQuoteId });
     if (result.error) {
       MQ.ui.toast(result.error, 'error');
-      if (btn) { btn.disabled = false; btn.textContent = '✉ Email Quote'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Email Quote'; }
       return;
     }
 
     MQ.ui.toast('Quote emailed successfully!');
-    if (btn) { btn.disabled = false; btn.textContent = '✉ Email Quote'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Email Quote'; }
 
     var quoteRes = await sb.from('quote_requests')
       .select('email_log, quote_status')
@@ -644,7 +680,11 @@
     document.getElementById('tMin').value = '00';
     document.getElementById('comSqm').value = 200;
 
-    setCalcOutput('—', '—', '—', '—', null);
+    document.getElementById('rHours').value = '';
+    document.getElementById('cPrice').value = '—';
+    document.getElementById('calcExtrasList').innerHTML = '';
+    document.getElementById('calcExtras').style.display = 'none';
+    document.getElementById('calcBreakdown').textContent = '';
 
     document.querySelectorAll('#srcRow .qsrc').forEach(function (b) { b.classList.remove('on'); });
     var phoneSrc = document.querySelector('#srcRow .qsrc[data-v="phone"]');
@@ -667,7 +707,6 @@
       document.querySelectorAll('#res-sub .qpill, #com-sub .qpill').forEach(function (p) { p.classList.remove('on'); });
       clearCondFields();
     }
-    calc();
   }
 
   function toggleCond(id, on) {
@@ -703,7 +742,6 @@
     cleanType = v;
     var cv = document.getElementById('cond-vacate');
     if (cv) { if (v === 'eol') { cv.classList.add('on'); } else { cv.classList.remove('on'); } }
-    calc();
   }
 
   /* ── Map ─────────────────────────────────────────────────────── */
@@ -785,7 +823,6 @@
     sv[key] = Math.max(0, (sv[key] || 0) + d);
     var el = document.getElementById(STEP_IDS[key]);
     if (el) el.textContent = sv[key];
-    calc();
   }
 
   function setSteppers(vals) {
@@ -797,60 +834,55 @@
   }
 
   /* ── Calculator ─────────────────────────────────────────────── */
-  function calc() {
-    if (!jobType) { setCalcOutput('—', '—', '—', '—', null); return; }
+  function calcTotal() {
+    var hours = parseFloat(document.getElementById('rHours').value) || 0;
+    var rate  = parseFloat(document.getElementById('rHourly').value) || 0;
+    var base  = hours * rate;
 
-    var hourly   = parseFloat(document.getElementById('rHourly').value) || 45;
-    var extraMap = {
-      'Oven':             parseFloat(document.getElementById('rOven').value)   || 45,
-      'Fridge':           parseFloat(document.getElementById('rFridge').value) || 30,
-      'Internal windows': parseFloat(document.getElementById('rWin').value)    || 60,
-      'Walls':            parseFloat(document.getElementById('rWalls').value)  || 90,
-      'Balcony': 20, 'Garage': 30, 'Carpet steam': 60, 'Laundry': 20,
-    };
+    var extrasTotal = 0;
+    document.querySelectorAll('#calcExtrasList .calc-extra-row input').forEach(function (inp) {
+      extrasTotal += parseFloat(inp.value) || 0;
+    });
 
-    var isRecur = document.getElementById('recurToggle').classList.contains('on');
-    var freq = isRecur ? (getPillText('freqPills') || 'Fortnightly') : 'One-off';
-    var hours, price, multLabel, extrasLabel, saving = null;
-
-    if (jobType === 'com') {
-      var sqm   = parseFloat(document.getElementById('comSqm').value) || 200;
-      var cMult = 1.25;
-      hours     = sqm / 100;
-      price     = hours * hourly * cMult * (isRecur ? ({ Weekly: 4.3, Fortnightly: 2.15, Monthly: 1 }[freq] || 1) : 1);
-      multLabel = '× ' + cMult;
-      extrasLabel = '—';
-      saving = isRecur ? '📋 ' + freq + ' ongoing' : null;
+    var total = base + extrasTotal;
+    var pi = document.getElementById('cPrice');
+    var bd = document.getElementById('calcBreakdown');
+    if (total > 0) {
+      if (document.activeElement !== pi) pi.value = '$' + Math.round(total);
+      var parts = [];
+      if (base > 0) parts.push(hours + 'h × $' + rate);
+      if (extrasTotal > 0) parts.push('+ $' + Math.round(extrasTotal) + ' add-ons');
+      if (bd) bd.textContent = parts.join(' ');
     } else {
-      var svc   = cleanType || 'regular';
-      var cond  = getPillDataV('condPills') || 'standard';
-      var condM = { standard: 1, poor: 1.3, heavy: 1.6 }[cond] || 1;
-      var svcM  = { regular: 1, eol: 1.8, custom: 1 }[svc] || 1;
-      var freqD = { 'One-off': 1, Monthly: 0.95, Fortnightly: 0.9, Weekly: 0.85 }[freq] || 1;
-      var savingMap = { 'One-off': null, Monthly: '5% saving — monthly', Fortnightly: '10% saving — fortnightly', Weekly: '15% saving — weekly' };
-      var extMins = 0, extNames = [];
-      document.querySelectorAll('#extrasPills .qpill.on').forEach(function (p) {
-        var n = p.textContent.trim(); extMins += (extraMap[n] || 0); extNames.push(n);
-      });
-      var baseH = (sv.beds * 0.5) + (sv.baths * 0.75) + (sv.rooms * 0.25) + (sv.floors * 0.25) + 0.5;
-      hours     = (baseH * condM * svcM) + (extMins / 60);
-      price     = hours * hourly * freqD;
-      multLabel = '× ' + svcM.toFixed(1) + ' (' + svc + ')';
-      extrasLabel = extNames.length ? extNames.join(', ') : '—';
-      saving = savingMap[freq] ? '🎉 ' + savingMap[freq] : null;
+      if (document.activeElement !== pi) pi.value = '—';
+      if (bd) bd.textContent = '';
     }
-
-    setCalcOutput(hours.toFixed(1) + ' hrs', multLabel, extrasLabel, '$' + Math.round(price), saving);
   }
 
-  function setCalcOutput(hours, mult, extras, price, saving) {
-    document.getElementById('cHours').textContent  = hours;
-    document.getElementById('cMult').textContent   = mult;
-    document.getElementById('cExtras').textContent = extras;
-    var pi = document.getElementById('cPrice');
-    if (pi && document.activeElement !== pi) pi.value = price;
-    var s = document.getElementById('saving');
-    if (s) { if (saving) { s.textContent = saving; s.style.display = 'block'; } else { s.style.display = 'none'; } }
+  function updateExtrasInCalc() {
+    var container = document.getElementById('calcExtrasList');
+    var existing = {};
+    container.querySelectorAll('.calc-extra-row').forEach(function (row) {
+      var inp = row.querySelector('input');
+      if (inp) existing[row.dataset.name] = inp.value;
+    });
+
+    var selected = [];
+    document.querySelectorAll('#extrasPills .qpill.on, #comExtrasPills .qpill.on').forEach(function (p) {
+      selected.push(p.textContent.trim());
+    });
+
+    container.innerHTML = selected.map(function (name) {
+      var safeId = 'ep-' + name.replace(/[^a-zA-Z0-9]/g, '-');
+      return '<div class="calc-extra-row" data-name="' + esc(name) + '">'
+        + '<div class="calc-extra-name">' + esc(name) + '</div>'
+        + '<input class="ri" id="' + safeId + '" type="number" min="0" step="1" placeholder="$" value="' + (existing[name] || '') + '">'
+        + '</div>';
+    }).join('');
+
+    var hasRows = selected.length || container.querySelectorAll('[data-custom]').length;
+    document.getElementById('calcExtras').style.display = hasRows ? '' : 'none';
+    calcTotal();
   }
 
   /* ── Event binding ──────────────────────────────────────────── */
@@ -905,7 +937,7 @@
       });
     });
     document.querySelectorAll('#comCleanPills .qpill').forEach(function (p) {
-      p.addEventListener('click', function () { selPill(p); calc(); });
+      p.addEventListener('click', function () { selPill(p); calcTotal(); });
     });
 
     // Generic single-select pill groups
@@ -915,7 +947,7 @@
       var g = document.getElementById(gid);
       if (!g) return;
       g.querySelectorAll('.qpill').forEach(function (p) {
-        p.addEventListener('click', function () { selPill(p); calc(); });
+        p.addEventListener('click', function () { selPill(p); });
       });
     });
 
@@ -936,14 +968,14 @@
 
     // Extras (toggle)
     document.querySelectorAll('#extrasPills .qpill, #comExtrasPills .qpill').forEach(function (p) {
-      p.addEventListener('click', function () { p.classList.toggle('on'); calc(); });
+      p.addEventListener('click', function () { p.classList.toggle('on'); updateExtrasInCalc(); });
     });
 
     // Recurring toggle
     document.getElementById('recurToggle').addEventListener('click', function () {
       this.classList.toggle('on');
       document.getElementById('freqCard').style.display = this.classList.contains('on') ? '' : 'none';
-      calc();
+      calcTotal();
     });
 
     // Source buttons
@@ -971,9 +1003,35 @@
     document.getElementById('iPostcode').addEventListener('input', geocode);
 
     // Rate inputs trigger recalc
-    ['rHourly','rOven','rFridge','rWin','rWalls','comSqm'].forEach(function (id) {
+    ['rHours','rHourly'].forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) el.addEventListener('input', calc);
+      if (el) el.addEventListener('input', calcTotal);
+    });
+
+    // Extras list — event delegation for price inputs and remove buttons
+    var extrasList = document.getElementById('calcExtrasList');
+    extrasList.addEventListener('input', calcTotal);
+    extrasList.addEventListener('click', function (e) {
+      if (e.target.classList.contains('calc-extra-remove')) {
+        e.target.closest('.calc-extra-row').remove();
+        if (!extrasList.querySelector('.calc-extra-row')) {
+          document.getElementById('calcExtras').style.display = 'none';
+        }
+        calcTotal();
+      }
+    });
+
+    // Add custom extra
+    document.getElementById('btnAddCustomExtra').addEventListener('click', function () {
+      var row = document.createElement('div');
+      row.className = 'calc-extra-row';
+      row.dataset.custom = 'true';
+      row.innerHTML = '<input class="ri calc-extra-name-input" type="text" placeholder="Description">'
+        + '<input class="ri" type="number" min="0" step="1" placeholder="$">'
+        + '<button class="calc-extra-remove" title="Remove">&times;</button>';
+      extrasList.appendChild(row);
+      document.getElementById('calcExtras').style.display = '';
+      row.querySelector('input').focus();
     });
   }
 

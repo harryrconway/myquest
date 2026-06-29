@@ -349,6 +349,7 @@
     <table>
       <thead><tr><th>File</th><th>What it adds</th></tr></thead>
       <tbody>
+        <tr><td><code>20260601_create_quote_requests.sql</code></td><td>Bootstrap: <code>CREATE TABLE IF NOT EXISTS quote_requests</code> with all columns. Run this first if the table does not exist.</td></tr>
         <tr><td><code>20260612_company_settings.sql</code></td><td>Creates <code>company_settings</code> table with RLS</td></tr>
         <tr><td><code>20260612_staff_colour.sql</code></td><td>Adds <code>colour</code> column to <code>profiles</code></td></tr>
         <tr><td><code>20260613_staff_onboarding.sql</code></td><td>Adds onboarding fields to <code>profiles</code>: mobile, residential_address, emergency contact, profile photo, document URLs, agreement timestamps, onboarding_complete</td></tr>
@@ -364,6 +365,7 @@
         <tr><td><code>20260628_rls_security_hardening.sql</code></td><td>RLS security hardening across tables</td></tr>
         <tr><td><code>20260628_status_workflow.sql</code></td><td>Adds <code>invited_at</code> to <code>profiles</code> for tracking when invite email was sent</td></tr>
         <tr><td><code>20260629_quote_internal_fields.sql</code></td><td>Adds internal quoting columns to <code>quote_requests</code>: <code>quote_type</code>, <code>client_type</code>, <code>quote_status</code>, <code>quoted_price</code>, <code>quote_source</code>, <code>created_by</code>, <code>quote_sent_at</code>, <code>furnished_status</code>, <code>parking_type</code>, <code>urgency</code>, <code>vacate_date</code>, <code>is_recurring</code>, <code>restroom_count</code>, <code>num_floors</code>, <code>lead_source</code>, <code>pet_info</code>, <code>property_size_tag</code>, <code>email_log</code></td></tr>
+        <tr><td><code>20260629_quote_property_fields.sql</code></td><td>Adds missing property detail columns to <code>quote_requests</code>: <code>access_instructions</code>, <code>bedrooms</code>, <code>bathrooms</code>, <code>living_areas</code>, <code>floor_area_sqm</code>, <code>extras</code>, <code>preferred_days</code>, <code>preferred_time</code>, <code>updated_at</code></td></tr>
       </tbody>
     </table>
 

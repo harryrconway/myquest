@@ -17,6 +17,7 @@
   <script src="js/supabase-client.js?v=20260622"></script>
   <script src="js/store.js?v=20260622"></script>
   <script src="js/auth.js?v=20260809"></script>
+  <script src="js/ui.js?v=20260622"></script>
   <style>
     /* ── Quote status chips ──────────────────────────────────────── */
     .qchip { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700; }
@@ -65,7 +66,7 @@
     .q-empty p { font-size:14px;margin-top:8px; }
 
     /* ── Quote form overlay ──────────────────────────────────────── */
-    #q-form-wrap { position:fixed;inset:0;z-index:50;display:none;flex-direction:column;background:#f1f5f9; }
+    #q-form-wrap { position:fixed;top:0;left:240px;right:0;bottom:0;z-index:50;display:none;flex-direction:column;background:#f1f5f9; }
     #q-form-wrap.on { display:flex; }
 
     .nq-header { flex-shrink:0;background:#fff;border-bottom:1.5px solid #e2e8f0;padding:0 24px;height:52px;display:flex;align-items:center;gap:12px; }
@@ -80,7 +81,7 @@
     .nq-btn--yellow  { background:#FFD400;color:#000; }
 
     .nq-body { flex:1;display:flex;overflow:hidden; }
-    .nq-form { flex:1;overflow-y:auto;padding:28px 36px 60px; }
+    .nq-form { flex:1;max-width:860px;overflow-y:auto;padding:28px 36px 60px; }
     .form-inner { max-width:780px;display:flex;flex-direction:column;gap:16px; }
 
     .sec-label { font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-top:8px;margin-bottom:-4px;padding-left:2px; }
@@ -161,30 +162,34 @@
     .eh-resend:hover { background:#f8fafc; }
 
     /* Calculator panel */
-    .nq-calc { width:320px;flex-shrink:0;background:#fff;border-left:1.5px solid #e2e8f0;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:16px; }
-    .cl { font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px; }
-    .cbox { background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;padding:12px 14px; }
-    .crow { display:flex;align-items:center;justify-content:space-between;padding:5px 0; }
-    .crow + .crow { border-top:1px solid #f1f5f9; }
-    .ck { font-size:12.5px;color:#64748b; }
-    .cv { font-size:13px;font-weight:700;color:#0f172a; }
-    .rate-grid { display:grid;grid-template-columns:1fr 1fr;gap:9px; }
+    .nq-calc { width:300px;flex-shrink:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px; }
+    .calc-card { background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden; }
+    .calc-section { padding:14px 16px; }
+    .calc-section + .calc-section { border-top:1px solid #f1f5f9; }
+    .cl { font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px; }
+    .rate-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
     .rf { display:flex;flex-direction:column;gap:4px; }
     .rl { font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em; }
-    .ri { padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:700;color:#0f172a;outline:none;width:100%;text-align:center;background:#fff; }
+    .ri { padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:700;color:#0f172a;outline:none;width:100%;text-align:center;background:#fff; }
     .ri:focus { border-color:#94a3b8; }
-    .price-block { background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px; }
+    .calc-extra-row { display:flex;align-items:center;gap:8px;margin-bottom:8px; }
+    .calc-extra-row:last-child { margin-bottom:0; }
+    .calc-extra-name { font-size:12.5px;font-weight:600;color:#374151;flex:1;min-width:0; }
+    .calc-extra-name-input { flex:1;min-width:0;text-align:left !important;font-weight:600 !important;font-size:12.5px !important; }
+    .calc-extra-row input[type="number"] { width:64px;flex-shrink:0; }
+    .calc-extra-remove { width:24px;height:24px;border:none;background:none;color:#94a3b8;cursor:pointer;font-size:16px;line-height:1;padding:0;flex-shrink:0;border-radius:4px; }
+    .calc-extra-remove:hover { background:#f1f5f9;color:#374151; }
+    .calc-add-custom { background:none;border:1.5px dashed #e2e8f0;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:700;color:#94a3b8;cursor:pointer;width:100%;transition:all .12s; }
+    .calc-add-custom:hover { border-color:#94a3b8;color:#374151; }
+    .price-block { background:#f8fafc;border-radius:10px;padding:12px 14px; }
     .price-block__top { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px; }
-    .price-block__lbl  { font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em; }
+    .price-block__lbl  { font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.09em; }
     .price-block__hint { font-size:11px;color:#94a3b8; }
-    .cpi { width:100%;padding:10px 8px;border:2px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:28px;font-weight:800;color:#0f172a;text-align:center;outline:none;background:#fff; }
+    .cpi { width:100%;padding:10px 8px;border:2px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:26px;font-weight:800;color:#0f172a;text-align:center;outline:none;background:#fff; }
     .cpi:focus { border-color:#0f172a; }
-    .saving { font-size:12px;font-weight:600;color:#15803d;background:#f0fdf4;border-radius:8px;padding:7px 10px;text-align:center;display:none; }
     .days-row { display:flex;gap:5px;flex-wrap:wrap; }
-    .dp { padding:5px 10px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#374151;transition:all .12s; }
+    .dp { padding:5px 9px;border-radius:7px;border:1.5px solid #e2e8f0;font-size:11.5px;font-weight:600;cursor:pointer;background:#fff;color:#374151;transition:all .12s; }
     .dp.on { background:#0f172a;border-color:#0f172a;color:#fff; }
-    .calc-divider { border:none;border-top:1.5px solid #f1f5f9;margin:0; }
-    .c-actions { display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1.5px solid #f1f5f9; }
     .bf { width:100%;padding:11px;border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s; }
     .bf:hover { opacity:.85; }
     .bf--yellow  { background:#FFD400;color:#000; }
@@ -235,6 +240,7 @@
     .q-vacate-card { background:#fffbeb;border-color:#fde68a;padding:14px 16px;margin-bottom:14px; }
 
     @media (max-width: 700px) {
+      #q-form-wrap { left:0; top:56px; }
       .nq-calc { display:none; }
       .nq-form { padding:16px 16px 60px; }
     }
@@ -336,9 +342,9 @@
       <h1 id="qPageTitle">New Quote</h1>
       <div id="qHeaderBadge"></div>
       <div class="nq-header-right">
-        <button id="btnViewQuote" class="nq-btn nq-btn--outline" style="display:none;">👁 View Quote</button>
+        <button id="btnViewQuote" class="nq-btn nq-btn--outline" style="display:none;">View Quote</button>
         <button id="btnHeaderSave" class="nq-btn nq-btn--outline">Save Draft</button>
-        <button id="btnHeaderEmail" class="nq-btn nq-btn--yellow">✉ Save &amp; Email Quote</button>
+        <button id="btnHeaderEmail" class="nq-btn nq-btn--yellow">Save &amp; Email Quote</button>
       </div>
     </div>
 
@@ -355,12 +361,10 @@
             <div class="qfc-body">
               <div class="type-grid">
                 <button class="tc" id="tc-res">
-                  <span class="tc__icon">🏠</span>
                   <span class="tc__name">Residential</span>
                   <span class="tc__sub">Houses, apartments, townhouses, units</span>
                 </button>
                 <button class="tc" id="tc-com">
-                  <span class="tc__icon">🏢</span>
                   <span class="tc__name">Commercial</span>
                   <span class="tc__sub">Offices, construction, real estate, aged care</span>
                 </button>
@@ -389,7 +393,7 @@
           <!-- Location -->
           <div class="sec-label">Location</div>
           <div class="qfc">
-            <div class="qfc-head"><span class="qfc-icon">📍</span><span class="qfc-title">Property address</span></div>
+            <div class="qfc-head"><span class="qfc-title">Property address</span></div>
             <div class="qfc-body">
               <div class="qf2" style="margin-bottom:14px;">
                 <div class="qfg" style="margin-bottom:0;">
@@ -410,7 +414,7 @@
           </div>
 
           <div class="qfc">
-            <div class="qfc-head"><span class="qfc-icon">🔑</span><span class="qfc-title">Access &amp; parking</span></div>
+            <div class="qfc-head"><span class="qfc-title">Access &amp; parking</span></div>
             <div class="qfc-body">
               <div class="qf2">
                 <div class="qfg" style="margin-bottom:0;">
@@ -445,7 +449,7 @@
           <!-- Residential details -->
           <div class="qcond" id="resDet">
             <div class="qfc">
-              <div class="qfc-head"><span class="qfc-icon">🧹</span><span class="qfc-title">Type of clean</span></div>
+              <div class="qfc-head"><span class="qfc-title">Type of clean</span></div>
               <div class="qfc-body">
                 <div class="qpg" id="cleanTypePills">
                   <button class="qpill" data-v="regular">Regular clean</button>
@@ -456,7 +460,7 @@
             </div>
 
             <div class="qfc">
-              <div class="qfc-head"><span class="qfc-icon">🏠</span><span class="qfc-title">Property size</span></div>
+              <div class="qfc-head"><span class="qfc-title">Property size</span></div>
               <div class="qfc-body">
                 <div class="qf4" style="margin-bottom:14px;">
                   <div class="qfg" style="margin-bottom:0;">
@@ -489,7 +493,7 @@
             </div>
 
             <div class="qfc">
-              <div class="qfc-head"><span class="qfc-icon">📋</span><span class="qfc-title">Condition &amp; details</span></div>
+              <div class="qfc-head"><span class="qfc-title">Condition &amp; details</span></div>
               <div class="qfc-body">
                 <div class="qfg">
                   <div class="qfl">Property condition</div>
@@ -521,7 +525,7 @@
             </div>
 
             <div class="qfc qcond" id="cond-ndis">
-              <div class="qfc-head"><span class="qfc-icon">♿</span><span class="qfc-title">NDIS details <span class="qfc-sub">optional</span></span></div>
+              <div class="qfc-head"><span class="qfc-title">NDIS details <span class="qfc-sub">optional</span></span></div>
               <div class="qfc-body">
                 <div class="qf2">
                   <div class="qfg" style="margin-bottom:0;"><div class="qfl">NDIS number</div><input class="qfi" type="text" placeholder="43 000 000 0000"></div>
@@ -531,7 +535,7 @@
             </div>
 
             <div class="qfc qcond" id="cond-dva">
-              <div class="qfc-head"><span class="qfc-icon">🎖</span><span class="qfc-title">DVA details <span class="qfc-sub">optional</span></span></div>
+              <div class="qfc-head"><span class="qfc-title">DVA details <span class="qfc-sub">optional</span></span></div>
               <div class="qfc-body">
                 <div class="qf2">
                   <div class="qfg" style="margin-bottom:0;"><div class="qfl">DVA file number</div><input class="qfi" type="text" placeholder="File number"></div>
@@ -544,7 +548,7 @@
           <!-- Commercial details -->
           <div class="qcond" id="comDet">
             <div class="qfc">
-              <div class="qfc-head"><span class="qfc-icon">🧹</span><span class="qfc-title">Type of clean</span></div>
+              <div class="qfc-head"><span class="qfc-title">Type of clean</span></div>
               <div class="qfc-body">
                 <div class="qpg" id="comCleanPills">
                   <button class="qpill" data-v="regular">Regular clean</button>
@@ -556,7 +560,7 @@
             </div>
 
             <div class="qfc">
-              <div class="qfc-head"><span class="qfc-icon">🏢</span><span class="qfc-title">Premises details</span></div>
+              <div class="qfc-head"><span class="qfc-title">Premises details</span></div>
               <div class="qfc-body">
                 <div class="qf3" style="margin-bottom:14px;">
                   <div class="qfg" style="margin-bottom:0;">
@@ -584,11 +588,11 @@
             </div>
 
             <div class="qfc qcond" id="cond-construction">
-              <div class="qfc-head"><span class="qfc-icon">🏗</span><span class="qfc-title">Handover / completion date</span></div>
+              <div class="qfc-head"><span class="qfc-title">Handover / completion date</span></div>
               <div class="qfc-body"><div class="qfg" style="margin-bottom:0;"><div class="qfl">Date keys/site handed over</div><input class="qfi" type="date"></div></div>
             </div>
             <div class="qfc qcond" id="cond-real-estate">
-              <div class="qfc-head"><span class="qfc-icon">🏘</span><span class="qfc-title">Property manager details</span></div>
+              <div class="qfc-head"><span class="qfc-title">Property manager details</span></div>
               <div class="qfc-body">
                 <div class="qf2">
                   <div class="qfg" style="margin-bottom:0;"><div class="qfl">Property manager</div><input class="qfi" type="text" placeholder="Name"></div>
@@ -597,7 +601,7 @@
               </div>
             </div>
             <div class="qfc qcond" id="cond-aged-care">
-              <div class="qfc-head"><span class="qfc-icon">🏥</span><span class="qfc-title">Aged care notes</span></div>
+              <div class="qfc-head"><span class="qfc-title">Aged care notes</span></div>
               <div class="qfc-body"><textarea class="qfta" placeholder="Compliance requirements, infection control, special instructions…"></textarea></div>
             </div>
           </div><!-- /comDet -->
@@ -605,7 +609,7 @@
           <!-- Extras -->
           <div class="sec-label">Extras</div>
           <div class="qfc" id="resExtras" style="display:none;">
-            <div class="qfc-head"><span class="qfc-icon">✨</span><span class="qfc-title">Add-ons <span class="qfc-sub">tap to include</span></span></div>
+            <div class="qfc-head"><span class="qfc-title">Add-ons <span class="qfc-sub">tap to include</span></span></div>
             <div class="qfc-body">
               <div class="qpg" id="extrasPills">
                 <button class="qpill y">Oven</button>
@@ -620,7 +624,7 @@
             </div>
           </div>
           <div class="qfc" id="comExtras" style="display:none;">
-            <div class="qfc-head"><span class="qfc-icon">✨</span><span class="qfc-title">Add-ons <span class="qfc-sub">tap to include</span></span></div>
+            <div class="qfc-head"><span class="qfc-title">Add-ons <span class="qfc-sub">tap to include</span></span></div>
             <div class="qfc-body">
               <div class="qpg" id="comExtrasPills">
                 <button class="qpill y">Kitchen</button>
@@ -636,7 +640,7 @@
           <!-- Timing -->
           <div class="sec-label">Timing</div>
           <div class="qfc">
-            <div class="qfc-head"><span class="qfc-icon">📅</span><span class="qfc-title">When is this needed?</span></div>
+            <div class="qfc-head"><span class="qfc-title">When is this needed?</span></div>
             <div class="qfc-body">
               <div class="qfg">
                 <div class="qfl">Urgency</div>
@@ -660,7 +664,7 @@
             </div>
           </div>
           <div class="qfc" id="freqCard" style="display:none;">
-            <div class="qfc-head"><span class="qfc-icon">🔁</span><span class="qfc-title">Frequency</span></div>
+            <div class="qfc-head"><span class="qfc-title">Frequency</span></div>
             <div class="qfc-body">
               <div class="qpg" id="freqPills">
                 <button class="qpill">Weekly</button>
@@ -673,12 +677,12 @@
           <!-- Client details -->
           <div class="sec-label">Client details <span class="q-opt">optional — save without these</span></div>
           <div class="qfc">
-            <div class="qfc-head"><span class="qfc-icon">👤</span><span class="qfc-title">Contact</span></div>
+            <div class="qfc-head"><span class="qfc-title">Contact</span></div>
             <div class="qfc-body">
               <div class="qsrc-row" id="srcRow">
-                <button class="qsrc on" data-v="phone">📞 Phone call</button>
-                <button class="qsrc" data-v="walk-in">🚪 Walk-in</button>
-                <button class="qsrc" data-v="website">🌐 Website</button>
+                <button class="qsrc on" data-v="phone">Phone call</button>
+                <button class="qsrc" data-v="walk-in">Walk-in</button>
+                <button class="qsrc" data-v="website">Website</button>
               </div>
               <div class="qf3" style="margin-bottom:14px;">
                 <div class="qfg" style="margin-bottom:0;"><div class="qfl">Full name</div><input class="qfi" id="iClientName" type="text" placeholder="Jane Smith"></div>
@@ -706,7 +710,7 @@
           <div class="sec-label eh-section" id="ehSection">Email history</div>
           <div class="qfc eh-section" id="ehCard">
             <div class="qfc-head">
-              <span class="qfc-icon">✉</span>
+              
               <span class="qfc-title">Outbound emails</span>
               <button class="nq-btn nq-btn--yellow" id="btnSendEmailFromHistory" style="margin-left:auto;font-size:12px;padding:5px 12px;">+ Send email</button>
             </div>
@@ -721,74 +725,74 @@
       <!-- ── CALCULATOR ────────────────────────────────────── -->
       <div class="nq-calc">
 
-        <div>
-          <div class="cl">Estimate</div>
-          <div class="cbox">
-            <div class="crow"><span class="ck">Est. hours</span><span class="cv" id="cHours">—</span></div>
-            <div class="crow"><span class="ck">Service mult.</span><span class="cv" id="cMult">—</span></div>
-            <div class="crow"><span class="ck">Extras</span><span class="cv" id="cExtras">—</span></div>
+        <!-- Pricing card -->
+        <div class="calc-card">
+          <div class="calc-section">
+            <div class="cl">Pricing</div>
+            <div class="rate-grid">
+              <div class="rf"><div class="rl">Hours</div><input class="ri" id="rHours" type="number" min="0" step="0.5" placeholder="0"></div>
+              <div class="rf"><div class="rl">Rate / hr $</div><input class="ri" id="rHourly" type="number" value="45" min="1"></div>
+            </div>
           </div>
-        </div>
 
-        <div>
-          <div class="cl">Rates <span style="font-weight:500;text-transform:none;letter-spacing:0;font-size:10px;color:#94a3b8;">editable</span></div>
-          <div class="rate-grid">
-            <div class="rf"><div class="rl">Hourly rate $</div><input class="ri" id="rHourly" type="number" value="45" min="1"></div>
-            <div class="rf"><div class="rl">Oven (mins)</div><input class="ri" id="rOven" type="number" value="45" min="0"></div>
-            <div class="rf"><div class="rl">Fridge (mins)</div><input class="ri" id="rFridge" type="number" value="30" min="0"></div>
-            <div class="rf"><div class="rl">Windows (min)</div><input class="ri" id="rWin" type="number" value="60" min="0"></div>
-            <div class="rf"><div class="rl">Walls (mins)</div><input class="ri" id="rWalls" type="number" value="90" min="0"></div>
+          <div class="calc-section" id="calcExtras" style="display:none;">
+            <div class="cl">Add-ons</div>
+            <div id="calcExtrasList"></div>
           </div>
-        </div>
-
-        <div class="price-block">
-          <div class="price-block__top">
-            <div class="price-block__lbl">Quoted price</div>
-            <div class="price-block__hint">tap to override</div>
+          <div class="calc-section" style="padding-top:10px;padding-bottom:10px;">
+            <button id="btnAddCustomExtra" class="calc-add-custom">+ Custom add-on</button>
           </div>
-          <input class="cpi" id="cPrice" type="text" value="—">
-        </div>
 
-        <div class="saving" id="saving"></div>
-
-        <hr class="calc-divider">
-
-        <div>
-          <div class="cl">Preferred days</div>
-          <div class="days-row" id="prefDays">
-            <button class="dp">Mon</button>
-            <button class="dp">Tue</button>
-            <button class="dp">Wed</button>
-            <button class="dp">Thu</button>
-            <button class="dp">Fri</button>
-            <button class="dp">Sat</button>
-          </div>
-        </div>
-
-        <div>
-          <div class="cl">Preferred time</div>
-          <div class="qpg" id="calcTimePills" style="margin-bottom:8px;">
-            <button class="qpill blk">Morning</button>
-            <button class="qpill blk">Afternoon</button>
-            <button class="qpill blk">Either</button>
-          </div>
-          <div style="display:flex;gap:7px;align-items:center;">
-            <input class="ri" id="tHour" type="number" min="1" max="12" placeholder="8" style="flex:1;text-align:center;padding:7px 6px;">
-            <span style="font-size:12px;color:#94a3b8;font-weight:600;">:</span>
-            <select class="ri" id="tMin" style="flex:1;padding:7px 6px;cursor:pointer;">
-              <option>00</option><option>15</option><option>30</option><option>45</option>
-            </select>
-            <div class="qpg" id="ampmPills" style="gap:5px;">
-              <button class="qpill blk">AM</button>
-              <button class="qpill blk">PM</button>
+          <div class="calc-section">
+            <div class="price-block">
+              <div class="price-block__top">
+                <div class="price-block__lbl">Total</div>
+                <div class="price-block__hint" id="calcBreakdown"></div>
+              </div>
+              <input class="cpi" id="cPrice" type="text" value="—">
             </div>
           </div>
         </div>
 
-        <div class="c-actions">
-          <button class="bf bf--yellow" id="btnCalcEmail">✉ Save &amp; Email Quote</button>
-          <button class="bf bf--black" id="btnCalcSave">💾 Save Draft</button>
-          <button class="bf bf--outline" id="btnCalcViewQuote" style="display:none;">👁 View Quote</button>
+        <!-- Scheduling card -->
+        <div class="calc-card">
+          <div class="calc-section">
+            <div class="cl">Preferred days</div>
+            <div class="days-row" id="prefDays">
+              <button class="dp">Mon</button>
+              <button class="dp">Tue</button>
+              <button class="dp">Wed</button>
+              <button class="dp">Thu</button>
+              <button class="dp">Fri</button>
+              <button class="dp">Sat</button>
+            </div>
+          </div>
+          <div class="calc-section">
+            <div class="cl">Preferred time</div>
+            <div class="qpg" id="calcTimePills" style="margin-bottom:10px;">
+              <button class="qpill blk">Morning</button>
+              <button class="qpill blk">Afternoon</button>
+              <button class="qpill blk">Either</button>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input class="ri" id="tHour" type="number" min="1" max="12" placeholder="8" style="flex:1;">
+              <span style="font-size:12px;color:#94a3b8;font-weight:600;">:</span>
+              <select class="ri" id="tMin" style="flex:1;cursor:pointer;">
+                <option>00</option><option>15</option><option>30</option><option>45</option>
+              </select>
+              <div class="qpg" id="ampmPills" style="gap:5px;flex-shrink:0;">
+                <button class="qpill blk">AM</button>
+                <button class="qpill blk">PM</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="bf bf--yellow" id="btnCalcViewQuote">Preview Quote</button>
+          <button class="bf bf--black" id="btnCalcSave">Save Draft</button>
+          <button class="bf bf--outline" id="btnCalcEmail" style="display:none;">Save &amp; Email Quote</button>
         </div>
 
       </div><!-- /nq-calc -->
@@ -803,12 +807,12 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           Back to quote
         </button>
-        <button class="nq-btn nq-btn--yellow" id="btnEmailFromPreview">✉ Email this quote</button>
+        <button class="nq-btn nq-btn--yellow" id="btnEmailFromPreview">Email this quote</button>
       </div>
       <div class="preview-doc" id="previewDoc"></div>
     </div>
   </div>
 
-  <script src="js/quotes.js?v=20260629"></script>
+  <script src="js/quotes.js?v=20260629g"></script>
 </body>
 </html>
