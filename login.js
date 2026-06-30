@@ -83,8 +83,18 @@
         return;
       }
 
+      console.log('[MQ login] tsInput:', tsInput, '| token value:', tsInput ? tsInput.value : 'NO WIDGET');
+      console.log('[MQ login] turnstile global:', typeof turnstile);
+
       submitBtn.textContent = 'Signing in…';
       submitBtn.disabled    = true;
+
+      var payload = {
+        email:           email,
+        password:        '(hidden)',
+        turnstile_token: tsInput ? tsInput.value : null,
+      };
+      console.log('[MQ login] sending to /api/login:', JSON.stringify(payload));
 
       var res;
       try {
@@ -98,13 +108,21 @@
           }),
         });
       } catch (networkErr) {
+        console.error('[MQ login] fetch threw:', networkErr);
         showError('Could not connect to the server. Please check your connection.');
         submitBtn.textContent = 'Sign In';
         submitBtn.disabled    = false;
         return;
       }
 
-      var data = await res.json().catch(function () { return {}; });
+      console.log('[MQ login] response status:', res.status);
+      console.log('[MQ login] cf-ray header:', res.headers.get('cf-ray'));
+      console.log('[MQ login] content-type:', res.headers.get('content-type'));
+
+      var rawText = await res.text();
+      console.log('[MQ login] raw response body:', rawText);
+      var data = {};
+      try { data = JSON.parse(rawText); } catch (e) { console.error('[MQ login] body not JSON — likely Cloudflare HTML block page'); }
 
       if (!res.ok) {
         showError(data.error || 'Sign in failed. Please try again.');
