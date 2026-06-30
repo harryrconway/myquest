@@ -105,6 +105,18 @@ Cache-busting is manual: update `?v=YYYYMMDD` query strings on `<script>` and `<
 
 ---
 
+## Mobile requirement
+
+**Every UI change must render correctly on mobile (375px viewport).** Before committing any HTML/CSS change, check:
+
+- No horizontal overflow — nothing should cause the page body to scroll sideways
+- Tap targets are at least 44×44px
+- Multi-column grids collapse to 1–2 columns on small screens
+- Fixed/overlay elements account for the 56px mobile bar (`top:56px` or `padding-top:56px`)
+- Text does not overflow its container
+
+---
+
 ## After deploying login changes (one-time action required)
 
 The login flow now goes through `/api/login` (a Cloudflare Worker) instead of calling Supabase directly from the browser. The Worker needs `SUPABASE_ANON_KEY` to be set as a production environment variable — without it, login will return a server configuration error on the live site.

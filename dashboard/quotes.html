@@ -240,9 +240,34 @@
     .q-vacate-card { background:#fffbeb;border-color:#fde68a;padding:14px 16px;margin-bottom:14px; }
 
     @media (max-width: 700px) {
-      #q-form-wrap { left:0; top:56px; }
+      /* Form overlay — above mobile bar (z-index 60) */
+      #q-form-wrap { left:0; top:56px; z-index:70; }
       .nq-calc { display:none; }
-      .nq-form { padding:16px 16px 60px; }
+      .nq-form { max-width:100%; padding:16px 16px 60px; }
+
+      /* List — hero stacks, stat pills scroll, table scrolls */
+      .q-hero { flex-direction:column; align-items:flex-start; gap:10px; }
+      .q-stat-pills { flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; max-width:100%; -webkit-overflow-scrolling:touch; }
+      .q-table-card { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+      /* Form header wraps to two rows */
+      .nq-header { height:auto; min-height:52px; flex-wrap:wrap; padding:8px 14px; row-gap:6px; }
+      .nq-header h1 { font-size:13px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px; }
+      .nq-header-right { margin-left:0; width:100%; justify-content:flex-end; gap:6px; }
+
+      /* Collapse 3- and 4-column grids to 2 columns */
+      .qf3, .qf4 { grid-template-columns:1fr 1fr; }
+
+      /* Preview button — only show on mobile (calc panel is hidden) */
+      .nq-btn--mob-preview { display:inline-flex !important; }
+
+      /* Preview modal */
+      .preview-topbar { flex-wrap:wrap; height:auto; padding:10px 14px; gap:8px; }
+      .preview-doc { padding:20px 16px; }
+      .pq-header { flex-direction:column; gap:4px; }
+      .pq-title { text-align:left; }
+      .pq-title h2 { font-size:22px; }
+      .pq-parties { grid-template-columns:1fr; gap:12px; }
     }
   </style>
 </head>
@@ -343,6 +368,7 @@
       <div id="qHeaderBadge"></div>
       <div class="nq-header-right">
         <button id="btnViewQuote" class="nq-btn nq-btn--outline" style="display:none;">View Quote</button>
+        <button id="btnMobilePreview" class="nq-btn nq-btn--outline nq-btn--mob-preview" style="display:none;">Preview</button>
         <button id="btnHeaderSave" class="nq-btn nq-btn--outline">Save Draft</button>
         <button id="btnHeaderEmail" class="nq-btn nq-btn--yellow">Save &amp; Email Quote</button>
       </div>
@@ -813,6 +839,6 @@
     </div>
   </div>
 
-  <script src="js/quotes.js?v=20260629g"></script>
+  <script src="js/quotes.js?v=20260630"></script>
 </body>
 </html>

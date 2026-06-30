@@ -916,6 +916,7 @@
 
     // View quote / preview
     document.getElementById('btnViewQuote').addEventListener('click',     showPreviewModal);
+    document.getElementById('btnMobilePreview').addEventListener('click', showPreviewModal);
     document.getElementById('btnCalcViewQuote').addEventListener('click', showPreviewModal);
     document.getElementById('btnClosePreview').addEventListener('click',  closePreviewModal);
     document.getElementById('btnEmailFromPreview').addEventListener('click', function () { closePreviewModal(); emailQuote(); });
