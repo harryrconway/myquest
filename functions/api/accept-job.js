@@ -155,7 +155,7 @@ export async function onRequestPost(context) {
         method: 'POST',
         headers: svcHeaders,
         body: JSON.stringify(clones),
-      }).catch(() => {}));
+      }).catch(function(e){console.error('Email send failed:',e)}));
     }
   }
 
@@ -215,7 +215,7 @@ export async function onRequestPost(context) {
 </div>
 </body></html>`,
         }),
-      }).catch(() => {}));
+      }).catch(function(e){console.error('Email send failed:',e)}));
     }
 
     // Staff assignment emails
@@ -295,7 +295,7 @@ export async function onRequestPost(context) {
 </div>
 </body></html>`,
             }),
-          }).catch(() => {}));
+          }).catch(function(e){console.error('Email send failed:',e)}));
         }
       } catch { /* staff email failure doesn't block response */ }
     }

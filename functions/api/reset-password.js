@@ -1,4 +1,16 @@
 /* POST /api/reset-password — send password reset email via Supabase */
+const ORIGIN = 'https://myquest.au';
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': ORIGIN,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const URL_BASE = env.SUPABASE_URL;
@@ -17,16 +29,20 @@ export async function onRequestPost(context) {
   const profileRes = await fetch(`${URL_BASE}/rest/v1/profiles?id=eq.${user.id}&select=role`, {
     headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
   });
+  if (!profileRes.ok) return json({ error: 'Could not verify permissions.' }, 500);
   const profiles = await profileRes.json();
-  if (!profiles.length || profiles[0].role !== 'owner') return json({ error: 'Only owners can reset passwords.' }, 403);
+  if (!Array.isArray(profiles) || !profiles.length || profiles[0].role !== 'owner') {
+    return json({ error: 'Only owners can reset passwords.' }, 403);
+  }
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
   const { email } = body;
   if (!email) return json({ error: 'email is required.' }, 400);
 
+  const redirectTo = baseUrl(env) + '/set-password.html';
   const resetRes = await fetch(
-    `${URL_BASE}/auth/v1/recover?redirect_to=${encodeURIComponent('https://myquest.au/set-password.html')}`,
+    `${URL_BASE}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`,
     {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY, 'Content-Type': 'application/json' },
@@ -34,12 +50,20 @@ export async function onRequestPost(context) {
     }
   );
   if (!resetRes.ok) {
-    const err = await resetRes.json().catch(() => ({}));
-    return json({ error: err.msg || err.message || 'Failed to send reset email.' }, 500);
+    return json({ error: 'Failed to send reset email.' }, 500);
   }
   return json({ success: true, message: 'Password reset email sent to ' + email });
 }
 
+function baseUrl(env) {
+  return (env.CF_PAGES_BRANCH && env.CF_PAGES_BRANCH !== 'main' && env.CF_PAGES_URL)
+    ? env.CF_PAGES_URL
+    : 'https://myquest.au';
+}
+
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ORIGIN },
+  });
 }

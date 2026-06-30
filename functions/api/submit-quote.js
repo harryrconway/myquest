@@ -207,7 +207,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
 </div>
 </body></html>`,
     }),
-  }).catch(() => {});
+  }).catch(function(e){console.error('Email send failed:',e)});
 
   // Admin notification
   const rows = [
@@ -254,7 +254,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
 </div>
 </body></html>`,
     }),
-  }).catch(() => {});
+  }).catch(function(e){console.error('Email send failed:',e)});
 }
 
 function row(label, value, stripe) {

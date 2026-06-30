@@ -74,8 +74,8 @@ export async function onRequestPost(context) {
     });
     if (!patchRes.ok) {
       const errBody = await patchRes.json().catch(() => ({}));
-      console.error('Supabase patch error:', JSON.stringify(errBody));
-      return json({ error: 'Failed to update quote.', detail: errBody }, 500);
+      console.error('save-quote patch error:', JSON.stringify(errBody));
+      return json({ error: 'Failed to update quote.' }, 500);
     }
   } else {
     // Full INSERT with defaults for all fields

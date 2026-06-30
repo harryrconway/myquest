@@ -1,10 +1,10 @@
 /* ============================================================
-   MYQUEST — login.js  (Supabase Auth)
+   MYQUEST — login.js  (Supabase Auth via /api/login proxy)
    ============================================================ */
 (function () {
   'use strict';
 
-  var DASHBOARD_URL = 'dashboard/index.html';
+  var DASHBOARD_URL = '/dashboard/';
 
   function showState(id) {
     ['state-login', 'state-success'].forEach(function (s) {
@@ -56,8 +56,8 @@
   });
 
   function initLoginForm(sb) {
-    var form      = document.getElementById('login-form');
-    var emailEl   = document.getElementById('login-email');
+    var form       = document.getElementById('login-form');
+    var emailEl    = document.getElementById('login-email');
     var passwordEl = document.getElementById('login-password');
     var submitBtn  = document.getElementById('login-submit');
 
@@ -73,8 +73,10 @@
         return;
       }
 
-      var tsToken = document.querySelector('[name="cf-turnstile-response"]');
-      if (!tsToken || !tsToken.value) {
+      // UX guard: if the Turnstile widget rendered but the user hasn't completed it, warn immediately.
+      // The real validation happens server-side in /api/login.
+      var tsInput = document.querySelector('[name="cf-turnstile-response"]');
+      if (tsInput && !tsInput.value) {
         showError('Please complete the security check.');
         return;
       }
@@ -82,19 +84,42 @@
       submitBtn.textContent = 'Signing in…';
       submitBtn.disabled    = true;
 
-      var result = await sb.auth.signInWithPassword({ email: email, password: password });
+      var res;
+      try {
+        res = await fetch('/api/login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            email:           email,
+            password:        password,
+            turnstile_token: tsInput ? tsInput.value : null,
+          }),
+        });
+      } catch (networkErr) {
+        showError('Could not connect to the server. Please check your connection.');
+        submitBtn.textContent = 'Sign In';
+        submitBtn.disabled    = false;
+        return;
+      }
 
-      if (result.error) {
-        var msg = 'Invalid email or password. Contact your administrator if you believe this is an error.';
-        showError(msg);
+      var data = await res.json().catch(function () { return {}; });
+
+      if (!res.ok) {
+        showError(data.error || 'Sign in failed. Please try again.');
         submitBtn.textContent = 'Sign In';
         submitBtn.disabled    = false;
         if (typeof turnstile !== 'undefined') turnstile.reset();
         return;
       }
 
-      // Fetch profile for name/role
-      var userId = result.data.user.id;
+      // Establish the Supabase session client-side from the tokens the Worker returned.
+      await sb.auth.setSession({
+        access_token:  data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      // Fetch profile for name/role to pre-populate the session cache.
+      var userId        = data.user.id;
       var profileResult = await sb.from('profiles').select('name, role').eq('id', userId).single();
 
       var name = email;
@@ -104,8 +129,8 @@
         role = profileResult.data.role || 'staff';
       }
 
-      // Build MQ.session in sessionStorage (same shape as before — dashboard pages rely on this)
       var session = {
+        id:           userId,
         email:        email,
         name:         name,
         role:         role,

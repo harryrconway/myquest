@@ -165,7 +165,7 @@ async function sendClaimEmails({ RESEND_KEY, job, claimer }) {
 </div>
 </body></html>`,
       }),
-    }).catch(() => {}));
+    }).catch(function(e){console.error('Email send failed:',e)}));
   }
 
   sends.push(fetch('https://api.resend.com/emails', {
@@ -188,7 +188,7 @@ async function sendClaimEmails({ RESEND_KEY, job, claimer }) {
 </div>
 </body></html>`,
     }),
-  }).catch(() => {}));
+  }).catch(function(e){console.error('Email send failed:',e)}));
 
   await Promise.all(sends);
 }

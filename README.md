@@ -105,6 +105,28 @@ Cache-busting is manual: update `?v=YYYYMMDD` query strings on `<script>` and `<
 
 ---
 
+## After deploying login changes (one-time action required)
+
+The login flow now goes through `/api/login` (a Cloudflare Worker) instead of calling Supabase directly from the browser. The Worker needs `SUPABASE_ANON_KEY` to be set as a production environment variable — without it, login will return a server configuration error on the live site.
+
+**Steps:**
+
+1. Go to [Cloudflare Pages](https://dash.cloudflare.com) → select your **myquest** project
+2. Click **Settings** in the top tab bar → then **Environment variables** in the left sidebar
+3. Under the **Production** heading, click **Add variable**
+4. Fill in:
+   - **Variable name:** `SUPABASE_ANON_KEY`
+   - **Value:** your Supabase anon key (Supabase dashboard → Project Settings → API → the key listed under **anon public**)
+   - **Type:** leave as **Text** (this key is already public — it ships in your browser JS — so it does not need to be encrypted)
+5. Click **Save**
+6. Trigger a redeploy — env var changes don't apply until the next deploy:
+   - Go to **Deployments** → click the three-dot menu on the latest deployment → **Retry deployment**
+   - Wait for it to finish (usually ~30 seconds)
+
+Login will not work on the live site until all 6 steps are completed.
+
+---
+
 ## Developer Wiki
 
 Full technical reference: [`/docs/index.html`](docs/index.html)

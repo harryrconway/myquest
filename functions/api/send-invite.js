@@ -64,7 +64,7 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         type: 'recovery',
         email: staff.email,
-        redirect_to: 'https://myquest.au/set-password.html',
+        redirect_to: baseUrl(env) + '/set-password.html',
       }),
     });
 
@@ -105,7 +105,7 @@ export async function onRequestPost(context) {
             </div>
           `,
         }),
-      }).catch(() => {});
+      }).catch(function (e) { console.error('send-invite email failed:', e); });
     }
 
     // Update invited_at on the profile
@@ -124,6 +124,12 @@ export async function onRequestPost(context) {
   } catch (e) {
     return json({ error: 'Internal error: ' + (e.message || String(e)) }, 500);
   }
+}
+
+function baseUrl(env) {
+  return (env.CF_PAGES_BRANCH && env.CF_PAGES_BRANCH !== 'main' && env.CF_PAGES_URL)
+    ? env.CF_PAGES_URL
+    : 'https://myquest.au';
 }
 
 function json(data, status = 200) {

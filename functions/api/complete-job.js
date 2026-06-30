@@ -247,7 +247,7 @@ export async function onRequestPost(context) {
 </body>
 </html>`,
       }),
-    }).catch(() => {}));
+    }).catch(function(e){console.error('Email send failed:',e)}));
   }
 
   return json({ success: true }, 200);

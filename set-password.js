@@ -111,10 +111,10 @@
       return;
     }
 
-    // Universal fallback — show invalid if nothing resolves within 10 s
+    // Universal fallback — show invalid if nothing resolves within 30 s
     setTimeout(function () {
       resolve(function () { show('state-invalid'); });
-    }, 10000);
+    }, 30000);
   }
 
   if (document.readyState === 'loading') {

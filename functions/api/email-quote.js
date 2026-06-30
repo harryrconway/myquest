@@ -166,7 +166,8 @@ export async function onRequestPost(context) {
 
   if (!sendRes.ok) {
     const errText = await sendRes.text().catch(() => '');
-    return json({ error: 'Failed to send email.', detail: errText }, 500);
+    console.error('email-quote send failed:', errText);
+    return json({ error: 'Failed to send email.' }, 500);
   }
 
   // ── Append email_log + update status ──────────────────────────────────────

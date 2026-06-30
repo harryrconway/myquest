@@ -50,8 +50,8 @@
   function initLogout(sb) {
     document.querySelectorAll('.js-logout').forEach(function (btn) {
       btn.addEventListener('click', async function () {
-        sessionStorage.removeItem(SESSION_KEY);
         await sb.auth.signOut();
+        sessionStorage.removeItem(SESSION_KEY);
         window.location.href = '../login.html';
       });
     });
@@ -74,10 +74,10 @@
       document.addEventListener(e, touch, { passive: true });
     });
 
-    setInterval(function () {
+    setInterval(async function () {
       var raw = sessionStorage.getItem(SESSION_KEY);
       if (!raw) {
-        sb.auth.signOut();
+        await sb.auth.signOut();
         window.location.href = '../login.html';
         return;
       }
@@ -86,7 +86,7 @@
         var idle = s.lastActivity && Date.now() - new Date(s.lastActivity).getTime() > IDLE_TTL;
         if (idle) {
           sessionStorage.removeItem(SESSION_KEY);
-          sb.auth.signOut();
+          await sb.auth.signOut();
           window.location.href = '../login.html';
         }
       } catch {}
@@ -183,6 +183,32 @@
         }
         syncProfilesToStore(fastAllProfiles);
         syncRatesToStore(_fastResults[2].data || []);
+
+        // Refresh role/status from the DB result so a demotion or exit takes effect
+        // on the next page navigation, not just after the tab is closed.
+        var freshMe = fastMyProfile ||
+          fastAllProfiles.find(function (p) { return p.id === fastUserId; }) || null;
+        if (freshMe) {
+          if (freshMe.status === 'exited') {
+            await sb.auth.signOut();
+            sessionStorage.removeItem(SESSION_KEY);
+            window.location.href = '../login.html';
+            return;
+          }
+          if (freshMe.status === 'onboarding' && cached.role !== 'owner') {
+            if (!window.location.pathname.includes('onboarding')) {
+              window.location.href = 'onboarding.html';
+              return;
+            }
+          }
+          if (freshMe.role && freshMe.role !== cached.role) {
+            cached.role = freshMe.role;
+            MQ.session.role = freshMe.role;
+            MQ.hasRole = function (minRole) { return roleLevel(freshMe.role) >= roleLevel(minRole); };
+            try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(cached)); } catch (e) {}
+          }
+        }
+
         function doReady() {
           applyRoleGating(cached);
           populateUserInfo(cached);

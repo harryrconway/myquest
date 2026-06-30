@@ -66,7 +66,8 @@ export async function onRequestPost(context) {
     const failed = responses.filter(function (r) { return !r.ok; });
     if (failed.length) {
       const detail = await Promise.all(failed.map(function (r) { return r.text(); }));
-      return json({ error: 'Delete failed: ' + detail.join(' | ') }, 500);
+      console.error('clear-jobs delete failed:', detail.join(' | '));
+      return json({ error: 'Delete failed. Please try again.' }, 500);
     }
 
     // For 'all', also delete every staff/manager profile (and their auth user)
