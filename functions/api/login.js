@@ -1,4 +1,4 @@
-/* POST /api/login — validate Turnstile, proxy Supabase password auth */
+/* POST /api/login — proxy Supabase password auth */
 const ORIGIN = 'https://myquest.au';
 
 export async function onRequestOptions() {
@@ -16,34 +16,14 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const SUPABASE_URL = env.SUPABASE_URL;
     const ANON_KEY     = env.SUPABASE_ANON_KEY;
-    const TS_SECRET    = env.TURNSTILE_SECRET;
 
     if (!SUPABASE_URL || !ANON_KEY) return json({ error: 'Server configuration error.' }, 500);
 
     let body;
     try { body = await request.json(); } catch { return json({ error: 'Invalid request body.' }, 400); }
 
-    const { email, password, turnstile_token } = body;
+    const { email, password } = body;
     if (!email || !password) return json({ error: 'Email and password are required.' }, 400);
-
-    // Validate Turnstile when a secret is configured.
-    // In local dev without TURNSTILE_SECRET set, the check is skipped automatically.
-    // Validate Turnstile only when a token was actually sent.
-    // If the widget failed to load (ad blocker, restricted network), no token is generated
-    // and login proceeds — the user still needs valid credentials.
-    if (TS_SECRET && turnstile_token) {
-      const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          secret:   TS_SECRET,
-          response: turnstile_token,
-          remoteip: request.headers.get('CF-Connecting-IP') || undefined,
-        }),
-      });
-      const tsData = await tsRes.json().catch(() => ({ success: false }));
-      if (!tsData.success) return json({ error: 'Security check failed. Please try again.' }, 403);
-    }
 
     const authRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
