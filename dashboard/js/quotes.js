@@ -101,8 +101,11 @@
     });
 
     var tbody = document.getElementById('q-tbody');
+    var cardsEl = document.getElementById('q-cards');
+
     if (filtered.length === 0) {
       tbody.innerHTML = '<tr><td colspan="8" class="q-empty" style="padding:3rem;text-align:center;color:#94a3b8;">No quotes found</td></tr>';
+      if (cardsEl) cardsEl.innerHTML = '<div class="q-empty" style="padding:3rem;text-align:center;color:#94a3b8;">No quotes found</div>';
       return;
     }
 
@@ -132,14 +135,55 @@
         + '<td><div class="q-acts" onclick="event.stopPropagation()">' + actBtns + '</div></td>'
         + '</tr>';
     }).join('');
+
+    if (cardsEl) {
+      cardsEl.innerHTML = filtered.map(function (q) {
+        var clientHtml = q.full_name
+          ? '<span class="qcn">' + esc(q.full_name) + '</span>' + (q.email ? '<span class="qce">' + esc(q.email) + '</span>' : '')
+          : '<span class="qnc">No client yet</span>';
+        var price = q.quoted_price ? '<span class="q-price">$' + parseFloat(q.quoted_price).toFixed(0) + '</span>' : '';
+        var svc = serviceLabel(q.service_type);
+        var midParts = [typeChip(q.quote_type)];
+        if (svc && svc !== '—') midParts.push('<span class="qcard-svc">' + esc(svc) + '</span>');
+        if (price) midParts.push(price);
+
+        var actBtns = '<button class="q-btn" onclick="QuotesPage.openQuote(\'' + q.id + '\');event.stopPropagation()">View</button>';
+        if (q.quote_status === 'sent') {
+          actBtns += '<button class="q-btn q-btn--yellow" onclick="QuotesPage.acceptQuote(\'' + q.id + '\');event.stopPropagation()">Accept</button>';
+        }
+        if (q.quote_status === 'accepted') {
+          actBtns += '<button class="q-btn q-btn--green" disabled style="cursor:default;">Accepted</button>';
+        }
+
+        return '<div class="qcard" onclick="QuotesPage.openQuote(\'' + q.id + '\')">'
+          + '<div class="qcard-top"><div class="qcard-client">' + clientHtml + '</div>' + statusChip(q.quote_status) + '</div>'
+          + '<div class="qcard-mid">' + midParts.join('<span class="qcard-sep"> · </span>') + '</div>'
+          + '<div class="qcard-bot"><span class="qcard-date">' + fmtDate(q.created_at) + '</span>'
+          + '<div class="q-acts" onclick="event.stopPropagation()">' + actBtns + '</div></div>'
+          + '</div>';
+      }).join('');
+    }
+  }
+
+  /* ── Step navigation (mobile) ───────────────────────────────── */
+  function setStep(n) {
+    var wrap = document.getElementById('q-form-wrap');
+    wrap.classList.remove('step-1', 'step-2');
+    wrap.classList.add('step-' + n);
+    document.querySelectorAll('.nq-step-tab').forEach(function (t) {
+      t.classList.toggle('on', parseInt(t.dataset.step, 10) === n);
+    });
+    var body = wrap.querySelector('.nq-body');
+    if (body) body.scrollTop = 0;
   }
 
   /* ── View switching ─────────────────────────────────────────── */
   function showListView() {
     view = 'list';
     currentQuoteId = null;
+    var wrap = document.getElementById('q-form-wrap');
+    wrap.classList.remove('on', 'step-1', 'step-2');
     document.getElementById('q-list-wrap').style.display = '';
-    document.getElementById('q-form-wrap').classList.remove('on');
     document.body.style.overflow = '';
   }
 
@@ -159,6 +203,7 @@
     document.getElementById('q-list-wrap').style.display = 'none';
     document.getElementById('q-form-wrap').classList.add('on');
     document.body.style.overflow = 'hidden';
+    setStep(1);
     setTimeout(initMap, 100);
   }
 
@@ -333,6 +378,7 @@
     document.getElementById('q-list-wrap').style.display = 'none';
     document.getElementById('q-form-wrap').classList.add('on');
     document.body.style.overflow = 'hidden';
+    setStep(1);
     setTimeout(function () { initMap(); if (q.suburb) geocode(); }, 100);
   }
 
@@ -905,6 +951,11 @@
     // Form navigation
     document.getElementById('btnBackToList').addEventListener('click', function () {
       showListView();
+    });
+
+    // Step tabs (mobile)
+    document.querySelectorAll('.nq-step-tab').forEach(function (t) {
+      t.addEventListener('click', function () { setStep(parseInt(t.dataset.step, 10)); });
     });
 
     // Save / email buttons

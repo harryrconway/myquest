@@ -239,16 +239,52 @@
 
     .q-vacate-card { background:#fffbeb;border-color:#fde68a;padding:14px 16px;margin-bottom:14px; }
 
+    /* ── Step wrappers (desktop: always visible) ────────────── */
+    #nq-step1, #nq-step2 { display:flex; flex-direction:column; gap:16px; }
+
+    /* ── Mobile card list (desktop: hidden) ──────────────────── */
+    .q-card-list { display:none; }
+    .qcard { background:#fff;border-radius:14px;border:1.5px solid #e2e8f0;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .12s; }
+    .qcard:active { border-color:#0f172a; }
+    .qcard-top { display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px; }
+    .qcard-client { min-width:0;flex:1; }
+    .qcard-mid { display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:8px;font-size:12.5px; }
+    .qcard-sep { color:#d1d5db; }
+    .qcard-svc { color:#64748b; }
+    .qcard-bot { display:flex;justify-content:space-between;align-items:center;gap:8px; }
+    .qcard-date { font-size:12px;color:#94a3b8; }
+
+    /* ── Step tab bar (desktop: hidden) ─────────────────────── */
+    .nq-step-tabs { display:none; }
+    .nq-step-tab { flex:1;padding:11px 8px;background:none;border:none;border-bottom:2.5px solid transparent;font-family:inherit;font-size:13px;font-weight:700;color:#94a3b8;cursor:pointer;transition:all .14s; }
+    .nq-step-tab.on { color:#0f172a;border-bottom-color:#0f172a; }
+
     @media (max-width: 700px) {
       /* Form overlay — above mobile bar (z-index 60) */
       #q-form-wrap { left:0; top:56px; z-index:70; }
-      .nq-calc { display:none; }
-      .nq-form { max-width:100%; padding:16px 16px 60px; }
 
-      /* List — hero stacks, stat pills scroll, table scrolls */
+      /* Body scrolls as a column so calc can live inline on step 2 */
+      .nq-body { flex-direction:column; overflow-y:auto; }
+      .nq-form { max-width:100%; padding:16px 16px 20px; overflow-y:visible; flex:none; }
+
+      /* Calculator: hidden by default; shown full-width above step-2 content */
+      .nq-calc { display:none; }
+      #q-form-wrap.step-2 .nq-calc { display:flex; flex-direction:column; width:100%; padding:16px; order:-1; }
+
+      /* Step visibility (step class set on #q-form-wrap by JS) */
+      #nq-step2 { display:none; }
+      #q-form-wrap.step-2 #nq-step1 { display:none; }
+      #q-form-wrap.step-2 #nq-step2 { display:flex; }
+
+      /* Step tab bar */
+      .nq-step-tabs { display:flex; background:#fff; border-bottom:1.5px solid #e2e8f0; flex-shrink:0; }
+
+      /* List — hide table, show cards */
       .q-hero { flex-direction:column; align-items:flex-start; gap:10px; }
       .q-stat-pills { flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; max-width:100%; -webkit-overflow-scrolling:touch; }
-      .q-table-card { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .q-table-card { display:none; }
+      .q-card-list { display:block; }
+      .q-search { max-width:100%; }
 
       /* Form header wraps to two rows */
       .nq-header { height:auto; min-height:52px; flex-wrap:wrap; padding:8px 14px; row-gap:6px; }
@@ -258,7 +294,7 @@
       /* Collapse 3- and 4-column grids to 2 columns */
       .qf3, .qf4 { grid-template-columns:1fr 1fr; }
 
-      /* Preview button — only show on mobile (calc panel is hidden) */
+      /* Preview button — only show on mobile */
       .nq-btn--mob-preview { display:inline-flex !important; }
 
       /* Preview modal */
@@ -351,6 +387,9 @@
         </table>
       </div>
 
+      <!-- ── Mobile card list ──────────────────────────────── -->
+      <div id="q-cards" class="q-card-list"></div>
+
     </div></div>
 
   </div><!-- /dash-shell -->
@@ -374,12 +413,20 @@
       </div>
     </div>
 
+    <!-- Step tabs (mobile only) -->
+    <div class="nq-step-tabs" id="nqStepTabs">
+      <button class="nq-step-tab on" data-step="1">Job details</button>
+      <button class="nq-step-tab" data-step="2">Client &amp; Price</button>
+    </div>
+
     <!-- Body: form + calculator -->
     <div class="nq-body">
 
       <!-- ── FORM ─────────────────────────────────────────────── -->
       <div class="nq-form">
         <div class="form-inner">
+
+          <div id="nq-step1">
 
           <!-- Job type -->
           <div class="sec-label">Job type</div>
@@ -700,6 +747,10 @@
             </div>
           </div>
 
+          </div><!-- /nq-step1 -->
+
+          <div id="nq-step2">
+
           <!-- Client details -->
           <div class="sec-label">Client details <span class="q-opt">optional — save without these</span></div>
           <div class="qfc">
@@ -744,6 +795,8 @@
               <div class="eh-empty">No emails sent yet</div>
             </div>
           </div>
+
+          </div><!-- /nq-step2 -->
 
         </div><!-- /form-inner -->
       </div><!-- /nq-form -->
@@ -839,6 +892,6 @@
     </div>
   </div>
 
-  <script src="js/quotes.js?v=20260630"></script>
+  <script src="js/quotes.js?v=20260630b"></script>
 </body>
 </html>
