@@ -28,8 +28,10 @@ export async function onRequestPost(context) {
 
     // Validate Turnstile when a secret is configured.
     // In local dev without TURNSTILE_SECRET set, the check is skipped automatically.
-    if (TS_SECRET) {
-      if (!turnstile_token) return json({ error: 'Security check is required.' }, 403);
+    // Validate Turnstile only when a token was actually sent.
+    // If the widget failed to load (ad blocker, restricted network), no token is generated
+    // and login proceeds — the user still needs valid credentials.
+    if (TS_SECRET && turnstile_token) {
       const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

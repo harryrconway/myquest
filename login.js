@@ -73,10 +73,12 @@
         return;
       }
 
-      // UX guard: if the Turnstile widget rendered but the user hasn't completed it, warn immediately.
-      // The real validation happens server-side in /api/login.
+      // UX guard: if Turnstile loaded AND rendered but the user hasn't completed it, warn immediately.
+      // If Turnstile failed to load (ad blocker, network), tsInput is null — allow login to proceed.
+      // Real validation happens server-side in /api/login only when a token is present.
       var tsInput = document.querySelector('[name="cf-turnstile-response"]');
-      if (tsInput && !tsInput.value) {
+      var turnstileRendered = tsInput !== null;
+      if (turnstileRendered && !tsInput.value) {
         showError('Please complete the security check.');
         return;
       }
