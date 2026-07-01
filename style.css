@@ -6,16 +6,16 @@
 /* ---- Design Tokens ---------------------------------------- */
 :root {
   /* Colours */
-  --color-forest-green: #FFD400;
-  --color-forest-green-dark: #C8A800;
-  --color-sage: #FFE566;
+  --color-forest-green: #3B2F2F;
+  --color-forest-green-dark: #271F1F;
+  --color-sage: rgba(59, 47, 47,0.15);
   --color-sand: #e9dcc9;
   --color-clay: #8b5a3c;
-  --color-soft-sage: #FFF9CC;
-  --color-off-white: #f8f7f4;
-  --color-dark: #000;
-  --color-mid: #000;
-  --color-light: #000;
+  --color-soft-sage: #F0EBE3;
+  --color-off-white: #EDE8DE;
+  --color-dark: #3B2F2F;
+  --color-mid: #6B5555;
+  --color-light: #957575;
   --color-error: #dc2626;
 
   /* Typography */
@@ -139,7 +139,7 @@ h1, h2, h3, h4, h5, h6 {
   top: -100%;
   left: 1rem;
   padding: 0.5rem 1rem;
-  background: #000;
+  background: #3B2F2F;
   color: white;
   border-radius: var(--radius-sm);
   z-index: 9999;
@@ -196,7 +196,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.1em;
   font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
-  color: #000;
+  color: var(--color-mid);
   margin-bottom: var(--space-2);
 }
 
@@ -246,13 +246,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: #000;
+  background: #3B2F2F;
   color: white;
   border: 2px solid transparent;
 }
 
 .btn-primary:hover {
-  background: #222;
+  background: #4D3F3F;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -264,12 +264,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-outline {
   background: transparent;
-  color: #000;
-  border: 2px solid #000;
+  color: #3B2F2F;
+  border: 2px solid #3B2F2F;
 }
 
 .btn-outline:hover {
-  background: #000;
+  background: #3B2F2F;
   color: white;
   transform: translateY(-1px);
 }
@@ -308,8 +308,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-input:focus {
   outline: none;
-  border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.15);
+  border-color: #3B2F2F;
+  box-shadow: 0 0 0 3px rgba(59, 47, 47, 0.10);
 }
 
 .form-input--error {
@@ -367,7 +367,7 @@ textarea.form-input {
 
 .hero__inner {
   display: block;
-  background: #FFD400;
+  background: #3B2F2F;
   border-radius: 40px;
   padding: var(--space-20) var(--space-16);
 }
@@ -379,21 +379,21 @@ textarea.form-input {
 .hero__heading {
   font-size: var(--text-4xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-dark);
+  color: #F5F1EA;
   line-height: 1.1;
   margin-bottom: var(--space-6);
 }
 
 .hero__sub {
   font-size: var(--text-lg);
-  color: var(--color-mid);
+  color: rgba(245,241,234,0.80);
   line-height: 1.7;
   margin-bottom: var(--space-8);
 }
 
 .hero__body {
   font-size: var(--text-base);
-  color: rgba(0,0,0,0.7);
+  color: rgba(245,241,234,0.65);
   line-height: 1.7;
   margin-bottom: var(--space-8);
   max-width: 48ch;
@@ -492,7 +492,7 @@ textarea.form-input {
 
 .hero__region svg {
   flex-shrink: 0;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .hero__region div {
@@ -504,7 +504,7 @@ textarea.form-input {
 .hero__region strong {
   font-size: var(--text-base);
   font-weight: var(--font-weight-bold);
-  color: #000;
+  color: #3B2F2F;
   line-height: 1.2;
 }
 
@@ -536,7 +536,7 @@ textarea.form-input {
   gap: var(--space-2);
   padding: var(--space-6) var(--space-4);
   background: var(--color-soft-sage);
-  border: 1px solid rgba(255, 212, 0, 0.2);
+  border: 1px solid rgba(59, 47, 47, 0.07);
   border-radius: var(--radius-md);
 }
 
@@ -586,7 +586,7 @@ textarea.form-input {
 }
 
 .svc-item__icon {
-  color: #000;
+  color: #3B2F2F;
   line-height: 0;
 }
 
@@ -613,7 +613,7 @@ textarea.form-input {
 
 .service-card {
   background: var(--color-soft-sage);
-  border: 1px solid rgba(255, 212, 0, 0.2);
+  border: 1px solid rgba(59, 47, 47, 0.07);
   border-radius: var(--radius-md);
   padding: var(--space-8);
   box-shadow: var(--shadow-sm);
@@ -687,8 +687,8 @@ textarea.form-input {
   flex-direction: row;
   align-items: flex-start;
   gap: var(--space-5);
-  background: white;
-  border: 1px solid rgba(255, 212, 0, 0.09);
+  background: #F5F1EA;
+  border: 1px solid rgba(59, 47, 47, 0.07);
   border-radius: var(--radius-md);
   padding: var(--space-6);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -753,8 +753,8 @@ textarea.form-input {
   width: 64px;
   height: 64px;
   border-radius: var(--radius-full);
-  background: #FFD400;
-  color: #000;
+  background: #3B2F2F;
+  color: #F5F1EA;
   font-size: var(--text-xl);
   font-weight: var(--font-weight-bold);
   display: flex;
@@ -817,7 +817,7 @@ textarea.form-input {
   right: var(--space-6);
   font-size: 5rem;
   line-height: 1;
-  color: #000;
+  color: #3B2F2F;
   font-family: Georgia, serif;
   pointer-events: none;
 }
@@ -848,7 +848,7 @@ textarea.form-input {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-full);
-  background: #000;
+  background: #3B2F2F;
   color: white;
   font-size: var(--text-sm);
   font-weight: var(--font-weight-bold);
@@ -917,7 +917,7 @@ textarea.form-input {
 }
 
 .contact__details svg {
-  color: #000;
+  color: #3B2F2F;
   flex-shrink: 0;
 }
 
@@ -928,14 +928,25 @@ textarea.form-input {
 }
 
 .contact__details a:hover {
-  color: #000;
+  color: #3B2F2F;
+}
+
+/* ---- Hero button override (cream pill on charcoal block) --- */
+.hero .btn-primary {
+  background: #F5F1EA;
+  color: #3B2F2F;
+}
+
+.hero .btn-primary:hover {
+  background: #fff;
+  color: #3B2F2F;
 }
 
 /* ---- Hero CTA note ----------------------------------------- */
 .hero__cta-note {
   margin: 0;
   font-size: var(--text-sm);
-  color: #000;
+  color: #3B2F2F;
 }
 
 /* ============================================================
@@ -1102,7 +1113,7 @@ textarea.form-input {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  color: #000;
+  color: #3B2F2F;
   background: #fff;
   font-family: inherit;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
@@ -1111,15 +1122,15 @@ textarea.form-input {
 }
 
 .qm-svc-pill:hover {
-  border-color: #000;
+  border-color: #3B2F2F;
   background: #f3f4f6;
 }
 
 .qm-svc-pill--on,
 .qm-svc-pill--on:active {
-  border-color: #000;
-  background: #FFD400;
-  color: #000;
+  border-color: #3B2F2F;
+  background: #3B2F2F;
+  color: #F5F1EA;
   font-weight: 700;
 }
 
@@ -1335,7 +1346,7 @@ textarea.form-input {
 .qm-sn-item--active .qm-sn-item__circle {
   background: #fff;
   border-color: #fff;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-sn-item--active .qm-sn-item__label {
@@ -1422,7 +1433,7 @@ textarea.form-input {
 
 .qm-progress__bar {
   height: 100%;
-  background: #000;
+  background: #3B2F2F;
   border-radius: 0 9999px 9999px 0;
   transition: width 0.4s ease;
   width: 10%;
@@ -1431,7 +1442,7 @@ textarea.form-input {
 .qm-step-label {
   font-size: 12px;
   font-weight: 500;
-  color: #000;
+  color: #3B2F2F;
   flex: 1;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -1447,7 +1458,7 @@ textarea.form-input {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #000;
+  color: #3B2F2F;
   border-radius: 8px;
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
@@ -1455,14 +1466,14 @@ textarea.form-input {
 
 .qm-close:hover {
   background: #f1f5f9;
-  color: #000;
+  color: #3B2F2F;
 }
 
 /* ── Title ── */
 .qm-title {
   font-size: 17px;
   font-weight: 700;
-  color: #000;
+  color: #3B2F2F;
   margin: 0;
   padding: 10px 16px 0;
   flex-shrink: 0;
@@ -1519,7 +1530,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #000;
+  color: #3B2F2F;
   margin: 0;
   padding-bottom: 10px;
   border-bottom: 1px solid #f1f5f9;
@@ -1562,7 +1573,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #000;
+  color: #3B2F2F;
   margin: 0;
   padding-bottom: 4px;
   border-bottom: 1px solid #f1f5f9;
@@ -1580,7 +1591,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-req {
@@ -1594,20 +1605,20 @@ textarea.form-input {
   border-radius: 8px;
   font-size: 15px;
   font-family: inherit;
-  color: #000;
+  color: #3B2F2F;
   background: #fff;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
 }
 
 .qm-input::placeholder {
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-input:focus {
   outline: none;
-  border-color: #000;
-  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.1);
+  border-color: #3B2F2F;
+  box-shadow: 0 0 0 3px rgba(59, 47, 47, 0.10);
 }
 
 .qm-textarea {
@@ -1632,7 +1643,7 @@ textarea.form-input {
   background: #fff;
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  color: #000;
+  color: #3B2F2F;
   font-size: 15px;
   font-weight: 400;
   font-family: inherit;
@@ -1641,27 +1652,27 @@ textarea.form-input {
 }
 
 .qm-dropdown--placeholder .qm-dropdown__trigger {
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-dropdown__trigger svg {
   flex-shrink: 0;
-  color: #000;
+  color: #3B2F2F;
   transition: transform 0.2s ease;
 }
 
 .qm-dropdown:hover .qm-dropdown__trigger {
-  border-color: #000;
+  border-color: #3B2F2F;
 }
 
 .qm-dropdown--open .qm-dropdown__trigger {
-  border-color: #000;
+  border-color: #3B2F2F;
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
 .qm-dropdown--open .qm-dropdown__trigger svg {
   transform: rotate(180deg);
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-dropdown__list {
@@ -1708,7 +1719,7 @@ textarea.form-input {
   justify-content: space-between;
   padding: 6px 10px;
   font-size: 12px;
-  color: #000;
+  color: #3B2F2F;
   transition: background 0.1s;
   cursor: pointer;
   border-bottom: 1px solid #e5e7eb;
@@ -1720,11 +1731,11 @@ textarea.form-input {
 
 .qm-dropdown__opt:hover {
   background: #f9fafb;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-dropdown__opt--sel {
-  color: #000;
+  color: #3B2F2F;
   font-weight: 600;
   background: #f3f4f6;
 }
@@ -1732,7 +1743,7 @@ textarea.form-input {
 .qm-dropdown__opt--sel::after {
   content: '✓';
   font-size: 12px;
-  color: #000;
+  color: #3B2F2F;
 }
 
 /* ── Grid helpers ── */
@@ -1750,7 +1761,7 @@ textarea.form-input {
 
 .qm-hint {
   font-size: 13px;
-  color: #000;
+  color: #3B2F2F;
   margin: 0;
 }
 
@@ -1771,7 +1782,7 @@ textarea.form-input {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  color: #000;
+  color: #3B2F2F;
   background: #fff;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
@@ -1780,8 +1791,8 @@ textarea.form-input {
 
 .qm-radio-pill--on,
 .qm-radio-pill:has(input:checked) {
-  border-color: #000;
-  background: #000;
+  border-color: #3B2F2F;
+  background: #3B2F2F;
   color: white;
 }
 
@@ -1806,19 +1817,19 @@ textarea.form-input {
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: #000;
+  color: #3B2F2F;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
 .qm-tile:hover {
-  border-color: #000;
+  border-color: #3B2F2F;
   background: #f3f4f6;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-tile--selected {
-  border-color: #000;
-  background: #000;
+  border-color: #3B2F2F;
+  background: #3B2F2F;
   color: white;
 }
 
@@ -1844,36 +1855,36 @@ textarea.form-input {
 .qm-rcard input { display: none; }
 
 .qm-rcard:hover {
-  border-color: #000;
+  border-color: #3B2F2F;
   background: #f9fafb;
 }
 
 .qm-rcard--on,
 .qm-rcard:has(input:checked) {
-  border-color: #000;
-  background: #FFFDE7;
+  border-color: #3B2F2F;
+  background: #F0EBE3;
 }
 
 .qm-rcard__label {
   font-size: 14px;
   font-weight: 600;
-  color: #000;
+  color: #3B2F2F;
   flex: 1;
 }
 
 .qm-rcard--on .qm-rcard__label,
 .qm-rcard:has(input:checked) .qm-rcard__label {
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-rcard__desc {
   font-size: 12px;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-rcard--on .qm-rcard__desc,
 .qm-rcard:has(input:checked) .qm-rcard__desc {
-  color: #000;
+  color: #3B2F2F;
 }
 
 /* ── Check tiles ── */
@@ -1893,7 +1904,7 @@ textarea.form-input {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  color: #000;
+  color: #3B2F2F;
   background: #fff;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   position: relative;
@@ -1903,15 +1914,15 @@ textarea.form-input {
 .qm-ctile input { display: none; }
 
 .qm-ctile:hover {
-  border-color: #000;
+  border-color: #3B2F2F;
   background: #f9fafb;
 }
 
 .qm-ctile--on,
 .qm-ctile:has(input:checked) {
-  border-color: #000;
-  background: #FFFDE7;
-  color: #000;
+  border-color: #3B2F2F;
+  background: #F0EBE3;
+  color: #3B2F2F;
   font-weight: 600;
 }
 
@@ -1921,7 +1932,7 @@ textarea.form-input {
   margin-left: auto;
   font-size: 11px;
   font-weight: 700;
-  color: #000;
+  color: #3B2F2F;
 }
 
 /* ── Day picker ── */
@@ -1942,7 +1953,7 @@ textarea.form-input {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  color: #000;
+  color: #3B2F2F;
   background: #fff;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   user-select: none;
@@ -1960,20 +1971,20 @@ textarea.form-input {
 
 .qm-day:hover,
 .qm-day:active {
-  border-color: #000;
+  border-color: #3B2F2F;
   background: #f3f4f6;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-day--on,
 .qm-day:has(input:checked) {
-  border-color: #000;
-  background: #000;
+  border-color: #3B2F2F;
+  background: #3B2F2F;
   color: white;
 }
 
 .qm-day:focus-visible {
-  outline: 2px solid #000;
+  outline: 2px solid #3B2F2F;
   outline-offset: 2px;
 }
 
@@ -2001,14 +2012,14 @@ textarea.form-input {
 .qm-time-pill input { display: none; }
 
 .qm-time-pill:hover {
-  border-color: #000;
+  border-color: #3B2F2F;
   background: #f9fafb;
 }
 
 .qm-time-pill--on,
 .qm-time-pill:has(input:checked) {
-  border-color: #000;
-  background: #000;
+  border-color: #3B2F2F;
+  background: #3B2F2F;
   color: #fff;
 }
 
@@ -2036,12 +2047,12 @@ textarea.form-input {
 /* ── Notes word counter ── */
 .qm-word-count {
   font-size: 12px;
-  color: #000;
+  color: #3B2F2F;
   text-align: right;
   margin-top: 4px;
 }
 
-.qm-word-count--near { color: #000; }
+.qm-word-count--near { color: #3B2F2F; }
 .qm-word-count--full { color: #dc2626; }
 
 /* ── Flexible checkbox row ── */
@@ -2050,14 +2061,14 @@ textarea.form-input {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #000;
+  color: #3B2F2F;
   cursor: pointer;
 }
 
 /* ── Helper text ── */
 .qm-helper {
   font-size: 11px;
-  color: #000;
+  color: #3B2F2F;
   margin: 2px 0 0;
   line-height: 1.4;
 }
@@ -2095,7 +2106,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #000;
+  color: #3B2F2F;
   width: 130px;
   vertical-align: middle;
   white-space: nowrap;
@@ -2103,7 +2114,7 @@ textarea.form-input {
 
 .qm-rv__val {
   padding: 5px 0;
-  color: #000;
+  color: #3B2F2F;
   font-weight: 500;
   font-size: 13px;
 }
@@ -2111,7 +2122,7 @@ textarea.form-input {
 .qm-rv__edit {
   width: 24px;
   text-align: right;
-  color: #000;
+  color: #3B2F2F;
   font-size: 18px;
   padding-right: 4px;
 }
@@ -2122,12 +2133,12 @@ textarea.form-input {
 
 .qm-rv__hint {
   font-size: 12px;
-  color: #000;
+  color: #3B2F2F;
   margin: 0 0 10px;
   text-align: right;
 }
 
-.qm-rv__row:hover .qm-rv__edit { color: #000; }
+.qm-rv__row:hover .qm-rv__edit { color: #3B2F2F; }
 
 /* ── Success step ── */
 .qm-success {
@@ -2143,7 +2154,7 @@ textarea.form-input {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #000;
+  background: #3B2F2F;
   color: white;
   font-size: 28px;
   font-weight: 700;
@@ -2155,14 +2166,14 @@ textarea.form-input {
 .qm-success__heading {
   font-size: 26px;
   font-weight: 700;
-  color: #000;
+  color: #3B2F2F;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .qm-success__body {
   font-size: 15px;
-  color: #000;
+  color: #3B2F2F;
   line-height: 1.65;
   margin: 0;
   max-width: 400px;
@@ -2170,7 +2181,7 @@ textarea.form-input {
 
 .qm-success__sub {
   font-size: 14px;
-  color: #000;
+  color: #3B2F2F;
   margin: 0;
 }
 
@@ -2181,7 +2192,7 @@ textarea.form-input {
 
 .qm-success__countdown {
   font-size: 13px;
-  color: #000;
+  color: #3B2F2F;
   margin-top: 4px;
 }
 
@@ -2218,7 +2229,7 @@ textarea.form-input {
 }
 
 .qm-stepper-grid .qm-field:focus-within {
-  border-color: #000;
+  border-color: #3B2F2F;
 }
 
 .qm-stepper-grid .qm-label {
@@ -2226,7 +2237,7 @@ textarea.form-input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #000;
+  color: #3B2F2F;
   text-align: center;
   margin-bottom: 6px;
 }
@@ -2243,13 +2254,13 @@ textarea.form-input {
 .qm-stepper-grid .qm-stepper__val {
   font-size: 20px;
   font-weight: 700;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-stepper-grid .qm-stepper__btn {
   font-size: 18px;
   width: 32px;
-  color: #000;
+  color: #3B2F2F;
 }
 
 .qm-stepper {
@@ -2264,13 +2275,13 @@ textarea.form-input {
 }
 
 .qm-stepper:focus-within {
-  border-color: #000;
+  border-color: #3B2F2F;
 }
 
 .qm-stepper__btn {
   background: none;
   border: none;
-  color: #000;
+  color: #3B2F2F;
   font-size: 22px;
   line-height: 1;
   width: 48px;
@@ -2285,7 +2296,7 @@ textarea.form-input {
 }
 
 .qm-stepper__btn:active {
-  background: #FFFDE7;
+  background: rgba(59, 47, 47, 0.06);
 }
 
 .qm-stepper__btn:disabled {
@@ -2306,7 +2317,7 @@ textarea.form-input {
   text-align: center;
   font-size: 18px;
   font-weight: 700;
-  color: #000;
+  color: #3B2F2F;
   pointer-events: none;
   user-select: none;
 }
@@ -2372,8 +2383,8 @@ textarea.form-input {
   opacity: 1;
 }
 .qm-mob-segtab--active {
-  background: #000;
-  border-color: #000;
+  background: #3B2F2F;
+  border-color: #3B2F2F;
   color: #fff;
 }
 .qm-mob-segtab--done {

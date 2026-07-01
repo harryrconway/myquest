@@ -3,73 +3,362 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- Redirect invite/recovery tokens that Supabase drops on the homepage back to set-password.html -->
   <script>(function(){var h=window.location.hash;if(h.indexOf('access_token')!==-1&&(h.indexOf('type=invite')!==-1||h.indexOf('type=recovery')!==-1)){window.location.replace('set-password.html'+h);}else if(h.indexOf('error_code=')!==-1){window.location.replace('set-password.html'+h);}})();</script>
 
   <title>MyQuest | Professional Cleaning Services | Adelaide, Gold Coast &amp; Northern Rivers</title>
   <meta name="description" content="Residential &amp; commercial cleaning across Adelaide, Gold Coast &amp; Northern Rivers. Insured, police-checked staff. Transparent upfront pricing. Get a free quote today.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="MyQuest | Professional Cleaning Services | Adelaide, Gold Coast &amp; Northern Rivers">
-  <meta property="og:description" content="Residential &amp; commercial cleaning across Adelaide, Gold Coast &amp; Northern Rivers. Insured, police-checked staff. Transparent upfront pricing. Free quote today.">
-  <meta property="og:url" content="https://myquest.au/">
-  <meta property="og:image" content="https://myquest.au/og-image.jpg">
-  <meta property="og:site_name" content="MyQuest Cleaning Services">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MyQuest | Professional Cleaning Services | Adelaide, Gold Coast &amp; Northern Rivers">
-  <meta name="twitter:description" content="Residential &amp; commercial cleaning across Adelaide, Gold Coast &amp; Northern Rivers. Insured, police-checked staff. Transparent upfront pricing. Free quote today.">
-  <meta name="twitter:image" content="https://myquest.au/og-image.jpg">
-
-  <!-- Canonical -->
   <link rel="canonical" href="https://myquest.au/">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=20260626c">
-  <link rel="stylesheet" href="header.css?v=20260806">
+  <link rel="stylesheet" href="style.css?v=20260630">
+  <link rel="stylesheet" href="header.css?v=20260630">
   <link rel="stylesheet" href="footer.css?v=20260622">
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TBV6JXYF5L"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-TBV6JXYF5L');
-  </script>
+  <style>
+    /* ============================================================
+       NAVY THEME OVERRIDES
+       ============================================================ */
 
-  <!-- Business Schema -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "MyQuest Cleaning Services",
-    "url": "https://www.myquest.com.au",
-    "email": "hello@myquest.au",
-    "areaServed": [
-      "Gold Coast", "Burleigh Heads", "Coolangatta", "Bilinga", "Tugun", "Currumbin", "Elanora", "Palm Beach", "Miami",
-      "Northern Rivers", "Kingscliff", "Pottsville", "Murwillumbah", "Tweed Heads", "Banora Point",
-      "Adelaide", "Adelaide Metro", "Adelaide CBD", "Glenelg", "Norwood", "Unley", "Prospect", "Burnside"
-    ],
-    "serviceType": [
-      "Residential Cleaning", "Commercial Cleaning"
-    ],
-    "openingHoursSpecification": {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-      "opens": "07:00",
-      "closes": "18:00"
+    /* CSS variable resets */
+    :root {
+      --color-dark:               #1A2B4A;
+      --color-mid:                #4A6080;
+      --color-light:              #7A8FA8;
+      --color-forest-green:       #1A2B4A;
+      --color-forest-green-dark:  #0F1E36;
+      --color-sage:               rgba(26, 43, 74, 0.15);
+      --color-soft-sage:          #EEF1F6;
     }
-  }
-  </script>
+
+    /* Buttons */
+    .btn-primary                 { background: #1A2B4A; }
+    .btn-primary:hover           { background: #253860; }
+    .btn-outline                 { color: #1A2B4A; border-color: #1A2B4A; }
+    .btn-outline:hover           { background: #1A2B4A; }
+
+    /* Form focus */
+    .form-input:focus            { border-color: #1A2B4A; box-shadow: 0 0 0 3px rgba(26,43,74,0.10); }
+    .qm-input:focus              { border-color: #1A2B4A; box-shadow: 0 0 0 3px rgba(26,43,74,0.10); }
+
+    /* Mobile menu */
+    .mobile-menu                 { background: #1A2B4A; }
+
+    /* Staff FAB */
+    .staff-login-fab             { background: #1A2B4A; }
+
+    /* Card borders */
+    .why-card                    { border-color: rgba(26,43,74,0.07); }
+    .stats__item                 { border-color: rgba(26,43,74,0.07); }
+
+    /* Process step circles */
+    .process-step__number        { background: #1A2B4A; }
+
+    /* Quote modal selected states */
+    .qm-progress__bar            { background: #1A2B4A; }
+    .qm-svc-pill--on,
+    .qm-svc-pill--on:active      { border-color: #1A2B4A; background: #1A2B4A; }
+    .qm-radio-pill--on,
+    .qm-radio-pill:has(input:checked) { border-color: #1A2B4A; background: #1A2B4A; }
+    .qm-tile--selected           { border-color: #1A2B4A; background: #1A2B4A; }
+    .qm-rcard--on,
+    .qm-rcard:has(input:checked) { border-color: #1A2B4A; background: #EEF1F6; }
+    .qm-ctile--on,
+    .qm-ctile:has(input:checked) { border-color: #1A2B4A; background: #EEF1F6; color: #1A2B4A; }
+    .qm-day--on,
+    .qm-day:has(input:checked)   { border-color: #1A2B4A; background: #1A2B4A; }
+    .qm-time-pill--on,
+    .qm-time-pill:has(input:checked) { border-color: #1A2B4A; background: #1A2B4A; }
+    .qm-mob-segtab--active       { background: #1A2B4A; border-color: #1A2B4A; }
+    .qm-success__icon            { background: #1A2B4A; }
+
+    /* ============================================================
+       CARD FLIP HERO
+       ============================================================ */
+
+    .hero-v2 {
+      background: var(--color-off-white);
+      padding: var(--space-8) 0 var(--space-6);
+    }
+
+    #services {
+      padding-top: var(--space-8);
+    }
+
+    .hero-v2__inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-6);
+    }
+
+    /* ── Scene / perspective container ── */
+    .card-scene {
+      /* Business card ratio: 85.6mm × 53.98mm ≈ 1.586 */
+      width: min(92vw, 800px);
+      aspect-ratio: 1.586 / 1;
+      perspective: 1800px;
+    }
+
+    /* ── Card (both faces) ── */
+    .flip-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(0.35, 0.10, 0.15, 1.00);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .flip-card.is-flipped {
+      transform: rotateY(-180deg);
+    }
+
+    .flip-card__face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: clamp(14px, 3vw, 22px);
+      background: #F5F1EA;
+      box-shadow:
+        0 2px 4px rgba(0,0,0,0.04),
+        0 12px 32px rgba(0,0,0,0.09),
+        0 32px 64px rgba(0,0,0,0.07);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: clamp(24px, 5%, 52px) clamp(28px, 6%, 64px);
+    }
+
+    .flip-card__face--back {
+      transform: rotateY(180deg);
+    }
+
+    /* ── FRONT FACE ── */
+    .fc-top-rule { display: none; }
+
+    .fc-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .fc-logo__wordmark {
+      font-size: clamp(22px, 4vw, 42px);
+      font-weight: 700;
+      color: #1A2B4A;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .fc-logo__sub {
+      font-size: clamp(8px, 1.4vw, 13px);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.20em;
+      color: #7A8FA8;
+    }
+
+    .fc-spacer { flex: 1; }
+
+    /* Front bottom row */
+    .fc-front__bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .fc-front__location {
+      font-size: clamp(11px, 1.6vw, 16px);
+      color: #5B7090;
+      line-height: 1.5;
+    }
+
+    .fc-front__location strong {
+      display: block;
+      font-size: clamp(14px, 2vw, 20px);
+      font-weight: 600;
+      color: #1A2B4A;
+      letter-spacing: -0.01em;
+      margin-bottom: 3px;
+    }
+
+    .fc-front__services {
+      text-align: right;
+      line-height: 1.9;
+      flex-shrink: 0;
+    }
+
+    .fc-front__services span {
+      display: block;
+      font-size: clamp(11px, 1.7vw, 17px);
+      font-weight: 700;
+      color: #1A2B4A;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── BACK FACE ── */
+    .fc-back__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .fc-back__brand {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .fc-back__url {
+      font-size: clamp(20px, 3.8vw, 38px);
+      font-weight: 700;
+      color: #1A2B4A;
+      letter-spacing: -0.025em;
+      line-height: 1;
+    }
+
+    .fc-back__sub {
+      font-size: clamp(8px, 1.4vw, 13px);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.20em;
+      color: #7A8FA8;
+    }
+
+    .fc-back__contacts {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(5px, 1vw, 10px);
+      align-self: flex-end;
+    }
+
+    .fc-back__contact-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: clamp(10px, 1.5vw, 15px);
+      color: #4A6080;
+    }
+
+    .fc-back__contact-label {
+      font-size: clamp(8px, 1.2vw, 12px);
+      font-weight: 700;
+      color: #1A2B4A;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      width: 14px;
+      flex-shrink: 0;
+    }
+
+    /* CTA on back */
+    .fc-back__cta-wrap {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+
+    .fc-back__cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(8px, 1.4vw, 14px) clamp(18px, 3.5vw, 30px);
+      background: #1A2B4A;
+      color: #F5F1EA;
+      border-radius: 9999px;
+      font-family: inherit;
+      font-size: clamp(9px, 1.5vw, 13px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .fc-back__cta:hover {
+      background: #253860;
+    }
+
+    /* ── Flip hint ── */
+    .card-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: var(--text-xs);
+      color: var(--color-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .card-hint__icon {
+      display: inline-flex;
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.5; transform: translateX(0); }
+      50%       { opacity: 1;   transform: translateX(3px); }
+    }
+
+    /* ── Scroll cue ── */
+    .hero-v2__scroll-cue {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: var(--space-12);
+      color: var(--color-light);
+      font-size: var(--text-xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      animation: scroll-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes scroll-bounce {
+      0%, 100% { transform: translateY(0); opacity: 0.6; }
+      50%       { transform: translateY(5px); opacity: 1; }
+    }
+
+    /* ── All sections match card/header width ── */
+    .container {
+      max-width: 800px;
+    }
+
+    /* ── Header inner constrained within full-width header ── */
+    .site-header .header-inner {
+      max-width: 800px;
+      margin-inline: auto;
+    }
+
+    /* ── Services: keep titles on one line at 800px container ── */
+    .svc-item__title {
+      font-size: var(--text-lg);
+    }
+
+    /* ── Service icon colour: navy to match theme ── */
+    .svc-item__icon {
+      color: #1A2B4A;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero-v2 {
+        padding: var(--space-6) 0 var(--space-4);
+      }
+      .card-scene {
+        width: 96vw;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -78,12 +367,8 @@
   <header class="site-header" role="banner">
     <div class="container header-inner">
 
-      <a href="index.html" class="header-logo" aria-label="MyQuest — home">
-        <svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#000"/>
-          <path d="M20 2 C20 2 22 16 14 22" stroke="#000" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="#1a1a1a">MyQuest</text>
-        </svg>
+      <a href="index.html" class="header-logo" aria-label="MyQuest — home" style="font-size:18px;font-weight:700;color:#1A2B4A;letter-spacing:-0.03em;">
+        MyQuest
       </a>
 
       <nav class="header-nav" aria-label="Main navigation">
@@ -116,15 +401,15 @@
     <div class="mobile-menu__top">
       <a href="index.html" class="mobile-menu__logo" aria-label="MyQuest — home">
         <svg width="120" height="32" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#000"/>
-          <path d="M20 2 C20 2 22 16 14 22" stroke="#000" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="#000">MyQuest</text>
+          <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#F5F1EA"/>
+          <path d="M20 2 C20 2 22 16 14 22" stroke="#F5F1EA" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="#F5F1EA">MyQuest</text>
         </svg>
       </a>
       <button class="mobile-menu__close" aria-label="Close menu">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <line x1="5" y1="5" x2="23" y2="23" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="23" y1="5" x2="5" y2="23" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="5" y1="5" x2="23" y2="23" stroke="#F5F1EA" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="23" y1="5" x2="5" y2="23" stroke="#F5F1EA" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
       </button>
     </div>
@@ -149,18 +434,92 @@
   <main id="main-content">
 
     <!-- ======================================================
-         HERO
+         CARD FLIP HERO
          ====================================================== -->
-    <section id="hero" class="hero" aria-label="Hero">
-      <div class="container hero__inner">
-        <div class="hero__content">
-          <h1 class="hero__heading">Trusted Cleaning Services for Homes &amp; Businesses</h1>
-          <p class="hero__sub">Professional cleaning services across the Gold Coast, Adelaide Metro and Northern Rivers.</p>
-          <p class="hero__body">MyQuest provides reliable cleaning for homes, offices, workplaces and commercial spaces. We are fully insured, police checked and committed to delivering consistent, high-quality results every time.</p>
-          <div class="hero__actions">
-            <button class="btn-primary" data-open-quote>Request a Quote</button>
+    <section class="hero-v2" aria-label="Hero">
+      <div class="hero-v2__inner container">
+
+        <div class="card-scene">
+          <div class="flip-card" id="flip-card"
+               role="button" tabindex="0"
+               aria-label="MyQuest business card — tap to flip">
+
+            <!-- FRONT -->
+            <div class="flip-card__face flip-card__face--front" aria-hidden="false">
+
+              <div class="fc-top-rule"></div>
+
+              <div class="fc-logo">
+                <span class="fc-logo__wordmark">MyQuest</span>
+                <span class="fc-logo__sub">Cleaning Services</span>
+              </div>
+
+              <div class="fc-spacer"></div>
+
+              <div class="fc-front__bottom">
+                <div class="fc-front__location">
+                  <strong>Gold Coast<br>Northern Rivers<br>Adelaide</strong>
+                </div>
+                <div class="fc-front__services">
+                  <span>Residential</span>
+                  <span>Commercial</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- BACK -->
+            <div class="flip-card__face flip-card__face--back" aria-hidden="true">
+
+              <div class="fc-back__top">
+                <div class="fc-back__brand">
+                  <span class="fc-back__url">myquest.au</span>
+                  <span class="fc-back__sub">Cleaning Services</span>
+                </div>
+              </div>
+
+              <div class="fc-spacer"></div>
+
+              <div class="fc-front__bottom">
+                <div class="fc-back__contacts">
+                  <div class="fc-back__contact-row">
+                    <span class="fc-back__contact-label">P</span>
+                    <span>+61 4XX XXX XXX</span>
+                  </div>
+                  <div class="fc-back__contact-row">
+                    <span class="fc-back__contact-label">E</span>
+                    <span>hello@myquest.au</span>
+                  </div>
+                  <div class="fc-back__contact-row">
+                    <span class="fc-back__contact-label">W</span>
+                    <span>myquest.au</span>
+                  </div>
+                </div>
+
+                <div class="fc-back__cta-wrap">
+                  <button class="fc-back__cta" data-open-quote>Get a Quote</button>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
+
+        <p class="card-hint">
+          Tap to flip
+          <span class="card-hint__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </span>
+        </p>
+
+        <div class="hero-v2__scroll-cue" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 13l7 7 7-7"/>
+          </svg>
+        </div>
+
       </div>
     </section>
 
@@ -203,7 +562,6 @@
             <p class="svc-item__desc">Professional cleaning for offices, retail spaces, workplaces and commercial premises. We offer flexible scheduling around your business hours, including early mornings, evenings and weekends where available.</p>
           </div>
 
-
         </div>
       </div>
     </section>
@@ -225,8 +583,8 @@
           <div class="why-card animate-on-scroll">
             <div class="why-card__icon" aria-hidden="true">
               <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M30 9L11 19V33C11 44 19.5 53 30 57C40.5 53 49 44 49 33V19L30 9Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M21 31L27 37L40 24" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M30 9L11 19V33C11 44 19.5 53 30 57C40.5 53 49 44 49 33V19L30 9Z" stroke="#1A2B4A" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M21 31L27 37L40 24" stroke="#1A2B4A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="why-card__body">
@@ -238,9 +596,9 @@
           <div class="why-card animate-on-scroll">
             <div class="why-card__icon" aria-hidden="true">
               <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="30" cy="24" r="7" fill="none" stroke="#000" stroke-width="2.5"/>
-                <path d="M17 44C17 38.5 23 35 30 35C37 35 43 38.5 43 44" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
-                <circle cx="43" cy="16" r="8" fill="#000"/>
+                <circle cx="30" cy="24" r="7" fill="none" stroke="#1A2B4A" stroke-width="2.5"/>
+                <path d="M17 44C17 38.5 23 35 30 35C37 35 43 38.5 43 44" stroke="#1A2B4A" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="43" cy="16" r="8" fill="#1A2B4A"/>
                 <path d="M39.5 16L42.5 19L47.5 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
@@ -253,10 +611,10 @@
           <div class="why-card animate-on-scroll">
             <div class="why-card__icon" aria-hidden="true">
               <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="18" width="40" height="28" rx="3" stroke="#000" stroke-width="2.5"/>
-                <path d="M10 26h40" stroke="#000" stroke-width="2"/>
-                <path d="M20 34h8M20 39h12" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-                <path d="M44 34l-4 4 4 4" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="10" y="18" width="40" height="28" rx="3" stroke="#1A2B4A" stroke-width="2.5"/>
+                <path d="M10 26h40" stroke="#1A2B4A" stroke-width="2"/>
+                <path d="M20 34h8M20 39h12" stroke="#1A2B4A" stroke-width="2" stroke-linecap="round"/>
+                <path d="M44 34l-4 4 4 4" stroke="#1A2B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="why-card__body">
@@ -268,8 +626,8 @@
           <div class="why-card animate-on-scroll">
             <div class="why-card__icon" aria-hidden="true">
               <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="30" cy="30" r="18" stroke="#000" stroke-width="2.5"/>
-                <path d="M22 30l6 6 10-12" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="30" cy="30" r="18" stroke="#1A2B4A" stroke-width="2.5"/>
+                <path d="M22 30l6 6 10-12" stroke="#1A2B4A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="why-card__body">
@@ -383,11 +741,45 @@
   <script src="main.js?v=20260622" defer></script>
   <script src="quote-modal.js?v=20260626l" defer></script>
 
+  <!-- ── Card flip logic ──────────────────────────────────── -->
+  <script>
+  (function() {
+    'use strict';
+    var card = document.getElementById('flip-card');
+    if (!card) return;
+
+    function flip() {
+      var flipped = card.classList.toggle('is-flipped');
+      var front = card.querySelector('.flip-card__face--front');
+      var back  = card.querySelector('.flip-card__face--back');
+      if (front) front.setAttribute('aria-hidden', flipped ? 'true'  : 'false');
+      if (back)  back.setAttribute('aria-hidden',  flipped ? 'false' : 'true');
+      card.setAttribute('aria-label',
+        flipped ? 'MyQuest business card back — tap to flip' : 'MyQuest business card — tap to flip');
+    }
+
+    card.addEventListener('click', flip);
+
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); }
+    });
+
+    /* Auto-flip once after 2.2s if user hasn't interacted */
+    var autoFlipped = false;
+    var timer = setTimeout(function() {
+      if (!autoFlipped) flip();
+    }, 2200);
+
+    card.addEventListener('click', function() {
+      autoFlipped = true;
+      clearTimeout(timer);
+    }, { once: true });
+  })();
+  </script>
+
   <!-- ── Quote modal ───────────────────────────────────────── -->
   <div class="qm-overlay" id="quote-modal" hidden role="dialog" aria-modal="true" aria-labelledby="qm-title">
     <div class="qm-card">
-
-      <!-- Left sidebar — hidden on mobile -->
       <div class="qm-sidebar" id="qm-sidebar">
         <div class="qm-sidebar__brand">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -396,16 +788,12 @@
           </svg>
           <span class="qm-sidebar__wordmark">MyQuest</span>
         </div>
-        <nav class="qm-sidebar__steps" id="qm-sidebar-steps" aria-label="Form steps">
-          <!-- Injected by quote-modal.js -->
-        </nav>
+        <nav class="qm-sidebar__steps" id="qm-sidebar-steps" aria-label="Form steps"></nav>
         <div class="qm-sidebar__contact">
           <p class="qm-sidebar__ql">Questions?</p>
           <a href="mailto:hello@myquest.au" class="qm-sidebar__phone">hello@myquest.au</a>
         </div>
       </div>
-
-      <!-- Right panel -->
       <div class="qm-panel">
         <div class="qm-header">
           <div class="qm-progress"><div class="qm-progress__bar" id="qm-progress-bar"></div></div>
@@ -420,11 +808,10 @@
           <button class="btn-primary" id="qm-next">Next</button>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- ── Policy modal styles ─────────────────────────────── -->
+  <!-- ── Policy modals ─────────────────────────────────────── -->
   <style>
     .pac-container { z-index: 10000 !important; }
     .policy-overlay {
@@ -448,9 +835,7 @@
       border-bottom: 1px solid #f1f5f9;
       flex-shrink: 0;
     }
-    .policy-card__title {
-      font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;
-    }
+    .policy-card__title { font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
     .policy-card__close {
       background: none; border: none; cursor: pointer;
       width: 32px; height: 32px; border-radius: 8px;
@@ -463,9 +848,7 @@
       overflow-y: auto; padding: 24px 28px 28px;
       font-size: 14px; line-height: 1.75; color: #334155;
     }
-    .policy-card__body h3 {
-      font-size: 14px; font-weight: 700; color: #0f172a; margin: 20px 0 6px;
-    }
+    .policy-card__body h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 20px 0 6px; }
     .policy-card__body h3:first-child { margin-top: 0; }
     .policy-card__body p { margin: 0 0 10px; }
     .policy-card__body ul { margin: 0 0 10px; padding-left: 20px; }
@@ -478,7 +861,6 @@
     .footer-policy-link:hover { color: #fff; }
   </style>
 
-  <!-- ── Privacy Policy modal ────────────────────────────── -->
   <div class="policy-overlay" id="modal-privacy" hidden onclick="if(event.target===this)closePolicy('privacy')">
     <div class="policy-card" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
       <div class="policy-card__head">
@@ -487,11 +869,9 @@
       </div>
       <div class="policy-card__body">
         <p>Last updated: June 2026</p>
-        <p>MyQuest Cleaning Services (&ldquo;MyQuest&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is committed to protecting your privacy in accordance with the <em>Privacy Act 1988</em> (Cth) and the Australian Privacy Principles.</p>
-
+        <p>MyQuest Cleaning Services is committed to protecting your privacy in accordance with the <em>Privacy Act 1988</em> (Cth) and the Australian Privacy Principles.</p>
         <h3>Information We Collect</h3>
-        <p>We collect personal information you provide when you contact us or book a service, including your name, phone number, email address, and service address. We do not collect sensitive information.</p>
-
+        <p>We collect personal information you provide when you contact us or book a service, including your name, phone number, email address, and service address.</p>
         <h3>How We Use Your Information</h3>
         <ul>
           <li>To respond to your enquiry or quote request</li>
@@ -499,26 +879,12 @@
           <li>To send service reminders or follow-up communications</li>
           <li>To comply with our legal obligations</li>
         </ul>
-
-        <h3>Disclosure of Information</h3>
-        <p>We do not sell, rent, or share your personal information with third parties for marketing purposes. We may share information with service contractors who assist in delivering your clean, and only to the extent necessary.</p>
-
-        <h3>Cookies &amp; Website Data</h3>
-        <p>Our website does not use tracking cookies. We use Google Fonts, which may set a browser cache entry when the font files are downloaded. No analytics or advertising cookies are placed on your device.</p>
-
-        <h3>Data Storage &amp; Security</h3>
-        <p>Information submitted through our contact form is transmitted securely. We take reasonable steps to protect personal information from misuse, loss, and unauthorised access.</p>
-
-        <h3>Your Rights</h3>
-        <p>You may request access to, correction of, or deletion of your personal information at any time by contacting us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>. We will respond within 30 days.</p>
-
         <h3>Contact</h3>
         <p>For any privacy-related enquiries, contact us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>.</p>
       </div>
     </div>
   </div>
 
-  <!-- ── Terms of Use modal ───────────────────────────────── -->
   <div class="policy-overlay" id="modal-terms" hidden onclick="if(event.target===this)closePolicy('terms')">
     <div class="policy-card" role="dialog" aria-modal="true" aria-labelledby="terms-title">
       <div class="policy-card__head">
@@ -528,36 +894,15 @@
       <div class="policy-card__body">
         <p>Last updated: June 2026</p>
         <p>By using the MyQuest Cleaning Services website or booking a service, you agree to the following terms.</p>
-
         <h3>Services</h3>
-        <p>MyQuest provides residential, commercial, and deep cleaning services across the Northern Rivers and Gold Coast regions of NSW/QLD. All services are subject to availability and confirmation.</p>
-
+        <p>MyQuest provides residential and commercial cleaning services. All services are subject to availability and confirmation.</p>
         <h3>Bookings &amp; Cancellations</h3>
         <ul>
-          <li>Bookings are confirmed once you receive written or verbal confirmation from us.</li>
-          <li>Cancellations or rescheduling require at least 24 hours&rsquo; notice.</li>
-          <li>Cancellations with less than 24 hours&rsquo; notice may incur a cancellation fee.</li>
+          <li>Bookings are confirmed once you receive written or verbal confirmation.</li>
+          <li>Cancellations require at least 24 hours' notice.</li>
         </ul>
-
-        <h3>Access &amp; Customer Obligations</h3>
-        <ul>
-          <li>You must ensure safe and clear access to the premises at the agreed service time.</li>
-          <li>Please notify us in advance of any pets, alarm codes, or special access requirements.</li>
-          <li>Fragile or valuable items should be secured or removed prior to the clean.</li>
-        </ul>
-
-        <h3>Satisfaction Guarantee &amp; Liability</h3>
-        <p>If you are not satisfied with any aspect of our service, please contact us within 24 hours and we will return to remedy the issue at no additional charge.</p>
-        <p>MyQuest carries public liability insurance. In the event of accidental damage caused by our team during a service, please notify us immediately. We are not liable for pre-existing damage or wear and tear.</p>
-
-        <h3>Website Use</h3>
-        <p>All content on this website is for general information purposes only. MyQuest reserves the right to update or remove content at any time without notice.</p>
-
-        <h3>Governing Law</h3>
-        <p>These terms are governed by the laws of New South Wales, Australia. Any disputes will be subject to the exclusive jurisdiction of the courts of NSW.</p>
-
         <h3>Contact</h3>
-        <p>For any questions about these terms, contact us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>.</p>
+        <p>For any questions, contact us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>.</p>
       </div>
     </div>
   </div>
@@ -572,10 +917,7 @@
       document.body.style.overflow = '';
     }
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closePolicy('privacy');
-        closePolicy('terms');
-      }
+      if (e.key === 'Escape') { closePolicy('privacy'); closePolicy('terms'); }
     });
   </script>
 

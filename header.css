@@ -17,7 +17,7 @@
 
 .site-header.is-scrolled {
   box-shadow: var(--shadow-md);
-  background: rgba(248, 247, 244, 0.97);
+  background: rgba(237, 232, 222, 0.97);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -72,14 +72,14 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: #000;
+  background: var(--color-dark);
   border-radius: var(--radius-full);
   transition: width var(--transition-base);
 }
 
 .header-nav__link:hover,
 .header-nav__link.is-active {
-  color: #000;
+  color: var(--color-dark);
 }
 
 .header-nav__link:hover::after,
@@ -104,7 +104,7 @@
 }
 
 .header-login:hover {
-  color: #000;
+  color: var(--color-dark);
 }
 
 /* ---- Hamburger Button -------------------------------------- */
@@ -144,7 +144,7 @@ body.menu-open .mobile-menu-backdrop {
   bottom: 24px;
   left: 20px;
   width: auto;
-  background: #FFD400;
+  background: #3B2F2F;
   border-radius: 32px;
   z-index: 200;
   display: flex;
@@ -178,13 +178,13 @@ body.menu-open .mobile-menu-backdrop {
   align-items: center;
   justify-content: center;
   padding: var(--space-2);
-  color: #000;
+  color: #F5F1EA;
   border-radius: var(--radius-sm);
   transition: background var(--transition-fast);
 }
 
 .mobile-menu__close:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(245, 241, 234, 0.10);
 }
 
 .mobile-menu__list {
@@ -194,7 +194,7 @@ body.menu-open .mobile-menu-backdrop {
 }
 
 .mobile-menu__list li {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(245, 241, 234, 0.10);
   opacity: 0;
   transform: translateX(32px);
   transition: opacity 0.28s ease, transform 0.28s ease;
@@ -222,10 +222,10 @@ body.menu-open .mobile-menu-backdrop {
   margin-top: var(--space-8);
   padding-top: var(--space-4);
   padding-bottom: var(--space-2);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(245, 241, 234, 0.12);
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
-  color: rgba(0, 0, 0, 0.55);
+  color: rgba(245, 241, 234, 0.50);
   text-align: center;
   letter-spacing: 0;
   text-decoration: none;
@@ -240,7 +240,7 @@ body.menu-open .mobile-menu-backdrop {
 }
 
 .mobile-menu__staff-login:hover {
-  color: #000;
+  color: #F5F1EA;
 }
 
 .mobile-menu__staff-login:hover svg {
@@ -256,7 +256,7 @@ body.menu-open .mobile-menu-backdrop {
   font-family: inherit;
   font-size: var(--text-3xl);
   font-weight: var(--font-weight-bold);
-  color: #000;
+  color: #F5F1EA;
   padding-block: var(--space-5);
   text-align: right;
   letter-spacing: -0.02em;
@@ -305,7 +305,7 @@ body.menu-open .mobile-menu-backdrop {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #000;
+  background: #3B2F2F;
   color: #fff;
   display: flex;
   align-items: center;
