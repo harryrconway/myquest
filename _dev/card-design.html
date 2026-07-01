@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Design Playground</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #1A2B4A;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px;
+      gap: 32px;
+    }
+
+    h1 {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ── Card ── */
+    .card-scene {
+      width: min(92vw, 760px);
+      aspect-ratio: 1.586 / 1;
+      perspective: 1800px;
+    }
+
+    .flip-card {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(0.35, 0.10, 0.15, 1.00);
+      cursor: pointer;
+    }
+
+    .flip-card.is-flipped { transform: rotateY(-180deg); }
+
+    .flip-card__face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 20px;
+      background: #F5F1EA;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.18), 0 32px 64px rgba(0,0,0,0.14);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: clamp(24px, 5%, 52px) clamp(28px, 6%, 64px);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .flip-card__face--back { transform: rotateY(180deg); }
+
+    /* Front */
+    .fc-logo { display: flex; flex-direction: column; gap: 7px; }
+    .fc-logo__wordmark { font-size: 32px; font-weight: 700; color: #1A2B4A; letter-spacing: -0.02em; line-height: 1; }
+    .fc-logo__sub { font-size: 11px; font-weight: 400; letter-spacing: 0.02em; color: rgba(26,43,74,0.5); }
+    .fc-spacer { flex: 1; }
+    .fc-front__blurb { font-size: 12px; font-weight: 400; color: #1A2B4A; line-height: 1.55; text-align: left; }
+    .fc-front__bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+    .fc-front__location { line-height: 1.6; }
+    .fc-front__location strong { display: block; font-size: 14px; font-weight: 600; color: #1A2B4A; margin-bottom: 3px; }
+    .fc-front__services { text-align: right; line-height: 1.9; flex-shrink: 0; }
+    .fc-front__services span { display: block; font-size: 11px; font-weight: 600; color: #1A2B4A; }
+
+    /* Back */
+    .fc-back__top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .fc-back__brand { display: flex; flex-direction: column; gap: 5px; }
+    .fc-back__url { font-weight: 700; color: #1A2B4A; letter-spacing: -0.025em; line-height: 1; }
+    .fc-back__sub { font-weight: 600; text-transform: uppercase; letter-spacing: 0.20em; color: #7A8FA8; }
+    .fc-back__contacts { display: flex; flex-direction: column; align-self: flex-end; }
+    .fc-back__contact-row { display: flex; align-items: baseline; gap: 10px; color: #4A6080; }
+    .fc-back__contact-label { font-weight: 700; color: #1A2B4A; text-transform: uppercase; letter-spacing: 0.06em; width: 16px; flex-shrink: 0; }
+    .fc-back__contact-area { font-weight: 400; color: #7A8FA8; margin: 0 5px; }
+    .fc-back__cta-wrap { display: flex; align-items: flex-end; justify-content: flex-end; }
+    .fc-back__cta {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #1A2B4A; color: #F5F1EA; border-radius: 9999px;
+      font-family: inherit; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; border: none; cursor: pointer;
+    }
+
+    /* ── Controls panel ── */
+    .controls {
+      width: min(92vw, 760px);
+      background: rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .ctrl-group {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .ctrl-group:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.06); }
+    .ctrl-group:nth-last-child(-n+2) { border-bottom: none; }
+
+    .ctrl-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .ctrl-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ctrl-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100px;
+      height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      width: 28px; height: 28px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 0;
+      background: none;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 6px; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+
+    .flip-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 10px 24px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .flip-btn:hover { background: rgba(255,255,255,0.18); }
+
+    .note {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Card Design Playground</h1>
+
+  <!-- Card -->
+  <div class="card-scene">
+    <div class="flip-card" id="flip-card">
+
+      <!-- FRONT -->
+      <div class="flip-card__face flip-card__face--front">
+        <div class="fc-logo">
+          <span class="fc-logo__wordmark" id="el-wordmark">MyQuest</span>
+          <span class="fc-logo__sub" id="el-sub">Reliable cleaning for every space</span>
+        </div>
+
+        <div class="fc-spacer"></div>
+        <p class="fc-front__blurb" id="el-blurb">Whether you need a once off or regular clean, we make the process simple with transparent communication and a reliable service you can depend on.</p>
+        <div class="fc-spacer"></div>
+
+        <div class="fc-front__bottom">
+          <div class="fc-front__location">
+            <strong id="el-location">Gold Coast<br>Northern Rivers<br>Adelaide</strong>
+          </div>
+          <div class="fc-front__services">
+            <span id="el-svc1">Homes</span>
+            <span id="el-svc2">Commercial</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BACK -->
+      <div class="flip-card__face flip-card__face--back">
+        <div class="fc-back__top">
+          <div class="fc-back__brand">
+            <span class="fc-back__url" id="el-url">myquest.au</span>
+            <span class="fc-back__sub">Cleaning Services</span>
+          </div>
+        </div>
+        <div class="fc-spacer"></div>
+        <div class="fc-front__bottom">
+          <div class="fc-back__contacts" id="el-contacts">
+            <div class="fc-back__contact-row">
+              <span class="fc-back__contact-label">P</span>
+              <span>Harry<span class="fc-back__contact-area">Gold Coast &amp; Northern Rivers</span>+61 4XX XXX XXX</span>
+            </div>
+            <div class="fc-back__contact-row">
+              <span class="fc-back__contact-label" style="opacity:0">P</span>
+              <span>Tom<span class="fc-back__contact-area">Adelaide</span>+61 4XX XXX XXX</span>
+            </div>
+            <div class="fc-back__contact-row">
+              <span class="fc-back__contact-label">E</span>
+              <span>cleaning@myquest.au</span>
+            </div>
+            <div class="fc-back__contact-row">
+              <span class="fc-back__contact-label">W</span>
+              <span>myquest.au</span>
+            </div>
+          </div>
+          <div class="fc-back__cta-wrap">
+            <button class="fc-back__cta" id="el-cta">Get a Quote</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Wordmark size</span>
+      <div class="ctrl-right">
+        <input type="range" min="18" max="56" value="32" oninput="setSize('el-wordmark', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">32px</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Wordmark colour</span>
+      <div class="ctrl-right">
+        <input type="color" value="#1A2B4A" oninput="setColor('el-wordmark', this.value)">
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Tagline size</span>
+      <div class="ctrl-right">
+        <input type="range" min="7" max="18" value="11" oninput="setSize('el-sub', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">11px</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Tagline colour</span>
+      <div class="ctrl-right">
+        <input type="color" value="#1A2B4A" oninput="setColor('el-sub', this.value)">
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Blurb size</span>
+      <div class="ctrl-right">
+        <input type="range" min="9" max="24" value="12" oninput="setSize('el-blurb', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">12px</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Blurb colour</span>
+      <div class="ctrl-right">
+        <input type="color" value="#1A2B4A" oninput="setColor('el-blurb', this.value)">
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Location size</span>
+      <div class="ctrl-right">
+        <input type="range" min="10" max="26" value="14" oninput="setSize('el-location', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">14px</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Location colour</span>
+      <div class="ctrl-right">
+        <input type="color" value="#1A2B4A" oninput="setColor('el-location', this.value)">
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Services size</span>
+      <div class="ctrl-right">
+        <input type="range" min="10" max="26" value="11" oninput="setSize('el-svc1', this.value); setSize('el-svc2', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">11px</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Services colour</span>
+      <div class="ctrl-right">
+        <input type="color" value="#1A2B4A" oninput="setColor('el-svc1', this.value); setColor('el-svc2', this.value)">
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Contact size</span>
+      <div class="ctrl-right">
+        <input type="range" min="9" max="22" value="14" oninput="setSize('el-contacts', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">14px</span>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">URL size</span>
+      <div class="ctrl-right">
+        <input type="range" min="16" max="48" value="30" oninput="setSize('el-url', this.value); this.nextElementSibling.textContent = this.value+'px'">
+        <span class="ctrl-value">30px</span>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="flip-btn" onclick="document.getElementById('flip-card').classList.toggle('is-flipped')">Flip card</button>
+
+  <p class="note">Adjust sliders and colour pickers, then tell me the values you like.<br>Click the card or use the button above to flip to the back.</p>
+
+  <script>
+    function setSize(id, val) {
+      document.getElementById(id).style.fontSize = val + 'px';
+    }
+    function setColor(id, val) {
+      document.getElementById(id).style.color = val;
+    }
+
+    var card = document.getElementById('flip-card');
+    card.addEventListener('click', function() {
+      card.classList.toggle('is-flipped');
+    });
+  </script>
+
+</body>
+</html>

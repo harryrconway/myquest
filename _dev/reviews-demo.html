@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #EDE8DE; margin: 0; padding: 40px 20px; color: #1A2B4A; }
+    .demo-wrap { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+    .demo-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7A8FA8; margin-bottom: 12px; }
+    .divider { border: none; border-top: 1px dashed rgba(26,43,74,0.15); }
+
+    /* ── Shared ── */
+    .g-icon { flex-shrink: 0; }
+
+    /* ══════════════════════════════════════════════
+       OPTION A — Single trust bar
+    ══════════════════════════════════════════════ */
+    .trust-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 0;
+      flex-wrap: wrap;
+    }
+    .trust-bar__rating {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1A2B4A;
+      white-space: nowrap;
+    }
+    .trust-bar__stars { color: #F5A623; letter-spacing: 1px; }
+    .trust-bar__sep { color: #C8D4E0; font-size: 13px; }
+    .trust-bar__quotes {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .trust-bar__quote {
+      font-size: 12px;
+      color: #4A6080;
+      font-style: italic;
+    }
+    .trust-bar__dot { color: #C8D4E0; font-size: 10px; }
+    .trust-bar__link {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1A2B4A;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════════════
+       OPTION B — Quote strip
+    ══════════════════════════════════════════════ */
+    .quote-strip {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      padding: 12px 0;
+      border-top: 1px solid rgba(26,43,74,0.08);
+      border-bottom: 1px solid rgba(26,43,74,0.08);
+    }
+    .quote-strip__item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 20px;
+      border-right: 1px solid rgba(26,43,74,0.08);
+    }
+    .quote-strip__item:first-child { padding-left: 0; }
+    .quote-strip__item:last-child { border-right: none; padding-right: 0; }
+    .quote-strip__stars { color: #F5A623; font-size: 9px; letter-spacing: 1px; line-height: 1; }
+    .quote-strip__text { font-size: 11.5px; color: #243B5C; line-height: 1.5; font-style: italic; }
+    .quote-strip__name { font-size: 10px; font-weight: 700; color: #7A8FA8; letter-spacing: 0.04em; }
+
+    /* ══════════════════════════════════════════════
+       OPTION C — Collapsed badge
+    ══════════════════════════════════════════════ */
+    .review-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 16px 7px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.06);
+      text-decoration: none;
+      transition: box-shadow 0.15s;
+    }
+    .review-badge:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.08); }
+    .review-badge__stars { color: #F5A623; font-size: 11px; letter-spacing: 1px; line-height: 1; }
+    .review-badge__score { font-size: 13px; font-weight: 700; color: #1A2B4A; }
+    .review-badge__label { font-size: 11px; color: #7A8FA8; font-weight: 500; }
+    .review-badge__arrow { font-size: 10px; color: #7A8FA8; }
+    .badge-wrap { display: flex; justify-content: center; padding: 8px 0; }
+
+    /* ══════════════════════════════════════════════
+       OPTION D — Inside hero (inline, under hint)
+    ══════════════════════════════════════════════ */
+    .hero-mock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 24px;
+      background: #EDE8DE;
+      border-radius: 12px;
+    }
+    .hero-mock__card {
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 1.586;
+      background: #F5F1EA;
+      border-radius: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.09);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7A8FA8;
+      font-size: 13px;
+    }
+    .hero-mock__hint {
+      font-size: 10px;
+      color: #7A8FA8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .hero-mock__inline-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-mock__stars { color: #F5A623; font-size: 11px; letter-spacing: 1px; }
+    .hero-mock__text {
+      font-size: 11px;
+      color: #4A6080;
+      font-weight: 500;
+    }
+    .hero-mock__text a { color: #1A2B4A; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+    .hero-mock__scroll { font-size: 10px; color: #B0C0D0; letter-spacing: 0.08em; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+<div class="demo-wrap">
+
+  <div>
+    <div class="demo-label">Option A — Single trust bar</div>
+    <div class="trust-bar">
+      <svg class="g-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span class="trust-bar__rating">
+        <span class="trust-bar__stars">★★★★★</span> 5.0
+      </span>
+      <span class="trust-bar__sep">·</span>
+      <div class="trust-bar__quotes">
+        <span class="trust-bar__quote">"Quick response and very friendly"</span>
+        <span class="trust-bar__dot">●</span>
+        <span class="trust-bar__quote">"Amazing attention to detail"</span>
+        <span class="trust-bar__dot">●</span>
+        <span class="trust-bar__quote">"Made us feel a lot safer about our choice"</span>
+      </div>
+      <span class="trust-bar__sep">·</span>
+      <a href="#" class="trust-bar__link">Google →</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div>
+    <div class="demo-label">Option B — Quote strip</div>
+    <div class="quote-strip">
+      <div class="quote-strip__item">
+        <div class="quote-strip__stars">★★★★★</div>
+        <p class="quote-strip__text">"Quick response and very friendly would recommend!!"</p>
+        <span class="quote-strip__name">Jaymes</span>
+      </div>
+      <div class="quote-strip__item">
+        <div class="quote-strip__stars">★★★★★</div>
+        <p class="quote-strip__text">"We loved their attention to detail!"</p>
+        <span class="quote-strip__name">Alexander</span>
+      </div>
+      <div class="quote-strip__item">
+        <div class="quote-strip__stars">★★★★★</div>
+        <p class="quote-strip__text">"This team made us feel a lot safer about our choice."</p>
+        <span class="quote-strip__name">Jydon</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div>
+    <div class="demo-label">Option C — Collapsed badge (links to Google)</div>
+    <div class="badge-wrap">
+      <a href="#" class="review-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span class="review-badge__stars">★★★★★</span>
+        <span class="review-badge__score">5.0</span>
+        <span class="review-badge__label">· 3 Google reviews</span>
+        <span class="review-badge__arrow">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div>
+    <div class="demo-label">Option D — Inline under card (in hero)</div>
+    <div class="hero-mock">
+      <div class="hero-mock__card">[ business card ]</div>
+      <p class="hero-mock__hint">Tap to flip →</p>
+      <div class="hero-mock__inline-rating">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span class="hero-mock__stars">★★★★★</span>
+        <span class="hero-mock__text">5.0 · <a href="#">Read our Google reviews</a></span>
+      </div>
+      <p class="hero-mock__scroll">↓</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
