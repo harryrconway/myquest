@@ -648,7 +648,7 @@
       + '<div class="pq-title"><h2>QUOTE</h2><div class="pq-id">' + esc(shortId) + '</div><div class="pq-date">Prepared: ' + today + ' · Valid until: ' + expiry + '</div></div>'
       + '</div>'
       + '<div class="pq-parties">'
-      +   '<div><div class="pq-party-lbl">From</div><div class="pq-party-name">MyQuest Cleaning</div><div class="pq-party-line">hello@myquest.au<br>0497 828 838</div></div>'
+      +   '<div><div class="pq-party-lbl">From</div><div class="pq-party-name">MyQuest Cleaning</div><div class="pq-party-line">cleaning@myquest.au<br>0497 828 838</div></div>'
       +   '<div><div class="pq-party-lbl">Prepared for</div><div class="pq-party-name">' + esc(name) + '</div>'
       +     (addrLine ? '<div class="pq-party-line">' + addrLine + '</div>' : '')
       +     (email ? '<div class="pq-party-line">' + esc(email) + '</div>' : '')

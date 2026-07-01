@@ -84,7 +84,7 @@ export async function onRequestPost(context) {
       <td style="padding:28px 36px 20px;vertical-align:top;width:50%;">
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:6px;">From</div>
         <div style="font-size:15px;font-weight:800;color:#0f172a;">MyQuest Cleaning</div>
-        <div style="font-size:13px;color:#64748b;margin-top:4px;line-height:1.6;">Adelaide, SA<br>hello@myquest.au<br>0497 828 838</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;line-height:1.6;">Adelaide, SA<br>cleaning@myquest.au<br>0497 828 838</div>
       </td>
       <td style="padding:28px 36px 20px;vertical-align:top;width:50%;">
         <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:6px;">Prepared for</div>
@@ -141,7 +141,7 @@ export async function onRequestPost(context) {
     <div style="border-top:1.5px solid #f1f5f9;padding-top:20px;">
       <p style="font-size:13px;color:#64748b;line-height:1.7;margin:0 0 20px;">This quote is valid for 30 days from the date above. Pricing is based on the property details provided and may be adjusted after an on-site assessment.</p>
       <div style="text-align:center;">
-        <a href="mailto:hello@myquest.au?subject=Accepting%20quote%20${esc(quoteNum)}"
+        <a href="mailto:cleaning@myquest.au?subject=Accepting%20quote%20${esc(quoteNum)}"
            style="display:inline-block;background:#FFD400;color:#000;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:800;font-size:15px;">
           ✓ Accept this quote
         </a>
@@ -157,7 +157,7 @@ export async function onRequestPost(context) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'MyQuest <hello@myquest.au>',
+      from:    'MyQuest <cleaning@myquest.au>',
       to:      [quote.email],
       subject: `Your cleaning quote — MyQuest (${quoteNum})`,
       html,

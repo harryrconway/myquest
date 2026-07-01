@@ -41,7 +41,7 @@ export async function onRequestGet({ request, env }) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
+        from:    'MyQuest <cleaning@myquest.au>',
         to:      [job.email],
         subject: `Reminder: Your clean is tomorrow — MyQuest`,
         html: `<!DOCTYPE html>

@@ -4,7 +4,7 @@
    matches a row — the second gets an empty result and a clear "already
    claimed" error instead of a silent double-assignment. */
 const ORIGIN = 'https://myquest.au';
-const ADMIN_EMAIL = 'hello@myquest.au';
+const ADMIN_EMAIL = 'cleaning@myquest.au';
 
 export async function onRequestOptions() {
   return new Response(null, {
@@ -131,7 +131,7 @@ async function sendClaimEmails({ RESEND_KEY, job, claimer }) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
+        from:    'MyQuest <cleaning@myquest.au>',
         to:      [claimer.email],
         subject: `You picked up a shift — ${dateFormatted}`,
         html: `<!DOCTYPE html>
@@ -172,7 +172,7 @@ async function sendClaimEmails({ RESEND_KEY, job, claimer }) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'MyQuest <hello@myquest.au>',
+      from:    'MyQuest <cleaning@myquest.au>',
       to:      [ADMIN_EMAIL],
       subject: `Shift covered: ${esc(job.full_name)} — ${dateFormatted}`,
       html: `<!DOCTYPE html>

@@ -166,7 +166,7 @@ export async function onRequestPost(context) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
+        from:    'MyQuest <cleaning@myquest.au>',
         to:      [job.email],
         subject: `Thanks for choosing MyQuest, ${firstName} — your clean is done!`,
         html: `<!DOCTYPE html>
@@ -236,7 +236,7 @@ export async function onRequestPost(context) {
           <td style="background:#f9f9f9;padding:16px 32px;border-top:1px solid #eee;">
             <p style="margin:0;font-size:11px;color:rgba(0,0,0,0.35);text-align:center;">
               MyQuest Cleaning Services &nbsp;&bull;&nbsp; Northern Rivers &amp; Gold Coast &nbsp;&bull;&nbsp;
-              <a href="mailto:hello@myquest.au" style="color:rgba(0,0,0,0.35);text-decoration:none;">hello@myquest.au</a>
+              <a href="mailto:cleaning@myquest.au" style="color:rgba(0,0,0,0.35);text-decoration:none;">cleaning@myquest.au</a>
             </p>
           </td>
         </tr>

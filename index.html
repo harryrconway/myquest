@@ -12,7 +12,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css?v=20260630">
   <link rel="stylesheet" href="header.css?v=20260630">
@@ -23,10 +23,13 @@
        NAVY THEME OVERRIDES
        ============================================================ */
 
+    /* Font */
+    body, .flip-card__face { font-family: 'Outfit', sans-serif; }
+
     /* CSS variable resets */
     :root {
       --color-dark:               #1A2B4A;
-      --color-mid:                #4A6080;
+      --color-mid:                #243B5C;
       --color-light:              #7A8FA8;
       --color-forest-green:       #1A2B4A;
       --color-forest-green-dark:  #0F1E36;
@@ -49,6 +52,12 @@
 
     /* Staff FAB */
     .staff-login-fab             { background: #1A2B4A; }
+
+    /* Footer card: navy instead of black */
+    .site-footer .container      { background: #1A2B4A; }
+
+    /* Body text legibility */
+    .section-body, .svc-item__desc, .why-card p { font-size: 1.125rem; line-height: 1.75; color: #1A2B4A; }
 
     /* Card borders */
     .why-card                    { border-color: rgba(26,43,74,0.07); }
@@ -150,22 +159,30 @@
     }
 
     .fc-logo__wordmark {
-      font-size: clamp(22px, 4vw, 42px);
+      font-size: clamp(28px, 7vw, 56px);
       font-weight: 700;
       color: #1A2B4A;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.02em;
       line-height: 1;
     }
 
     .fc-logo__sub {
-      font-size: clamp(8px, 1.4vw, 13px);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.20em;
-      color: #7A8FA8;
+      font-size: clamp(11px, 2.25vw, 18px);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: rgba(26,43,74,0.5);
     }
 
     .fc-spacer { flex: 1; }
+
+    .fc-front__blurb {
+      font-size: clamp(13px, 2.75vw, 22px);
+      font-weight: 400;
+      color: #1A2B4A;
+      line-height: 1.55;
+      text-align: left;
+      margin: 0;
+    }
 
     /* Front bottom row */
     .fc-front__bottom {
@@ -176,17 +193,14 @@
     }
 
     .fc-front__location {
-      font-size: clamp(11px, 1.6vw, 16px);
-      color: #5B7090;
       line-height: 1.5;
     }
 
     .fc-front__location strong {
       display: block;
-      font-size: clamp(14px, 2vw, 20px);
+      font-size: clamp(11px, 2.25vw, 18px);
       font-weight: 600;
       color: #1A2B4A;
-      letter-spacing: -0.01em;
       margin-bottom: 3px;
     }
 
@@ -198,10 +212,9 @@
 
     .fc-front__services span {
       display: block;
-      font-size: clamp(11px, 1.7vw, 17px);
-      font-weight: 700;
+      font-size: clamp(11px, 2.25vw, 18px);
+      font-weight: 600;
       color: #1A2B4A;
-      letter-spacing: 0.03em;
     }
 
     /* ── BACK FACE ── */
@@ -218,19 +231,18 @@
     }
 
     .fc-back__url {
-      font-size: clamp(20px, 3.8vw, 38px);
+      font-size: clamp(28px, 7vw, 56px);
       font-weight: 700;
       color: #1A2B4A;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.02em;
       line-height: 1;
     }
 
     .fc-back__sub {
-      font-size: clamp(8px, 1.4vw, 13px);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.20em;
-      color: #7A8FA8;
+      font-size: clamp(11px, 2.25vw, 18px);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: rgba(26,43,74,0.5);
     }
 
     .fc-back__contacts {
@@ -244,18 +256,27 @@
       display: flex;
       align-items: baseline;
       gap: 10px;
-      font-size: clamp(10px, 1.5vw, 15px);
+      font-size: clamp(11px, 2.25vw, 18px);
       color: #4A6080;
     }
 
     .fc-back__contact-label {
-      font-size: clamp(8px, 1.2vw, 12px);
+      font-size: clamp(10px, 1.6vw, 15px);
       font-weight: 700;
       color: #1A2B4A;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      width: 14px;
+      width: 16px;
       flex-shrink: 0;
+    }
+
+    .fc-back__contact-area {
+      font-size: 0.82em;
+      font-weight: 400;
+      color: #7A8FA8;
+      margin: 0 5px;
+      letter-spacing: 0;
+      text-transform: none;
     }
 
     /* CTA on back */
@@ -349,6 +370,26 @@
       color: #1A2B4A;
     }
 
+    /* ── Google review badge ── */
+    .review-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 14px 7px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.06);
+      text-decoration: none;
+      transition: box-shadow 0.15s, opacity 0.15s;
+    }
+
+    .review-badge:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.08); opacity: 0.9; }
+
+    .review-badge__stars { color: #F5A623; font-size: 11px; letter-spacing: 1px; line-height: 1; }
+    .review-badge__score { font-size: 13px; font-weight: 700; color: #1A2B4A; }
+    .review-badge__label { font-size: 11px; color: #7A8FA8; font-weight: 500; }
+    .review-badge__arrow { font-size: 11px; color: #7A8FA8; }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .hero-v2 {
@@ -382,7 +423,7 @@
 
       <div class="header-actions">
         <a href="login.html" class="header-login">Login</a>
-        <button class="btn-primary" data-open-quote>Get a Free Quote</button>
+        <button class="btn-primary" data-open-quote>Get a Quick Quote</button>
       </div>
 
       <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
@@ -399,12 +440,8 @@
   <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
   <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation menu" aria-hidden="true">
     <div class="mobile-menu__top">
-      <a href="index.html" class="mobile-menu__logo" aria-label="MyQuest — home">
-        <svg width="120" height="32" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#F5F1EA"/>
-          <path d="M20 2 C20 2 22 16 14 22" stroke="#F5F1EA" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="#F5F1EA">MyQuest</text>
-        </svg>
+      <a href="index.html" class="mobile-menu__logo" aria-label="MyQuest — home" style="font-size:20px;font-weight:700;color:#F5F1EA;letter-spacing:-0.03em;">
+        MyQuest
       </a>
       <button class="mobile-menu__close" aria-label="Close menu">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
@@ -419,7 +456,7 @@
         <li><a href="#services">Services</a></li>
         <li><a href="#why-us">About</a></li>
         <li><a href="#contact">Contact</a></li>
-        <li><button data-open-quote>Get a Free Quote</button></li>
+        <li><button data-open-quote>Get a Quick Quote</button></li>
       </ul>
       <a href="login.html" class="mobile-menu__staff-login">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -451,9 +488,11 @@
 
               <div class="fc-logo">
                 <span class="fc-logo__wordmark">MyQuest</span>
-                <span class="fc-logo__sub">Cleaning Services</span>
+                <span class="fc-logo__sub">Reliable cleaning for every space</span>
               </div>
 
+              <div class="fc-spacer"></div>
+              <p class="fc-front__blurb">Whether you need a once off or regular clean, we make the process simple with transparent communication and a reliable service you can depend on.</p>
               <div class="fc-spacer"></div>
 
               <div class="fc-front__bottom">
@@ -461,7 +500,7 @@
                   <strong>Gold Coast<br>Northern Rivers<br>Adelaide</strong>
                 </div>
                 <div class="fc-front__services">
-                  <span>Residential</span>
+                  <span>Homes</span>
                   <span>Commercial</span>
                 </div>
               </div>
@@ -474,7 +513,7 @@
               <div class="fc-back__top">
                 <div class="fc-back__brand">
                   <span class="fc-back__url">myquest.au</span>
-                  <span class="fc-back__sub">Cleaning Services</span>
+                  <span class="fc-back__sub">Reliable cleaning for every space</span>
                 </div>
               </div>
 
@@ -484,11 +523,15 @@
                 <div class="fc-back__contacts">
                   <div class="fc-back__contact-row">
                     <span class="fc-back__contact-label">P</span>
-                    <span>+61 4XX XXX XXX</span>
+                    <span>Harry<small class="fc-back__contact-area">Gold Coast &amp; Northern Rivers</small>+61 4XX XXX XXX</span>
+                  </div>
+                  <div class="fc-back__contact-row">
+                    <span class="fc-back__contact-label" aria-hidden="true" style="opacity:0">P</span>
+                    <span>Tom<small class="fc-back__contact-area">Adelaide</small>+61 4XX XXX XXX</span>
                   </div>
                   <div class="fc-back__contact-row">
                     <span class="fc-back__contact-label">E</span>
-                    <span>hello@myquest.au</span>
+                    <span>cleaning@myquest.au</span>
                   </div>
                   <div class="fc-back__contact-row">
                     <span class="fc-back__contact-label">W</span>
@@ -514,6 +557,19 @@
           </span>
         </p>
 
+        <a href="https://www.google.com/maps/place/MyQuest/@-29.0546366,151.5817393,8z/data=!4m8!3m7!1s0xa00502a8c1e9b53b:0xd84f383bf9f874b4!8m2!3d-29.0635115!4d152.903426!9m1!1b1!16s%2Fg%2F11nqdxgs_4" target="_blank" rel="noopener" class="review-badge" aria-label="5.0 stars — Read our Google reviews">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          <span class="review-badge__stars">★★★★★</span>
+          <span class="review-badge__score">5.0</span>
+          <span class="review-badge__label">· 3 Google reviews</span>
+          <span class="review-badge__arrow">↗</span>
+        </a>
+
         <div class="hero-v2__scroll-cue" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 13l7 7 7-7"/>
@@ -530,10 +586,7 @@
     <section id="services" class="section" aria-labelledby="services-heading">
       <div class="container">
         <div class="section-intro section-intro--center">
-          <span class="section-label">What We Offer</span>
           <h2 class="section-heading" id="services-heading">Our Cleaning Services</h2>
-          <p class="section-sub">Reliable cleaning support for homes, businesses and workplaces.</p>
-          <p class="section-body">Whether you need a regular home cleaner, a once-off clean, or ongoing commercial cleaning, MyQuest makes the process simple. We provide clear communication, dependable service and cleaners who take pride in the work they do.</p>
         </div>
 
         <div class="svc-grid">
@@ -544,7 +597,7 @@
                 <path d="M9 27L28 10L47 27V48H34V35H22V48H9V27Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
               </svg>
             </div>
-            <h3 class="svc-item__title">Residential Cleaning</h3>
+            <h3 class="svc-item__title">Homes</h3>
             <p class="svc-item__desc">Regular and one-off home cleaning tailored to your space, schedule and needs. We treat your home with care and focus on the details that make a real difference.</p>
           </div>
 
@@ -651,7 +704,7 @@
           <h2 class="section-heading" id="contact-heading">Request a Free Quote</h2>
           <p class="section-sub">Request a free quote today and we'll get back to you as soon as possible.</p>
 
-          <button class="btn-primary contact__cta" data-open-quote>Get a Free Quote</button>
+          <button class="btn-primary contact__cta" data-open-quote>Get a Quick Quote</button>
 
           <ul class="contact__details">
             <li>
@@ -659,7 +712,7 @@
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              <a href="mailto:hello@myquest.au">hello@myquest.au</a>
+              <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>
             </li>
           </ul>
 
@@ -674,12 +727,8 @@
       <div class="footer-grid">
 
         <div class="footer-brand">
-          <a href="index.html" class="footer-logo" aria-label="MyQuest — home">
-            <svg width="130" height="34" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M4 18 C4 8 12 2 20 2 C20 2 20 14 12 20 C8 23 4 22 4 18 Z" fill="#fff"/>
-              <path d="M20 2 C20 2 22 16 14 22" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-              <text x="28" y="25" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="700" font-size="18" fill="#fff">MyQuest</text>
-            </svg>
+          <a href="index.html" class="footer-logo" aria-label="MyQuest — home" style="font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.03em;">
+            MyQuest
           </a>
           <p class="footer-tagline">Professional residential and commercial cleaning across Gold Coast, Northern Rivers and Adelaide Metro.</p>
           <div class="footer-social">
@@ -710,7 +759,7 @@
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              <a href="mailto:hello@myquest.au">hello@myquest.au</a>
+              <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>
             </li>
             <li>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -768,7 +817,7 @@
     var autoFlipped = false;
     var timer = setTimeout(function() {
       if (!autoFlipped) flip();
-    }, 2200);
+    }, 30000);
 
     card.addEventListener('click', function() {
       autoFlipped = true;
@@ -782,16 +831,12 @@
     <div class="qm-card">
       <div class="qm-sidebar" id="qm-sidebar">
         <div class="qm-sidebar__brand">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M3 14 C3 6 9 2 15 2 C15 2 15 11 9 16 C6 18 3 17 3 14 Z" fill="white"/>
-            <path d="M15 2 C15 2 17 13 10 17" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          </svg>
           <span class="qm-sidebar__wordmark">MyQuest</span>
         </div>
         <nav class="qm-sidebar__steps" id="qm-sidebar-steps" aria-label="Form steps"></nav>
         <div class="qm-sidebar__contact">
           <p class="qm-sidebar__ql">Questions?</p>
-          <a href="mailto:hello@myquest.au" class="qm-sidebar__phone">hello@myquest.au</a>
+          <a href="mailto:cleaning@myquest.au" class="qm-sidebar__phone">cleaning@myquest.au</a>
         </div>
       </div>
       <div class="qm-panel">
@@ -880,7 +925,7 @@
           <li>To comply with our legal obligations</li>
         </ul>
         <h3>Contact</h3>
-        <p>For any privacy-related enquiries, contact us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>.</p>
+        <p>For any privacy-related enquiries, contact us at <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>.</p>
       </div>
     </div>
   </div>
@@ -902,7 +947,7 @@
           <li>Cancellations require at least 24 hours' notice.</li>
         </ul>
         <h3>Contact</h3>
-        <p>For any questions, contact us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>.</p>
+        <p>For any questions, contact us at <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>.</p>
       </div>
     </div>
   </div>

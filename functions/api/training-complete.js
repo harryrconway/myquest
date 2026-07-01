@@ -48,8 +48,8 @@ export async function onRequestPost(context) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from:    'MyQuest <hello@myquest.au>',
-        to:      ['hello@myquest.au'],
+        from:    'MyQuest <cleaning@myquest.au>',
+        to:      ['cleaning@myquest.au'],
         subject: `Training Completed — ${staffName}`,
         html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f3f4f6;">

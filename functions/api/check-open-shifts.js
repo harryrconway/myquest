@@ -1,7 +1,7 @@
 /* GET /api/check-open-shifts?secret=... — urgent alert if a shift still
    needs coverage and starts soon. Run on a frequent cron (see
    reminder-worker), separate from the daily customer reminder. */
-const ADMIN_EMAIL = 'hello@myquest.au';
+const ADMIN_EMAIL = 'cleaning@myquest.au';
 const URGENT_WINDOW_HOURS = 4;
 const RE_ALERT_HOURS = 2; // don't re-send for the same job within this window
 
@@ -55,7 +55,7 @@ export async function onRequestGet({ request, env }) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'MyQuest <hello@myquest.au>',
+      from:    'MyQuest <cleaning@myquest.au>',
       to:      [ADMIN_EMAIL],
       subject: `⚠️ ${urgent.length} open shift${urgent.length > 1 ? 's' : ''} still uncovered`,
       html: `<!DOCTYPE html>

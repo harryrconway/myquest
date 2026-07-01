@@ -21,7 +21,7 @@ export async function onRequestPost(context) {
   const SERVICE_KEY  = env.SUPABASE_SERVICE_KEY;
   const ANON_KEY     = env.SUPABASE_ANON_KEY || SERVICE_KEY;
   const RESEND_KEY   = env.RESEND_API_KEY;
-  const ADMIN_EMAIL  = env.ADMIN_EMAIL || 'hello@myquest.au';
+  const ADMIN_EMAIL  = env.ADMIN_EMAIL || 'cleaning@myquest.au';
 
   if (!SUPABASE_URL || !SERVICE_KEY) return json({ error: 'Server configuration error.' }, 500, request);
 
@@ -170,7 +170,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'MyQuest <hello@myquest.au>',
+      from:    'MyQuest <cleaning@myquest.au>',
       to:      [email],
       subject: "We've received your quote request — MyQuest",
       html: `<!DOCTYPE html>
@@ -232,7 +232,7 @@ async function sendEmails({ RESEND_KEY, ADMIN_EMAIL, full_name, phone, email, bo
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from:    'MyQuest <hello@myquest.au>',
+      from:    'MyQuest <cleaning@myquest.au>',
       to:      [ADMIN_EMAIL],
       subject: `New Quote Request — ${full_name}${suburb ? ' · ' + suburb : ''}`,
       html: `<!DOCTYPE html>

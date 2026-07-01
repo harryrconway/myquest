@@ -181,7 +181,7 @@ export async function onRequestPost(context) {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from:    'MyQuest <hello@myquest.au>',
+          from:    'MyQuest <cleaning@myquest.au>',
           to:      [job.email],
           subject: 'Your cleaning has been scheduled — MyQuest',
           html: `<!DOCTYPE html>
@@ -241,7 +241,7 @@ export async function onRequestPost(context) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              from:    'MyQuest <hello@myquest.au>',
+              from:    'MyQuest <cleaning@myquest.au>',
               to:      [member.email],
               subject: `You've been assigned a job — ${dateFormatted}`,
               html: `<!DOCTYPE html>
