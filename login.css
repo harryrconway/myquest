@@ -1,6 +1,35 @@
 /* ============================================================
    MYQUEST — Login Page Styles
+   Matches the navy/cream homepage design language (index.html)
    ============================================================ */
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/fonts/outfit-variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+.login-page {
+  --l-navy: #232c54;
+  --l-navy-deep: #1a2140;
+  --l-card: #f3efe4;
+  --l-field: #e7e2d5;
+  --l-stone: #9b968a;
+  --l-hair: rgba(35, 44, 84, 0.14);
+  --l-disp: "Outfit", system-ui, sans-serif;
+}
+
+/* On-brand focus ring + skip-link, scoped so style.css's shared
+   (dark brown) *:focus-visible rule stays untouched elsewhere. */
+.login-page *:focus-visible {
+  outline-color: var(--l-navy);
+}
+
+.login-page .skip-link {
+  background: var(--l-navy);
+}
 
 /* Lock scroll on every device — login is a single-screen experience */
 html:has(.login-page) {
@@ -9,7 +38,7 @@ html:has(.login-page) {
 }
 
 .login-page {
-  background: #f8f7f4;
+  background: var(--l-field);
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
@@ -19,12 +48,18 @@ html:has(.login-page) {
   padding: var(--space-8);
   overflow: hidden;
   overscroll-behavior: none;
+  font-family: var(--l-disp);
 }
 
 /* ---- Fade-in animation ------------------------------------ */
 @keyframes cardFadeIn {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card { animation: none; }
+  .check-circle, .check-mark { animation: none; stroke-dashoffset: 0; }
 }
 
 /* ---- Login Card ------------------------------------------- */
@@ -36,27 +71,29 @@ html:has(.login-page) {
 }
 
 .login-card {
-  background: #FFD400;
-  border-radius: var(--radius-xl);
-  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--l-card);
+  border-radius: 22px;
+  box-shadow: 0 24px 54px rgba(35, 44, 84, 0.10);
   width: 100%;
   max-width: 440px;
   padding: var(--space-12);
   position: relative;
   overflow: hidden;
-  animation: cardFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: cardFadeIn 0.55s cubic-bezier(.2, .9, .2, 1) both;
 }
 
 /* ---- Text ------------------------------------------------- */
 .login-heading {
+  font-family: var(--l-disp);
   font-size: var(--text-2xl);
-  font-weight: var(--font-weight-bold);
-  color: #000;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--l-navy);
 }
 
 .login-sub {
   font-size: var(--text-sm);
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--l-stone);
   line-height: 1.65;
   max-width: 30ch;
 }
@@ -84,32 +121,94 @@ html:has(.login-page) {
   margin-bottom: var(--space-2);
 }
 
+.login-logo-word {
+  font-family: var(--l-disp);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--l-navy);
+}
+
+.login-microlabel {
+  font-family: var(--l-disp);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--l-stone);
+}
+
 .login-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  margin-top: var(--space-2);
+  margin-top: var(--space-6);
   text-align: left;
 }
 
 .login-submit {
   width: 100%;
   padding: 0.875rem;
-  font-size: var(--text-base);
-  border-radius: var(--radius-md);
+  font-family: var(--l-disp);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
   margin-top: var(--space-2);
+  background: var(--l-navy);
+  color: var(--l-card);
+  border: 1.5px solid var(--l-navy);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.login-submit:hover {
+  background: var(--l-navy-deep);
+  border-color: var(--l-navy-deep);
+  transform: translateY(-1px);
 }
 
 .login-back {
   font-size: var(--text-sm);
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--l-stone);
   margin-top: var(--space-2);
   transition: color var(--transition-fast);
 }
 
 .login-back:hover {
-  color: #000;
+  color: var(--l-navy);
+}
+
+/* ---- Form fields — underline style matching the homepage ---- */
+.login-card .form-label {
+  font-family: var(--l-disp);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--l-stone);
+}
+
+.login-card .form-input {
+  border: 0;
+  border-bottom: 1.5px solid var(--l-hair);
+  border-radius: 0;
+  padding: 6px 2px 10px;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--l-navy);
+  background: transparent;
+}
+
+.login-card .form-input:focus {
+  border-color: var(--l-navy);
+  box-shadow: none;
+}
+
+.login-card .form-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--l-card) inset;
+  -webkit-text-fill-color: var(--l-navy);
+  transition: background-color 9999s ease-out;
 }
 
 /* ---- Multi-state ------------------------------------------ */
@@ -118,7 +217,7 @@ html:has(.login-page) {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--space-4);
+  gap: var(--space-2);
 }
 
 /* ---- Success State ---------------------------------------- */
@@ -140,12 +239,14 @@ html:has(.login-page) {
 }
 
 .check-circle {
+  stroke: var(--l-navy);
   stroke-dasharray: 201;
   stroke-dashoffset: 201;
   animation: draw-circle 0.6s ease forwards;
 }
 
 .check-mark {
+  stroke: var(--l-navy);
   stroke-dasharray: 60;
   stroke-dashoffset: 60;
   animation: draw-check 0.4s ease 0.5s forwards;
@@ -169,20 +270,25 @@ html:has(.login-page) {
   justify-content: center;
   margin-bottom: var(--space-2);
 }
-.login-badge--green { background: rgba(0, 0, 0, 0.1); color: #000; }
-.login-badge--blue  { background: rgba(0, 0, 0, 0.1); color: #000; }
+.login-badge--green { background: rgba(35, 44, 84, 0.1); color: var(--l-navy); }
+.login-badge--blue  { background: rgba(35, 44, 84, 0.1); color: var(--l-navy); }
 
 /* ---- Error block ------------------------------------------ */
 .login-error-block {
   width: 100%;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: #f7e6e2;
+  border: 1px solid #d9a89c;
   border-radius: 10px;
   padding: 10px 14px;
+  font-family: var(--l-disp);
   font-size: 13px;
-  color: #dc2626;
+  color: #a13d2b;
   line-height: 1.55;
   text-align: left;
+}
+
+.login-error-tone {
+  color: #a13d2b;
 }
 
 /* ---- Password toggle -------------------------------------- */
@@ -200,27 +306,28 @@ html:has(.login-page) {
   background: none;
   border: none;
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(35, 44, 84, 0.4);
   padding: 4px;
   display: flex;
   align-items: center;
   transition: color var(--transition-fast);
 }
-.pw-toggle:hover { color: #000; }
+.pw-toggle:hover { color: var(--l-navy); }
 
 /* ---- Misc ------------------------------------------------- */
 .login-hint {
   font-size: var(--text-xs);
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--l-stone);
 }
 
 .login-resend {
+  font-family: var(--l-disp);
   font-size: var(--text-sm);
-  color: #000;
-  font-weight: var(--font-weight-medium);
+  color: var(--l-navy);
+  font-weight: 500;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-full);
-  border: 1.5px solid #000;
+  border: 1.5px solid var(--l-navy);
   background: transparent;
   margin-top: var(--space-4);
   transition:
@@ -229,8 +336,8 @@ html:has(.login-page) {
 }
 
 .login-resend:hover {
-  background: #000;
-  color: #fff;
+  background: var(--l-navy);
+  color: var(--l-card);
 }
 
 .cf-turnstile {
