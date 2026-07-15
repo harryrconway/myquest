@@ -163,6 +163,37 @@
       .policy-card { padding: 24px 20px; }
       .page-title { font-size: 26px; }
     }
+
+    @media (max-width: 740px) {
+      body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+
+      .m-actions {
+        display: flex;
+        position: fixed;
+        left: 14px; right: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        z-index: 60;
+        background: #232c54f7;
+        border-radius: 999px;
+        gap: 8px;
+        padding: 8px;
+        box-shadow: 0 16px 38px #1a214059;
+        transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s;
+      }
+      .m-actions a {
+        text-align: center;
+        font-family: var(--font);
+        letter-spacing: .05em;
+        border-radius: 999px;
+        flex: 1;
+        padding: 14px 10px;
+        font-size: 13.5px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      .m-actions .call { color: var(--card); border: 1.5px solid #f3efe473; }
+      .m-actions .quote { background: var(--card); color: var(--navy); }
+    }
   </style>
 </head>
 <body>
@@ -276,6 +307,11 @@
       <div class="contact-note">To report a concern, contact us at <a href="tel:+61413154932">0413 154 932</a> or <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>.</div>
     </div>
 
+  </div>
+
+  <div aria-label="Quick actions" class="m-actions">
+    <a class="call" href="tel:+61413154932">Call</a>
+    <a class="quote" href="/#enquire">Get a quote</a>
   </div>
 </body>
 </html>
