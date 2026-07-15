@@ -8,64 +8,194 @@
   <meta name="description" content="MyQuest Cleaning Services policies — lockout, cancellation, payment, privacy, terms and damage.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --field:  #e7e2d5;
+      --card:   #f3efe4;
+      --navy:   #232c54;
+      --stone:  #9b968a;
+      --hair:   #232c5420;
+      --yellow: #FFD400;
+      --r:      22px;
+      --font:   'Outfit', system-ui, sans-serif;
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: #f8fafc; color: #475569;
-      min-height: 100vh; padding: 40px 16px 80px;
+      font-family: var(--font);
+      background: var(--field);
+      color: var(--navy);
+      min-height: 100vh;
+      padding: 0 0 80px;
+      -webkit-font-smoothing: antialiased;
     }
-    .wrap { max-width: 680px; margin: 0 auto; }
+
+    /* ---- Top bar ---- */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px clamp(20px, 5vw, 56px);
+      border-bottom: 1px solid var(--hair);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
     .back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 13px; font-weight: 600; color: #16a34a;
-      text-decoration: none; margin-bottom: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--stone);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: color 0.2s;
     }
-    .back-link:hover { text-decoration: underline; }
-    .card {
-      background: #fff; border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      padding: 40px 44px;
+    .back-link:hover { color: var(--navy); }
+
+    /* ---- Page layout ---- */
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px clamp(16px, 4vw, 32px) 0;
     }
-    h1 { font-size: 26px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
-    .subtitle { font-size: 15px; color: #64748b; font-weight: 500; margin-bottom: 6px; }
-    .updated { font-size: 13px; color: #94a3b8; margin-bottom: 32px; }
-    hr { border: none; border-top: 1px solid #f1f5f9; margin: 28px 0; }
-    h2 { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
-    h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 18px 0 6px; }
-    p { font-size: 14.5px; line-height: 1.7; color: #475569; margin-bottom: 10px; }
-    ul { padding-left: 20px; margin-bottom: 10px; }
-    ul li { font-size: 14.5px; line-height: 1.7; color: #475569; margin-bottom: 4px; }
-    a { color: #16a34a; }
+
+    .page-title {
+      font-size: clamp(28px, 5vw, 38px);
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+    .page-sub {
+      font-size: 16px;
+      color: var(--stone);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .page-date {
+      font-size: 13px;
+      color: var(--stone);
+      opacity: 0.7;
+      margin-bottom: 40px;
+    }
+
+    /* ---- Policy card ---- */
+    .policy-card {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 32px 36px;
+      margin-bottom: 16px;
+    }
+
+    .policy-card h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .policy-card h2::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 20px;
+      background: var(--yellow);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .policy-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 18px 0 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .policy-card p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #4a5070;
+      margin-bottom: 10px;
+    }
+
+    .policy-card ul {
+      padding-left: 20px;
+      margin-bottom: 10px;
+    }
+    .policy-card ul li {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #4a5070;
+      margin-bottom: 5px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--hair);
+      margin: 20px 0;
+    }
+
+    a { color: var(--navy); font-weight: 600; }
+    a:hover { opacity: 0.7; }
+
     .contact-note {
-      margin-top: 14px; padding: 12px 16px;
-      background: #f8fafc; border-radius: 10px;
-      font-size: 13.5px; color: #64748b; line-height: 1.6;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--field);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--stone);
+      line-height: 1.6;
     }
+
     @media (max-width: 600px) {
-      .card { padding: 28px 22px; }
-      h1 { font-size: 22px; }
+      .policy-card { padding: 24px 20px; }
+      .page-title { font-size: 26px; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <a class="back-link" href="/">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to MyQuest
+
+  <div class="top-bar">
+    <a href="/" class="logo">
+      <img src="/myquest-logo-512.png" alt="MyQuest">
+      MyQuest
     </a>
-    <div class="card">
-      <h1>Our Policies</h1>
-      <p class="subtitle">Transparency and trust are at the heart of everything we do.</p>
-      <p class="updated">Last updated: June 2026</p>
+    <a href="/" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to site
+    </a>
+  </div>
 
-      <p>Please review the following policies before engaging MyQuest Cleaning Services. These terms help ensure a smooth and professional experience for both our clients and our team.</p>
+  <div class="wrap">
+    <h1 class="page-title">Our Policies</h1>
+    <p class="page-sub">Transparency and trust are at the heart of everything we do.</p>
+    <p class="page-date">Last updated: June 2026</p>
 
-      <hr>
-
+    <!-- Lockout -->
+    <div class="policy-card">
       <h2>Lockout Policy</h2>
-      <p>We value your time and ask that you respect ours. To ensure your scheduled clean proceeds without disruption, please ensure one of the following arrangements is in place prior to our arrival:</p>
+      <p>We value your time and ask that you respect ours. To ensure your scheduled clean proceeds without disruption, please ensure one of the following is arranged prior to our arrival:</p>
       <ul>
         <li>Leave keys or an access card in an agreed-upon location</li>
         <li>Arrange for a site representative to be present to provide entry</li>
@@ -74,14 +204,15 @@
       <p>An SMS reminder will be sent to you 24 hours before your scheduled appointment.</p>
 
       <h3>If our team cannot access the premises</h3>
-      <p>We will attempt to contact you within 15 minutes of arrival. If we are unable to reach you and access cannot be arranged, a full lockout fee will apply.</p>
+      <p>We will attempt to contact you within 15 minutes of arrival. If we are unable to reach you, a full lockout fee will apply.</p>
       <ul>
         <li><strong>Entry arranged within 30 minutes:</strong> A $25 fee will apply to compensate our team for lost time.</li>
         <li><strong>Full lockout fee:</strong> 75% of the scheduled service cost, up to a maximum of $150. This covers travel time, lost income, and scheduling disruption.</li>
       </ul>
+    </div>
 
-      <hr>
-
+    <!-- Late Cancellation -->
+    <div class="policy-card">
       <h2>Late Cancellation Policy</h2>
       <p>We require a minimum of <strong>24 hours' notice</strong> for all cancellations or reschedules.</p>
       <ul>
@@ -89,9 +220,10 @@
       </ul>
       <p>We understand that unexpected situations arise. Genuine emergencies will be assessed on a case-by-case basis. However, repeated late cancellations may result in termination of ongoing services.</p>
       <div class="contact-note">To cancel or reschedule, please contact us as early as possible by phone on <a href="tel:+61413154932">0413 154 932</a> or email <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>.</div>
+    </div>
 
-      <hr>
-
+    <!-- Payment -->
+    <div class="policy-card">
       <h2>Payment Policy</h2>
 
       <h3>One-off and initial cleans</h3>
@@ -114,16 +246,18 @@
 
       <h3>Late payments</h3>
       <p>An interest-based late fee of <strong>10% of the outstanding balance per month</strong> will apply to overdue invoices. Please ensure timely payment to avoid additional charges.</p>
+    </div>
 
-      <hr>
-
+    <!-- Privacy -->
+    <div class="policy-card">
       <h2>Privacy Policy</h2>
       <p>MyQuest Cleaning Services (ABN 65 693 175 405) is committed to protecting your personal information in accordance with the Australian Privacy Principles under the <em>Privacy Act 1988</em> (Cth).</p>
       <p>We collect your name, contact details, site address, and service preferences solely for the purpose of scheduling and delivering your cleaning services. We do not sell, rent, or share your information with third parties except as required to deliver our services or comply with legal obligations.</p>
-      <p>For full details, see our <a href="/privacy.html">Privacy Policy</a>.</p>
+      <p>For full details, see our <a href="/privacy.html">full Privacy Policy</a>.</p>
+    </div>
 
-      <hr>
-
+    <!-- Terms -->
+    <div class="policy-card">
       <h2>Terms of Service</h2>
       <p>By engaging MyQuest Cleaning Services, you agree to the following terms:</p>
 
@@ -138,9 +272,10 @@
 
       <h3>Right to refuse service</h3>
       <p>We reserve the right to decline or discontinue service in cases of unsafe working conditions, harassment of our staff, or repeated policy violations.</p>
+    </div>
 
-      <hr>
-
+    <!-- Damage -->
+    <div class="policy-card">
       <h2>Damage Policy</h2>
       <p>We take great care in every premises we clean. If something does go wrong, here is how we handle it:</p>
 
@@ -151,8 +286,8 @@
       <p>Our team will assess all damage claims promptly. Legitimate claims for damage caused by negligence will be resolved through our insurance coverage. Standard wear and tear is not covered.</p>
 
       <div class="contact-note">To report a concern, contact us at <a href="tel:+61413154932">0413 154 932</a> or <a href="mailto:cleaning@myquest.au">cleaning@myquest.au</a>.</div>
-
     </div>
+
   </div>
 </body>
 </html>
