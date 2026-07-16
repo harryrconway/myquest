@@ -1,39 +1,8 @@
-/docs/*
-  X-Robots-Tag: noindex, nofollow
-  Cache-Control: no-store, no-cache, must-revalidate
-
-/*.html
-  Cache-Control: no-store, no-cache, must-revalidate
-  CDN-Cache-Control: no-store
-  Pragma: no-cache
-
-/dashboard/*.html
-  Cache-Control: no-store, no-cache, must-revalidate
-  CDN-Cache-Control: no-store
-  Pragma: no-cache
-
-/*.js
-  Cache-Control: public, max-age=31536000, immutable
-  Content-Type: application/javascript; charset=utf-8
-
-/*.css
-  Cache-Control: public, max-age=31536000, immutable
-
-/js/*.js
-  Cache-Control: public, max-age=31536000, immutable
-  Content-Type: application/javascript; charset=utf-8
-
-/dashboard/js/*.js
-  Cache-Control: public, max-age=31536000, immutable
-  Content-Type: application/javascript; charset=utf-8
-
-/dashboard/css/*.css
-  Cache-Control: public, max-age=31536000, immutable
-
-/fonts/*
-  Cache-Control: public, max-age=31536000, immutable
-
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+/*.html
+  Cache-Control: no-store, no-cache, must-revalidate
+  CDN-Cache-Control: no-store
