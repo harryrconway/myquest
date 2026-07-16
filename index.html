@@ -144,7 +144,6 @@ var QC={
   kitchenMins:25,
   extras:{floor_polish:0.14,carpet:0.07,windows:85,rubbish:25},
   freqDisc:{once:1.0,monthly:0.93,fortnightly:0.88,weekly:0.83},
-  sqmRate:0.18
 };
 
 var SPACE_LABELS=['Office / Corporate','Retail / Showroom','Medical / Allied Health','Industrial / Warehouse'];
@@ -166,7 +165,6 @@ function calc(){
   var kHrs=s.kitchen?QC.kitchenMins/60:0;
   var total=hrs+bHrs+kHrs;
   var labour=total*QC.rate;
-  var areaCost=sqm*QC.sqmRate;
   var bathCost=bHrs*QC.rate;
   var kitCost=kHrs*QC.rate;
   var ext=0;
@@ -174,7 +172,7 @@ function calc(){
   if(s.extras.carpet)ext+=sqm*QC.extras.carpet;
   if(s.extras.windows)ext+=QC.extras.windows;
   if(s.extras.rubbish)ext+=QC.extras.rubbish;
-  var sub=labour+areaCost+ext;
+  var sub=labour+ext;
   var disc=QC.freqDisc[s.freq];
   var per=sub*disc;
   var saving=disc<1?sub*(1-disc):0;
@@ -182,7 +180,7 @@ function calc(){
   return{
     per:per,lo:r5(per*.9),hi:r5(per*1.1),
     monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,
-    hrs:total,labour:labour,areaCost:areaCost,ext:ext,saving:saving
+    hrs:total,labour:labour,ext:ext,saving:saving
   };
 }
 function r5(n){return Math.round(n/5)*5;}
@@ -289,7 +287,6 @@ function renderResult(){
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
   var rows='';
   rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
-  if(QC.sqmRate>0)rows+=brow('Area rate ('+s.sqm+' sqm × $'+QC.sqmRate+')',au(r.areaCost));
   if(r.ext>0)rows+=brow('Extras',au(r.ext));
   if(r.saving>0)rows+=brow('Frequency saving','−'+au(r.saving));
   rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
