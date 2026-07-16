@@ -185,35 +185,30 @@
 
     var notes = val('qm-notes');
 
-    fetch('/api/submit-quote', {
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        full_name:               name.trim(),
-        phone:                   phone.trim(),
-        email:                   email.trim(),
-        suburb:                  suburb.trim(),
-        services:                selectedService ? [selectedService] : [],
-        notes:                   notes.trim() || null,
+        access_key: '416f2740-50af-444b-a8ef-bd95471150cb',
+        subject:    'New Quote Request — MyQuest',
+        from_name:  'MyQuest Website',
+        name:       name.trim(),
+        email:      email.trim(),
+        phone:      phone.trim(),
+        suburb:     suburb.trim(),
+        service:    selectedService || 'Not specified',
+        message:    notes.trim() || '',
       }),
     })
-    .then(function (res) {
-      return res.json()
-        .catch(function () { return { error: 'Server returned an invalid response.' }; })
-        .then(function (data) {
-          data._httpOk = res.ok;
-          data._status = res.status;
-          return data;
-        });
-    })
+    .then(function (res) { return res.json(); })
     .then(function (data) {
       submitting = false;
-      if (data._httpOk && data.success) {
+      if (data.success) {
         formDirty = false;
         renderSuccess(email.trim());
       } else {
         resetSubmitBtn(btn);
-        showError(data.error || 'Something went wrong. Please try again.');
+        showError(data.message || 'Something went wrong. Please try again.');
       }
     })
     .catch(function () {

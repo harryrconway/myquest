@@ -1,3 +1,0 @@
-ALTER TABLE quote_requests
-  ADD COLUMN IF NOT EXISTS hours       NUMERIC(6,2),
-  ADD COLUMN IF NOT EXISTS hourly_rate NUMERIC(8,2);

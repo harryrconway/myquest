@@ -1,6 +1,0 @@
-name = "myquest-reminder-cron"
-main = "src/index.js"
-compatibility_date = "2026-06-11"
-
-[triggers]
-crons = ["0 21 * * *", "*/30 * * * *"]
