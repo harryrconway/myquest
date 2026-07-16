@@ -112,6 +112,13 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
 .qc-restart:hover{color:rgba(243,239,228,.7)}
 .qc-fields-wrap{display:flex;flex-direction:column;gap:24px}
 .qc-print{display:none}
+.qc-sqm-wrap{margin:4px 0}
+.qc-sqm-row{display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:20px}
+.qc-sqm-field{display:flex;align-items:baseline;gap:8px}
+#qc-sqm-v{width:110px;text-align:center;font-size:38px;font-weight:700;background:transparent;border:none;border-bottom:2px solid rgba(243,239,228,.25);color:#f3efe4;padding:4px 0;outline:none;-moz-appearance:textfield;font-family:inherit}
+#qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
+#qc-sqm-v:focus{border-bottom-color:rgba(243,239,228,.7)}
+.qc-sqm-u{font-size:15px;font-weight:500;color:rgba(243,239,228,.5)}
 @media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
 </style>
 
@@ -137,30 +144,29 @@ var QC={
   kitchenMins:25,
   extras:{floor_polish:0.14,carpet:0.07,windows:85,rubbish:25},
   freqDisc:{once:1.0,monthly:0.93,fortnightly:0.88,weekly:0.83},
-  sqmMid:{lt100:70,s100:175,s250:375,s500:750,lg1000:1200}
+  sqmRate:0.18
 };
 
 var SPACE_LABELS=['Office / Corporate','Retail / Showroom','Medical / Allied Health','Industrial / Warehouse'];
 var SPACE_KEYS=['office','retail','medical','industrial'];
-var SQM_LABELS=['< 100 sqm','100 – 250 sqm','250 – 500 sqm','500 – 1,000 sqm','1,000+ sqm'];
-var SQM_KEYS=['lt100','s100','s250','s500','lg1000'];
 var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
 var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
 var EXTRA_LABELS=['Hard floor polish','Carpet vacuum','Window clean','Rubbish removal'];
 var EXTRA_KEYS=['floor_polish','carpet','windows','rubbish'];
 
-var s={step:1,space:null,sqm:null,baths:2,kitchen:null,freq:null,type:null,extras:{}};
+var s={step:1,space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{}};
 
-function resetState(){s={step:1,space:null,sqm:null,baths:2,kitchen:null,freq:null,type:null,extras:{}};}
+function resetState(){s={step:1,space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{}};}
 
 /* ── Calculate ── */
 function calc(){
-  var sqm=QC.sqmMid[s.sqm];
+  var sqm=s.sqm;
   var hrs=(sqm/QC.sqmHr[s.type])*QC.spaceMult[s.space];
   var bHrs=(s.baths*QC.bathMins)/60;
   var kHrs=s.kitchen?QC.kitchenMins/60:0;
   var total=hrs+bHrs+kHrs;
   var labour=total*QC.rate;
+  var areaCost=sqm*QC.sqmRate;
   var bathCost=bHrs*QC.rate;
   var kitCost=kHrs*QC.rate;
   var ext=0;
@@ -168,7 +174,7 @@ function calc(){
   if(s.extras.carpet)ext+=sqm*QC.extras.carpet;
   if(s.extras.windows)ext+=QC.extras.windows;
   if(s.extras.rubbish)ext+=QC.extras.rubbish;
-  var sub=labour+ext;
+  var sub=labour+areaCost+ext;
   var disc=QC.freqDisc[s.freq];
   var per=sub*disc;
   var saving=disc<1?sub*(1-disc):0;
@@ -176,7 +182,7 @@ function calc(){
   return{
     per:per,lo:r5(per*.9),hi:r5(per*1.1),
     monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,
-    hrs:total,labour:labour,bathCost:bathCost,kitCost:kitCost,ext:ext,saving:saving
+    hrs:total,labour:labour,areaCost:areaCost,ext:ext,saving:saving
   };
 }
 function r5(n){return Math.round(n/5)*5;}
@@ -208,9 +214,18 @@ function render(){
       false,!!s.space,'Continue →');
 
   }else if(s.step===2){
-    h=frame(2,'Approximate floor area to clean?',
-      '<div class="qc-pills">'+SQM_KEYS.map(function(k,i){return pill(SQM_LABELS[i],k,s.sqm===k);}).join('')+'</div>',
-      true,!!s.sqm,'Continue →');
+    h=frame(2,'Floor area to clean?',
+      '<div class="qc-sqm-wrap">'+
+      '<div class="qc-sqm-row">'+
+      '<button type="button" class="qc-sbtn" id="qc-sqm-m">&#8722;</button>'+
+      '<div class="qc-sqm-field"><input type="number" id="qc-sqm-v" min="1" max="9999" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="0"><span class="qc-sqm-u">sqm</span></div>'+
+      '<button type="button" class="qc-sbtn" id="qc-sqm-p">+</button>'+
+      '</div>'+
+      '<div class="qc-pills" style="margin-top:20px">'+
+      [50,100,200,500,1000].map(function(v){return '<button type="button" class="qc-pill'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';}).join('')+
+      '</div>'+
+      '</div>',
+      true,s.sqm>0,'Continue →');
 
   }else if(s.step===3){
     h=frame(3,'Bathrooms and kitchen?',
@@ -269,11 +284,12 @@ function frame(num,question,body,showBack,valid,nextLabel){
 function renderResult(){
   var r=calc();
   var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space];
-  var qLab=SQM_LABELS[SQM_KEYS.indexOf(s.sqm)];
+  var qLab=s.sqm+' sqm';
   var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)];
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
   var rows='';
   rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
+  if(QC.sqmRate>0)rows+=brow('Area rate ('+s.sqm+' sqm × $'+QC.sqmRate+')',au(r.areaCost));
   if(r.ext>0)rows+=brow('Extras',au(r.ext));
   if(r.saving>0)rows+=brow('Frequency saving','−'+au(r.saving));
   rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
@@ -330,7 +346,6 @@ function bind(){
     btn.addEventListener('click',function(){
       var key=this.dataset.key,grp=this.dataset.grp||'';
       if(s.step===1)s.space=key;
-      else if(s.step===2)s.sqm=key;
       else if(s.step===3&&grp==='kit')s.kitchen=(key==='yes');
       else if(s.step===4&&grp==='freq')s.freq=key;
       else if(s.step===4&&grp==='type')s.type=key;
@@ -343,6 +358,31 @@ function bind(){
   var p=document.getElementById('qc-plus');
   if(m)m.addEventListener('click',function(){if(s.baths>0){s.baths--;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;}});
   if(p)p.addEventListener('click',function(){if(s.baths<8){s.baths++;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;}});
+  /* sqm stepper */
+  var sqmM=document.getElementById('qc-sqm-m');
+  var sqmP=document.getElementById('qc-sqm-p');
+  var sqmV=document.getElementById('qc-sqm-v');
+  if(sqmM)sqmM.addEventListener('click',function(){
+    var v=Math.max(1,(s.sqm||100)-50);
+    s.sqm=v;if(sqmV)sqmV.value=v;
+    var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=false;
+  });
+  if(sqmP)sqmP.addEventListener('click',function(){
+    var v=(s.sqm||0)+50;
+    s.sqm=v;if(sqmV)sqmV.value=v;
+    var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=false;
+  });
+  if(sqmV)sqmV.addEventListener('input',function(){
+    var v=parseInt(this.value,10);
+    s.sqm=(isNaN(v)||v<1)?0:v;
+    var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=!(s.sqm>0);
+  });
+  document.querySelectorAll('#qc-wrap .qc-sqm-wrap .qc-pill').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      s.sqm=parseInt(this.dataset.sqm,10);
+      render();
+    });
+  });
   /* nav */
   var nx=document.getElementById('qc-next');
   if(nx)nx.addEventListener('click',function(){if(!this.disabled){s.step++;render();document.querySelector('.qc-card').scrollTop=0;}});
