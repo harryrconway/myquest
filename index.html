@@ -418,7 +418,6 @@ function bind(){
     w.document.close();
     w.focus();
     setTimeout(function(){w.print();},400);
-  })
   });
   var rs=document.getElementById('qc-restart');
   if(rs)rs.addEventListener('click',function(){resetState();render();});
