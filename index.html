@@ -75,7 +75,7 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
 #qc-overlay.qc--open{opacity:1}
 #qc-overlay[hidden]{display:none!important}
 .qc-card{background:#141c38;width:100%;max-width:420px;height:100dvh;overflow-y:auto;padding:56px 28px 40px;position:relative;display:flex;flex-direction:column}
-@media(min-width:500px){.qc-card{height:auto;max-height:calc(100vh - 48px);border-radius:26px}}
+@media(min-width:500px){.qc-card{border-radius:26px}}
 .qc-close{position:absolute;top:20px;right:20px;background:none;border:none;color:rgba(243,239,228,.3);font-size:24px;cursor:pointer;line-height:1;padding:6px 10px;transition:color .2s;font-family:inherit}
 .qc-close:hover{color:#f3efe4}
 .qc-dots{display:flex;gap:7px;justify-content:center;margin-bottom:48px}
@@ -274,8 +274,6 @@ function renderResult(){
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
   var rows='';
   rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
-  if(s.baths>0)rows+=brow('Bathrooms ('+s.baths+')',au(r.bathCost));
-  if(s.kitchen)rows+=brow('Kitchen / breakroom',au(r.kitCost));
   if(r.ext>0)rows+=brow('Extras',au(r.ext));
   if(r.saving>0)rows+=brow('Frequency saving','−'+au(r.saving));
   rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
