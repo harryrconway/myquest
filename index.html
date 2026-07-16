@@ -145,7 +145,8 @@ var QC={
   extras:{floor_polish:0.14,carpet:0.07,windows:85,rubbish:25},
   freqDisc:{once:1.0,monthly:1.0,fortnightly:1.0,weekly:1.0},
   suppliesCost:12,
-  bufferPct:0.15
+  bufferPct:0.15,
+  minHrsDeep:5
 };
 
 var SPACE_LABELS=['Office / Corporate','Retail / Showroom','Medical / Allied Health','Industrial / Warehouse'];
@@ -166,6 +167,7 @@ function calc(){
   var bHrs=(s.baths*QC.bathMins)/60;
   var kHrs=s.kitchen?QC.kitchenMins/60:0;
   var total=Math.ceil((hrs+bHrs+kHrs)*2)/2;
+  if(s.freq==='once'&&s.type==='deep')total=Math.max(total,QC.minHrsDeep);
   var labour=total*QC.rate;
   var bathCost=bHrs*QC.rate;
   var kitCost=kHrs*QC.rate;
