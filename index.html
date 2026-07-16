@@ -142,7 +142,7 @@ var QC={
   spaceMult:{office:1.0,retail:1.0,medical:1.5,industrial:1.0},
   bathMins:22,
   kitchenMins:25,
-  extras:{floor_polish:0.55,carpet:0.25,windows:85,rubbish:25},
+  extras:{floor_polish:0.55,carpet:0.25,rubbish:25},
   freqDisc:{once:1.0,monthly:1.0,fortnightly:1.0,weekly:1.0},
   suppliesCost:15,
   bufferPct:0.15,
@@ -153,8 +153,8 @@ var SPACE_LABELS=['Office / Corporate','Retail / Showroom','Medical / Allied Hea
 var SPACE_KEYS=['office','retail','medical','industrial'];
 var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
 var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
-var EXTRA_LABELS=['Hard floor polish','Carpet vacuum','Window clean','Rubbish removal'];
-var EXTRA_KEYS=['floor_polish','carpet','windows','rubbish'];
+var EXTRA_LABELS=['Hard floor polish','Carpet vacuum','Rubbish removal'];
+var EXTRA_KEYS=['floor_polish','carpet','rubbish'];
 
 var s={step:1,space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false};
 
@@ -175,7 +175,6 @@ function calc(){
   var ext=0;
   if(s.extras.floor_polish)ext+=sqm*QC.extras.floor_polish;
   if(s.extras.carpet)ext+=sqm*QC.extras.carpet;
-  if(s.extras.windows)ext+=QC.extras.windows;
   if(s.extras.rubbish)ext+=QC.extras.rubbish;
   var sub=labour+sup+ext;
   var disc=QC.freqDisc[s.freq];
