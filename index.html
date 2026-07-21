@@ -144,8 +144,10 @@ var QC={
   kitchenMins:25,
   extras:{floor_polish:0.55,carpet:0.25,rubbish:25},
   freqDisc:{once:1.0,monthly:1.0,fortnightly:1.0,weekly:1.0},
-  suppliesCost:15,
+  suppliesCost:20,
   bufferPct:0.15,
+  minHrsMaint:2,
+  minHrsDeepRecurring:3,
   minHrsDeep:5
 };
 
@@ -167,7 +169,9 @@ function calc(){
   var bHrs=(s.baths*QC.bathMins)/60;
   var kHrs=s.kitchen?QC.kitchenMins/60:0;
   var total=Math.ceil((hrs+bHrs+kHrs)*2)/2;
-  if(s.freq==='once'&&s.type==='deep')total=Math.max(total,QC.minHrsDeep);
+  if(s.type==='maintenance')total=Math.max(total,QC.minHrsMaint);
+  else if(s.freq==='once')total=Math.max(total,QC.minHrsDeep);
+  else total=Math.max(total,QC.minHrsDeepRecurring);
   var labour=total*QC.rate;
   var bathCost=bHrs*QC.rate;
   var kitCost=kHrs*QC.rate;
