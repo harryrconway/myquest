@@ -430,8 +430,7 @@ function bind(){
       +'table{width:100%;border-collapse:collapse}'
       +'@page{margin:15mm 18mm;size:A4}'
       +'@media print{body{padding:0}}'
-      +'</style></head><body>'+el.innerHTML+'<script>(function(){var f=document.getElementById('hero-form');if(!f)return;var d=f.nextElementSibling;f.addEventListener('submit',function(e){e.preventDefault();fetch('https://api.web3forms.com/submit',{method:'POST',body:new FormData(f)}).then(function(r){return r.json();}).then(function(j){if(j.success){f.style.display='none';d.style.display='block';}}).catch(function(){});});})();</script>
-</body></html>';
+      +'</style></head><body>'+el.innerHTML+'</body></html>';
     var w=window.open('','_blank');
     if(!w)return;
     w.document.open();
@@ -472,4 +471,5 @@ document.addEventListener('DOMContentLoaded',function(){
 
 })();
 </script>
+<script>(function(){var f=document.getElementById('hero-form');if(!f)return;var d=f.nextElementSibling;f.addEventListener('submit',function(e){e.preventDefault();fetch('https://api.web3forms.com/submit',{method:'POST',body:new FormData(f)}).then(function(r){return r.json();}).then(function(j){if(j.success){f.style.display='none';d.style.display='block';}}).catch(function(){});});})();</script>
 </body></html>
