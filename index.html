@@ -74,13 +74,13 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
 #qc-overlay{position:fixed;inset:0;z-index:200;background:rgba(8,12,28,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;padding:24px}
 #qc-overlay.qc--open{opacity:1}
 #qc-overlay[hidden]{display:none!important}
-.qc-card{background:#141c38;width:100%;max-width:420px;height:calc(100dvh - 48px);max-height:640px;overflow-y:auto;scrollbar-gutter:stable;padding:56px 28px 40px;position:relative;display:flex;flex-direction:column;border-radius:26px}
+.qc-card{background:#141c38;width:100%;max-width:420px;height:calc(100dvh - 48px);max-height:640px;overflow:hidden;padding:56px 28px 40px;position:relative;display:flex;flex-direction:column;border-radius:26px}
 .qc-close{position:absolute;top:20px;right:20px;background:none;border:none;color:rgba(243,239,228,.3);font-size:24px;cursor:pointer;line-height:1;padding:6px 10px;transition:color .2s;font-family:inherit}
 .qc-close:hover{color:#f3efe4}
 .qc-dots{display:flex;gap:7px;justify-content:center;margin-bottom:48px}
 .qc-dot{width:6px;height:6px;border-radius:50%;background:rgba(243,239,228,.15);transition:background .35s}
 .qc-dot.active{background:#f3efe4}
-@keyframes qc-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes qc-in{from{opacity:0}to{opacity:1}}
 .qc-step{animation:qc-in .32s cubic-bezier(.2,.8,.2,1);flex:1;display:flex;flex-direction:column}
 .qc-eyebrow{color:rgba(243,239,228,.35);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;font-weight:500}
 .qc-question{color:#f3efe4;font-size:22px;font-weight:600;line-height:1.25;margin-bottom:32px;letter-spacing:-.015em}
@@ -93,7 +93,7 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
 .qc-sbtn{background:none;border:none;color:#f3efe4;width:48px;height:48px;font-size:22px;cursor:pointer;transition:background .18s;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .qc-sbtn:hover{background:rgba(243,239,228,.08)}.qc-stepper .qc-sbtn:first-child{border-radius:999px 0 0 999px}.qc-stepper .qc-sbtn:last-child{border-radius:0 999px 999px 0}
 .qc-snum{color:#f3efe4;font-size:18px;font-weight:600;min-width:46px;text-align:center}
-.qc-nav{margin-top:auto;padding-top:28px;padding-bottom:4px;display:flex;align-items:center;gap:12px;position:sticky;bottom:0;background:#141c38}
+.qc-nav{padding-top:20px;padding-bottom:8px;display:flex;align-items:center;gap:12px;flex-shrink:0;background:#141c38}#qc-wrap{flex:1;overflow-y:auto;scrollbar-gutter:stable;}.qc-card button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .qc-next{flex:1;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:16px 20px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .18s;font-family:inherit;letter-spacing:-.01em}
 .qc-next:disabled{opacity:.25;cursor:default}
 .qc-backbtn{background:none;border:none;color:rgba(243,239,228,.4);font-size:14px;cursor:pointer;padding:4px 10px;transition:color .2s;font-family:inherit;white-space:nowrap}
@@ -127,6 +127,10 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
     <button id="qc-close" class="qc-close" aria-label="Close">&#215;</button>
     <div id="qc-dots" class="qc-dots"></div>
     <div id="qc-wrap"></div>
+    <div class="qc-nav">
+      <button type="button" class="qc-backbtn" id="qc-back" style="display:none">&#8592; Back</button>
+      <button type="button" class="qc-next" id="qc-next" disabled>Continue &#8594;</button>
+    </div>
   </div>
 </div>
 <div id="qc-print" class="qc-print"></div>
@@ -215,13 +219,15 @@ function render(){
   var w=document.getElementById('qc-wrap');
   if(!w)return;
   var h='';
+  var _back=false,_valid=false,_label='Continue →';
 
   if(s.step===1){
+    _valid=!!s.space;
     h=frame(1,'What kind of premises?',
-      '<div class="qc-pills">'+SPACE_KEYS.map(function(k,i){return pill(SPACE_LABELS[i],k,s.space===k);}).join('')+'</div>',
-      false,!!s.space,'Continue →');
+      '<div class="qc-pills">'+SPACE_KEYS.map(function(k,i){return pill(SPACE_LABELS[i],k,s.space===k);}).join('')+'</div>');
 
   }else if(s.step===2){
+    _back=true;_valid=s.sqm>=50;
     h=frame(2,'Floor area to clean?',
       '<div class="qc-sqm-wrap">'+
       '<div class="qc-sqm-row">'+
@@ -233,10 +239,10 @@ function render(){
       '<div class="qc-pills" style="margin-top:20px">'+
       [50,100,200,500,1000].map(function(v){return '<button type="button" class="qc-pill'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';}).join('')+
       '</div>'+
-      '</div>',
-      true,s.sqm>=50,'Continue →');
+      '</div>');
 
   }else if(s.step===3){
+    _back=true;_valid=s.kitchen!==null;
     h=frame(3,'Bathrooms and kitchen?',
       '<div class="qc-fields-wrap">'+
         '<div><div class="qc-sub">Bathrooms / toilets</div>'+
@@ -248,10 +254,10 @@ function render(){
           pill('Yes','yes',s.kitchen===true,'kit')+
           pill('No','no',s.kitchen===false,'kit')+
         '</div></div>'+
-      '</div>',
-      true,s.kitchen!==null,'Continue →');
+      '</div>');
 
   }else if(s.step===4){
+    _back=true;_valid=!!s.freq&&!!s.type;
     h=frame(4,'How often, and what type?',
       '<div class="qc-fields-wrap">'+
         '<div><div class="qc-sub">Frequency</div>'+
@@ -261,14 +267,13 @@ function render(){
           pill('Maintenance','maintenance',s.type==='maintenance','type')+
           pill('Deep clean','deep',s.type==='deep','type')+
         '</div></div>'+
-      '</div>',
-      true,!!s.freq&&!!s.type,'Continue →');
+      '</div>');
 
   }else if(s.step===5){
+    _back=true;_valid=true;_label='Calculate →';
     h=frame(5,'Any add-ons?',
       '<div style="margin-bottom:8px;color:rgba(243,239,228,.35);font-size:13px">Optional — tap to toggle</div>'+
-      '<div class="qc-pills">'+EXTRA_KEYS.map(function(k,i){return pill(EXTRA_LABELS[i],k,!!s.extras[k],'ext');}).join('')+'</div>',
-      true,true,'Calculate →');
+      '<div class="qc-pills">'+EXTRA_KEYS.map(function(k,i){return pill(EXTRA_LABELS[i],k,!!s.extras[k],'ext');}).join('')+'</div>');
 
   }else{
     h=renderResult();
@@ -276,17 +281,19 @@ function render(){
 
   w.innerHTML=h;
   bind();
+  var _nb=document.getElementById('qc-back');
+  var _nn=document.getElementById('qc-next');
+  var _nv=document.querySelector('.qc-nav');
+  if(_nv)_nv.style.display=(s.step>5)?'none':'flex';
+  if(_nb)_nb.style.display=_back?'':'none';
+  if(_nn){_nn.disabled=!_valid;_nn.textContent=_label;}
 }
 
-function frame(num,question,body,showBack,valid,nextLabel){
+function frame(num,question,body){
   return '<div class="qc-step">'+
     '<div class="qc-eyebrow">Step '+num+' of 5</div>'+
     '<div class="qc-question">'+question+'</div>'+
     body+
-    '<div class="qc-nav">'+
-      (showBack?'<button type="button" class="qc-backbtn" id="qc-back">&#8592; Back</button>':'')+
-      '<button type="button" class="qc-next" id="qc-next"'+(valid?'':' disabled')+'>'+nextLabel+'</button>'+
-    '</div>'+
   '</div>';
 }
 
@@ -401,7 +408,7 @@ function bind(){
   if(sqmV)sqmV.addEventListener('input',function(){
     var v=parseInt(this.value,10);
     s.sqm=(isNaN(v)||v<1)?0:Math.min(5000,v);
-    this.value=isNaN(v)?'':v;
+    this.value=isNaN(v)?'':Math.min(5000,v);
     var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=!(s.sqm>=50);
     var hint=document.getElementById('qc-sqm-hint');if(hint)hint.style.visibility=(s.sqm>=10&&s.sqm<50)?'visible':'hidden';
   });
@@ -413,9 +420,9 @@ function bind(){
   });
   /* nav */
   var nx=document.getElementById('qc-next');
-  if(nx)nx.addEventListener('click',function(){if(!this.disabled){s.step++;render();document.querySelector('.qc-card').scrollTop=0;}});
+  if(nx)nx.onclick=function(){if(!this.disabled){s.step++;render();document.querySelector('#qc-wrap').scrollTop=0;}};
   var bk=document.getElementById('qc-back');
-  if(bk)bk.addEventListener('click',function(){s.step--;render();});
+  if(bk)bk.onclick=function(){s.step--;render();};
   /* buffer toggle */
   var buf=document.getElementById('qc-buf');
   if(buf)buf.addEventListener('click',function(){s.buffer=!s.buffer;render();});
