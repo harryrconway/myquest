@@ -98,17 +98,20 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
 .qc-next:disabled{opacity:.25;cursor:default;transition:none}
 .qc-backbtn{background:none;border:none;color:rgba(243,239,228,.4);font-size:14px;cursor:pointer;padding:4px 10px;transition:color .2s;font-family:inherit;white-space:nowrap}
 .qc-backbtn:hover{color:#f3efe4}
-.qc-res-eyebrow{color:rgba(243,239,228,.4);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;margin-bottom:14px;line-height:1.5}
+.qc-rtags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}.qc-rtag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:rgba(243,239,228,.45);background:rgba(243,239,228,.08);border-radius:999px;padding:4px 10px}
 .qc-range{font-size:36px;font-weight:700;color:#f3efe4;letter-spacing:-.025em;line-height:1}
-.qc-per{color:rgba(243,239,228,.4);font-size:13px;margin-top:5px}
-.qc-mth{color:rgba(243,239,228,.55);font-size:13px;margin-top:4px}
-.qc-breakdown{margin:26px 0 0;border-top:1px solid rgba(243,239,228,.1)}
+.qc-per-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:7px}
+.qc-per{color:rgba(243,239,228,.4);font-size:13px}
+.qc-mth{color:rgba(243,239,228,.4);font-size:13px}
+.qc-breakdown{margin:20px 0 0;border-top:1px solid rgba(243,239,228,.1)}
 .qc-brow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(243,239,228,.07);color:rgba(243,239,228,.55);font-size:13.5px}
 .qc-brow.tot{color:#f3efe4;font-weight:600;border-bottom:none;padding-top:14px;font-size:14.5px;border-top:1px solid rgba(243,239,228,.15);margin-top:4px}
-.qc-dl{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.15);border-radius:999px;color:#f3efe4;padding:15px;font-size:14.5px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:24px;font-family:inherit;letter-spacing:.01em}
+.qc-buf-row{width:100%;border:none;border-bottom:1px solid rgba(243,239,228,.07);background:none;font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:13.5px;color:rgba(243,239,228,.3);transition:color .15s;text-align:left}
+.qc-buf-row:hover{color:rgba(243,239,228,.55)}.qc-buf-row.on{color:rgba(243,239,228,.55)}
+.qc-dl{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.15);border-radius:999px;color:#f3efe4;padding:14px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:16px;font-family:inherit;letter-spacing:.01em}
 .qc-dl:hover{background:rgba(243,239,228,.12);border-color:rgba(243,239,228,.3)}
-.qc-restart{background:none;border:none;color:rgba(243,239,228,.35);font-size:13px;cursor:pointer;padding:14px;transition:color .2s;width:100%;text-align:center;font-family:inherit;margin-top:4px}
-.qc-restart:hover{color:rgba(243,239,228,.7)}
+.qc-restart{background:none;border:none;color:rgba(243,239,228,.3);font-size:13px;cursor:pointer;padding:10px;transition:color .2s;width:100%;text-align:center;font-family:inherit;margin-top:0}
+.qc-restart:hover{color:rgba(243,239,228,.65)}
 .qc-fields-wrap{display:flex;flex-direction:column;gap:16px}
 .qc-print{display:none}
 .qc-sqm-wrap{margin:4px 0}
@@ -307,21 +310,28 @@ function renderResult(){
   rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
   rows+=brow('Supplies',au(r.sup));
   if(r.ext>0)rows+=brow('Add-ons',au(r.ext));
-  if(r.bufferAmt>0)rows+=brow('Site allowance (+'+Math.round(QC.bufferPct*100)+'%)','+'+au(r.bufferAmt));
+  rows+='<button type="button" class="qc-buf-row'+(s.buffer?' on':'')+'" id="qc-buf">'
+    +'<span>Site allowance <span style="opacity:.55;font-size:12px">(+'+Math.round(QC.bufferPct*100)+'%)</span></span>'
+    +'<span>'+(s.buffer?'+'+au(r.bufferAmt):'tap to add')+'</span>'
+    +'</button>';
   rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
   updatePrint(r,sLab,qLab,fLab,tLab);
-  return '<div class="qc-step">'+
-    '<div class="qc-res-eyebrow">'+sLab+' · '+qLab+'<br>'+fLab+' · '+tLab+'</div>'+
-    '<div class="qc-range">'+au(r.lo)+' – '+au(r.hi)+'</div>'+
-    '<div class="qc-per">per clean (estimate)</div>'+
-    (r.monthly?'<div class="qc-mth">~'+au(r.monthly)+' per month</div>':'')+
-    '<div class="qc-breakdown">'+rows+'</div>'+
-    '<button type="button" class="qc-pill'+(s.buffer?' on':'')+'" id="qc-buf" style="display:block;width:100%;text-align:center;margin-bottom:10px">'
-    +'Site allowance (+'+Math.round(QC.bufferPct*100)+'%)'
-    +'</button>'
-    +'<button type="button" class="qc-dl" id="qc-dl">&#8595; Download quote</button>'+
-    '<button type="button" class="qc-restart" id="qc-restart">&#8592; Start over</button>'+
-  '</div>';
+  return '<div class="qc-step">'
+    +'<div class="qc-rtags">'
+    +'<span class="qc-rtag">'+sLab+'</span>'
+    +'<span class="qc-rtag">'+qLab+'</span>'
+    +'<span class="qc-rtag">'+fLab+'</span>'
+    +'<span class="qc-rtag">'+tLab+'</span>'
+    +'</div>'
+    +'<div class="qc-range">'+au(r.lo)+' – '+au(r.hi)+'</div>'
+    +'<div class="qc-per-row">'
+    +'<span class="qc-per">per clean (estimate)</span>'
+    +(r.monthly?'<span class="qc-mth">≈'+au(r.monthly)+'/month</span>':'')
+    +'</div>'
+    +'<div class="qc-breakdown">'+rows+'</div>'
+    +'<button type="button" class="qc-dl" id="qc-dl">↓ Download quote</button>'
+    +'<button type="button" class="qc-restart" id="qc-restart">← Start over</button>'
+    +'</div>';
 }
 
 function brow(l,v){return '<div class="qc-brow"><span>'+l+'</span><span>'+v+'</span></div>';}
