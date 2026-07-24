@@ -164,7 +164,7 @@ function resetState(){s={step:1,space:null,sqm:100,baths:2,kitchen:null,freq:nul
 
 /* ── Calculate ── */
 function calc(){
-  var sqm=s.sqm;
+  var sqm=Math.max(50,Math.floor(s.sqm||50));
   var hrs=(sqm/QC.sqmHr[s.type])*QC.spaceMult[s.space];
   var bHrs=(s.baths*QC.bathMins)/60;
   var kHrs=s.kitchen?QC.kitchenMins/60:0;
@@ -226,14 +226,15 @@ function render(){
       '<div class="qc-sqm-wrap">'+
       '<div class="qc-sqm-row">'+
       '<button type="button" class="qc-sbtn" id="qc-sqm-m">&#8722;</button>'+
-      '<div class="qc-sqm-field"><input type="number" id="qc-sqm-v" min="1" max="9999" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="0"><span class="qc-sqm-u">sqm</span></div>'+
+      '<div class="qc-sqm-field"><input type="number" id="qc-sqm-v" min="50" max="9999" step="1" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="e.g. 100"><span class="qc-sqm-u">sqm</span></div>'+
+      '<p id="qc-sqm-hint" style="color:#f3efe480;font-size:13px;margin-top:8px;display:none">Minimum 50 sqm</p>'+
       '<button type="button" class="qc-sbtn" id="qc-sqm-p">+</button>'+
       '</div>'+
       '<div class="qc-pills" style="margin-top:20px">'+
       [50,100,200,500,1000].map(function(v){return '<button type="button" class="qc-pill'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';}).join('')+
       '</div>'+
       '</div>',
-      true,s.sqm>0,'Continue →');
+      true,s.sqm>=50,'Continue →');
 
   }else if(s.step===3){
     h=frame(3,'Bathrooms and kitchen?',
@@ -388,7 +389,7 @@ function bind(){
   var sqmP=document.getElementById('qc-sqm-p');
   var sqmV=document.getElementById('qc-sqm-v');
   if(sqmM)sqmM.addEventListener('click',function(){
-    var v=Math.max(1,(s.sqm||100)-50);
+    var v=Math.max(50,(s.sqm||100)-50);
     s.sqm=v;if(sqmV)sqmV.value=v;
     var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=false;
   });
@@ -399,8 +400,10 @@ function bind(){
   });
   if(sqmV)sqmV.addEventListener('input',function(){
     var v=parseInt(this.value,10);
-    s.sqm=(isNaN(v)||v<1)?0:v;
-    var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=!(s.sqm>0);
+    s.sqm=(isNaN(v)||v<1)?0:Math.min(9999,v);
+    this.value=isNaN(v)?'':v;
+    var nx2=document.getElementById('qc-next');if(nx2)nx2.disabled=!(s.sqm>=50);
+    var hint=document.getElementById('qc-sqm-hint');if(hint)hint.style.display=(s.sqm>0&&s.sqm<50)?'block':'none';
   });
   document.querySelectorAll('#qc-wrap .qc-sqm-wrap .qc-pill').forEach(function(btn){
     btn.addEventListener('click',function(){
