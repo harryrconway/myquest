@@ -279,14 +279,14 @@ function render(){
     h=renderResult();
   }
 
-  w.innerHTML=h;
-  bind();
   var _nb=document.getElementById('qc-back');
   var _nn=document.getElementById('qc-next');
   var _nv=document.querySelector('.qc-nav');
   if(_nv)_nv.style.display=(s.step>5)?'none':'flex';
   if(_nb)_nb.style.display=_back?'':'none';
   if(_nn){_nn.disabled=!_valid;_nn.textContent=_label;}
+  w.innerHTML=h;
+  bind();
 }
 
 function frame(num,question,body){
