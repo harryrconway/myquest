@@ -88,7 +88,7 @@ let eqForm=document.getElementById(`enquireForm`),thanks=eqForm.querySelector(`.
 .qc-pills{display:flex;flex-wrap:wrap;gap:9px}
 .qc-pill{border:1.5px solid rgba(243,239,228,.16);border-radius:999px;padding:11px 19px;color:rgba(243,239,228,.6);font-size:14px;background:none;cursor:pointer;transition:all .18s;font-family:inherit;line-height:1}
 .qc-pill:hover{border-color:rgba(243,239,228,.4);color:#f3efe4}
-.qc-pill.on{background:#f3efe4;color:#141c38;border-color:#f3efe4;font-weight:600}
+.qc-pill.on{background:#f3efe4;color:#141c38;border-color:#f3efe4;font-weight:600}.qc-pills-v{flex-direction:column}.qc-pills-v .qc-pill{text-align:center}
 .qc-stepper{display:inline-flex;align-items:center;border:1.5px solid rgba(243,239,228,.16);border-radius:999px;overflow:hidden}
 .qc-sbtn{background:none;border:none;color:#f3efe4;width:48px;height:48px;font-size:22px;cursor:pointer;transition:background .18s;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .qc-sbtn:hover{background:rgba(243,239,228,.08)}.qc-stepper .qc-sbtn:first-child{border-radius:999px 0 0 999px}.qc-stepper .qc-sbtn:last-child{border-radius:0 999px 999px 0}
@@ -224,7 +224,7 @@ function render(){
   if(s.step===1){
     _valid=!!s.space;
     h=frame(1,'What kind of premises?',
-      '<div class="qc-pills">'+SPACE_KEYS.map(function(k,i){return pill(SPACE_LABELS[i],k,s.space===k);}).join('')+'</div>');
+      '<div class="qc-pills qc-pills-v">'+SPACE_KEYS.map(function(k,i){return pill(SPACE_LABELS[i],k,s.space===k);}).join('')+'</div>');
 
   }else if(s.step===2){
     _back=true;_valid=s.sqm>=50;
@@ -261,9 +261,9 @@ function render(){
     h=frame(4,'How often, and what type?',
       '<div class="qc-fields-wrap">'+
         '<div><div class="qc-sub">Frequency</div>'+
-        '<div class="qc-pills">'+FREQ_KEYS.map(function(k,i){return pill(FREQ_LABELS[i],k,s.freq===k,'freq');}).join('')+'</div></div>'+
+        '<div class="qc-pills qc-pills-v">'+FREQ_KEYS.map(function(k,i){return pill(FREQ_LABELS[i],k,s.freq===k,'freq');}).join('')+'</div></div>'+
         '<div><div class="qc-sub">Type of clean</div>'+
-        '<div class="qc-pills">'+
+        '<div class="qc-pills qc-pills-v">'+
           pill('Maintenance','maintenance',s.type==='maintenance','type')+
           pill('Deep clean','deep',s.type==='deep','type')+
         '</div></div>'+
@@ -273,7 +273,7 @@ function render(){
     _back=true;_valid=true;_label='Calculate →';
     h=frame(5,'Any add-ons?',
       '<div style="margin-bottom:8px;color:rgba(243,239,228,.35);font-size:13px">Optional — tap to toggle</div>'+
-      '<div class="qc-pills">'+EXTRA_KEYS.map(function(k,i){return pill(EXTRA_LABELS[i],k,!!s.extras[k],'ext');}).join('')+'</div>');
+      '<div class="qc-pills qc-pills-v">'+EXTRA_KEYS.map(function(k,i){return pill(EXTRA_LABELS[i],k,!!s.extras[k],'ext');}).join('')+'</div>');
 
   }else{
     h=renderResult();
