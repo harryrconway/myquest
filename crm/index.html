@@ -131,6 +131,7 @@
   <main class="main">
 
     <div class="ph pg-1">
+      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       <h1 class="ph-title">Clients</h1>
       <button class="ph-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -175,6 +176,7 @@
     </div>
 
     <div class="pg-4">
+      <div class="tbl-scroll">
       <div class="client-list">
         <div class="cl-head">
           <span>Client</span>
@@ -277,9 +279,11 @@
         </a>
 
       </div>
+      </div>
     </div>
 
   </main>
+  <div class="sb-backdrop" id="sb-backdrop"></div>
 </div>
 <script>
 (function(){
@@ -315,6 +319,18 @@
       apply();
     });
   }
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  var btn=document.getElementById('mob-menu');
+  var sb=document.querySelector('.sidebar');
+  var bd=document.getElementById('sb-backdrop');
+  function close(){ sb.classList.remove('open'); bd.classList.remove('open'); }
+  if(btn) btn.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
+  if(bd) bd.addEventListener('click',close);
+  document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',close); });
 })();
 </script>
 </body>

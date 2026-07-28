@@ -8,7 +8,11 @@
 <link rel="stylesheet" href="style.css?v=20260728">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
-.filters{display:flex;gap:6px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:700px){
+  .q-head,.q-row{grid-template-columns:70px 1.5fr 110px 90px 28px}
+  .q-head span:nth-child(3),.q-row>*:nth-child(3){display:none}
+}
 .f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
 .f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
@@ -78,6 +82,7 @@
   <main class="main">
 
     <div class="ph pg-1">
+      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       <h1 class="ph-title">Quotes</h1>
       <button class="ph-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -119,6 +124,7 @@
     </div>
 
     <div class="pg-4">
+      <div class="tbl-scroll">
       <div class="q-list">
         <div class="q-head">
           <span>#</span><span>Client</span><span>Date sent</span>
@@ -166,9 +172,11 @@
           <div class="q-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
       </div>
+      </div>
     </div>
 
   </main>
+  <div class="sb-backdrop" id="sb-backdrop"></div>
 </div>
 <script>
 (function(){
@@ -190,6 +198,18 @@
       filter();
     });
   });
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  var btn=document.getElementById('mob-menu');
+  var sb=document.querySelector('.sidebar');
+  var bd=document.getElementById('sb-backdrop');
+  function close(){ sb.classList.remove('open'); bd.classList.remove('open'); }
+  if(btn) btn.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
+  if(bd) bd.addEventListener('click',close);
+  document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',close); });
 })();
 </script>
 </body>

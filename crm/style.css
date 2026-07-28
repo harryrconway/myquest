@@ -137,13 +137,54 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .ac{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 22px;margin-bottom:14px}
 .ac:last-child{margin-bottom:0}
 
+/* Mobile nav toggle — hidden on desktop */
+.mob-menu-btn{
+  display:none;background:none;border:none;padding:6px;
+  cursor:pointer;color:var(--navy);flex-shrink:0;
+  border-radius:8px;transition:background .12s;
+}
+.mob-menu-btn:hover{background:rgba(35,44,84,.07)}
+
 /* Responsive */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
-  .sidebar{display:none}
   .main{padding:28px 20px}
   .stats{grid-template-columns:repeat(2,1fr)}
   .stat:nth-child(2){border-right:none}
   .stat:nth-child(3){border-top:1px solid var(--on-hair)}
   .stat:nth-child(4){border-top:1px solid var(--on-hair);border-right:none}
+
+  /* Hamburger visible */
+  .mob-menu-btn{display:flex;align-items:center;justify-content:center}
+
+  /* Sidebar becomes fixed offcanvas overlay */
+  .sidebar{
+    display:flex!important;
+    position:fixed;left:0;top:0;height:100%;z-index:200;
+    transform:translateX(-100%);
+    transition:transform .22s ease;
+    box-shadow:4px 0 24px rgba(0,0,0,.12);
+  }
+  .sidebar.open{transform:translateX(0)}
+
+  /* Backdrop */
+  .sb-backdrop{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,.35);z-index:199;
+  }
+  .sb-backdrop.open{display:block}
+}
+
+@media(max-width:700px){
+  /* Horizontal scroll wrapper for data tables */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r);border:1px solid var(--hair)}
+  .tbl-scroll .client-list,
+  .tbl-scroll .jl-list,
+  .tbl-scroll .q-list,
+  .tbl-scroll .inv-list{border-radius:0;border:none;min-width:520px}
+}
+
+@media(max-width:600px){
+  .ph{padding:12px 0 16px;gap:8px}
+  .ph-title{font-size:22px}
 }
