@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Clients — MyQuest CRM</title>
+<link rel="stylesheet" href="style.css?v=20260728">
+<style>
+/* Search + filter bar */
+.toolbar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:22px;flex-wrap:wrap;
+}
+.search-wrap{
+  position:relative;flex:1;min-width:180px;max-width:320px;
+}
+.search-wrap svg{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  color:var(--stone);pointer-events:none;
+}
+.search{
+  width:100%;padding:9px 12px 9px 34px;
+  background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);
+  font-family:var(--font);font-size:13px;color:var(--navy);
+  outline:none;transition:border-color .12s;
+}
+.search::placeholder{color:var(--stone)}
+.search:focus{border-color:var(--hair-md)}
+.filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.f-pill{
+  padding:7px 13px;border-radius:999px;
+  font-size:12px;font-weight:600;letter-spacing:.01em;
+  border:1.5px solid var(--hair-md);background:none;
+  color:var(--stone);cursor:pointer;font-family:var(--font);
+  transition:color .12s,background .12s,border-color .12s;
+}
+.f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+
+/* Client list */
+.client-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
+
+.cl-head{
+  display:grid;
+  grid-template-columns:2fr 100px 120px 100px 100px 40px;
+  gap:12px;padding:10px 20px;
+  border-bottom:1px solid var(--hair);
+}
+.cl-head span{
+  font-size:9px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--stone);
+}
+
+.cl-row{
+  display:grid;
+  grid-template-columns:2fr 100px 120px 100px 100px 40px;
+  gap:12px;padding:14px 20px;
+  align-items:center;
+  border-bottom:1px solid var(--hair);
+  text-decoration:none;color:inherit;
+  transition:background .1s;cursor:pointer;
+}
+.cl-row:last-child{border-bottom:none}
+.cl-row:hover{background:rgba(35,44,84,.03)}
+
+.cl-name{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:3px;letter-spacing:-.01em}
+.cl-sub{font-size:11.5px;color:var(--stone)}
+.cl-industry{
+  display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);
+  padding:2px 7px;border-radius:4px;margin-top:4px;
+}
+.cl-val{font-size:13px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.cl-val.muted{color:var(--stone)}
+.cl-val.warn{color:var(--amber);font-weight:600}
+.cl-val.ok{color:var(--stone)}
+.cl-next{font-size:12px;color:var(--navy);font-variant-numeric:tabular-nums}
+.cl-next.blank{color:var(--stone)}
+.cl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end;transition:color .12s}
+.cl-row:hover .cl-arr{color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-mark">MQ</div>
+      <span class="sb-name">MyQuest</span>
+    </div>
+    <nav class="sb-nav">
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="sb-item on" href="index.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Jobs
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Quotes
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
+        Invoices
+      </a>
+      <hr class="sb-div">
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Staff
+      </a>
+    </nav>
+    <div class="sb-bottom">
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="ph pg-1">
+      <h1 class="ph-title">Clients</h1>
+      <button class="ph-btn">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New client
+      </button>
+    </div>
+
+    <div class="stats pg-2">
+      <div class="stat">
+        <div class="stat-lbl">Total clients</div>
+        <div class="stat-val">7</div>
+        <div class="stat-hint">6 active · 1 onboarding</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Cleans this week</div>
+        <div class="stat-val">9</div>
+        <div class="stat-hint">Mon – Sun</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Outstanding</div>
+        <div class="stat-val">$720</div>
+        <div class="stat-hint">2 invoices overdue</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Annual contracted</div>
+        <div class="stat-val">$46,800</div>
+        <div class="stat-hint">Across all clients</div>
+      </div>
+    </div>
+
+    <div class="toolbar pg-3">
+      <div class="search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search" type="text" placeholder="Search clients…">
+      </div>
+      <div class="filters">
+        <button class="f-pill on">All</button>
+        <button class="f-pill">Active</button>
+        <button class="f-pill">Onboarding</button>
+        <button class="f-pill">Exited</button>
+      </div>
+    </div>
+
+    <div class="pg-4">
+      <div class="client-list">
+        <div class="cl-head">
+          <span>Client</span>
+          <span>Status</span>
+          <span>Next clean</span>
+          <span>Contract</span>
+          <span>Outstanding</span>
+          <span></span>
+        </div>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">Aria Property Group</div>
+            <div class="cl-sub">Sarah Chen &nbsp;·&nbsp; sarah@ariagroup.com.au</div>
+            <span class="cl-industry">Commercial office</span>
+          </div>
+          <div><span class="badge active">Active</span></div>
+          <div class="cl-next">31 Jul · Thu</div>
+          <div class="cl-val">$6,240<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val ok">$0</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">Coastal Medical Centre</div>
+            <div class="cl-sub">James Nguyen &nbsp;·&nbsp; jnguyen@coastalmed.com.au</div>
+            <span class="cl-industry">Medical</span>
+          </div>
+          <div><span class="badge active">Active</span></div>
+          <div class="cl-next">29 Jul · Tue</div>
+          <div class="cl-val">$8,320<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val warn">$480</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">Broadbeach Shopping Co.</div>
+            <div class="cl-sub">Michelle Park &nbsp;·&nbsp; mpark@broadbeachsc.com.au</div>
+            <span class="cl-industry">Retail</span>
+          </div>
+          <div><span class="badge active">Active</span></div>
+          <div class="cl-next">2 Aug · Sat</div>
+          <div class="cl-val">$12,480<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val ok">$0</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">Pacific Dental Group</div>
+            <div class="cl-sub">Karen Wu &nbsp;·&nbsp; karen@pacificdental.com.au</div>
+            <span class="cl-industry">Medical</span>
+          </div>
+          <div><span class="badge active">Active</span></div>
+          <div class="cl-next">28 Jul · Mon</div>
+          <div class="cl-val">$4,160<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val ok">$0</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">Robina Business Park</div>
+            <div class="cl-sub">Tony Marshall &nbsp;·&nbsp; tony@robinapark.com.au</div>
+            <span class="cl-industry">Industrial</span>
+          </div>
+          <div><span class="badge active">Active</span></div>
+          <div class="cl-next">1 Aug · Fri</div>
+          <div class="cl-val">$5,200<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val warn">$240</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">Surfers Paradise Retail</div>
+            <div class="cl-sub">Leanne Carter &nbsp;·&nbsp; lcarter@spretail.com.au</div>
+            <span class="cl-industry">Retail</span>
+          </div>
+          <div><span class="badge active">Active</span></div>
+          <div class="cl-next">30 Jul · Wed</div>
+          <div class="cl-val">$7,280<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val ok">$0</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a class="cl-row" href="client.html">
+          <div>
+            <div class="cl-name">The Grove Apartments</div>
+            <div class="cl-sub">David Lim &nbsp;·&nbsp; dlim@thegrove.com.au</div>
+            <span class="cl-industry">Strata</span>
+          </div>
+          <div><span class="badge onboarding">Onboarding</span></div>
+          <div class="cl-next blank">—</div>
+          <div class="cl-val">$3,120<span style="font-size:10px;color:var(--stone)">/yr</span></div>
+          <div class="cl-val ok">$0</div>
+          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

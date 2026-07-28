@@ -5,88 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Aria Property Group — MyQuest CRM</title>
+<link rel="stylesheet" href="style.css?v=20260728">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
-:root{
-  --field:#e7e2d5;
-  --card:#f3efe4;
-  --navy:#232c54;
-  --navy-deep:#1a2140;
-  --stone:#9b968a;
-  --hair:#232c5424;
-  --hair-md:rgba(35,44,84,.12);
-  --green:#3a6b4e;
-  --green-bg:rgba(58,107,78,.1);
-  --green-text:#3a6b4e;
-  --on:#f3efe4;
-  --on-sub:rgba(243,239,228,.52);
-  --on-hair:rgba(243,239,228,.12);
-  --r:18px;
-  --font:system-ui,-apple-system,sans-serif;
-}
-
-html,body{height:100%;background:var(--field)}
-body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiased;min-height:100vh}
-
-/* Staggered fade-in on load */
-@media(prefers-reduced-motion:no-preference){
-  .sidebar   {animation:in .6s ease .05s both}
-  .bc        {animation:in .55s ease .1s  both}
-  .client-hd {animation:in .55s ease .18s both}
-  .sites-row {animation:in .55s ease .28s both}
-  .stats     {animation:in .55s ease .37s both}
-  .grid      {animation:in .55s ease .48s both}
-  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-}
-
-/* Layout */
-.layout{display:grid;grid-template-columns:214px 1fr;min-height:100vh}
-
-/* ── Sidebar ── */
-.sidebar{
-  background:var(--card);
-  border-right:1px solid var(--hair);
-  position:sticky;top:0;height:100vh;
-  display:flex;flex-direction:column;
-}
-.sb-logo{
-  display:flex;align-items:center;gap:11px;
-  padding:28px 20px 24px;
-  border-bottom:1px solid var(--hair);
-}
-.sb-mark{
-  width:30px;height:30px;background:var(--navy);border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;color:var(--on);letter-spacing:.04em;flex-shrink:0;
-}
-.sb-name{font-size:14px;font-weight:600;color:var(--navy);letter-spacing:-.015em}
-.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px}
-.sb-div{border:none;border-top:1px solid var(--hair);margin:8px 4px}
-.sb-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 12px;border-radius:10px;
-  text-decoration:none;font-size:13px;font-weight:500;color:var(--stone);
-  cursor:pointer;border:none;background:none;
-  width:100%;text-align:left;font-family:var(--font);
-  transition:color .12s,background .12s;
-}
-.sb-item:hover{color:var(--navy);background:rgba(35,44,84,.06)}
-.sb-item.on{color:var(--navy);background:rgba(35,44,84,.07);font-weight:600}
-.sb-item svg{flex-shrink:0;opacity:.6}
-.sb-item.on svg,.sb-item:hover svg{opacity:1}
-.sb-bottom{padding:8px 10px 26px}
-
-/* ── Main ── */
-.main{padding:52px 56px;min-width:0;background:var(--field)}
-
-/* Breadcrumb */
-.bc{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--stone);margin-bottom:26px;letter-spacing:.01em}
-.bc a{color:var(--stone);text-decoration:none;transition:color .12s}
-.bc a:hover{color:var(--navy)}
-.bc-sep{opacity:.3}
-
-/* ── Client header — navy ── */
+/* Client header (navy) */
 .client-hd{
   background:var(--navy);border-radius:var(--r);
   padding:30px 34px;
@@ -95,14 +16,6 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 }
 .ch-namerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
 .ch-name{font-size:clamp(21px,2.4vw,29px);font-weight:700;letter-spacing:-.03em;color:var(--on);line-height:1}
-.ch-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  font-size:9px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--green-text);background:var(--green-bg);
-  padding:3px 9px;border-radius:999px;flex-shrink:0;
-  border:1px solid rgba(58,107,78,.25);
-}
-.ch-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .ch-sub{font-size:12.5px;color:var(--on-sub);line-height:1.5}
 .ch-right{text-align:right;flex-shrink:0}
 .ch-cname{font-size:13.5px;font-weight:600;color:var(--on);margin-bottom:2px}
@@ -111,7 +24,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .ch-link{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--on-sub);text-decoration:none;transition:color .12s}
 .ch-link:hover{color:var(--on)}
 
-/* ── Sites section — cream card ── */
+/* Sites */
 .sites-row{margin-bottom:14px}
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .sec-lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
@@ -120,17 +33,12 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 
 .site-card{
   background:var(--card);border-radius:var(--r);border:1px solid var(--hair);
-  padding:22px 28px;
-  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  padding:22px 28px;display:grid;grid-template-columns:1fr 1fr;gap:24px;
 }
 .site-name{font-size:14.5px;font-weight:600;color:var(--navy);margin-bottom:4px;letter-spacing:-.01em}
 .site-detail{font-size:12.5px;color:var(--stone);line-height:1.7}
 .site-tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
-.site-tag{
-  font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--stone);background:rgba(35,44,84,.07);
-  padding:3px 9px;border-radius:5px;
-}
+.site-tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 9px;border-radius:5px}
 .site-tag.hi{color:var(--navy);background:rgba(35,44,84,.12)}
 .access-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
 .access-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
@@ -139,33 +47,15 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .access-txt{font-size:12px;color:var(--stone);line-height:1.55}
 .access-txt strong{color:var(--navy);font-weight:600}
 
-/* ── Stats — navy ── */
-.stats{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  background:var(--navy);border-radius:var(--r);
-  overflow:hidden;margin-bottom:32px;
-}
-.stat{padding:20px 26px;border-right:1px solid var(--on-hair)}
-.stat:last-child{border-right:none}
-.stat-lbl{font-size:9px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--on-sub);margin-bottom:10px}
-.stat-val{font-size:22px;font-weight:700;letter-spacing:-.025em;color:var(--on);font-variant-numeric:tabular-nums;line-height:1}
-.stat-hint{font-size:11px;color:var(--on-sub);margin-top:5px}
-
-/* ── Two-col grid ── */
+/* Two-col grid */
 .grid{display:grid;grid-template-columns:1fr 274px;gap:20px;align-items:start}
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.sh-lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
-.sh-btn{font-size:12px;color:var(--stone);background:none;border:none;font-family:var(--font);font-weight:600;cursor:pointer;padding:0;transition:color .12s}
-.sh-btn:hover{color:var(--navy)}
 
-/* Jobs list — cream */
+/* Jobs list */
 .jobs{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
 .job{
   display:grid;grid-template-columns:62px 1fr auto auto;
-  align-items:center;gap:14px;
-  padding:12px 20px 12px 16px;
-  border-bottom:1px solid var(--hair);
-  border-left:3px solid transparent;
+  align-items:center;gap:14px;padding:12px 20px 12px 16px;
+  border-bottom:1px solid var(--hair);border-left:3px solid transparent;
   transition:background .1s;cursor:default;
 }
 .job:last-child{border-bottom:none}
@@ -174,22 +64,13 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .job.next{border-left-color:var(--navy)}
 .j-date{font-size:11.5px;color:var(--stone);font-variant-numeric:tabular-nums;line-height:1.4;white-space:nowrap}
 .j-info{min-width:0}
-.j-tag{
-  display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);
-  padding:2px 7px;border-radius:4px;margin-bottom:3px;
-}
+.j-tag{display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;margin-bottom:3px}
 .j-tag.deep{color:var(--navy);background:rgba(35,44,84,.13)}
 .j-desc{font-size:12.5px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .j-sqm{font-size:11.5px;color:var(--stone);white-space:nowrap}
 .j-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* Aside cards — cream */
-.ac{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 22px;margin-bottom:14px}
-.ac:last-child{margin-bottom:0}
-.ac-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:13px}
-
-/* Schedule */
+/* Aside */
 .sched{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hair)}
 .sched:first-of-type{padding-top:0}
 .sched:last-of-type{border-bottom:none;padding-bottom:0}
@@ -197,7 +78,6 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .sched-sub{font-size:11px;color:var(--stone);margin-top:2px}
 .sched-freq{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 8px;border-radius:5px;white-space:nowrap;flex-shrink:0}
 
-/* Team */
 .team-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair)}
 .team-row:first-of-type{padding-top:0}
 .team-row:last-of-type{border-bottom:none;padding-bottom:0}
@@ -205,32 +85,15 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .team-name{font-size:12.5px;font-weight:600;color:var(--navy)}
 .team-role{font-size:11px;color:var(--stone)}
 
-/* Notes */
 .notes-txt{font-size:13px;line-height:1.8;color:var(--stone)}
-.mono{font-family:ui-monospace,monospace;font-size:12px;background:rgba(35,44,84,.07);padding:1px 6px;border-radius:4px;color:var(--navy)}
 
-/* Actions */
-.act-btn{
-  display:flex;align-items:center;gap:9px;width:100%;
-  padding:10px 12px;border:1.5px solid var(--hair-md);border-radius:11px;
-  background:none;font-family:var(--font);font-size:12.5px;font-weight:500;
-  color:var(--navy);cursor:pointer;margin-bottom:8px;text-align:left;
-  transition:background .12s,border-color .12s;
-}
+.act-btn{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:1.5px solid var(--hair-md);border-radius:11px;background:none;font-family:var(--font);font-size:12.5px;font-weight:500;color:var(--navy);cursor:pointer;margin-bottom:8px;text-align:left;transition:background .12s,border-color .12s}
 .act-btn:last-child{margin-bottom:0}
 .act-btn:hover{background:rgba(35,44,84,.04);border-color:rgba(35,44,84,.2)}
 .act-btn svg{color:var(--stone);flex-shrink:0}
 
-/* Responsive */
 @media(max-width:900px){
-  .layout{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .main{padding:28px 20px}
   .site-card{grid-template-columns:1fr}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .stat:nth-child(2){border-right:none}
-  .stat:nth-child(3){border-top:1px solid var(--on-hair)}
-  .stat:nth-child(4){border-top:1px solid var(--on-hair);border-right:none}
   .grid{grid-template-columns:1fr}
   .client-hd{flex-direction:column}
   .ch-right{text-align:left}
@@ -238,15 +101,11 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   .job{grid-template-columns:56px 1fr auto}
   .j-sqm{display:none}
 }
-@media(prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-}
 </style>
 </head>
 <body>
 <div class="layout">
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sb-logo">
       <div class="sb-mark">MQ</div>
@@ -257,7 +116,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Overview
       </a>
-      <a class="sb-item on" href="#">
+      <a class="sb-item on" href="index.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Clients
       </a>
@@ -291,21 +150,19 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
 
-    <div class="bc">
-      <a href="#">Clients</a>
+    <div class="bc pg-1">
+      <a href="index.html">Clients</a>
       <span class="bc-sep">›</span>
       <span>Aria Property Group</span>
     </div>
 
-    <!-- Client header (navy) -->
-    <div class="client-hd">
+    <div class="client-hd pg-2">
       <div>
         <div class="ch-namerow">
           <h1 class="ch-name">Aria Property Group</h1>
-          <span class="ch-badge">Active</span>
+          <span class="badge active">Active</span>
         </div>
         <p class="ch-sub">Commercial &nbsp;·&nbsp; Sydney CBD &nbsp;·&nbsp; Client since Mar 2025 &nbsp;·&nbsp; Direct referral</p>
       </div>
@@ -325,12 +182,8 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
       </div>
     </div>
 
-    <!-- Sites (cream) -->
-    <div class="sites-row">
-      <div class="sec-hd">
-        <span class="sec-lbl">Properties</span>
-        <button class="sec-btn">+ Add site</button>
-      </div>
+    <div class="sites-row pg-3">
+      <div class="sec-hd"><span class="sec-lbl">Properties</span><button class="sec-btn">+ Add site</button></div>
       <div class="site-card">
         <div>
           <div class="site-name">142 Clarence Street</div>
@@ -359,39 +212,17 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
       </div>
     </div>
 
-    <!-- Stats (navy) -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-lbl">Outstanding</div>
-        <div class="stat-val">$0</div>
-        <div class="stat-hint">All invoices clear</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Contract value</div>
-        <div class="stat-val">$6,240</div>
-        <div class="stat-hint">Per year · active</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Next clean</div>
-        <div class="stat-val">31 Jul</div>
-        <div class="stat-hint">Thursday · confirmed</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Total cleans</div>
-        <div class="stat-val">24</div>
-        <div class="stat-hint">Since Mar 2025</div>
-      </div>
+    <div class="stats pg-3">
+      <div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$0</div><div class="stat-hint">All invoices clear</div></div>
+      <div class="stat"><div class="stat-lbl">Contract value</div><div class="stat-val">$6,240</div><div class="stat-hint">Per year · active</div></div>
+      <div class="stat"><div class="stat-lbl">Next clean</div><div class="stat-val">31 Jul</div><div class="stat-hint">Thursday · confirmed</div></div>
+      <div class="stat"><div class="stat-lbl">Total cleans</div><div class="stat-val">24</div><div class="stat-hint">Since Mar 2025</div></div>
     </div>
 
-    <!-- Grid -->
-    <div class="grid">
+    <div class="grid pg-4">
 
-      <!-- Jobs (cream) -->
       <div>
-        <div class="sh">
-          <span class="sh-lbl">Recent &amp; upcoming jobs</span>
-          <button class="sh-btn">+ Schedule</button>
-        </div>
+        <div class="sh"><span class="sh-lbl">Recent &amp; upcoming jobs</span><button class="sh-btn">+ Schedule</button></div>
         <div class="jobs">
           <div class="job next">
             <div class="j-date">31 Jul<br>Thu</div>
@@ -438,9 +269,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
         </div>
       </div>
 
-      <!-- Aside -->
       <div>
-
         <div class="sh" style="margin-top:0"><span class="sh-lbl">Schedule</span><button class="sh-btn">Edit</button></div>
         <div class="ac">
           <div class="sched">
@@ -489,10 +318,9 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
         <div class="ac">
           <p class="notes-txt">No citrus-scented products. Sarah prefers morning slots before 10am. Building security requires sign-in at reception on Level 1 before heading upstairs.</p>
         </div>
-
       </div>
-    </div>
 
+    </div>
   </main>
 </div>
 </body>
