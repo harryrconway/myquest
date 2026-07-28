@@ -51,6 +51,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   padding:28px 20px 24px;
   border-bottom:1px solid var(--hair);
   text-decoration:none;
+  color:inherit;
 }
 .sb-mark{
   width:30px;height:30px;background:var(--navy);border-radius:7px;
