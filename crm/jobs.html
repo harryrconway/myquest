@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Jobs — MyQuest CRM</title>
+<link rel="stylesheet" href="style.css?v=20260728">
+<style>
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
+.f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+
+.job-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
+.jl-head{display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.jl-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
+.jl-row{
+  display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px;
+  gap:12px;padding:13px 20px;align-items:center;
+  border-bottom:1px solid var(--hair);
+  border-left:3px solid transparent;
+  transition:background .1s;
+}
+.jl-row:last-child{border-bottom:none}
+.jl-row:hover{background:rgba(35,44,84,.03)}
+.jl-row.done{border-left-color:var(--green)}
+.jl-row.next{border-left-color:var(--navy)}
+.jl-date{font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums;line-height:1.4}
+.jl-client{font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jl-site{font-size:12px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jl-type{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block}
+.jl-type.deep{color:var(--navy);background:rgba(35,44,84,.12)}
+.jl-crew{display:flex;gap:4px}
+.jl-av{width:22px;height:22px;border-radius:50%;background:rgba(35,44,84,.1);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--navy)}
+.jl-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
+
+@media(max-width:1000px){
+  .jl-head,.jl-row{grid-template-columns:80px 1fr 80px 80px}
+  .jl-head span:nth-child(3),.jl-row .jl-site,
+  .jl-head span:nth-child(5),.jl-row .jl-crew{display:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="sb-logo" href="https://myquest.au">
+      <div class="sb-mark">MQ</div>
+      <span class="sb-name">MyQuest</span>
+    </a>
+    <nav class="sb-nav">
+      <a class="sb-item" href="overview.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="sb-item" href="index.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a class="sb-item on" href="jobs.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Jobs
+      </a>
+      <a class="sb-item" href="quotes.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Quotes
+      </a>
+      <a class="sb-item" href="invoices.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
+        Invoices
+      </a>
+      <hr class="sb-div">
+      <a class="sb-item" href="reports.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </a>
+      <a class="sb-item" href="staff.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Staff
+      </a>
+    </nav>
+    <div class="sb-bottom">
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="ph pg-1">
+      <h1 class="ph-title">Jobs</h1>
+      <button class="ph-btn">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New job
+      </button>
+    </div>
+
+    <div class="stats pg-2">
+      <div class="stat">
+        <div class="stat-lbl">This month</div>
+        <div class="stat-val">18</div>
+        <div class="stat-hint">Jobs completed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Upcoming</div>
+        <div class="stat-val">5</div>
+        <div class="stat-hint">Next 7 days</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Revenue</div>
+        <div class="stat-val">$4,320</div>
+        <div class="stat-hint">July to date</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Hours logged</div>
+        <div class="stat-val">86</div>
+        <div class="stat-hint">Across all staff</div>
+      </div>
+    </div>
+
+    <div class="toolbar pg-3">
+      <div class="filters">
+        <button class="f-pill on" data-filter="all">All</button>
+        <button class="f-pill" data-filter="upcoming">Upcoming</button>
+        <button class="f-pill" data-filter="completed">Completed</button>
+        <button class="f-pill" data-filter="deep">Deep clean</button>
+        <button class="f-pill" data-filter="maintenance">Maintenance</button>
+      </div>
+    </div>
+
+    <div class="pg-4">
+      <div class="job-list">
+        <div class="jl-head">
+          <span>Date</span><span>Client</span><span>Site</span>
+          <span>Type</span><span>Team</span><span>Status</span><span style="text-align:right">Price</span>
+        </div>
+
+        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
+          <div class="jl-date">31 Jul<br>Thu</div>
+          <div class="jl-client">Aria Property Group</div>
+          <div class="jl-site">142 Clarence St · L3</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
+          <span class="badge upcoming">Upcoming</span>
+          <div class="jl-price">$240</div>
+        </div>
+        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
+          <div class="jl-date">30 Jul<br>Wed</div>
+          <div class="jl-client">Surfers Paradise Retail</div>
+          <div class="jl-site">Shop 4, Cavill Ave</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">MK</div></div>
+          <span class="badge upcoming">Upcoming</span>
+          <div class="jl-price">$195</div>
+        </div>
+        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
+          <div class="jl-date">29 Jul<br>Tue</div>
+          <div class="jl-client">Coastal Medical Centre</div>
+          <div class="jl-site">88 Surf Parade · L1</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">SR</div></div>
+          <span class="badge upcoming">Upcoming</span>
+          <div class="jl-price">$280</div>
+        </div>
+        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
+          <div class="jl-date">28 Jul<br>Mon</div>
+          <div class="jl-client">Pacific Dental Group</div>
+          <div class="jl-site">128 Surf Pde · Suite 2</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
+          <span class="badge upcoming">Upcoming</span>
+          <div class="jl-price">$160</div>
+        </div>
+        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
+          <div class="jl-date">28 Jul<br>Mon</div>
+          <div class="jl-client">Aria Property Group</div>
+          <div class="jl-site">142 Clarence St · L3</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
+          <span class="badge upcoming">Upcoming</span>
+          <div class="jl-price">$240</div>
+        </div>
+        <div class="jl-row done" data-type="maintenance" data-status="completed">
+          <div class="jl-date">24 Jul<br>Thu</div>
+          <div class="jl-client">Aria Property Group</div>
+          <div class="jl-site">142 Clarence St · L3</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
+          <span class="badge completed">Completed</span>
+          <div class="jl-price">$240</div>
+        </div>
+        <div class="jl-row done" data-type="deep" data-status="completed">
+          <div class="jl-date">4 Jul<br>Fri</div>
+          <div class="jl-client">Aria Property Group</div>
+          <div class="jl-site">142 Clarence St · L3</div>
+          <span class="jl-type deep">Deep clean</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div><div class="jl-av">MK</div></div>
+          <span class="badge completed">Completed</span>
+          <div class="jl-price">$360</div>
+        </div>
+        <div class="jl-row done" data-type="deep" data-status="completed">
+          <div class="jl-date">6 Jun<br>Fri</div>
+          <div class="jl-client">Coastal Medical Centre</div>
+          <div class="jl-site">88 Surf Parade · L1</div>
+          <span class="jl-type deep">Deep clean</span>
+          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">SR</div><div class="jl-av">DT</div></div>
+          <span class="badge completed">Completed</span>
+          <div class="jl-price">$520</div>
+        </div>
+        <div class="jl-row done" data-type="maintenance" data-status="completed">
+          <div class="jl-date">2 Jul<br>Wed</div>
+          <div class="jl-client">Broadbeach Shopping Co.</div>
+          <div class="jl-site">Shop 12, Broadbeach Mall</div>
+          <span class="jl-type">Maintenance</span>
+          <div class="jl-crew"><div class="jl-av">MK</div><div class="jl-av">SR</div></div>
+          <span class="badge completed">Completed</span>
+          <div class="jl-price">$380</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+<script>
+(function(){
+  'use strict';
+  var pills=document.querySelectorAll('.f-pill');
+  var rows=document.querySelectorAll('.jl-row');
+  var active='all';
+  function filter(){
+    rows.forEach(function(r){
+      var type=r.getAttribute('data-type')||'';
+      var status=r.getAttribute('data-status')||'';
+      var show=active==='all'||active===type||active===status;
+      r.style.display=show?'':'none';
+    });
+  }
+  pills.forEach(function(p){
+    p.addEventListener('click',function(){
+      pills.forEach(function(x){x.classList.remove('on');});
+      this.classList.add('on');
+      active=this.getAttribute('data-filter');
+      filter();
+    });
+  });
+})();
+</script>
+</body>
+</html>

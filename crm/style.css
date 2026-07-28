@@ -13,6 +13,8 @@
   --green-bg:rgba(58,107,78,.1);
   --amber:#b07d2a;
   --amber-bg:rgba(176,125,42,.1);
+  --red:#a63d2f;
+  --red-bg:rgba(166,61,47,.1);
   --on:#f3efe4;
   --on-sub:rgba(243,239,228,.52);
   --on-hair:rgba(243,239,228,.12);
@@ -121,6 +123,15 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .badge.active{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
 .badge.onboarding{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
 .badge.exited{color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)}
+.badge.paid{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
+.badge.unpaid{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
+.badge.overdue{color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.2)}
+.badge.accepted{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
+.badge.pending{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
+.badge.draft{color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)}
+.badge.declined{color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.2)}
+.badge.upcoming{color:var(--navy);background:rgba(35,44,84,.09);border:1px solid rgba(35,44,84,.15)}
+.badge.completed{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
 
 /* Aside card */
 .ac{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 22px;margin-bottom:14px}

@@ -90,7 +90,7 @@
       <span class="sb-name">MyQuest</span>
     </a>
     <nav class="sb-nav">
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Overview
       </a>
@@ -98,24 +98,24 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Clients
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="jobs.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Jobs
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="quotes.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Quotes
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="invoices.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
         Invoices
       </a>
       <hr class="sb-div">
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="reports.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Reports
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="staff.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         Staff
       </a>
@@ -167,10 +167,10 @@
         <input class="search" type="text" placeholder="Search clients…">
       </div>
       <div class="filters">
-        <button class="f-pill on">All</button>
-        <button class="f-pill">Active</button>
-        <button class="f-pill">Onboarding</button>
-        <button class="f-pill">Exited</button>
+        <button class="f-pill on" data-filter="all">All</button>
+        <button class="f-pill" data-filter="active">Active</button>
+        <button class="f-pill" data-filter="onboarding">Onboarding</button>
+        <button class="f-pill" data-filter="exited">Exited</button>
       </div>
     </div>
 
@@ -185,7 +185,7 @@
           <span></span>
         </div>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="active" data-name="Aria Property Group">
           <div>
             <div class="cl-name">Aria Property Group</div>
             <div class="cl-sub">Sarah Chen &nbsp;·&nbsp; sarah@ariagroup.com.au</div>
@@ -198,7 +198,7 @@
           <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="active" data-name="Coastal Medical Centre">
           <div>
             <div class="cl-name">Coastal Medical Centre</div>
             <div class="cl-sub">James Nguyen &nbsp;·&nbsp; jnguyen@coastalmed.com.au</div>
@@ -211,7 +211,7 @@
           <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="active" data-name="Broadbeach Shopping Co.">
           <div>
             <div class="cl-name">Broadbeach Shopping Co.</div>
             <div class="cl-sub">Michelle Park &nbsp;·&nbsp; mpark@broadbeachsc.com.au</div>
@@ -224,7 +224,7 @@
           <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="active" data-name="Pacific Dental Group">
           <div>
             <div class="cl-name">Pacific Dental Group</div>
             <div class="cl-sub">Karen Wu &nbsp;·&nbsp; karen@pacificdental.com.au</div>
@@ -237,7 +237,7 @@
           <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="active" data-name="Robina Business Park">
           <div>
             <div class="cl-name">Robina Business Park</div>
             <div class="cl-sub">Tony Marshall &nbsp;·&nbsp; tony@robinapark.com.au</div>
@@ -250,7 +250,7 @@
           <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="active" data-name="Surfers Paradise Retail">
           <div>
             <div class="cl-name">Surfers Paradise Retail</div>
             <div class="cl-sub">Leanne Carter &nbsp;·&nbsp; lcarter@spretail.com.au</div>
@@ -263,7 +263,7 @@
           <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>
 
-        <a class="cl-row" href="client.html">
+        <a class="cl-row" href="client.html" data-status="onboarding" data-name="The Grove Apartments">
           <div>
             <div class="cl-name">The Grove Apartments</div>
             <div class="cl-sub">David Lim &nbsp;·&nbsp; dlim@thegrove.com.au</div>
@@ -281,5 +281,41 @@
 
   </main>
 </div>
+<script>
+(function(){
+  'use strict';
+  var pills=document.querySelectorAll('.f-pill');
+  var rows=document.querySelectorAll('.cl-row');
+  var searchEl=document.querySelector('.search');
+  var activeFilter='all';
+  var searchTerm='';
+
+  function apply(){
+    rows.forEach(function(r){
+      var status=r.getAttribute('data-status')||'';
+      var name=(r.getAttribute('data-name')||'').toLowerCase();
+      var matchFilter=(activeFilter==='all'||activeFilter===status);
+      var matchSearch=!searchTerm||name.indexOf(searchTerm)!==-1;
+      r.style.display=(matchFilter&&matchSearch)?'':'none';
+    });
+  }
+
+  pills.forEach(function(p){
+    p.addEventListener('click',function(){
+      pills.forEach(function(x){x.classList.remove('on');});
+      this.classList.add('on');
+      activeFilter=this.getAttribute('data-filter');
+      apply();
+    });
+  });
+
+  if(searchEl){
+    searchEl.addEventListener('input',function(){
+      searchTerm=this.value.trim().toLowerCase();
+      apply();
+    });
+  }
+})();
+</script>
 </body>
 </html>
