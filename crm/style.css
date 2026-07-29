@@ -139,11 +139,20 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 
 /* Mobile nav toggle — hidden on desktop */
 .mob-menu-btn{
-  display:none;background:none;border:none;padding:6px;
-  cursor:pointer;color:var(--navy);flex-shrink:0;
-  border-radius:8px;transition:background .12s;
+  display:none;flex-direction:column;gap:6px;
+  background:none;border:none;padding:8px 6px;
+  cursor:pointer;flex-shrink:0;border-radius:8px;
+  position:relative;z-index:210;
 }
-.mob-menu-btn:hover{background:rgba(35,44,84,.07)}
+.mob-bar{
+  width:26px;height:2px;background:var(--navy);border-radius:2px;
+  display:block;transform-origin:50%;
+  transition:transform .52s cubic-bezier(.77,0,.18,1),opacity .2s,background .35s .6s;
+}
+
+/* Full-screen mobile overlay + backdrop — hidden on desktop */
+.mob-overlay{display:none}
+.sb-backdrop{display:none}
 
 /* Responsive */
 @media(max-width:900px){
@@ -154,25 +163,60 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   .stat:nth-child(3){border-top:1px solid var(--on-hair)}
   .stat:nth-child(4){border-top:1px solid var(--on-hair);border-right:none}
 
-  /* Hamburger visible */
-  .mob-menu-btn{display:flex;align-items:center;justify-content:center}
+  /* Hamburger button — stays in page flow but above overlay via z-index */
+  .mob-menu-btn{display:flex}
 
-  /* Sidebar becomes fixed offcanvas overlay */
-  .sidebar{
-    display:flex!important;
-    position:fixed;left:0;top:0;height:100%;z-index:200;
-    transform:translateX(-100%);
-    transition:transform .22s ease;
-    box-shadow:4px 0 24px rgba(0,0,0,.12);
-  }
-  .sidebar.open{transform:translateX(0)}
+  /* Sidebar hidden — replaced by full-screen overlay */
+  .sidebar{display:none!important}
 
-  /* Backdrop */
-  .sb-backdrop{
-    display:none;position:fixed;inset:0;
-    background:rgba(0,0,0,.35);z-index:199;
+  /* Bars animate to X when open */
+  body.mob-open .mob-bar{background:var(--on);transition:transform .52s cubic-bezier(.77,0,.18,1),opacity .2s,background .35s .1s}
+  body.mob-open .mob-menu-btn .mob-bar:first-child{transform:translateY(8px) rotate(45deg)}
+  body.mob-open .mob-menu-btn .mob-bar:nth-child(2){opacity:0}
+  body.mob-open .mob-menu-btn .mob-bar:last-child{transform:translateY(-8px) rotate(-45deg)}
+  body.mob-open{overflow:hidden}
+
+  /* Full-screen overlay — two-layer clip-path reveal like myquest.au */
+  .mob-overlay{
+    display:block;position:fixed;inset:0;z-index:200;
+    visibility:hidden;pointer-events:none;transition:visibility 0s .9s;
   }
-  .sb-backdrop.open{display:block}
+  body.mob-open .mob-overlay{visibility:visible;pointer-events:auto;transition-delay:0s}
+  .mob-overlay:before,.mob-overlay:after{
+    content:'';position:absolute;inset:0;
+    clip-path:inset(0 0 100%);transition:clip-path .85s cubic-bezier(.77,0,.18,1);
+  }
+  .mob-overlay:before{background:#d9d3c3;transition-delay:.1s}
+  .mob-overlay:after{background:var(--navy);transition-delay:0s}
+  body.mob-open .mob-overlay:before{clip-path:inset(0);transition-delay:0s}
+  body.mob-open .mob-overlay:after{clip-path:inset(0);transition-delay:.12s}
+
+  /* Nav links inside overlay */
+  .mob-nav-inner{
+    position:relative;z-index:2;display:flex;flex-direction:column;
+    align-items:flex-end;height:100%;overflow-y:auto;
+    padding:clamp(80px,16vh,110px) clamp(24px,5vw,48px) clamp(28px,5vh,44px);
+  }
+  .mob-nav-links{display:flex;flex-direction:column;align-items:stretch;width:min(400px,100%);margin-top:auto}
+  .mob-nav-links a{
+    display:block;color:var(--on);text-align:right;
+    font-size:clamp(28px,7vw,44px);font-weight:300;
+    letter-spacing:-.02em;line-height:1.15;text-decoration:none;
+    padding:clamp(10px,2vh,16px) 6px;border-bottom:1px solid rgba(243,239,228,.12);
+    opacity:0;transform:translateY(40px);
+    transition:opacity .6s,transform .7s cubic-bezier(.2,.9,.2,1),padding-right .3s;
+  }
+  .mob-nav-links a:last-child{border-bottom:0}
+  .mob-nav-links a:hover,.mob-nav-links a:focus-visible{padding-right:20px}
+  .mob-nav-links a.mob-on{font-weight:600}
+  body.mob-open .mob-nav-links a{opacity:1;transform:none}
+  body.mob-open .mob-nav-links a:nth-child(1){transition-delay:.25s}
+  body.mob-open .mob-nav-links a:nth-child(2){transition-delay:.33s}
+  body.mob-open .mob-nav-links a:nth-child(3){transition-delay:.41s}
+  body.mob-open .mob-nav-links a:nth-child(4){transition-delay:.49s}
+  body.mob-open .mob-nav-links a:nth-child(5){transition-delay:.57s}
+  body.mob-open .mob-nav-links a:nth-child(6){transition-delay:.65s}
+  body.mob-open .mob-nav-links a:nth-child(7){transition-delay:.73s}
 }
 
 @media(max-width:700px){

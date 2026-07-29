@@ -11,6 +11,8 @@
 .ch-namerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
 .ch-name{font-size:clamp(21px,2.4vw,29px);font-weight:700;letter-spacing:-.03em;color:var(--on);line-height:1}
 .ch-sub{font-size:12.5px;color:var(--on-sub);line-height:1.5}
+.ch-edit-btn{margin-left:auto;padding:5px 12px;border:1.5px solid rgba(243,239,228,.18);border-radius:8px;background:none;color:var(--on-sub);font-family:var(--font);font-size:11.5px;font-weight:600;cursor:pointer;letter-spacing:.01em;transition:border-color .12s,color .12s;flex-shrink:0}
+.ch-edit-btn:hover{border-color:rgba(243,239,228,.45);color:var(--on)}
 .ch-right{text-align:right;flex-shrink:0}
 .ch-cname{font-size:13.5px;font-weight:600;color:var(--on);margin-bottom:2px}
 .ch-ctitle{font-size:11.5px;color:var(--on-sub);margin-bottom:12px}
@@ -21,8 +23,6 @@
 .sites-row{margin-bottom:14px}
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .sec-lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
-.sec-btn{font-size:12px;color:var(--stone);background:none;border:none;font-family:var(--font);font-weight:600;cursor:pointer;padding:0;letter-spacing:.01em;transition:color .12s}
-.sec-btn:hover{color:var(--navy)}
 .site-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 28px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .site-name{font-size:14.5px;font-weight:600;color:var(--navy);margin-bottom:4px;letter-spacing:-.01em}
 .site-detail{font-size:12.5px;color:var(--stone);line-height:1.7}
@@ -85,14 +85,42 @@
 .not-found{padding:80px 0;text-align:center}
 .not-found p{font-size:14px;color:var(--stone);margin-bottom:20px}
 
+/* Edit modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-overlay[hidden]{display:none}
+.modal-card{background:var(--card);border-radius:var(--r);width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.18);overflow:hidden;max-height:calc(100vh - 40px);overflow-y:auto}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 18px;border-bottom:1px solid var(--hair);position:sticky;top:0;background:var(--card);z-index:1}
+.modal-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.015em}
+.modal-close{width:28px;height:28px;border-radius:7px;border:none;background:none;color:var(--stone);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+.modal-close:hover{background:rgba(35,44,84,.07);color:var(--navy)}
+.modal-body{padding:20px 24px}
+.form-row{margin-bottom:14px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
+.form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
+.form-input:focus{border-color:rgba(35,44,84,.4)}
+.form-input::placeholder{color:var(--stone)}
+select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.input-pfx{position:relative}
+.input-pfx-sym{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--stone);pointer-events:none}
+.form-input.pfx{padding-left:22px}
+.modal-actions{display:flex;align-items:center;padding:16px 24px;border-top:1px solid var(--hair);gap:10px}
+.cancel-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
+.cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.25)}
+.delete-btn{padding:9px 0;border:none;background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;transition:opacity .12s}
+.delete-btn:hover{opacity:.7}
+
 @media(max-width:900px){
   .site-card{grid-template-columns:1fr}
   .grid{grid-template-columns:1fr}
+  .grid>div+div{margin-top:24px}
   .client-hd{flex-direction:column}
   .ch-right{text-align:left}
   .ch-links{align-items:flex-start}
+  .ch-edit-btn{margin-left:0}
   .job{grid-template-columns:56px 1fr auto}
   .j-sqm{display:none}
+  .form-row-2{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -149,14 +177,95 @@
   <div class="sb-backdrop" id="sb-backdrop"></div>
 </div>
 
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html" class="mob-on">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html">Invoices</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+
+<!-- Edit client modal — static, survives main content re-renders -->
+<div class="modal-overlay" id="edit-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title">Edit client</span>
+      <button class="modal-close" id="edit-modal-close" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-lbl" for="ef-name">Business name</label>
+        <input class="form-input" type="text" id="ef-name" autocomplete="off">
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="ef-industry">Industry</label>
+          <select class="form-input" id="ef-industry">
+            <option value="Commercial office">Commercial office</option>
+            <option value="Strata">Strata</option>
+            <option value="Medical">Medical</option>
+            <option value="Retail">Retail</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-lbl" for="ef-status">Status</label>
+          <select class="form-input" id="ef-status">
+            <option value="onboarding">Onboarding</option>
+            <option value="active">Active</option>
+            <option value="exited">Exited</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="ef-contact">Contact name</label>
+          <input class="form-input" type="text" id="ef-contact" autocomplete="off">
+        </div>
+        <div>
+          <label class="form-lbl" for="ef-ctitle">Contact title</label>
+          <input class="form-input" type="text" id="ef-ctitle" placeholder="e.g. Property Manager" autocomplete="off">
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="ef-phone">Phone</label>
+          <input class="form-input" type="tel" id="ef-phone">
+        </div>
+        <div>
+          <label class="form-lbl" for="ef-email">Email</label>
+          <input class="form-input" type="email" id="ef-email">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-lbl" for="ef-contract">Annual contract value</label>
+        <div class="input-pfx">
+          <span class="input-pfx-sym">$</span>
+          <input class="form-input pfx" type="number" id="ef-contract" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="delete-btn" id="edit-modal-delete">Delete client</button>
+      <div style="flex:1"></div>
+      <button type="button" class="cancel-btn" id="edit-modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="edit-modal-save">Save changes</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
 
   var KEY='mq_clients';
+  var currentClient=null;
 
   function load(){ try{ var s=localStorage.getItem(KEY); return s?JSON.parse(s):null; }catch(e){ return null; } }
   function save(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
+
+  function saveCurrentClient(){
+    var clients=load()||[];
+    for(var i=0;i<clients.length;i++){
+      if(clients[i].id===id){ clients[i]=currentClient; break; }
+    }
+    save(clients);
+  }
 
   function getParam(name){
     var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));
@@ -167,6 +276,7 @@
 
   var id=getParam('id');
   var main=document.getElementById('main-content');
+  var editModal=document.getElementById('edit-modal');
 
   function findClient(){
     var clients=load()||[];
@@ -174,16 +284,54 @@
     return null;
   }
 
-  function saveClientField(field,value){
-    var clients=load()||[];
-    for(var i=0;i<clients.length;i++){
-      if(clients[i].id===id){ clients[i][field]=value; break; }
-    }
-    save(clients);
+  // Edit modal — wired once, survives re-renders
+  function openEditModal(){
+    if(!currentClient) return;
+    var c=currentClient;
+    document.getElementById('ef-name').value=c.name||'';
+    document.getElementById('ef-industry').value=c.industry||'Commercial office';
+    document.getElementById('ef-status').value=c.status||'active';
+    document.getElementById('ef-contact').value=c.contact||'';
+    document.getElementById('ef-ctitle').value=c.contactTitle||'';
+    document.getElementById('ef-phone').value=c.phone||'';
+    document.getElementById('ef-email').value=c.email||'';
+    document.getElementById('ef-contract').value=c.contract||'';
+    editModal.hidden=false;
+    setTimeout(function(){ document.getElementById('ef-name').focus(); },40);
   }
+  function closeEditModal(){ editModal.hidden=true; }
+
+  document.getElementById('edit-modal-close').addEventListener('click',closeEditModal);
+  document.getElementById('edit-modal-cancel').addEventListener('click',closeEditModal);
+  editModal.addEventListener('click',function(e){ if(e.target===editModal) closeEditModal(); });
+
+  document.getElementById('edit-modal-save').addEventListener('click',function(){
+    var name=document.getElementById('ef-name').value.trim();
+    if(!name){ document.getElementById('ef-name').focus(); return; }
+    currentClient.name=name;
+    currentClient.industry=document.getElementById('ef-industry').value;
+    currentClient.status=document.getElementById('ef-status').value;
+    currentClient.contact=document.getElementById('ef-contact').value.trim();
+    currentClient.contactTitle=document.getElementById('ef-ctitle').value.trim();
+    currentClient.phone=document.getElementById('ef-phone').value.trim();
+    currentClient.email=document.getElementById('ef-email').value.trim();
+    currentClient.contract=parseInt(document.getElementById('ef-contract').value)||0;
+    saveCurrentClient();
+    closeEditModal();
+    renderClient(currentClient);
+  });
+
+  document.getElementById('edit-modal-delete').addEventListener('click',function(){
+    if(!currentClient) return;
+    if(!confirm('Delete '+currentClient.name+'? This cannot be undone.')) return;
+    var clients=load()||[];
+    clients=clients.filter(function(x){ return x.id!==id; });
+    save(clients);
+    window.location.href='index.html';
+  });
 
   function renderHamburger(){
-    return '<button class="mob-menu-btn" id="mob-menu" aria-label="Open menu" style="margin-bottom:12px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>';
+    return '<button class="mob-menu-btn" id="mob-menu" aria-label="Open menu" style="margin-bottom:12px"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>';
   }
 
   function renderNotFound(){
@@ -191,9 +339,21 @@
     main.innerHTML=renderHamburger()+
       '<div class="bc pg-1"><a href="index.html">Clients</a><span class="bc-sep">›</span><span>Not found</span></div>'+
       '<div class="not-found pg-2"><p>This client could not be found.</p><a href="index.html" class="ph-btn" style="display:inline-flex">Back to clients</a></div>';
+    wireMobileNav();
+  }
+
+  function wireMobileNav(){
+    var mob=document.getElementById('mob-menu');
+    var mOverlay=document.getElementById('mob-overlay');
+    function navClose(){ document.body.classList.remove('mob-open'); }
+    if(mob) mob.addEventListener('click',function(){ document.body.classList.toggle('mob-open'); });
+    if(mOverlay) mOverlay.addEventListener('click',function(e){
+      if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();
+    });
   }
 
   function renderClient(c){
+    currentClient=c;
     document.title=escHtml(c.name)+' — MyQuest CRM';
     var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
     var bl=c.status.charAt(0).toUpperCase()+c.status.slice(1);
@@ -213,7 +373,7 @@
     }
 
     var hd='<div class="client-hd pg-2">'+
-      '<div><div class="ch-namerow"><h1 class="ch-name">'+escHtml(c.name)+'</h1><span class="badge '+bc+'">'+bl+'</span></div>'+
+      '<div style="flex:1;min-width:0"><div class="ch-namerow"><h1 class="ch-name">'+escHtml(c.name)+'</h1><span class="badge '+bc+'">'+bl+'</span><button class="ch-edit-btn" id="edit-details-btn">Edit</button></div>'+
       (subParts.length?'<p class="ch-sub">'+escHtml(subParts.join(' · '))+'</p>':'')+
       '</div>'+hdRight+
     '</div>';
@@ -240,7 +400,6 @@
     }
 
     // Stats
-    var nc=c.nextClean||'—';
     var ncHint=c.nextClean?'Confirmed':'Not scheduled';
     var stats='<div class="stats pg-3">'+
       '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+(c.outstanding||0).toLocaleString()+'</div><div class="stat-hint">'+(c.outstanding?'Unpaid invoices':'All invoices clear')+'</div></div>'+
@@ -266,7 +425,7 @@
       jobsHtml='<div class="empty-state">No jobs scheduled yet.</div>';
     }
 
-    // Schedule aside
+    // Schedule
     var schedHtml;
     if(c.schedule&&c.schedule.length){
       schedHtml=c.schedule.map(function(s){
@@ -276,7 +435,7 @@
       schedHtml='<p class="notes-empty">No schedule set.</p>';
     }
 
-    // Team aside
+    // Team
     var teamHtml;
     if(c.team&&c.team.length){
       teamHtml=c.team.map(function(t){
@@ -294,7 +453,7 @@
         jobsHtml+
       '</div>'+
       '<div>'+
-        '<div class="sh" style="margin-top:0"><span class="sh-lbl">Schedule</span></div>'+
+        '<div class="sh"><span class="sh-lbl">Schedule</span></div>'+
         '<div class="ac">'+schedHtml+'</div>'+
         '<div class="sh"><span class="sh-lbl">Team</span></div>'+
         '<div class="ac">'+teamHtml+'</div>'+
@@ -315,35 +474,32 @@
       '<div class="bc pg-1"><a href="index.html">Clients</a><span class="bc-sep">›</span><span>'+escHtml(c.name)+'</span></div>'+
       hd+siteHtml+stats+grid;
 
+    // Wire edit button (recreated on each render)
+    var editBtn=document.getElementById('edit-details-btn');
+    if(editBtn) editBtn.addEventListener('click',openEditModal);
+
     // Notes editing
     document.getElementById('notes-edit-btn').addEventListener('click',function(){
       var display=document.getElementById('notes-display');
-      var current=c.notes||'';
-      display.innerHTML='<textarea class="notes-ta" id="notes-ta">'+escHtml(current)+'</textarea>'+
+      var orig=currentClient.notes||'';
+      display.innerHTML='<textarea class="notes-ta" id="notes-ta">'+escHtml(orig)+'</textarea>'+
         '<div class="notes-save">'+
           '<button class="notes-cancel-btn" id="notes-cancel">Cancel</button>'+
           '<button class="notes-save-btn" id="notes-save">Save</button>'+
         '</div>';
       document.getElementById('notes-ta').focus();
       document.getElementById('notes-cancel').addEventListener('click',function(){
-        display.innerHTML=c.notes?'<p class="notes-txt">'+escHtml(c.notes)+'</p>':'<p class="notes-empty">No notes yet.</p>';
+        display.innerHTML=currentClient.notes?'<p class="notes-txt">'+escHtml(currentClient.notes)+'</p>':'<p class="notes-empty">No notes yet.</p>';
       });
       document.getElementById('notes-save').addEventListener('click',function(){
         var val=document.getElementById('notes-ta').value.trim();
-        c.notes=val;
-        saveClientField('notes',val);
+        currentClient.notes=val;
+        saveCurrentClient();
         display.innerHTML=val?'<p class="notes-txt">'+escHtml(val)+'</p>':'<p class="notes-empty">No notes yet.</p>';
       });
     });
 
-    // Mobile nav (wired after render)
-    var mob=document.getElementById('mob-menu');
-    var sb=document.querySelector('.sidebar');
-    var bd=document.getElementById('sb-backdrop');
-    function navClose(){ sb.classList.remove('open'); bd.classList.remove('open'); }
-    if(mob) mob.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
-    if(bd) bd.addEventListener('click',navClose);
-    document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',navClose); });
+    wireMobileNav();
   }
 
   if(!id){ renderNotFound(); return; }
