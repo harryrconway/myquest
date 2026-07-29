@@ -14,16 +14,16 @@
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 
 .job-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-.jl-head{display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.jl-head{display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .jl-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .jl-row{
-  display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px;
+  display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px 28px;
   gap:12px;padding:13px 20px;align-items:center;
   border-bottom:1px solid var(--hair);
   border-left:3px solid transparent;
-  transition:background .1s;
+  transition:background .1s;cursor:pointer;
 }
-.jl-row:last-child{border-bottom:none}
+.xp-wrap:last-child>.jl-row{border-bottom:none}
 .jl-row:hover{background:rgba(35,44,84,.03)}
 .jl-row.done{border-left-color:var(--green)}
 .jl-row.next{border-left-color:var(--navy)}
@@ -35,11 +35,31 @@
 .jl-crew{display:flex;gap:4px}
 .jl-av{width:22px;height:22px;border-radius:50%;background:rgba(35,44,84,.1);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--navy)}
 .jl-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
+.jl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
+.jl-row:hover .jl-arr{color:var(--navy)}
+.jl-arr svg{transition:transform .22s}
+.xp-wrap.open .jl-arr svg{transform:rotate(90deg)}
+.xp-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
+.xp-body.open{max-height:600px}
+.xp-wrap:last-child .xp-body{border-bottom:none}
+.xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
+.xp-inner{padding:20px 24px 22px;background:var(--field)}
+.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:18px}
+.xp-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:3px}
+.xp-val{font-size:13px;color:var(--navy)}
+.xp-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--hair)}
+.xp-btn{padding:7px 14px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:background .12s,border-color .12s}
+.xp-btn:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
+.xp-btn.primary{background:var(--navy);color:var(--on);border-color:var(--navy)}
+.xp-btn.primary:hover{background:var(--navy-deep)}
+.xp-btn.danger{color:var(--red);border-color:rgba(166,61,47,.2)}
+.xp-btn.danger:hover{background:var(--red-bg)}
 
 @media(max-width:1000px){
   .jl-head,.jl-row{grid-template-columns:80px 1fr 80px 80px}
   .jl-head span:nth-child(3),.jl-row .jl-site,
-  .jl-head span:nth-child(5),.jl-row .jl-crew{display:none}
+  .jl-head span:nth-child(5),.jl-row .jl-crew,
+  .jl-head span:nth-child(8),.jl-row .jl-arr{display:none}
 }
 @media(max-width:700px){
   .jl-head,.jl-row{grid-template-columns:72px 1fr 80px}
@@ -147,7 +167,7 @@
       <div class="job-list">
         <div class="jl-head">
           <span>Date</span><span>Client</span><span>Site</span>
-          <span>Type</span><span>Team</span><span>Status</span><span style="text-align:right">Price</span>
+          <span>Type</span><span>Team</span><span>Status</span><span style="text-align:right">Price</span><span></span>
         </div>
         <div id="jl-body"></div>
       </div>
@@ -212,36 +232,57 @@
 
 <script>
 (function(){
-  'use strict';
-  var KEY='mq_jobs';
-  var CLIENT_KEY='mq_clients';
-  var DEFAULTS=[
-    {id:'j1',date:'2026-07-31',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
-    {id:'j2',date:'2026-07-30',clientName:'Surfers Paradise Retail',site:'Shop 4, Cavill Ave',type:'maintenance',status:'upcoming',price:195},
-    {id:'j3',date:'2026-07-29',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'maintenance',status:'upcoming',price:280},
-    {id:'j4',date:'2026-07-28',clientName:'Pacific Dental Group',site:'128 Surf Pde · Suite 2',type:'maintenance',status:'upcoming',price:160},
-    {id:'j5',date:'2026-07-28',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
-    {id:'j6',date:'2026-07-24',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'completed',price:240},
-    {id:'j7',date:'2026-07-04',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'deep',status:'completed',price:360},
-    {id:'j8',date:'2026-06-06',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'deep',status:'completed',price:520},
-    {id:'j9',date:'2026-07-02',clientName:'Broadbeach Shopping Co.',site:'Shop 12, Broadbeach Mall',type:'maintenance',status:'completed',price:380}
-  ];
-  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
-  function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
-  var activeFilter='all';
-  var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
-  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
-  function renderRow(j){
-    var typeLbl=TYPE_LABELS[j.type]||j.type;
-    var typeClass=j.type==='deep'?' deep':'';
-    var rowClass=j.status==='completed'?' done':' next';
-    var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
-    return '<div class="jl-row'+rowClass+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
+'use strict';
+var KEY='mq_jobs';
+var CLIENT_KEY='mq_clients';
+var DEFAULTS=[
+  {id:'j1',date:'2026-07-31',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
+  {id:'j2',date:'2026-07-30',clientName:'Surfers Paradise Retail',site:'Shop 4, Cavill Ave',type:'maintenance',status:'upcoming',price:195},
+  {id:'j3',date:'2026-07-29',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'maintenance',status:'upcoming',price:280},
+  {id:'j4',date:'2026-07-28',clientName:'Pacific Dental Group',site:'128 Surf Pde · Suite 2',type:'maintenance',status:'upcoming',price:160},
+  {id:'j5',date:'2026-07-28',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
+  {id:'j6',date:'2026-07-24',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'completed',price:240},
+  {id:'j7',date:'2026-07-04',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'deep',status:'completed',price:360},
+  {id:'j8',date:'2026-06-06',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'deep',status:'completed',price:520},
+  {id:'j9',date:'2026-07-02',clientName:'Broadbeach Shopping Co.',site:'Shop 12, Broadbeach Mall',type:'maintenance',status:'completed',price:380}
+];
+var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
+var activeFilter='all';
+var openId=null;
+var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
+function fmtDateFull(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
+function renderExpand(j){
+  var typeLbl=TYPE_LABELS[j.type]||j.type;
+  var actions='';
+  if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
+  else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
+  actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
+  return '<div class="xp-grid">'+
+    '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val">'+fmtDateFull(j.date)+'</div></div>'+
+    '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.clientName||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Site</div><div class="xp-val">'+esc(j.site||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
+    '<div><div class="xp-lbl">Price</div><div class="xp-val" style="font-size:15px;font-weight:700">$'+Number(j.price||0).toLocaleString()+'</div></div>'+
+    '</div>'+
+    '<div class="xp-actions">'+actions+'</div>';
+}
+function renderRow(j){
+  var isOpen=openId===j.id;
+  var typeLbl=TYPE_LABELS[j.type]||j.type;
+  var typeClass=j.type==='deep'?' deep':'';
+  var rowClass=j.status==='completed'?' done':' next';
+  var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
+  return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
+    '<div class="jl-row'+rowClass+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
       '<div class="jl-date">'+fmtDate(j.date)+'</div>'+
       '<div class="jl-client">'+esc(j.clientName||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
@@ -249,88 +290,112 @@
       '<div class="jl-crew"></div>'+
       badge+
       '<div class="jl-price">$'+Number(j.price||0).toLocaleString()+'</div>'+
-    '</div>';
-  }
-  function renderAll(){
-    var jobs=load()||[];
-    var upcoming=jobs.filter(function(j){return j.status==='upcoming';});
-    var completed=jobs.filter(function(j){return j.status==='completed';});
-    // stats
-    var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
-    var doneThisMo=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).length;
-    var rev=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).reduce(function(s,j){return s+(j.price||0);},0);
-    var nxt7=new Date();nxt7.setDate(nxt7.getDate()+7);
-    var soon=upcoming.filter(function(j){var d=new Date(j.date+'T00:00:00');return d<=nxt7;}).length;
-    var statsEl=document.querySelector('.stats');
-    if(statsEl) statsEl.innerHTML=
-      '<div class="stat"><div class="stat-lbl">This month</div><div class="stat-val">'+doneThisMo+'</div><div class="stat-hint">Jobs completed</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+upcoming.length+'</div><div class="stat-hint">Next 7 days: '+soon+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val">$'+rev.toLocaleString()+'</div><div class="stat-hint">Month to date</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Total jobs</div><div class="stat-val">'+jobs.length+'</div><div class="stat-hint">All time</div></div>';
-    var html='';
-    jobs.forEach(function(j){
-      var show=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;
-      if(show) html+=renderRow(j);
-    });
-    document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
-  }
-  // Filter pills
-  var pills=document.querySelectorAll('.f-pill');
-  pills.forEach(function(p){
-    p.addEventListener('click',function(){
-      pills.forEach(function(x){x.classList.remove('on');});
-      this.classList.add('on');
-      activeFilter=this.getAttribute('data-filter');
-      renderAll();
-    });
-  });
-  // Modal
-  var modal=document.getElementById('job-modal');
-  function openModal(){
-    var clients=loadClients();
-    var sel=document.getElementById('jf-client');
-    sel.innerHTML='<option value="">Select client…</option>';
-    clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-    document.getElementById('jf-date').valueAsDate=new Date();
-    modal.hidden=false;
-    setTimeout(function(){document.getElementById('jf-client').focus();},40);
-  }
-  function closeModal(){
-    modal.hidden=true;
-    ['jf-date','jf-site','jf-price'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  }
-  document.getElementById('new-job-btn').addEventListener('click',openModal);
-  document.getElementById('job-modal-close').addEventListener('click',closeModal);
-  document.getElementById('job-modal-cancel').addEventListener('click',closeModal);
-  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
-  document.getElementById('job-modal-save').addEventListener('click',function(){
-    var date=document.getElementById('jf-date').value;
-    if(!date){document.getElementById('jf-date').focus();return;}
-    var sel=document.getElementById('jf-client');
-    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
-    var jobs=load()||[];
-    jobs.unshift({
-      id:'j'+Date.now(),
-      date:date,
-      clientId:sel.value,
-      clientName:clientName,
-      site:document.getElementById('jf-site').value.trim(),
-      type:document.getElementById('jf-type').value,
-      status:document.getElementById('jf-status').value,
-      price:parseInt(document.getElementById('jf-price').value)||0
-    });
-    save(jobs);
-    closeModal();
+      '<div class="jl-arr">'+ARR+'</div>'+
+    '</div>'+
+    '<div class="xp-body'+(isOpen?' open':'')+'"><div class="xp-inner">'+renderExpand(j)+'</div></div>'+
+  '</div>';
+}
+function renderAll(){
+  var jobs=load()||[];
+  var upcoming=jobs.filter(function(j){return j.status==='upcoming';});
+  var completed=jobs.filter(function(j){return j.status==='completed';});
+  var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
+  var doneThisMo=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).length;
+  var rev=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).reduce(function(s,j){return s+(j.price||0);},0);
+  var nxt7=new Date();nxt7.setDate(nxt7.getDate()+7);
+  var soon=upcoming.filter(function(j){var d=new Date(j.date+'T00:00:00');return d<=nxt7;}).length;
+  var statsEl=document.querySelector('.stats');
+  if(statsEl) statsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">This month</div><div class="stat-val">'+doneThisMo+'</div><div class="stat-hint">Jobs completed</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+upcoming.length+'</div><div class="stat-hint">Next 7 days: '+soon+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val">$'+rev.toLocaleString()+'</div><div class="stat-hint">Month to date</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Total jobs</div><div class="stat-val">'+jobs.length+'</div><div class="stat-hint">All time</div></div>';
+  var html='';
+  jobs.forEach(function(j){var show=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;if(show)html+=renderRow(j);});
+  document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
+}
+var pills=document.querySelectorAll('.f-pill');
+pills.forEach(function(p){
+  p.addEventListener('click',function(){
+    pills.forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    activeFilter=this.getAttribute('data-filter');
     renderAll();
   });
-  // Mobile nav
-  var mob=document.getElementById('mob-menu');
-  var mOverlay=document.getElementById('mob-overlay');
-  function navClose(){document.body.classList.remove('mob-open');}
-  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
-  init();
-  renderAll();
+});
+var modal=document.getElementById('job-modal');
+function openModal(){
+  var clients=loadClients();
+  var sel=document.getElementById('jf-client');
+  sel.innerHTML='<option value="">Select client…</option>';
+  clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  document.getElementById('jf-date').valueAsDate=new Date();
+  modal.hidden=false;
+  setTimeout(function(){document.getElementById('jf-client').focus();},40);
+}
+function closeModal(){
+  modal.hidden=true;
+  ['jf-date','jf-site','jf-price'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+}
+document.getElementById('new-job-btn').addEventListener('click',openModal);
+document.getElementById('job-modal-close').addEventListener('click',closeModal);
+document.getElementById('job-modal-cancel').addEventListener('click',closeModal);
+modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+document.getElementById('job-modal-save').addEventListener('click',function(){
+  var date=document.getElementById('jf-date').value;
+  if(!date){document.getElementById('jf-date').focus();return;}
+  var sel=document.getElementById('jf-client');
+  var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+  var jobs=load()||[];
+  jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,price:parseInt(document.getElementById('jf-price').value)||0});
+  save(jobs);closeModal();renderAll();
+});
+function updateJobStatus(id,newStatus){
+  var jobs=load()||[];
+  jobs.forEach(function(j){if(j.id===id)j.status=newStatus;});
+  save(jobs);renderAll();
+}
+function deleteJob(id){
+  if(!confirm('Delete this job? This cannot be undone.'))return;
+  save((load()||[]).filter(function(j){return j.id!==id;}));
+  openId=null;renderAll();
+}
+document.getElementById('jl-body').addEventListener('click',function(e){
+  var actionEl=e.target.closest('[data-action]');
+  if(actionEl){
+    var wid=actionEl.closest('.xp-wrap').dataset.id;
+    var act=actionEl.dataset.action;
+    if(act==='delete')deleteJob(wid);
+    else updateJobStatus(wid,act);
+    return;
+  }
+  var row=e.target.closest('.jl-row');
+  if(!row)return;
+  var wrap=row.parentElement;
+  var id=wrap.dataset.id;
+  if(openId===id){
+    wrap.classList.remove('open');
+    wrap.querySelector('.xp-body').classList.remove('open');
+    openId=null;
+  } else {
+    if(openId){var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}}
+    wrap.classList.add('open');
+    wrap.querySelector('.xp-body').classList.add('open');
+    openId=id;
+  }
+});
+var mob=document.getElementById('mob-menu');
+var mOverlay=document.getElementById('mob-overlay');
+function navClose(){document.body.classList.remove('mob-open');}
+if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+init();
+renderAll();
+if(getParam('newjob')==='1'){
+  openModal();
+  var cid=getParam('cid');
+  if(cid)setTimeout(function(){document.getElementById('jf-client').value=cid;},50);
+}
 })();
 </script>
 </body>

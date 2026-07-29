@@ -21,7 +21,7 @@
 .q-head{display:grid;grid-template-columns:80px 1.5fr 100px 110px 100px 32px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .q-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .q-row{display:grid;grid-template-columns:80px 1.5fr 100px 110px 100px 32px;gap:12px;padding:14px 20px;align-items:center;border-bottom:1px solid var(--hair);text-decoration:none;color:inherit;transition:background .1s;cursor:pointer}
-.q-row:last-child{border-bottom:none}
+.xp-wrap:last-child>.q-row{border-bottom:none}
 .q-row:hover{background:rgba(35,44,84,.03)}
 .q-num{font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
 .q-client{font-size:13.5px;font-weight:600;color:var(--navy);letter-spacing:-.01em}
@@ -30,6 +30,29 @@
 .q-val{font-size:13.5px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
 .q-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
 .q-row:hover .q-arr{color:var(--navy)}
+.q-arr svg{transition:transform .22s}
+.xp-wrap.open .q-arr svg{transform:rotate(90deg)}
+.xp-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
+.xp-body.open{max-height:600px}
+.xp-wrap:last-child .xp-body{border-bottom:none}
+.xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
+.xp-inner{padding:20px 24px 22px;background:var(--field)}
+.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:18px}
+.xp-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:3px}
+.xp-val{font-size:13px;color:var(--navy)}
+.xp-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--hair)}
+.xp-btn{padding:7px 14px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:background .12s,border-color .12s}
+.xp-btn:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
+.xp-btn.primary{background:var(--navy);color:var(--on);border-color:var(--navy)}
+.xp-btn.primary:hover{background:var(--navy-deep)}
+.xp-btn.danger{color:var(--red);border-color:rgba(166,61,47,.2)}
+.xp-btn.danger:hover{background:var(--red-bg)}
+.xp-status-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.xp-spill{padding:5px 12px;border-radius:999px;font-size:11.5px;font-weight:600;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:all .12s}
+.xp-spill.on.draft{color:var(--stone);background:rgba(155,150,138,.1);border-color:rgba(155,150,138,.2)}
+.xp-spill.on.pending{color:var(--amber);background:var(--amber-bg);border-color:rgba(176,125,42,.2)}
+.xp-spill.on.accepted{color:var(--green);background:var(--green-bg);border-color:rgba(58,107,78,.2)}
+.xp-spill.on.declined{color:var(--red);background:var(--red-bg);border-color:rgba(166,61,47,.2)}
 </style>
 </head>
 <body>
@@ -190,113 +213,171 @@
 
 <script>
 (function(){
-  'use strict';
-  var KEY='mq_quotes';
-  var CLIENT_KEY='mq_clients';
-  var DEFAULTS=[
-    {id:'Q014',num:'Q-014',clientName:'The Grove Apartments',desc:'Weekly strata clean · 3 buildings',value:3120,status:'pending',dateSent:'2026-07-22'},
-    {id:'Q013',num:'Q-013',clientName:'Robina Business Park',desc:'Fortnightly maintenance · 320 sqm',value:5200,status:'accepted',dateSent:'2026-07-14'},
-    {id:'Q012',num:'Q-012',clientName:'Surfers Paradise Retail',desc:'Weekly maintenance · 160 sqm',value:7280,status:'accepted',dateSent:'2026-07-02'},
-    {id:'Q011',num:'Q-011',clientName:'Gold Coast Airport',desc:'Daily terminal clean · 1,200 sqm',value:48000,status:'declined',dateSent:'2026-06-18'},
-    {id:'Q010',num:'Q-010',clientName:'Pacific Dental Group',desc:'Additional site · 90 sqm',value:2600,status:'draft',dateSent:null}
-  ];
-  var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
-  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
-  function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
-  function nextNum(){var q=load()||[];var nums=q.map(function(x){return parseInt((x.num||'').replace('Q-',''),10)||0;});return 'Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');}
-  var activeFilter='all';
-  function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();}
-  function renderRow(q){
-    return '<div class="q-row" data-status="'+q.status+'">'+
+'use strict';
+var KEY='mq_quotes';
+var CLIENT_KEY='mq_clients';
+var DEFAULTS=[
+  {id:'Q014',num:'Q-014',clientName:'The Grove Apartments',desc:'Weekly strata clean · 3 buildings',value:3120,status:'pending',dateSent:'2026-07-22'},
+  {id:'Q013',num:'Q-013',clientName:'Robina Business Park',desc:'Fortnightly maintenance · 320 sqm',value:5200,status:'accepted',dateSent:'2026-07-14'},
+  {id:'Q012',num:'Q-012',clientName:'Surfers Paradise Retail',desc:'Weekly maintenance · 160 sqm',value:7280,status:'accepted',dateSent:'2026-07-02'},
+  {id:'Q011',num:'Q-011',clientName:'Gold Coast Airport',desc:'Daily terminal clean · 1,200 sqm',value:48000,status:'declined',dateSent:'2026-06-18'},
+  {id:'Q010',num:'Q-010',clientName:'Pacific Dental Group',desc:'Additional site · 90 sqm',value:2600,status:'draft',dateSent:null}
+];
+var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+function nextNum(){var q=load()||[];var nums=q.map(function(x){return parseInt((x.num||'').replace('Q-',''),10)||0;});return 'Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');}
+function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
+var activeFilter='all';
+var openId=null;
+function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();}
+function renderExpand(q){
+  var statuses=['draft','pending','accepted','declined'];
+  var pills=statuses.map(function(s){return '<button class="xp-spill '+s+(q.status===s?' on':'')+'" data-status="'+s+'">'+s.charAt(0).toUpperCase()+s.slice(1)+'</button>';}).join('');
+  return '<div class="xp-grid">'+
+    '<div><div class="xp-lbl">Quote</div><div class="xp-val">'+esc(q.num||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Date sent</div><div class="xp-val">'+fmtDate(q.dateSent)+'</div></div>'+
+    '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(q.clientName||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Annual value</div><div class="xp-val">$'+Number(q.value||0).toLocaleString()+'/yr</div></div>'+
+    '<div style="grid-column:1/-1"><div class="xp-lbl">Description</div><div class="xp-val">'+esc(q.desc||'—')+'</div></div>'+
+    '</div>'+
+    '<div class="xp-lbl" style="margin-bottom:8px">Change status</div>'+
+    '<div class="xp-status-pills">'+pills+'</div>'+
+    '<div class="xp-actions">'+
+      '<button class="xp-btn primary" data-action="convert">Convert to invoice</button>'+
+      '<button class="xp-btn danger" data-action="delete">Delete quote</button>'+
+    '</div>';
+}
+function renderRow(q){
+  var isOpen=openId===q.id;
+  return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(q.id)+'">'+
+    '<div class="q-row" data-status="'+q.status+'">'+
       '<div class="q-num">#'+esc(q.num)+'</div>'+
       '<div><div class="q-client">'+esc(q.clientName||'—')+'</div><div class="q-sub">'+esc(q.desc||'')+'</div></div>'+
       '<div class="q-date">'+fmtDate(q.dateSent)+'</div>'+
       '<span class="badge '+q.status+'">'+q.status.charAt(0).toUpperCase()+q.status.slice(1)+'</span>'+
       '<div class="q-val" style="text-align:right">$'+Number(q.value||0).toLocaleString()+'/yr</div>'+
       '<div class="q-arr">'+ARR+'</div>'+
-    '</div>';
-  }
-  function renderAll(){
-    var quotes=load()||[];
-    // stats
-    var sent=quotes.filter(function(q){return q.dateSent&&q.status!=='draft';}).length;
-    var accepted=quotes.filter(function(q){return q.status==='accepted';}).length;
-    var pending=quotes.filter(function(q){return q.status==='pending';}).length;
-    var totalVal=quotes.filter(function(q){return q.status==='accepted'||q.status==='pending';}).reduce(function(s,q){return s+(q.value||0);},0);
-    var conv=sent>0?Math.round(accepted/sent*100):0;
-    var statsEl=document.querySelector('.stats');
-    if(statsEl) statsEl.innerHTML=
-      '<div class="stat"><div class="stat-lbl">Sent</div><div class="stat-val">'+sent+'</div><div class="stat-hint">All time</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Accepted</div><div class="stat-val">'+accepted+'</div><div class="stat-hint">'+conv+'% conversion</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Pending</div><div class="stat-val">'+pending+'</div><div class="stat-hint">Awaiting response</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Active value</div><div class="stat-val">$'+totalVal.toLocaleString()+'</div><div class="stat-hint">Accepted + pending</div></div>';
-    var html='';
-    quotes.forEach(function(q){
-      if(activeFilter==='all'||activeFilter===q.status) html+=renderRow(q);
-    });
-    document.getElementById('q-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No quotes match your filter.</div>';
-  }
-  // Filter pills
-  var pills=document.querySelectorAll('.f-pill');
-  pills.forEach(function(p){
-    p.addEventListener('click',function(){
-      pills.forEach(function(x){x.classList.remove('on');});
-      this.classList.add('on');
-      activeFilter=this.getAttribute('data-filter');
-      renderAll();
-    });
-  });
-  // Modal
-  var modal=document.getElementById('quote-modal');
-  function openModal(){
-    var clients=loadClients();
-    var sel=document.getElementById('qf-client');
-    sel.innerHTML='<option value="">Select client…</option>';
-    clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-    modal.hidden=false;
-    setTimeout(function(){document.getElementById('qf-client').focus();},40);
-  }
-  function closeModal(){
-    modal.hidden=true;
-    ['qf-desc','qf-value','qf-date'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    document.getElementById('qf-status').value='draft';
-  }
-  document.getElementById('new-quote-btn').addEventListener('click',openModal);
-  document.getElementById('quote-modal-close').addEventListener('click',closeModal);
-  document.getElementById('quote-modal-cancel').addEventListener('click',closeModal);
-  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
-  document.getElementById('quote-modal-save').addEventListener('click',function(){
-    var sel=document.getElementById('qf-client');
-    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
-    var num=nextNum();
-    var quotes=load()||[];
-    var status=document.getElementById('qf-status').value;
-    var dateSent=document.getElementById('qf-date').value||(status!=='draft'?new Date().toISOString().slice(0,10):null);
-    quotes.unshift({
-      id:'Q'+Date.now(),
-      num:num,
-      clientId:sel.value,
-      clientName:clientName,
-      desc:document.getElementById('qf-desc').value.trim(),
-      value:parseInt(document.getElementById('qf-value').value)||0,
-      status:status,
-      dateSent:dateSent||null
-    });
-    save(quotes);
-    closeModal();
+    '</div>'+
+    '<div class="xp-body'+(isOpen?' open':'')+'"><div class="xp-inner">'+renderExpand(q)+'</div></div>'+
+  '</div>';
+}
+function renderAll(){
+  var quotes=load()||[];
+  var sent=quotes.filter(function(q){return q.dateSent&&q.status!=='draft';}).length;
+  var accepted=quotes.filter(function(q){return q.status==='accepted';}).length;
+  var pending=quotes.filter(function(q){return q.status==='pending';}).length;
+  var totalVal=quotes.filter(function(q){return q.status==='accepted'||q.status==='pending';}).reduce(function(s,q){return s+(q.value||0);},0);
+  var conv=sent>0?Math.round(accepted/sent*100):0;
+  var statsEl=document.querySelector('.stats');
+  if(statsEl) statsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">Sent</div><div class="stat-val">'+sent+'</div><div class="stat-hint">All time</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Accepted</div><div class="stat-val">'+accepted+'</div><div class="stat-hint">'+conv+'% conversion</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Pending</div><div class="stat-val">'+pending+'</div><div class="stat-hint">Awaiting response</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Active value</div><div class="stat-val">$'+totalVal.toLocaleString()+'</div><div class="stat-hint">Accepted + pending</div></div>';
+  var html='';
+  quotes.forEach(function(q){if(activeFilter==='all'||activeFilter===q.status)html+=renderRow(q);});
+  document.getElementById('q-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No quotes match your filter.</div>';
+}
+var pills=document.querySelectorAll('.f-pill');
+pills.forEach(function(p){
+  p.addEventListener('click',function(){
+    pills.forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    activeFilter=this.getAttribute('data-filter');
     renderAll();
   });
-  // Mobile nav
-  var mob=document.getElementById('mob-menu');
-  var mOverlay=document.getElementById('mob-overlay');
-  function navClose(){document.body.classList.remove('mob-open');}
-  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
-  init();
-  renderAll();
+});
+var modal=document.getElementById('quote-modal');
+function openModal(){
+  var clients=loadClients();
+  var sel=document.getElementById('qf-client');
+  sel.innerHTML='<option value="">Select client…</option>';
+  clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  modal.hidden=false;
+  setTimeout(function(){document.getElementById('qf-client').focus();},40);
+}
+function closeModal(){
+  modal.hidden=true;
+  ['qf-desc','qf-value','qf-date'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('qf-status').value='draft';
+}
+document.getElementById('new-quote-btn').addEventListener('click',openModal);
+document.getElementById('quote-modal-close').addEventListener('click',closeModal);
+document.getElementById('quote-modal-cancel').addEventListener('click',closeModal);
+modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+document.getElementById('quote-modal-save').addEventListener('click',function(){
+  var sel=document.getElementById('qf-client');
+  var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+  var num=nextNum();
+  var quotes=load()||[];
+  var status=document.getElementById('qf-status').value;
+  var dateSent=document.getElementById('qf-date').value||(status!=='draft'?new Date().toISOString().slice(0,10):null);
+  quotes.unshift({id:'Q'+Date.now(),num:num,clientId:sel.value,clientName:clientName,desc:document.getElementById('qf-desc').value.trim(),value:parseInt(document.getElementById('qf-value').value)||0,status:status,dateSent:dateSent||null});
+  save(quotes);closeModal();renderAll();
+});
+function updateQuoteStatus(id,newStatus){
+  var quotes=load()||[];
+  quotes.forEach(function(q){if(q.id!==id)return;q.status=newStatus;if(newStatus!=='draft'&&!q.dateSent)q.dateSent=new Date().toISOString().slice(0,10);});
+  save(quotes);renderAll();
+}
+function convertToInvoice(id){
+  var q;(load()||[]).forEach(function(x){if(x.id===id)q=x;});
+  if(!q)return;
+  var invs;try{invs=JSON.parse(localStorage.getItem('mq_invoices'))||[];}catch(e){invs=[];}
+  if(!invs)invs=[];
+  var max=Math.max.apply(null,[1011].concat(invs.map(function(x){return parseInt(x.num,10)||0;})));
+  var today=new Date().toISOString().slice(0,10);
+  var due=new Date();due.setDate(due.getDate()+14);
+  invs.unshift({id:'I'+Date.now(),num:String(max+1),clientId:q.clientId||'',clientName:q.clientName||'',desc:q.desc||'',amount:Math.round((q.value||0)/12),issued:today,due:due.toISOString().slice(0,10),status:'unpaid'});
+  localStorage.setItem('mq_invoices',JSON.stringify(invs));
+  window.location.href='invoices.html';
+}
+function deleteQuote(id){
+  if(!confirm('Delete this quote? This cannot be undone.'))return;
+  save((load()||[]).filter(function(q){return q.id!==id;}));
+  openId=null;renderAll();
+}
+document.getElementById('q-body').addEventListener('click',function(e){
+  var spill=e.target.closest('.xp-spill');
+  if(spill){updateQuoteStatus(spill.closest('.xp-wrap').dataset.id,spill.dataset.status);return;}
+  var actionEl=e.target.closest('[data-action]');
+  if(actionEl){
+    var wid=actionEl.closest('.xp-wrap').dataset.id;
+    if(actionEl.dataset.action==='convert')convertToInvoice(wid);
+    else if(actionEl.dataset.action==='delete')deleteQuote(wid);
+    return;
+  }
+  var row=e.target.closest('.q-row');
+  if(!row)return;
+  var wrap=row.parentElement;
+  var id=wrap.dataset.id;
+  if(openId===id){
+    wrap.classList.remove('open');
+    wrap.querySelector('.xp-body').classList.remove('open');
+    openId=null;
+  } else {
+    if(openId){var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}}
+    wrap.classList.add('open');
+    wrap.querySelector('.xp-body').classList.add('open');
+    openId=id;
+  }
+});
+var mob=document.getElementById('mob-menu');
+var mOverlay=document.getElementById('mob-overlay');
+function navClose(){document.body.classList.remove('mob-open');}
+if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+init();
+renderAll();
+if(getParam('newquote')==='1'){
+  openModal();
+  var cid=getParam('cid');
+  if(cid)setTimeout(function(){document.getElementById('qf-client').value=cid;},50);
+}
 })();
 </script>
 </body>

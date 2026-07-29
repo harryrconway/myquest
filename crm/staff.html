@@ -8,7 +8,8 @@
 <link rel="stylesheet" href="style.css?v=20260729">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px}
+.staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
+.staff-card:hover{box-shadow:0 0 0 2px rgba(35,44,84,.12);border-color:rgba(35,44,84,.2)}
 .sc-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
 .sc-av{
   width:44px;height:44px;border-radius:50%;background:rgba(35,44,84,.1);
@@ -23,6 +24,8 @@
 .sc-clients{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
 .sc-clbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:8px}
 .sc-ctag{display:inline-block;font-size:11px;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 9px;border-radius:5px;margin:0 4px 4px 0}
+.delete-btn{padding:9px 0;border:none;background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;transition:opacity .12s}
+.delete-btn:hover{opacity:.7}
 </style>
 </head>
 <body>
@@ -119,7 +122,7 @@
 <div class="modal-overlay" id="staff-modal" hidden>
   <div class="modal-card">
     <div class="modal-hd">
-      <span class="modal-title">Add staff member</span>
+      <span class="modal-title" id="staff-modal-title">Add staff member</span>
       <button class="modal-close" id="staff-modal-close" type="button">&times;</button>
     </div>
     <div class="modal-body">
@@ -151,6 +154,8 @@
       </div>
     </div>
     <div class="modal-actions">
+      <button type="button" class="delete-btn" id="staff-modal-delete" hidden>Remove staff member</button>
+      <div style="flex:1"></div>
       <button type="button" class="cancel-btn" id="staff-modal-cancel">Cancel</button>
       <button type="button" class="ph-btn" id="staff-modal-save">Add staff</button>
     </div>
@@ -159,87 +164,116 @@
 
 <script>
 (function(){
-  'use strict';
-  var KEY='mq_staff';
-  var DEFAULTS=[
-    {id:'s1',name:'Jessica Park',initials:'JP',role:'Lead cleaner',phone:'',email:'',since:'Jan 2024',status:'active'},
-    {id:'s2',name:'David Tran',initials:'DT',role:'Senior cleaner',phone:'',email:'',since:'Mar 2024',status:'active'},
-    {id:'s3',name:'Maria Kowalski',initials:'MK',role:'Cleaner',phone:'',email:'',since:'Jun 2025',status:'active'},
-    {id:'s4',name:'Sam Rivera',initials:'SR',role:'Cleaner',phone:'',email:'',since:'Sep 2025',status:'active'}
-  ];
-  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
-  function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
-  function fmtSince(iso){if(!iso)return '';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
-  function renderCard(s){
-    return '<div class="staff-card">'+
-      '<div class="sc-top">'+
-        '<div class="sc-av">'+esc(s.initials)+'</div>'+
-        '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+esc(s.role)+'</div></div>'+
-        '<span class="badge '+(s.status||'active')+'" style="margin-left:auto">'+esc((s.status||'active').charAt(0).toUpperCase()+(s.status||'active').slice(1))+'</span>'+
-      '</div>'+
-      (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
-      (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
-      (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(s.since)+'</span></div>':'')+
-    '</div>';
-  }
-  function renderAll(){
-    var staff=load()||[];
-    var active=staff.filter(function(s){return(s.status||'active')==='active';}).length;
-    var statsEl=document.querySelector('.stats');
-    if(statsEl) statsEl.innerHTML=
-      '<div class="stat"><div class="stat-lbl">Total staff</div><div class="stat-val">'+staff.length+'</div><div class="stat-hint">'+active+' active</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+active+'</div><div class="stat-hint">On the team</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+[...new Set(staff.map(function(s){return s.role;}))].length+'</div><div class="stat-hint">Distinct roles</div></div>'+
-      '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+staff.filter(function(s){return s.since&&s.since.indexOf('2026')!==-1;}).length+'</div><div class="stat-hint">Joined in 2026</div></div>';
-    var grid=document.getElementById('staff-grid');
-    grid.innerHTML=staff.map(renderCard).join('')||'<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff added yet.</div>';
-  }
-  // Modal
-  var modal=document.getElementById('staff-modal');
-  function openModal(){
-    document.getElementById('sf-since').valueAsDate=new Date();
-    modal.hidden=false;
-    setTimeout(function(){document.getElementById('sf-name').focus();},40);
-  }
-  function closeModal(){
-    modal.hidden=true;
-    ['sf-name','sf-phone','sf-email'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    document.getElementById('sf-role').value='Cleaner';
-  }
-  document.getElementById('new-staff-btn').addEventListener('click',openModal);
-  document.getElementById('staff-modal-close').addEventListener('click',closeModal);
-  document.getElementById('staff-modal-cancel').addEventListener('click',closeModal);
-  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
-  document.getElementById('staff-modal-save').addEventListener('click',function(){
-    var name=document.getElementById('sf-name').value.trim();
-    if(!name){document.getElementById('sf-name').focus();return;}
-    var sinceIso=document.getElementById('sf-since').value;
-    var staff=load()||[];
-    staff.push({
-      id:'s'+Date.now(),
-      name:name,
-      initials:initials(name),
-      role:document.getElementById('sf-role').value,
-      phone:document.getElementById('sf-phone').value.trim(),
-      email:document.getElementById('sf-email').value.trim(),
-      since:sinceIso?fmtSince(sinceIso):'',
-      status:'active'
+'use strict';
+var KEY='mq_staff';
+var DEFAULTS=[
+  {id:'s1',name:'Jessica Park',initials:'JP',role:'Lead cleaner',phone:'',email:'',since:'Jan 2024',status:'active'},
+  {id:'s2',name:'David Tran',initials:'DT',role:'Senior cleaner',phone:'',email:'',since:'Mar 2024',status:'active'},
+  {id:'s3',name:'Maria Kowalski',initials:'MK',role:'Cleaner',phone:'',email:'',since:'Jun 2025',status:'active'},
+  {id:'s4',name:'Sam Rivera',initials:'SR',role:'Cleaner',phone:'',email:'',since:'Sep 2025',status:'active'}
+];
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
+function fmtSince(iso){if(!iso)return '';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
+function renderCard(s){
+  return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
+    '<div class="sc-top">'+
+      '<div class="sc-av">'+esc(s.initials)+'</div>'+
+      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+esc(s.role)+'</div></div>'+
+      '<span class="badge '+(s.status||'active')+'" style="margin-left:auto">'+esc((s.status||'active').charAt(0).toUpperCase()+(s.status||'active').slice(1))+'</span>'+
+    '</div>'+
+    (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
+    (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
+    (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(s.since)+'</span></div>':'')+
+  '</div>';
+}
+function renderAll(){
+  var staff=load()||[];
+  var active=staff.filter(function(s){return(s.status||'active')==='active';}).length;
+  var statsEl=document.querySelector('.stats');
+  if(statsEl) statsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">Total staff</div><div class="stat-val">'+staff.length+'</div><div class="stat-hint">'+active+' active</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+active+'</div><div class="stat-hint">On the team</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+[...new Set(staff.map(function(s){return s.role;}))].length+'</div><div class="stat-hint">Distinct roles</div></div>'+
+    '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+staff.filter(function(s){return s.since&&s.since.indexOf('2026')!==-1;}).length+'</div><div class="stat-hint">Joined in 2026</div></div>';
+  var grid=document.getElementById('staff-grid');
+  grid.innerHTML=staff.map(renderCard).join('')||'<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff added yet.</div>';
+}
+var modal=document.getElementById('staff-modal');
+var saveBtn=document.getElementById('staff-modal-save');
+var delBtn=document.getElementById('staff-modal-delete');
+var titleEl=document.getElementById('staff-modal-title');
+var editingId=null;
+function openNewModal(){
+  editingId=null;
+  titleEl.textContent='Add staff member';
+  saveBtn.textContent='Add staff';
+  delBtn.hidden=true;
+  ['sf-name','sf-phone','sf-email'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('sf-role').value='Cleaner';
+  document.getElementById('sf-since').valueAsDate=new Date();
+  modal.hidden=false;
+  setTimeout(function(){document.getElementById('sf-name').focus();},40);
+}
+function openEditModal(s){
+  editingId=s.id;
+  titleEl.textContent='Edit staff member';
+  saveBtn.textContent='Save changes';
+  delBtn.hidden=false;
+  document.getElementById('sf-name').value=s.name||'';
+  document.getElementById('sf-role').value=s.role||'Cleaner';
+  document.getElementById('sf-phone').value=s.phone||'';
+  document.getElementById('sf-email').value=s.email||'';
+  document.getElementById('sf-since').value='';
+  modal.hidden=false;
+  setTimeout(function(){document.getElementById('sf-name').focus();},40);
+}
+function closeModal(){
+  modal.hidden=true;
+  editingId=null;
+}
+document.getElementById('new-staff-btn').addEventListener('click',openNewModal);
+document.getElementById('staff-modal-close').addEventListener('click',closeModal);
+document.getElementById('staff-modal-cancel').addEventListener('click',closeModal);
+modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+delBtn.addEventListener('click',function(){
+  if(!editingId)return;
+  if(!confirm('Remove this staff member? This cannot be undone.'))return;
+  save((load()||[]).filter(function(s){return s.id!==editingId;}));
+  closeModal();renderAll();
+});
+saveBtn.addEventListener('click',function(){
+  var name=document.getElementById('sf-name').value.trim();
+  if(!name){document.getElementById('sf-name').focus();return;}
+  var sinceIso=document.getElementById('sf-since').value;
+  var staff=load()||[];
+  if(editingId){
+    staff=staff.map(function(s){
+      if(s.id!==editingId)return s;
+      return {id:s.id,name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):s.since,status:s.status||'active'};
     });
-    save(staff);
-    closeModal();
-    renderAll();
-  });
-  // Mobile nav
-  var mob=document.getElementById('mob-menu');
-  var mOverlay=document.getElementById('mob-overlay');
-  function navClose(){document.body.classList.remove('mob-open');}
-  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
-  init();
-  renderAll();
+  } else {
+    staff.push({id:'s'+Date.now(),name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):'',status:'active'});
+  }
+  save(staff);closeModal();renderAll();
+});
+document.getElementById('staff-grid').addEventListener('click',function(e){
+  var card=e.target.closest('.staff-card');
+  if(!card)return;
+  var sid=card.dataset.id;
+  var s;(load()||[]).forEach(function(x){if(x.id===sid)s=x;});
+  if(s)openEditModal(s);
+});
+var mob=document.getElementById('mob-menu');
+var mOverlay=document.getElementById('mob-overlay');
+function navClose(){document.body.classList.remove('mob-open');}
+if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+init();
+renderAll();
 })();
 </script>
 </body>

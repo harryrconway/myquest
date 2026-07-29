@@ -122,6 +122,11 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   .j-sqm{display:none}
   .form-row-2{grid-template-columns:1fr}
 }
+.cd-row{display:grid;grid-template-columns:70px 1fr auto auto;gap:10px 14px;padding:10px 20px;border-bottom:1px solid var(--hair);align-items:center}
+.cd-row:last-child{border-bottom:none}
+.cd-num{font-size:11.5px;color:var(--stone);font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace;white-space:nowrap}
+.cd-desc{font-size:12.5px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd-amt{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -356,6 +361,56 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     });
   }
 
+  function loadFromKey(key){try{var s=localStorage.getItem(key);return s?JSON.parse(s):[];}catch(e){return[];}}
+  function fmtDateShort(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
+  function renderMqJobRow(j){
+    var TL={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+    var lbl=TL[j.type]||j.type;var isDeep=j.type==='deep';
+    var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var dateStr='—';if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+M[dd.getMonth()]+'<br>'+D[dd.getDay()];}
+    var cls=j.status==='completed'?'done':'next';
+    return '<div class="job '+cls+'">'+
+      '<div class="j-date">'+dateStr+'</div>'+
+      '<div class="j-info"><div class="j-tag'+(isDeep?' deep':'')+'">'+escHtml(lbl)+'</div><div class="j-desc">'+escHtml(j.site||'—')+'</div></div>'+
+      '<div class="j-sqm">'+escHtml(j.site||'—')+'</div>'+
+      '<div class="j-price">$'+Number(j.price||0).toLocaleString()+'</div>'+
+    '</div>';
+  }
+  function renderCdRow(num,desc,badgeCls,badgeLbl,amt){
+    return '<div class="cd-row">'+
+      '<div class="cd-num">'+num+'</div>'+
+      '<div class="cd-desc">'+escHtml(desc)+'</div>'+
+      '<span class="badge '+escHtml(badgeCls)+'">'+escHtml(badgeLbl)+'</span>'+
+      '<div class="cd-amt">'+amt+'</div>'+
+    '</div>';
+  }
+  function loadAndAppendClientHistory(c){
+    var mqJobs=loadFromKey('mq_jobs').filter(function(j){return j.clientId===c.id;});
+    var mqQuotes=loadFromKey('mq_quotes').filter(function(q){return q.clientId===c.id;});
+    var mqInvoices=loadFromKey('mq_invoices').filter(function(i){return i.clientId===c.id;});
+    var html='';
+    if(mqJobs.length){
+      html+='<div class="pg-4" style="margin-top:20px">'+
+        '<div class="sh"><span class="sh-lbl">Jobs</span><a href="jobs.html" class="sh-btn" style="font-size:11px;color:var(--stone);text-decoration:none">View all</a></div>'+
+        '<div class="jobs">'+mqJobs.map(renderMqJobRow).join('')+'</div>'+
+      '</div>';
+    }
+    if(mqQuotes.length){
+      html+='<div class="pg-4" style="margin-top:20px">'+
+        '<div class="sh"><span class="sh-lbl">Quotes</span><a href="quotes.html" class="sh-btn" style="font-size:11px;color:var(--stone);text-decoration:none">View all</a></div>'+
+        '<div class="jobs">'+mqQuotes.map(function(q){return renderCdRow('#'+escHtml(q.num||'—'),q.desc||'—',q.status,q.status.charAt(0).toUpperCase()+q.status.slice(1),'$'+Number(q.value||0).toLocaleString()+'/yr');}).join('')+'</div>'+
+      '</div>';
+    }
+    if(mqInvoices.length){
+      html+='<div class="pg-4" style="margin-top:20px">'+
+        '<div class="sh"><span class="sh-lbl">Invoices</span><a href="invoices.html" class="sh-btn" style="font-size:11px;color:var(--stone);text-decoration:none">View all</a></div>'+
+        '<div class="jobs">'+mqInvoices.map(function(inv){return renderCdRow('#'+escHtml(inv.num||'—'),inv.desc||'—',inv.status,inv.status.charAt(0).toUpperCase()+inv.status.slice(1),'$'+Number(inv.amount||0).toLocaleString());}).join('')+'</div>'+
+      '</div>';
+    }
+    if(html)main.insertAdjacentHTML('beforeend',html);
+  }
+
   function renderClient(c){
     currentClient=c;
     document.title=escHtml(c.name)+' — MyQuest CRM';
@@ -462,11 +517,11 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         '<div class="sh"><span class="sh-lbl">Team</span></div>'+
         '<div class="ac">'+teamHtml+'</div>'+
         '<div class="sh"><span class="sh-lbl">Actions</span></div>'+
-        '<div class="ac">'+
-          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>Schedule a clean</button>'+
-          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Send a quote</button>'+
-          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Raise an invoice</button>'+
-          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send email</button>'+
+        '<div class="ac" id="act-panel">'+
+          '<button class="act-btn" data-action="job"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>Schedule a clean</button>'+
+          '<button class="act-btn" data-action="quote"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Send a quote</button>'+
+          '<button class="act-btn" data-action="invoice"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Raise an invoice</button>'+
+          '<button class="act-btn" data-action="email"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send email</button>'+
         '</div>'+
         '<div class="sh"><span class="sh-lbl">Notes</span><button class="sh-btn" id="notes-edit-btn">Edit</button></div>'+
         '<div class="ac"><div id="notes-display">'+notesContent+'</div></div>'+
@@ -477,6 +532,21 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       renderHamburger()+
       '<div class="bc pg-1"><a href="index.html">Clients</a><span class="bc-sep">›</span><span>'+escHtml(c.name)+'</span></div>'+
       hd+siteHtml+stats+grid;
+
+    // Wire action buttons
+    var actPanel=document.getElementById('act-panel');
+    if(actPanel)actPanel.addEventListener('click',function(e){
+      var btn=e.target.closest('.act-btn');
+      if(!btn)return;
+      var cid=encodeURIComponent(c.id);
+      var cname=encodeURIComponent(c.name);
+      switch(btn.dataset.action){
+        case 'job':window.location.href='jobs.html?newjob=1&cid='+cid+'&cname='+cname;break;
+        case 'quote':window.location.href='quotes.html?newquote=1&cid='+cid+'&cname='+cname;break;
+        case 'invoice':window.location.href='invoices.html?newinv=1&cid='+cid+'&cname='+cname;break;
+        case 'email':if(c.email)window.location.href='mailto:'+encodeURIComponent(c.email);break;
+      }
+    });
 
     // Wire edit button (recreated on each render)
     var editBtn=document.getElementById('edit-details-btn');
@@ -503,6 +573,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       });
     });
 
+    loadAndAppendClientHistory(c);
     wireMobileNav();
   }
 

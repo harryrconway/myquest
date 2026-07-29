@@ -21,7 +21,7 @@
 .inv-head{display:grid;grid-template-columns:80px 1.4fr 100px 100px 110px 100px 32px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .inv-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .inv-row{display:grid;grid-template-columns:80px 1.4fr 100px 100px 110px 100px 32px;gap:12px;padding:13px 20px;align-items:center;border-bottom:1px solid var(--hair);border-left:3px solid transparent;text-decoration:none;color:inherit;transition:background .1s;cursor:pointer}
-.inv-row:last-child{border-bottom:none}
+.xp-wrap:last-child>.inv-row{border-bottom:none}
 .inv-row:hover{background:rgba(35,44,84,.03)}
 .inv-row.paid{border-left-color:var(--green)}
 .inv-row.unpaid{border-left-color:var(--amber)}
@@ -37,6 +37,23 @@
 .inv-amt{font-size:13.5px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
 .inv-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
 .inv-row:hover .inv-arr{color:var(--navy)}
+.inv-arr svg{transition:transform .22s}
+.xp-wrap.open .inv-arr svg{transform:rotate(90deg)}
+.xp-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
+.xp-body.open{max-height:600px}
+.xp-wrap:last-child .xp-body{border-bottom:none}
+.xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
+.xp-inner{padding:20px 24px 22px;background:var(--field)}
+.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:18px}
+.xp-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:3px}
+.xp-val{font-size:13px;color:var(--navy)}
+.xp-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--hair)}
+.xp-btn{padding:7px 14px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:background .12s,border-color .12s}
+.xp-btn:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
+.xp-btn.primary{background:var(--navy);color:var(--on);border-color:var(--navy)}
+.xp-btn.primary:hover{background:var(--navy-deep)}
+.xp-btn.danger{color:var(--red);border-color:rgba(166,61,47,.2)}
+.xp-btn.danger:hover{background:var(--red-bg)}
 </style>
 </head>
 <body>
@@ -199,31 +216,54 @@
 
 <script>
 (function(){
-  'use strict';
-  var KEY='mq_invoices';
-  var CLIENT_KEY='mq_clients';
-  var DEFAULTS=[
-    {id:'I1008',num:'1008',clientName:'Coastal Medical Centre',desc:'Maintenance · Jun 2026',amount:480,issued:'2026-07-01',due:'2026-07-14',status:'overdue'},
-    {id:'I1011',num:'1011',clientName:'Robina Business Park',desc:'Maintenance · Jul 2026',amount:240,issued:'2026-07-14',due:'2026-07-31',status:'unpaid'},
-    {id:'I1010',num:'1010',clientName:'Aria Property Group',desc:'Maintenance + Deep clean · Jul 2026',amount:600,issued:'2026-07-07',due:'2026-07-21',status:'paid'},
-    {id:'I1009',num:'1009',clientName:'Broadbeach Shopping Co.',desc:'Maintenance · Jul 2026',amount:760,issued:'2026-07-07',due:'2026-07-21',status:'paid'},
-    {id:'I1007',num:'1007',clientName:'Pacific Dental Group',desc:'Maintenance · Jun 2026',amount:320,issued:'2026-07-01',due:'2026-07-15',status:'paid'},
-    {id:'I1006',num:'1006',clientName:'Surfers Paradise Retail',desc:'Maintenance · Jun 2026',amount:560,issued:'2026-07-01',due:'2026-07-15',status:'paid'}
-  ];
-  var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
-  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
-  function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
-  function nextNum(){var inv=load()||[];var nums=inv.map(function(x){return parseInt(x.num,10)||0;});return String(Math.max.apply(null,nums.length?nums:[1011])+1);}
-  var activeFilter='all';
-  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
-  function isDueLate(iso){if(!iso)return false;return new Date(iso+'T00:00:00')<new Date();}
-  function renderRow(inv){
-    var dueCls=inv.status==='overdue'?' late':inv.status==='unpaid'&&isDueLate(inv.due)?' late':inv.status==='unpaid'?' warn':' ok';
-    return '<div class="inv-row '+inv.status+'" data-status="'+inv.status+'">'+
+'use strict';
+var KEY='mq_invoices';
+var CLIENT_KEY='mq_clients';
+var DEFAULTS=[
+  {id:'I1008',num:'1008',clientName:'Coastal Medical Centre',desc:'Maintenance · Jun 2026',amount:480,issued:'2026-07-01',due:'2026-07-14',status:'overdue'},
+  {id:'I1011',num:'1011',clientName:'Robina Business Park',desc:'Maintenance · Jul 2026',amount:240,issued:'2026-07-14',due:'2026-07-31',status:'unpaid'},
+  {id:'I1010',num:'1010',clientName:'Aria Property Group',desc:'Maintenance + Deep clean · Jul 2026',amount:600,issued:'2026-07-07',due:'2026-07-21',status:'paid'},
+  {id:'I1009',num:'1009',clientName:'Broadbeach Shopping Co.',desc:'Maintenance · Jul 2026',amount:760,issued:'2026-07-07',due:'2026-07-21',status:'paid'},
+  {id:'I1007',num:'1007',clientName:'Pacific Dental Group',desc:'Maintenance · Jun 2026',amount:320,issued:'2026-07-01',due:'2026-07-15',status:'paid'},
+  {id:'I1006',num:'1006',clientName:'Surfers Paradise Retail',desc:'Maintenance · Jun 2026',amount:560,issued:'2026-07-01',due:'2026-07-15',status:'paid'}
+];
+var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+function nextNum(){var inv=load()||[];var nums=inv.map(function(x){return parseInt(x.num,10)||0;});return String(Math.max.apply(null,nums.length?nums:[1011])+1);}
+function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
+var activeFilter='all';
+var openId=null;
+var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
+function isDueLate(iso){if(!iso)return false;return new Date(iso+'T00:00:00')<new Date();}
+function renderExpand(inv){
+  var dueCls=inv.status==='overdue'?' late':inv.status==='unpaid'&&isDueLate(inv.due)?' late':inv.status==='unpaid'?' warn':' ok';
+  var actions='';
+  if(inv.status==='unpaid'||inv.status==='overdue')actions+='<button class="xp-btn primary" data-action="paid">Mark as paid</button>';
+  if(inv.status==='overdue')actions+='<button class="xp-btn" data-action="unpaid">Mark as unpaid</button>';
+  if(inv.status==='unpaid')actions+='<button class="xp-btn" data-action="overdue">Mark as overdue</button>';
+  if(inv.status==='paid')actions+='<button class="xp-btn" data-action="unpaid">Mark as unpaid</button>';
+  actions+='<button class="xp-btn danger" data-action="delete">Delete invoice</button>';
+  return '<div class="xp-grid">'+
+    '<div><div class="xp-lbl">Invoice</div><div class="xp-val">#'+esc(inv.num||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(inv.clientName||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Issued</div><div class="xp-val">'+fmtDate(inv.issued)+'</div></div>'+
+    '<div><div class="xp-lbl">Due</div><div class="xp-val inv-due'+dueCls+'">'+fmtDate(inv.due)+'</div></div>'+
+    '<div><div class="xp-lbl">Amount</div><div class="xp-val" style="font-size:15px;font-weight:700">$'+Number(inv.amount||0).toLocaleString()+'</div></div>'+
+    '<div><div class="xp-lbl">Status</div><div class="xp-val"><span class="badge '+inv.status+'">'+inv.status.charAt(0).toUpperCase()+inv.status.slice(1)+'</span></div></div>'+
+    (inv.desc?'<div style="grid-column:1/-1"><div class="xp-lbl">Description</div><div class="xp-val">'+esc(inv.desc)+'</div></div>':'')+
+    '</div>'+
+    '<div class="xp-actions">'+actions+'</div>';
+}
+function renderRow(inv){
+  var isOpen=openId===inv.id;
+  var dueCls=inv.status==='overdue'?' late':inv.status==='unpaid'&&isDueLate(inv.due)?' late':inv.status==='unpaid'?' warn':' ok';
+  return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(inv.id)+'">'+
+    '<div class="inv-row '+inv.status+'" data-status="'+inv.status+'">'+
       '<div class="inv-num">#'+esc(inv.num)+'</div>'+
       '<div><div class="inv-client">'+esc(inv.clientName||'—')+'</div><div class="inv-sub">'+esc(inv.desc||'')+'</div></div>'+
       '<div class="inv-date">'+fmtDate(inv.issued)+'</div>'+
@@ -231,91 +271,115 @@
       '<span class="badge '+inv.status+'">'+inv.status.charAt(0).toUpperCase()+inv.status.slice(1)+'</span>'+
       '<div class="inv-amt">$'+Number(inv.amount||0).toLocaleString()+'</div>'+
       '<div class="inv-arr">'+ARR+'</div>'+
-    '</div>';
-  }
-  function renderAll(){
-    var invs=load()||[];
-    var overdue=invs.filter(function(i){return i.status==='overdue';});
-    var unpaid=invs.filter(function(i){return i.status==='unpaid';});
-    var paid=invs.filter(function(i){return i.status==='paid';});
-    var overdueAmt=overdue.reduce(function(s,i){return s+(i.amount||0);},0);
-    var unpaidAmt=unpaid.reduce(function(s,i){return s+(i.amount||0);},0)+overdueAmt;
-    var paidAmt=paid.reduce(function(s,i){return s+(i.amount||0);},0);
-    var allAmt=invs.reduce(function(s,i){return s+(i.amount||0);},0);
-    var statsEl=document.querySelector('.stats');
-    if(statsEl) statsEl.innerHTML=
-      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+unpaidAmt.toLocaleString()+'</div><div class="stat-hint">'+(overdue.length+unpaid.length)+' unpaid</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Overdue</div><div class="stat-val">$'+overdueAmt.toLocaleString()+'</div><div class="stat-hint">'+overdue.length+' invoice'+(overdue.length!==1?'s':'')+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Paid</div><div class="stat-val">$'+paidAmt.toLocaleString()+'</div><div class="stat-hint">'+paid.length+' invoice'+(paid.length!==1?'s':'')+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Total invoiced</div><div class="stat-val">$'+allAmt.toLocaleString()+'</div><div class="stat-hint">All time</div></div>';
-    var html='';
-    invs.forEach(function(i){
-      if(activeFilter==='all'||activeFilter===i.status) html+=renderRow(i);
-    });
-    document.getElementById('inv-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No invoices match your filter.</div>';
-  }
-  // Filter pills
-  var pills=document.querySelectorAll('.f-pill');
-  pills.forEach(function(p){
-    p.addEventListener('click',function(){
-      pills.forEach(function(x){x.classList.remove('on');});
-      this.classList.add('on');
-      activeFilter=this.getAttribute('data-filter');
-      renderAll();
-    });
-  });
-  // Modal
-  var modal=document.getElementById('inv-modal');
-  function openModal(){
-    var clients=loadClients();
-    var sel=document.getElementById('if-client');
-    sel.innerHTML='<option value="">Select client…</option>';
-    clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-    var today=new Date().toISOString().slice(0,10);
-    var due=new Date();due.setDate(due.getDate()+14);
-    document.getElementById('if-issued').value=today;
-    document.getElementById('if-due').value=due.toISOString().slice(0,10);
-    modal.hidden=false;
-    setTimeout(function(){document.getElementById('if-client').focus();},40);
-  }
-  function closeModal(){
-    modal.hidden=true;
-    ['if-desc','if-amount'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    document.getElementById('if-status').value='unpaid';
-  }
-  document.getElementById('new-inv-btn').addEventListener('click',openModal);
-  document.getElementById('inv-modal-close').addEventListener('click',closeModal);
-  document.getElementById('inv-modal-cancel').addEventListener('click',closeModal);
-  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
-  document.getElementById('inv-modal-save').addEventListener('click',function(){
-    var sel=document.getElementById('if-client');
-    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
-    var amount=parseInt(document.getElementById('if-amount').value)||0;
-    if(!amount){document.getElementById('if-amount').focus();return;}
-    var invs=load()||[];
-    invs.unshift({
-      id:'I'+Date.now(),
-      num:nextNum(),
-      clientId:sel.value,
-      clientName:clientName,
-      desc:document.getElementById('if-desc').value.trim(),
-      amount:amount,
-      issued:document.getElementById('if-issued').value||new Date().toISOString().slice(0,10),
-      due:document.getElementById('if-due').value||'',
-      status:document.getElementById('if-status').value
-    });
-    save(invs);
-    closeModal();
+    '</div>'+
+    '<div class="xp-body'+(isOpen?' open':'')+'"><div class="xp-inner">'+renderExpand(inv)+'</div></div>'+
+  '</div>';
+}
+function renderAll(){
+  var invs=load()||[];
+  var overdue=invs.filter(function(i){return i.status==='overdue';});
+  var unpaid=invs.filter(function(i){return i.status==='unpaid';});
+  var paid=invs.filter(function(i){return i.status==='paid';});
+  var overdueAmt=overdue.reduce(function(s,i){return s+(i.amount||0);},0);
+  var unpaidAmt=unpaid.reduce(function(s,i){return s+(i.amount||0);},0)+overdueAmt;
+  var paidAmt=paid.reduce(function(s,i){return s+(i.amount||0);},0);
+  var allAmt=invs.reduce(function(s,i){return s+(i.amount||0);},0);
+  var statsEl=document.querySelector('.stats');
+  if(statsEl) statsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+unpaidAmt.toLocaleString()+'</div><div class="stat-hint">'+(overdue.length+unpaid.length)+' unpaid</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Overdue</div><div class="stat-val">$'+overdueAmt.toLocaleString()+'</div><div class="stat-hint">'+overdue.length+' invoice'+(overdue.length!==1?'s':'')+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Paid</div><div class="stat-val">$'+paidAmt.toLocaleString()+'</div><div class="stat-hint">'+paid.length+' invoice'+(paid.length!==1?'s':'')+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Total invoiced</div><div class="stat-val">$'+allAmt.toLocaleString()+'</div><div class="stat-hint">All time</div></div>';
+  var html='';
+  invs.forEach(function(i){if(activeFilter==='all'||activeFilter===i.status)html+=renderRow(i);});
+  document.getElementById('inv-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No invoices match your filter.</div>';
+}
+var pills=document.querySelectorAll('.f-pill');
+pills.forEach(function(p){
+  p.addEventListener('click',function(){
+    pills.forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    activeFilter=this.getAttribute('data-filter');
     renderAll();
   });
-  // Mobile nav
-  var mob=document.getElementById('mob-menu');
-  var mOverlay=document.getElementById('mob-overlay');
-  function navClose(){document.body.classList.remove('mob-open');}
-  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
-  init();
-  renderAll();
+});
+var modal=document.getElementById('inv-modal');
+function openModal(){
+  var clients=loadClients();
+  var sel=document.getElementById('if-client');
+  sel.innerHTML='<option value="">Select client…</option>';
+  clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  var today=new Date().toISOString().slice(0,10);
+  var due=new Date();due.setDate(due.getDate()+14);
+  document.getElementById('if-issued').value=today;
+  document.getElementById('if-due').value=due.toISOString().slice(0,10);
+  modal.hidden=false;
+  setTimeout(function(){document.getElementById('if-client').focus();},40);
+}
+function closeModal(){
+  modal.hidden=true;
+  ['if-desc','if-amount'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('if-status').value='unpaid';
+}
+document.getElementById('new-inv-btn').addEventListener('click',openModal);
+document.getElementById('inv-modal-close').addEventListener('click',closeModal);
+document.getElementById('inv-modal-cancel').addEventListener('click',closeModal);
+modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+document.getElementById('inv-modal-save').addEventListener('click',function(){
+  var sel=document.getElementById('if-client');
+  var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+  var amount=parseInt(document.getElementById('if-amount').value)||0;
+  if(!amount){document.getElementById('if-amount').focus();return;}
+  var invs=load()||[];
+  invs.unshift({id:'I'+Date.now(),num:nextNum(),clientId:sel.value,clientName:clientName,desc:document.getElementById('if-desc').value.trim(),amount:amount,issued:document.getElementById('if-issued').value||new Date().toISOString().slice(0,10),due:document.getElementById('if-due').value||'',status:document.getElementById('if-status').value});
+  save(invs);closeModal();renderAll();
+});
+function updateInvStatus(id,newStatus){
+  var invs=load()||[];
+  invs.forEach(function(i){if(i.id===id)i.status=newStatus;});
+  save(invs);renderAll();
+}
+function deleteInvoice(id){
+  if(!confirm('Delete this invoice? This cannot be undone.'))return;
+  save((load()||[]).filter(function(i){return i.id!==id;}));
+  openId=null;renderAll();
+}
+document.getElementById('inv-body').addEventListener('click',function(e){
+  var actionEl=e.target.closest('[data-action]');
+  if(actionEl){
+    var wid=actionEl.closest('.xp-wrap').dataset.id;
+    var act=actionEl.dataset.action;
+    if(act==='delete')deleteInvoice(wid);
+    else updateInvStatus(wid,act);
+    return;
+  }
+  var row=e.target.closest('.inv-row');
+  if(!row)return;
+  var wrap=row.parentElement;
+  var id=wrap.dataset.id;
+  if(openId===id){
+    wrap.classList.remove('open');
+    wrap.querySelector('.xp-body').classList.remove('open');
+    openId=null;
+  } else {
+    if(openId){var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}}
+    wrap.classList.add('open');
+    wrap.querySelector('.xp-body').classList.add('open');
+    openId=id;
+  }
+});
+var mob=document.getElementById('mob-menu');
+var mOverlay=document.getElementById('mob-overlay');
+function navClose(){document.body.classList.remove('mob-open');}
+if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+init();
+renderAll();
+if(getParam('newinv')==='1'){
+  openModal();
+  var cid=getParam('cid');
+  if(cid)setTimeout(function(){document.getElementById('if-client').value=cid;},50);
+}
 })();
 </script>
 </body>
