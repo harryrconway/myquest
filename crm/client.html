@@ -4,16 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Aria Property Group — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260728">
+<title>Client — MyQuest CRM</title>
+<link rel="stylesheet" href="style.css?v=20260729">
 <style>
-/* Client header (navy) */
-.client-hd{
-  background:var(--navy);border-radius:var(--r);
-  padding:30px 34px;
-  display:flex;align-items:flex-start;justify-content:space-between;gap:24px;
-  margin-bottom:14px;
-}
+.client-hd{background:var(--navy);border-radius:var(--r);padding:30px 34px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:14px}
 .ch-namerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
 .ch-name{font-size:clamp(21px,2.4vw,29px);font-weight:700;letter-spacing:-.03em;color:var(--on);line-height:1}
 .ch-sub{font-size:12.5px;color:var(--on-sub);line-height:1.5}
@@ -24,17 +18,12 @@
 .ch-link{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--on-sub);text-decoration:none;transition:color .12s}
 .ch-link:hover{color:var(--on)}
 
-/* Sites */
 .sites-row{margin-bottom:14px}
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .sec-lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .sec-btn{font-size:12px;color:var(--stone);background:none;border:none;font-family:var(--font);font-weight:600;cursor:pointer;padding:0;letter-spacing:.01em;transition:color .12s}
 .sec-btn:hover{color:var(--navy)}
-
-.site-card{
-  background:var(--card);border-radius:var(--r);border:1px solid var(--hair);
-  padding:22px 28px;display:grid;grid-template-columns:1fr 1fr;gap:24px;
-}
+.site-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 28px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .site-name{font-size:14.5px;font-weight:600;color:var(--navy);margin-bottom:4px;letter-spacing:-.01em}
 .site-detail{font-size:12.5px;color:var(--stone);line-height:1.7}
 .site-tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
@@ -47,17 +36,9 @@
 .access-txt{font-size:12px;color:var(--stone);line-height:1.55}
 .access-txt strong{color:var(--navy);font-weight:600}
 
-/* Two-col grid */
 .grid{display:grid;grid-template-columns:1fr 274px;gap:20px;align-items:start}
-
-/* Jobs list */
 .jobs{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-.job{
-  display:grid;grid-template-columns:62px 1fr auto auto;
-  align-items:center;gap:14px;padding:12px 20px 12px 16px;
-  border-bottom:1px solid var(--hair);border-left:3px solid transparent;
-  transition:background .1s;cursor:default;
-}
+.job{display:grid;grid-template-columns:62px 1fr auto auto;align-items:center;gap:14px;padding:12px 20px 12px 16px;border-bottom:1px solid var(--hair);border-left:3px solid transparent;transition:background .1s}
 .job:last-child{border-bottom:none}
 .job:hover{background:rgba(35,44,84,.03)}
 .job.done{border-left-color:var(--green)}
@@ -70,7 +51,8 @@
 .j-sqm{font-size:11.5px;color:var(--stone);white-space:nowrap}
 .j-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* Aside */
+.empty-state{padding:32px 20px;text-align:center;color:var(--stone);font-size:13px;background:var(--card);border-radius:var(--r);border:1px solid var(--hair)}
+
 .sched{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hair)}
 .sched:first-of-type{padding-top:0}
 .sched:last-of-type{border-bottom:none;padding-bottom:0}
@@ -86,11 +68,22 @@
 .team-role{font-size:11px;color:var(--stone)}
 
 .notes-txt{font-size:13px;line-height:1.8;color:var(--stone)}
+.notes-empty{font-size:13px;color:var(--stone);opacity:.5;font-style:italic}
+.notes-ta{width:100%;min-height:100px;padding:10px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);line-height:1.8;outline:none;resize:vertical;transition:border-color .12s}
+.notes-ta:focus{border-color:rgba(35,44,84,.4)}
+.notes-save{margin-top:10px;display:flex;gap:8px;justify-content:flex-end}
+.notes-save-btn{padding:7px 14px;background:var(--navy);color:var(--on);border:none;border-radius:var(--r-sm);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:background .12s}
+.notes-save-btn:hover{background:var(--navy-deep)}
+.notes-cancel-btn{padding:7px 14px;background:none;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);font-family:var(--font);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
+.notes-cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.25)}
 
 .act-btn{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:1.5px solid var(--hair-md);border-radius:11px;background:none;font-family:var(--font);font-size:12.5px;font-weight:500;color:var(--navy);cursor:pointer;margin-bottom:8px;text-align:left;transition:background .12s,border-color .12s}
 .act-btn:last-child{margin-bottom:0}
 .act-btn:hover{background:rgba(35,44,84,.04);border-color:rgba(35,44,84,.2)}
 .act-btn svg{color:var(--stone);flex-shrink:0}
+
+.not-found{padding:80px 0;text-align:center}
+.not-found p{font-size:14px;color:var(--stone);margin-bottom:20px}
 
 @media(max-width:900px){
   .site-card{grid-template-columns:1fr}
@@ -112,7 +105,7 @@
       <span class="sb-name">MyQuest</span>
     </a>
     <nav class="sb-nav">
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Overview
       </a>
@@ -120,24 +113,24 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Clients
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="jobs.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Jobs
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="quotes.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Quotes
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="invoices.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
         Invoices
       </a>
       <hr class="sb-div">
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="reports.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Reports
       </a>
-      <a class="sb-item" href="#">
+      <a class="sb-item" href="staff.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         Staff
       </a>
@@ -150,191 +143,214 @@
     </div>
   </aside>
 
-  <main class="main">
-
-    <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu" style="margin-bottom:12px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <div class="bc pg-1">
-      <a href="index.html">Clients</a>
-      <span class="bc-sep">›</span>
-      <span>Aria Property Group</span>
-    </div>
-
-    <div class="client-hd pg-2">
-      <div>
-        <div class="ch-namerow">
-          <h1 class="ch-name">Aria Property Group</h1>
-          <span class="badge active">Active</span>
-        </div>
-        <p class="ch-sub">Commercial &nbsp;·&nbsp; Sydney CBD &nbsp;·&nbsp; Client since Mar 2025 &nbsp;·&nbsp; Direct referral</p>
-      </div>
-      <div class="ch-right">
-        <div class="ch-cname">Sarah Chen</div>
-        <div class="ch-ctitle">Property Manager</div>
-        <div class="ch-links">
-          <a class="ch-link" href="mailto:sarah@ariagroup.com.au">
-            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            sarah@ariagroup.com.au
-          </a>
-          <a class="ch-link" href="tel:0412234567">
-            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            0412 234 567
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="sites-row pg-3">
-      <div class="sec-hd"><span class="sec-lbl">Properties</span><button class="sec-btn">+ Add site</button></div>
-      <div class="site-card">
-        <div>
-          <div class="site-name">142 Clarence Street</div>
-          <div class="site-detail">Sydney NSW 2000<br>Level 3, Suite 301 &nbsp;·&nbsp; 200 sqm</div>
-          <div class="site-tags">
-            <span class="site-tag hi">Maintenance</span>
-            <span class="site-tag hi">Deep clean</span>
-            <span class="site-tag">Commercial office</span>
-          </div>
-        </div>
-        <div>
-          <div class="access-lbl">Site access</div>
-          <div class="access-row">
-            <svg class="access-ico" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <div class="access-txt">Key safe on Level 3 wall &nbsp;·&nbsp; Code <strong>1492</strong></div>
-          </div>
-          <div class="access-row">
-            <svg class="access-ico" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            <div class="access-txt">Loading bay, Clarence St &nbsp;·&nbsp; 30 min limit</div>
-          </div>
-          <div class="access-row">
-            <svg class="access-ico" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            <div class="access-txt">Security: <strong>1800 242 111</strong> (after hours)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats pg-3">
-      <div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$0</div><div class="stat-hint">All invoices clear</div></div>
-      <div class="stat"><div class="stat-lbl">Contract value</div><div class="stat-val">$6,240</div><div class="stat-hint">Per year · active</div></div>
-      <div class="stat"><div class="stat-lbl">Next clean</div><div class="stat-val">31 Jul</div><div class="stat-hint">Thursday · confirmed</div></div>
-      <div class="stat"><div class="stat-lbl">Total cleans</div><div class="stat-val">24</div><div class="stat-hint">Since Mar 2025</div></div>
-    </div>
-
-    <div class="grid pg-4">
-
-      <div>
-        <div class="sh"><span class="sh-lbl">Recent &amp; upcoming jobs</span><button class="sh-btn">+ Schedule</button></div>
-        <div class="jobs">
-          <div class="job next">
-            <div class="j-date">31 Jul<br>Thu</div>
-            <div class="j-info"><div class="j-tag">Maintenance</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$240</div>
-          </div>
-          <div class="job done">
-            <div class="j-date">24 Jul<br>Thu</div>
-            <div class="j-info"><div class="j-tag">Maintenance</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$240</div>
-          </div>
-          <div class="job done">
-            <div class="j-date">17 Jul<br>Thu</div>
-            <div class="j-info"><div class="j-tag">Maintenance</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$240</div>
-          </div>
-          <div class="job done">
-            <div class="j-date">4 Jul<br>Fri</div>
-            <div class="j-info"><div class="j-tag deep">Deep clean</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$360</div>
-          </div>
-          <div class="job done">
-            <div class="j-date">26 Jun<br>Thu</div>
-            <div class="j-info"><div class="j-tag">Maintenance</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$240</div>
-          </div>
-          <div class="job done">
-            <div class="j-date">19 Jun<br>Thu</div>
-            <div class="j-info"><div class="j-tag">Maintenance</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$240</div>
-          </div>
-          <div class="job done">
-            <div class="j-date">6 Jun<br>Fri</div>
-            <div class="j-info"><div class="j-tag deep">Deep clean</div><div class="j-desc">Clarence St · Level 3</div></div>
-            <div class="j-sqm">200 sqm</div>
-            <div class="j-price">$360</div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="sh" style="margin-top:0"><span class="sh-lbl">Schedule</span><button class="sh-btn">Edit</button></div>
-        <div class="ac">
-          <div class="sched">
-            <div><div class="sched-type">Maintenance</div><div class="sched-sub">Thursdays · 6:00 – 8:00am</div></div>
-            <span class="sched-freq">Weekly</span>
-          </div>
-          <div class="sched">
-            <div><div class="sched-type">Deep clean</div><div class="sched-sub">First Friday · 7:00 – 11:00am</div></div>
-            <span class="sched-freq">Monthly</span>
-          </div>
-        </div>
-
-        <div class="sh"><span class="sh-lbl">Assigned team</span><button class="sh-btn">Manage</button></div>
-        <div class="ac">
-          <div class="team-row">
-            <div class="team-av">JP</div>
-            <div><div class="team-name">Jessica Park</div><div class="team-role">Lead cleaner</div></div>
-          </div>
-          <div class="team-row">
-            <div class="team-av">DT</div>
-            <div><div class="team-name">David Tran</div><div class="team-role">Support cleaner</div></div>
-          </div>
-        </div>
-
-        <div class="sh"><span class="sh-lbl">Actions</span></div>
-        <div class="ac">
-          <button class="act-btn">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
-            Schedule a clean
-          </button>
-          <button class="act-btn">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Send a quote
-          </button>
-          <button class="act-btn">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-            Raise an invoice
-          </button>
-          <button class="act-btn">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Send email
-          </button>
-        </div>
-
-        <div class="sh"><span class="sh-lbl">Notes</span><button class="sh-btn">Edit</button></div>
-        <div class="ac">
-          <p class="notes-txt">No citrus-scented products. Sarah prefers morning slots before 10am. Building security requires sign-in at reception on Level 1 before heading upstairs.</p>
-        </div>
-      </div>
-
-    </div>
+  <main class="main" id="main-content">
+    <!-- populated by JS -->
   </main>
   <div class="sb-backdrop" id="sb-backdrop"></div>
 </div>
+
 <script>
 (function(){
   'use strict';
-  var btn=document.getElementById('mob-menu');
-  var sb=document.querySelector('.sidebar');
-  var bd=document.getElementById('sb-backdrop');
-  function close(){ sb.classList.remove('open'); bd.classList.remove('open'); }
-  if(btn) btn.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
-  if(bd) bd.addEventListener('click',close);
-  document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',close); });
+
+  var KEY='mq_clients';
+
+  function load(){ try{ var s=localStorage.getItem(KEY); return s?JSON.parse(s):null; }catch(e){ return null; } }
+  function save(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
+
+  function getParam(name){
+    var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));
+    return m?decodeURIComponent(m[1]):null;
+  }
+
+  function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  var id=getParam('id');
+  var main=document.getElementById('main-content');
+
+  function findClient(){
+    var clients=load()||[];
+    for(var i=0;i<clients.length;i++){ if(clients[i].id===id) return clients[i]; }
+    return null;
+  }
+
+  function saveClientField(field,value){
+    var clients=load()||[];
+    for(var i=0;i<clients.length;i++){
+      if(clients[i].id===id){ clients[i][field]=value; break; }
+    }
+    save(clients);
+  }
+
+  function renderHamburger(){
+    return '<button class="mob-menu-btn" id="mob-menu" aria-label="Open menu" style="margin-bottom:12px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>';
+  }
+
+  function renderNotFound(){
+    document.title='Not found — MyQuest CRM';
+    main.innerHTML=renderHamburger()+
+      '<div class="bc pg-1"><a href="index.html">Clients</a><span class="bc-sep">›</span><span>Not found</span></div>'+
+      '<div class="not-found pg-2"><p>This client could not be found.</p><a href="index.html" class="ph-btn" style="display:inline-flex">Back to clients</a></div>';
+  }
+
+  function renderClient(c){
+    document.title=escHtml(c.name)+' — MyQuest CRM';
+    var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
+    var bl=c.status.charAt(0).toUpperCase()+c.status.slice(1);
+
+    // Header
+    var subParts=[];
+    if(c.industry) subParts.push(c.industry);
+    var hdRight='';
+    if(c.contact||c.email||c.phone){
+      hdRight='<div class="ch-right">'+
+        (c.contact?'<div class="ch-cname">'+escHtml(c.contact)+'</div>':'')+
+        (c.contactTitle?'<div class="ch-ctitle">'+escHtml(c.contactTitle)+'</div>':'<div style="margin-bottom:12px"></div>')+
+        '<div class="ch-links">'+
+        (c.email?'<a class="ch-link" href="mailto:'+escHtml(c.email)+'"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'+escHtml(c.email)+'</a>':'')+
+        (c.phone?'<a class="ch-link" href="tel:'+escHtml(c.phone.replace(/\s/g,''))+'"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+escHtml(c.phone)+'</a>':'')+
+        '</div></div>';
+    }
+
+    var hd='<div class="client-hd pg-2">'+
+      '<div><div class="ch-namerow"><h1 class="ch-name">'+escHtml(c.name)+'</h1><span class="badge '+bc+'">'+bl+'</span></div>'+
+      (subParts.length?'<p class="ch-sub">'+escHtml(subParts.join(' · '))+'</p>':'')+
+      '</div>'+hdRight+
+    '</div>';
+
+    // Site card
+    var siteHtml='';
+    if(c.site){
+      var s=c.site;
+      var tags=(s.tags||[]).map(function(t){ return '<span class="site-tag hi">'+escHtml(t)+'</span>'; }).join('');
+      siteHtml='<div class="sites-row pg-3">'+
+        '<div class="sec-hd"><span class="sec-lbl">Properties</span></div>'+
+        '<div class="site-card">'+
+          '<div><div class="site-name">'+escHtml(s.name)+'</div>'+
+          '<div class="site-detail">'+escHtml(s.address)+(s.detail?'<br>'+escHtml(s.detail):'')+'</div>'+
+          (tags?'<div class="site-tags">'+tags+'</div>':'')+
+          '</div>'+
+          '<div><div class="access-lbl">Site access</div>'+
+          (s.code?'<div class="access-row"><svg class="access-ico" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="access-txt">Key safe · Code <strong>'+escHtml(s.code)+'</strong></div></div>':'')+
+          (s.parking?'<div class="access-row"><svg class="access-ico" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><div class="access-txt">'+escHtml(s.parking)+'</div></div>':'')+
+          (s.security?'<div class="access-row"><svg class="access-ico" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><div class="access-txt">Security: <strong>'+escHtml(s.security)+'</strong></div></div>':'')+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }
+
+    // Stats
+    var nc=c.nextClean||'—';
+    var ncHint=c.nextClean?'Confirmed':'Not scheduled';
+    var stats='<div class="stats pg-3">'+
+      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+(c.outstanding||0).toLocaleString()+'</div><div class="stat-hint">'+(c.outstanding?'Unpaid invoices':'All invoices clear')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Contract value</div><div class="stat-val">'+(c.contract?'$'+Number(c.contract).toLocaleString():'—')+'</div><div class="stat-hint">'+(c.contract?'Per year · '+bl.toLowerCase():'Not set')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Next clean</div><div class="stat-val">'+(c.nextClean?c.nextClean.split('·')[0].trim():'—')+'</div><div class="stat-hint">'+ncHint+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Total cleans</div><div class="stat-val">'+(c.totalCleans||0)+'</div><div class="stat-hint">'+(c.totalCleans?'Since client start':'No cleans yet')+'</div></div>'+
+    '</div>';
+
+    // Jobs
+    var jobsHtml;
+    if(c.jobs&&c.jobs.length){
+      var rows=c.jobs.map(function(j){
+        var isDeep=j.type==='Deep clean';
+        return '<div class="job '+j.status+'">'+
+          '<div class="j-date">'+escHtml(j.date)+'<br>'+escHtml(j.day)+'</div>'+
+          '<div class="j-info"><div class="j-tag'+(isDeep?' deep':'')+'">'+escHtml(j.type)+'</div><div class="j-desc">'+escHtml(j.desc)+'</div></div>'+
+          '<div class="j-sqm">'+j.sqm+' sqm</div>'+
+          '<div class="j-price">$'+j.price+'</div>'+
+        '</div>';
+      }).join('');
+      jobsHtml='<div class="jobs">'+rows+'</div>';
+    } else {
+      jobsHtml='<div class="empty-state">No jobs scheduled yet.</div>';
+    }
+
+    // Schedule aside
+    var schedHtml;
+    if(c.schedule&&c.schedule.length){
+      schedHtml=c.schedule.map(function(s){
+        return '<div class="sched"><div><div class="sched-type">'+escHtml(s.type)+'</div><div class="sched-sub">'+escHtml(s.sub)+'</div></div><span class="sched-freq">'+escHtml(s.freq)+'</span></div>';
+      }).join('');
+    } else {
+      schedHtml='<p class="notes-empty">No schedule set.</p>';
+    }
+
+    // Team aside
+    var teamHtml;
+    if(c.team&&c.team.length){
+      teamHtml=c.team.map(function(t){
+        return '<div class="team-row"><div class="team-av">'+escHtml(t.initials)+'</div><div><div class="team-name">'+escHtml(t.name)+'</div><div class="team-role">'+escHtml(t.role)+'</div></div></div>';
+      }).join('');
+    } else {
+      teamHtml='<p class="notes-empty">No team assigned.</p>';
+    }
+
+    var notesContent=c.notes?'<p class="notes-txt">'+escHtml(c.notes)+'</p>':'<p class="notes-empty">No notes yet.</p>';
+
+    var grid='<div class="grid pg-4">'+
+      '<div>'+
+        '<div class="sh"><span class="sh-lbl">Jobs</span></div>'+
+        jobsHtml+
+      '</div>'+
+      '<div>'+
+        '<div class="sh" style="margin-top:0"><span class="sh-lbl">Schedule</span></div>'+
+        '<div class="ac">'+schedHtml+'</div>'+
+        '<div class="sh"><span class="sh-lbl">Team</span></div>'+
+        '<div class="ac">'+teamHtml+'</div>'+
+        '<div class="sh"><span class="sh-lbl">Actions</span></div>'+
+        '<div class="ac">'+
+          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>Schedule a clean</button>'+
+          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Send a quote</button>'+
+          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Raise an invoice</button>'+
+          '<button class="act-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send email</button>'+
+        '</div>'+
+        '<div class="sh"><span class="sh-lbl">Notes</span><button class="sh-btn" id="notes-edit-btn">Edit</button></div>'+
+        '<div class="ac"><div id="notes-display">'+notesContent+'</div></div>'+
+      '</div>'+
+    '</div>';
+
+    main.innerHTML=
+      renderHamburger()+
+      '<div class="bc pg-1"><a href="index.html">Clients</a><span class="bc-sep">›</span><span>'+escHtml(c.name)+'</span></div>'+
+      hd+siteHtml+stats+grid;
+
+    // Notes editing
+    document.getElementById('notes-edit-btn').addEventListener('click',function(){
+      var display=document.getElementById('notes-display');
+      var current=c.notes||'';
+      display.innerHTML='<textarea class="notes-ta" id="notes-ta">'+escHtml(current)+'</textarea>'+
+        '<div class="notes-save">'+
+          '<button class="notes-cancel-btn" id="notes-cancel">Cancel</button>'+
+          '<button class="notes-save-btn" id="notes-save">Save</button>'+
+        '</div>';
+      document.getElementById('notes-ta').focus();
+      document.getElementById('notes-cancel').addEventListener('click',function(){
+        display.innerHTML=c.notes?'<p class="notes-txt">'+escHtml(c.notes)+'</p>':'<p class="notes-empty">No notes yet.</p>';
+      });
+      document.getElementById('notes-save').addEventListener('click',function(){
+        var val=document.getElementById('notes-ta').value.trim();
+        c.notes=val;
+        saveClientField('notes',val);
+        display.innerHTML=val?'<p class="notes-txt">'+escHtml(val)+'</p>':'<p class="notes-empty">No notes yet.</p>';
+      });
+    });
+
+    // Mobile nav (wired after render)
+    var mob=document.getElementById('mob-menu');
+    var sb=document.querySelector('.sidebar');
+    var bd=document.getElementById('sb-backdrop');
+    function navClose(){ sb.classList.remove('open'); bd.classList.remove('open'); }
+    if(mob) mob.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
+    if(bd) bd.addEventListener('click',navClose);
+    document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',navClose); });
+  }
+
+  if(!id){ renderNotFound(); return; }
+  var client=findClient();
+  if(!client){ renderNotFound(); return; }
+  renderClient(client);
+
 })();
 </script>
 </body>

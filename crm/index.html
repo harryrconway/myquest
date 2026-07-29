@@ -5,80 +5,59 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260728">
+<link rel="stylesheet" href="style.css?v=20260729">
 <style>
-/* Search + filter bar */
-.toolbar{
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:22px;flex-wrap:wrap;
-}
-.search-wrap{
-  position:relative;flex:1;min-width:180px;max-width:320px;
-}
-.search-wrap svg{
-  position:absolute;left:11px;top:50%;transform:translateY(-50%);
-  color:var(--stone);pointer-events:none;
-}
-.search{
-  width:100%;padding:9px 12px 9px 34px;
-  background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);
-  font-family:var(--font);font-size:13px;color:var(--navy);
-  outline:none;transition:border-color .12s;
-}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--stone);pointer-events:none}
+.search{width:100%;padding:9px 12px 9px 34px;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s}
 .search::placeholder{color:var(--stone)}
 .search:focus{border-color:var(--hair-md)}
 .filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.f-pill{
-  padding:7px 13px;border-radius:999px;
-  font-size:12px;font-weight:600;letter-spacing:.01em;
-  border:1.5px solid var(--hair-md);background:none;
-  color:var(--stone);cursor:pointer;font-family:var(--font);
-  transition:color .12s,background .12s,border-color .12s;
-}
+.f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
 .f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 
-/* Client list */
 .client-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-
-.cl-head{
-  display:grid;
-  grid-template-columns:2fr 100px 120px 100px 100px 40px;
-  gap:12px;padding:10px 20px;
-  border-bottom:1px solid var(--hair);
-}
-.cl-head span{
-  font-size:9px;font-weight:700;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--stone);
-}
-
-.cl-row{
-  display:grid;
-  grid-template-columns:2fr 100px 120px 100px 100px 40px;
-  gap:12px;padding:14px 20px;
-  align-items:center;
-  border-bottom:1px solid var(--hair);
-  text-decoration:none;color:inherit;
-  transition:background .1s;cursor:pointer;
-}
+.cl-head{display:grid;grid-template-columns:2fr 100px 120px 100px 100px 40px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.cl-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
+.cl-row{display:grid;grid-template-columns:2fr 100px 120px 100px 100px 40px;gap:12px;padding:14px 20px;align-items:center;border-bottom:1px solid var(--hair);text-decoration:none;color:inherit;transition:background .1s;cursor:pointer}
 .cl-row:last-child{border-bottom:none}
 .cl-row:hover{background:rgba(35,44,84,.03)}
-
 .cl-name{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:3px;letter-spacing:-.01em}
 .cl-sub{font-size:11.5px;color:var(--stone)}
-.cl-industry{
-  display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);
-  padding:2px 7px;border-radius:4px;margin-top:4px;
-}
+.cl-industry{display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;margin-top:4px}
 .cl-val{font-size:13px;font-variant-numeric:tabular-nums;color:var(--navy)}
-.cl-val.muted{color:var(--stone)}
 .cl-val.warn{color:var(--amber);font-weight:600}
 .cl-val.ok{color:var(--stone)}
 .cl-next{font-size:12px;color:var(--navy);font-variant-numeric:tabular-nums}
 .cl-next.blank{color:var(--stone)}
 .cl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end;transition:color .12s}
 .cl-row:hover .cl-arr{color:var(--navy)}
+.cl-empty{padding:48px 20px;text-align:center;color:var(--stone);font-size:13px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-overlay[hidden]{display:none}
+.modal-card{background:var(--card);border-radius:var(--r);width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.18);overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 18px;border-bottom:1px solid var(--hair)}
+.modal-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.015em}
+.modal-close{width:28px;height:28px;border-radius:7px;border:none;background:none;color:var(--stone);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+.modal-close:hover{background:rgba(35,44,84,.07);color:var(--navy)}
+.modal-body{padding:20px 24px}
+.form-row{margin-bottom:14px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
+.form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
+.form-input:focus{border-color:rgba(35,44,84,.4)}
+.form-input::placeholder{color:var(--stone)}
+select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.input-pfx{position:relative}
+.input-pfx-sym{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--stone);pointer-events:none}
+.form-input.pfx{padding-left:22px}
+.modal-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--hair)}
+.cancel-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
+.cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.25)}
 </style>
 </head>
 <body>
@@ -133,34 +112,13 @@
     <div class="ph pg-1">
       <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
       <h1 class="ph-title">Clients</h1>
-      <button class="ph-btn">
+      <button class="ph-btn" id="new-client-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New client
       </button>
     </div>
 
-    <div class="stats pg-2">
-      <div class="stat">
-        <div class="stat-lbl">Total clients</div>
-        <div class="stat-val">7</div>
-        <div class="stat-hint">6 active · 1 onboarding</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Cleans this week</div>
-        <div class="stat-val">9</div>
-        <div class="stat-hint">Mon – Sun</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Outstanding</div>
-        <div class="stat-val">$720</div>
-        <div class="stat-hint">2 invoices overdue</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Annual contracted</div>
-        <div class="stat-val">$46,800</div>
-        <div class="stat-hint">Across all clients</div>
-      </div>
-    </div>
+    <div class="stats pg-2" id="stats-strip"></div>
 
     <div class="toolbar pg-3">
       <div class="search-wrap">
@@ -177,160 +135,211 @@
 
     <div class="pg-4">
       <div class="tbl-scroll">
-      <div class="client-list">
-        <div class="cl-head">
-          <span>Client</span>
-          <span>Status</span>
-          <span>Next clean</span>
-          <span>Contract</span>
-          <span>Outstanding</span>
-          <span></span>
+        <div class="client-list">
+          <div class="cl-head">
+            <span>Client</span><span>Status</span><span>Next clean</span>
+            <span>Contract</span><span>Outstanding</span><span></span>
+          </div>
+          <div id="cl-body"></div>
         </div>
-
-        <a class="cl-row" href="client.html" data-status="active" data-name="Aria Property Group">
-          <div>
-            <div class="cl-name">Aria Property Group</div>
-            <div class="cl-sub">Sarah Chen &nbsp;·&nbsp; sarah@ariagroup.com.au</div>
-            <span class="cl-industry">Commercial office</span>
-          </div>
-          <div><span class="badge active">Active</span></div>
-          <div class="cl-next">31 Jul · Thu</div>
-          <div class="cl-val">$6,240<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val ok">$0</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-        <a class="cl-row" href="client.html" data-status="active" data-name="Coastal Medical Centre">
-          <div>
-            <div class="cl-name">Coastal Medical Centre</div>
-            <div class="cl-sub">James Nguyen &nbsp;·&nbsp; jnguyen@coastalmed.com.au</div>
-            <span class="cl-industry">Medical</span>
-          </div>
-          <div><span class="badge active">Active</span></div>
-          <div class="cl-next">29 Jul · Tue</div>
-          <div class="cl-val">$8,320<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val warn">$480</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-        <a class="cl-row" href="client.html" data-status="active" data-name="Broadbeach Shopping Co.">
-          <div>
-            <div class="cl-name">Broadbeach Shopping Co.</div>
-            <div class="cl-sub">Michelle Park &nbsp;·&nbsp; mpark@broadbeachsc.com.au</div>
-            <span class="cl-industry">Retail</span>
-          </div>
-          <div><span class="badge active">Active</span></div>
-          <div class="cl-next">2 Aug · Sat</div>
-          <div class="cl-val">$12,480<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val ok">$0</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-        <a class="cl-row" href="client.html" data-status="active" data-name="Pacific Dental Group">
-          <div>
-            <div class="cl-name">Pacific Dental Group</div>
-            <div class="cl-sub">Karen Wu &nbsp;·&nbsp; karen@pacificdental.com.au</div>
-            <span class="cl-industry">Medical</span>
-          </div>
-          <div><span class="badge active">Active</span></div>
-          <div class="cl-next">28 Jul · Mon</div>
-          <div class="cl-val">$4,160<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val ok">$0</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-        <a class="cl-row" href="client.html" data-status="active" data-name="Robina Business Park">
-          <div>
-            <div class="cl-name">Robina Business Park</div>
-            <div class="cl-sub">Tony Marshall &nbsp;·&nbsp; tony@robinapark.com.au</div>
-            <span class="cl-industry">Industrial</span>
-          </div>
-          <div><span class="badge active">Active</span></div>
-          <div class="cl-next">1 Aug · Fri</div>
-          <div class="cl-val">$5,200<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val warn">$240</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-        <a class="cl-row" href="client.html" data-status="active" data-name="Surfers Paradise Retail">
-          <div>
-            <div class="cl-name">Surfers Paradise Retail</div>
-            <div class="cl-sub">Leanne Carter &nbsp;·&nbsp; lcarter@spretail.com.au</div>
-            <span class="cl-industry">Retail</span>
-          </div>
-          <div><span class="badge active">Active</span></div>
-          <div class="cl-next">30 Jul · Wed</div>
-          <div class="cl-val">$7,280<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val ok">$0</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-        <a class="cl-row" href="client.html" data-status="onboarding" data-name="The Grove Apartments">
-          <div>
-            <div class="cl-name">The Grove Apartments</div>
-            <div class="cl-sub">David Lim &nbsp;·&nbsp; dlim@thegrove.com.au</div>
-            <span class="cl-industry">Strata</span>
-          </div>
-          <div><span class="badge onboarding">Onboarding</span></div>
-          <div class="cl-next blank">—</div>
-          <div class="cl-val">$3,120<span style="font-size:10px;color:var(--stone)">/yr</span></div>
-          <div class="cl-val ok">$0</div>
-          <div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-
-      </div>
       </div>
     </div>
 
   </main>
   <div class="sb-backdrop" id="sb-backdrop"></div>
 </div>
+
+<div class="modal-overlay" id="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title">New client</span>
+      <button class="modal-close" id="modal-close" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-lbl" for="f-name">Business name</label>
+        <input class="form-input" type="text" id="f-name" placeholder="e.g. Tweed Ultima" autocomplete="off">
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="f-industry">Industry</label>
+          <select class="form-input" id="f-industry">
+            <option value="Commercial office">Commercial office</option>
+            <option value="Strata">Strata</option>
+            <option value="Medical">Medical</option>
+            <option value="Retail">Retail</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-lbl" for="f-status">Status</label>
+          <select class="form-input" id="f-status">
+            <option value="onboarding">Onboarding</option>
+            <option value="active">Active</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="f-contact">Contact name</label>
+          <input class="form-input" type="text" id="f-contact" placeholder="Full name" autocomplete="off">
+        </div>
+        <div>
+          <label class="form-lbl" for="f-phone">Phone</label>
+          <input class="form-input" type="tel" id="f-phone" placeholder="04xx xxx xxx">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="f-email">Email</label>
+        <input class="form-input" type="email" id="f-email" placeholder="name@company.com.au">
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="f-contract">Estimated annual contract</label>
+        <div class="input-pfx">
+          <span class="input-pfx-sym">$</span>
+          <input class="form-input pfx" type="number" id="f-contract" min="0" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel-btn" id="modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="modal-save">Add client</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
-  var pills=document.querySelectorAll('.f-pill');
-  var rows=document.querySelectorAll('.cl-row');
-  var searchEl=document.querySelector('.search');
-  var activeFilter='all';
-  var searchTerm='';
 
-  function apply(){
-    rows.forEach(function(r){
-      var status=r.getAttribute('data-status')||'';
-      var name=(r.getAttribute('data-name')||'').toLowerCase();
-      var matchFilter=(activeFilter==='all'||activeFilter===status);
-      var matchSearch=!searchTerm||name.indexOf(searchTerm)!==-1;
-      r.style.display=(matchFilter&&matchSearch)?'':'none';
-    });
+  var KEY='mq_clients';
+
+  var DEFAULTS=[
+    {id:'aria-property-group',name:'Aria Property Group',contact:'Sarah Chen',contactTitle:'Property Manager',email:'sarah@ariagroup.com.au',phone:'0412 234 567',industry:'Commercial office',status:'active',contract:6240,outstanding:0,nextClean:'31 Jul · Thu',totalCleans:24,notes:'No citrus-scented products. Sarah prefers morning slots before 10am. Building security requires sign-in at reception on Level 1 before heading upstairs.',site:{name:'142 Clarence Street',address:'Sydney NSW 2000',detail:'Level 3, Suite 301 · 200 sqm',sqm:200,tags:['Maintenance','Deep clean','Commercial office'],code:'1492',parking:'Loading bay, Clarence St · 30 min limit',security:'1800 242 111'},jobs:[{date:'31 Jul',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'next'},{date:'24 Jul',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'17 Jul',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'4 Jul',day:'Fri',type:'Deep clean',desc:'Clarence St · Level 3',sqm:200,price:360,status:'done'},{date:'26 Jun',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'19 Jun',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'6 Jun',day:'Fri',type:'Deep clean',desc:'Clarence St · Level 3',sqm:200,price:360,status:'done'}],schedule:[{type:'Maintenance',sub:'Thursdays · 6:00–8:00am',freq:'Weekly'},{type:'Deep clean',sub:'First Friday · 7:00–11:00am',freq:'Monthly'}],team:[{initials:'JP',name:'Jessica Park',role:'Lead cleaner'},{initials:'DT',name:'David Tran',role:'Support cleaner'}]},
+    {id:'coastal-medical-centre',name:'Coastal Medical Centre',contact:'James Nguyen',contactTitle:'Practice Manager',email:'jnguyen@coastalmed.com.au',phone:'07 5523 4567',industry:'Medical',status:'active',contract:8320,outstanding:480,nextClean:'29 Jul · Tue',totalCleans:18,notes:'',site:null,jobs:[],schedule:[],team:[]},
+    {id:'broadbeach-shopping-co',name:'Broadbeach Shopping Co.',contact:'Michelle Park',contactTitle:'Centre Manager',email:'mpark@broadbeachsc.com.au',phone:'07 5534 2211',industry:'Retail',status:'active',contract:12480,outstanding:0,nextClean:'2 Aug · Sat',totalCleans:32,notes:'',site:null,jobs:[],schedule:[],team:[]},
+    {id:'pacific-dental-group',name:'Pacific Dental Group',contact:'Karen Wu',contactTitle:'Practice Owner',email:'karen@pacificdental.com.au',phone:'07 5567 8912',industry:'Medical',status:'active',contract:4160,outstanding:0,nextClean:'28 Jul · Mon',totalCleans:12,notes:'',site:null,jobs:[],schedule:[],team:[]},
+    {id:'robina-business-park',name:'Robina Business Park',contact:'Tony Marshall',contactTitle:'Facilities Manager',email:'tony@robinapark.com.au',phone:'07 5578 3344',industry:'Industrial',status:'active',contract:5200,outstanding:240,nextClean:'1 Aug · Fri',totalCleans:9,notes:'',site:null,jobs:[],schedule:[],team:[]},
+    {id:'surfers-paradise-retail',name:'Surfers Paradise Retail',contact:'Leanne Carter',contactTitle:'Retail Manager',email:'lcarter@spretail.com.au',phone:'07 5539 1122',industry:'Retail',status:'active',contract:7280,outstanding:0,nextClean:'30 Jul · Wed',totalCleans:14,notes:'',site:null,jobs:[],schedule:[],team:[]},
+    {id:'the-grove-apartments',name:'The Grove Apartments',contact:'David Lim',contactTitle:'Strata Manager',email:'dlim@thegrove.com.au',phone:'07 5512 9988',industry:'Strata',status:'onboarding',contract:3120,outstanding:0,nextClean:null,totalCleans:0,notes:'',site:null,jobs:[],schedule:[],team:[]}
+  ];
+
+  function load(){ try{ var s=localStorage.getItem(KEY); return s?JSON.parse(s):null; }catch(e){ return null; } }
+  function save(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
+  function init(){ var d=load(); if(!d){ d=DEFAULTS.slice(); save(d); } return d; }
+  function slugify(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+  var activeFilter='all', searchTerm='';
+
+  function renderStats(clients){
+    var total=clients.length;
+    var active=clients.filter(function(c){return c.status==='active';}).length;
+    var onb=clients.filter(function(c){return c.status==='onboarding';}).length;
+    var out=clients.reduce(function(s,c){return s+(c.outstanding||0);},0);
+    var contracted=clients.reduce(function(s,c){return s+(c.contract||0);},0);
+    var hint=[];
+    if(active) hint.push(active+' active');
+    if(onb) hint.push(onb+' onboarding');
+    var el=document.getElementById('stats-strip');
+    if(!el) return;
+    el.innerHTML=
+      '<div class="stat"><div class="stat-lbl">Total clients</div><div class="stat-val">'+total+'</div><div class="stat-hint">'+(hint.join(' · ')||'—')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">9</div><div class="stat-hint">Mon – Sun</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+out.toLocaleString()+'</div><div class="stat-hint">Unpaid invoices</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Annual contracted</div><div class="stat-val">$'+contracted.toLocaleString()+'</div><div class="stat-hint">Across all clients</div></div>';
   }
 
-  pills.forEach(function(p){
+  function renderRow(c){
+    var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
+    var bl=c.status.charAt(0).toUpperCase()+c.status.slice(1);
+    var nc=c.nextClean||'—';
+    var ncCl=c.nextClean?'cl-next':'cl-next blank';
+    var cv=c.contract?'$'+Number(c.contract).toLocaleString()+'<span style="font-size:10px;color:var(--stone)">/yr</span>':'—';
+    var ov=c.outstanding||0;
+    var oCl=ov>0?'cl-val warn':'cl-val ok';
+    var sub=c.contact?(c.contact+(c.email?' &nbsp;·&nbsp; '+c.email:'')):'';
+    return '<a class="cl-row" href="client.html?id='+c.id+'" data-status="'+c.status+'" data-name="'+c.name.toLowerCase()+'">'+
+      '<div><div class="cl-name">'+c.name+'</div>'+(sub?'<div class="cl-sub">'+sub+'</div>':'')+
+      '<span class="cl-industry">'+(c.industry||'Other')+'</span></div>'+
+      '<div><span class="badge '+bc+'">'+bl+'</span></div>'+
+      '<div class="'+ncCl+'">'+nc+'</div>'+
+      '<div class="cl-val">'+cv+'</div>'+
+      '<div class="'+oCl+'">$'+ov.toLocaleString()+'</div>'+
+      '<div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+    '</a>';
+  }
+
+  function renderAll(){
+    var clients=load()||[];
+    renderStats(clients);
+    var body=document.getElementById('cl-body');
+    var html='';
+    clients.forEach(function(c){
+      var mf=activeFilter==='all'||activeFilter===c.status;
+      var ms=!searchTerm||c.name.toLowerCase().indexOf(searchTerm)!==-1;
+      if(mf&&ms) html+=renderRow(c);
+    });
+    body.innerHTML=html||'<div class="cl-empty">No clients match your filter.</div>';
+  }
+
+  // Filter
+  document.querySelectorAll('.f-pill').forEach(function(p){
     p.addEventListener('click',function(){
-      pills.forEach(function(x){x.classList.remove('on');});
+      document.querySelectorAll('.f-pill').forEach(function(x){x.classList.remove('on');});
       this.classList.add('on');
       activeFilter=this.getAttribute('data-filter');
-      apply();
+      renderAll();
     });
   });
 
-  if(searchEl){
-    searchEl.addEventListener('input',function(){
-      searchTerm=this.value.trim().toLowerCase();
-      apply();
+  // Search
+  var searchEl=document.querySelector('.search');
+  if(searchEl) searchEl.addEventListener('input',function(){ searchTerm=this.value.trim().toLowerCase(); renderAll(); });
+
+  // Modal
+  var overlay=document.getElementById('modal-overlay');
+  function openModal(){ overlay.hidden=false; setTimeout(function(){ document.getElementById('f-name').focus(); },40); }
+  function closeModal(){ overlay.hidden=true; document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-phone').value=''; document.getElementById('f-email').value=''; document.getElementById('f-contract').value=''; }
+  document.getElementById('new-client-btn').addEventListener('click',openModal);
+  document.getElementById('modal-close').addEventListener('click',closeModal);
+  document.getElementById('modal-cancel').addEventListener('click',closeModal);
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) closeModal(); });
+  document.getElementById('modal-save').addEventListener('click',function(){
+    var name=document.getElementById('f-name').value.trim();
+    if(!name){ document.getElementById('f-name').focus(); return; }
+    var clients=load()||[];
+    var id=slugify(name);
+    if(clients.some(function(c){return c.id===id;})) id=id+'-'+Date.now();
+    clients.push({
+      id:id,name:name,
+      industry:document.getElementById('f-industry').value,
+      status:document.getElementById('f-status').value,
+      contact:document.getElementById('f-contact').value.trim(),
+      contactTitle:'',
+      phone:document.getElementById('f-phone').value.trim(),
+      email:document.getElementById('f-email').value.trim(),
+      contract:parseInt(document.getElementById('f-contract').value)||0,
+      outstanding:0,nextClean:null,totalCleans:0,notes:'',
+      site:null,jobs:[],schedule:[],team:[]
     });
-  }
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var btn=document.getElementById('mob-menu');
+    save(clients);
+    closeModal();
+    renderAll();
+  });
+
+  // Mobile nav
+  var mob=document.getElementById('mob-menu');
   var sb=document.querySelector('.sidebar');
   var bd=document.getElementById('sb-backdrop');
-  function close(){ sb.classList.remove('open'); bd.classList.remove('open'); }
-  if(btn) btn.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
-  if(bd) bd.addEventListener('click',close);
-  document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',close); });
+  function navClose(){ sb.classList.remove('open'); bd.classList.remove('open'); }
+  if(mob) mob.addEventListener('click',function(){ sb.classList.add('open'); bd.classList.add('open'); });
+  if(bd) bd.addEventListener('click',navClose);
+  document.querySelectorAll('.sb-item').forEach(function(a){ a.addEventListener('click',navClose); });
+
+  init();
+  renderAll();
+
 })();
 </script>
 </body>
