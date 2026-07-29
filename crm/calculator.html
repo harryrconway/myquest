@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Quote Calculator — MyQuest CRM</title>
+<link rel="stylesheet" href="style.css?v=20260729">
+<style>
+.calc-wrap{display:flex;justify-content:center;align-items:flex-start;padding:8px 0 40px}
+.qc-card{background:#141c38;width:100%;max-width:420px;min-height:560px;max-height:calc(100dvh - 180px);overflow:hidden;padding:48px 28px 36px;position:relative;display:flex;flex-direction:column;border-radius:26px;box-shadow:0 24px 54px rgba(20,28,56,.35)}
+@keyframes qc-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.qc-dots{display:flex;gap:7px;justify-content:center;margin-bottom:44px}
+.qc-dot{width:6px;height:6px;border-radius:50%;background:rgba(243,239,228,.15);transition:background .35s}
+.qc-dot.active{background:#f3efe4}
+.qc-step{animation:qc-in .28s cubic-bezier(.2,.8,.2,1);flex:1;display:flex;flex-direction:column}
+.qc-eyebrow{color:rgba(243,239,228,.35);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;font-weight:500}
+.qc-question{color:#f3efe4;font-size:22px;font-weight:600;line-height:1.25;margin-bottom:20px;letter-spacing:-.015em}
+.qc-sub{color:rgba(243,239,228,.45);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:8px}
+.qc-pills{display:flex;flex-wrap:wrap;gap:9px}
+.qc-pill{border:1.5px solid rgba(243,239,228,.16);border-radius:999px;padding:9px 19px;color:rgba(243,239,228,.6);font-size:14px;background:none;cursor:pointer;transition:all .18s;font-family:inherit;line-height:1}
+.qc-pill:hover{border-color:rgba(243,239,228,.4);color:#f3efe4}
+.qc-pill.on{background:#f3efe4;color:#141c38;border-color:#f3efe4;font-weight:600}
+.qc-pills-v{flex-direction:column}.qc-pills-v .qc-pill{text-align:center}
+.qc-stepper{display:inline-flex;align-items:center;border:1.5px solid rgba(243,239,228,.16);border-radius:999px;overflow:hidden}
+.qc-sbtn{background:none;border:none;color:#f3efe4;width:48px;height:48px;font-size:22px;cursor:pointer;transition:background .18s;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.qc-sbtn:hover{background:rgba(243,239,228,.08)}
+.qc-stepper .qc-sbtn:first-child{border-radius:999px 0 0 999px}
+.qc-stepper .qc-sbtn:last-child{border-radius:0 999px 999px 0}
+.qc-snum{color:#f3efe4;font-size:18px;font-weight:600;min-width:46px;text-align:center}
+.qc-nav{padding-top:20px;padding-bottom:4px;display:flex;align-items:center;gap:12px;flex-shrink:0;background:#141c38}
+#qc-wrap{flex:1;overflow-y:auto;scrollbar-gutter:stable;}
+.qc-card button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.qc-next{flex:1;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:16px 20px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .18s;font-family:inherit;letter-spacing:-.01em}
+.qc-next:disabled{opacity:.25;cursor:default;transition:none}
+.qc-backbtn{background:none;border:none;color:rgba(243,239,228,.4);font-size:14px;cursor:pointer;padding:4px 10px;transition:color .2s;font-family:inherit;white-space:nowrap}
+.qc-backbtn:hover{color:#f3efe4}
+.qc-rtags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.qc-rtag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:rgba(243,239,228,.45);background:rgba(243,239,228,.08);border-radius:999px;padding:4px 10px}
+.qc-range{font-size:36px;font-weight:700;color:#f3efe4;letter-spacing:-.025em;line-height:1}
+.qc-per-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:7px}
+.qc-per{color:rgba(243,239,228,.4);font-size:13px}
+.qc-mth{color:rgba(243,239,228,.4);font-size:13px}
+.qc-breakdown{margin:20px 0 0;border-top:1px solid rgba(243,239,228,.1)}
+.qc-brow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(243,239,228,.07);color:rgba(243,239,228,.55);font-size:13.5px}
+.qc-brow.tot{color:#f3efe4;font-weight:600;border-bottom:none;padding-top:14px;font-size:14.5px;border-top:1px solid rgba(243,239,228,.15);margin-top:4px}
+.qc-buf-row{width:100%;border:none;border-bottom:1px solid rgba(243,239,228,.07);background:none;font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:13.5px;color:rgba(243,239,228,.3);transition:color .15s;text-align:left}
+.qc-buf-row:hover{color:rgba(243,239,228,.55)}.qc-buf-row.on{color:rgba(243,239,228,.55)}
+.qc-save{width:100%;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:15px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .18s;font-family:inherit;letter-spacing:-.01em;margin-top:20px}
+.qc-save:hover{opacity:.88}
+.qc-dl{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.15);border-radius:999px;color:#f3efe4;padding:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:8px;font-family:inherit;letter-spacing:.01em}
+.qc-dl:hover{background:rgba(243,239,228,.12);border-color:rgba(243,239,228,.3)}
+.qc-restart{background:none;border:none;color:rgba(243,239,228,.3);font-size:13px;cursor:pointer;padding:10px;transition:color .2s;width:100%;text-align:center;font-family:inherit;margin-top:0}
+.qc-restart:hover{color:rgba(243,239,228,.65)}
+.qc-fields-wrap{display:flex;flex-direction:column;gap:16px}
+.qc-sqm-wrap{margin:4px 0}
+.qc-sqm-row{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:16px;margin-bottom:16px}
+.qc-sqm-field{display:flex;align-items:baseline;gap:8px;justify-content:center}
+#qc-sqm-v{width:110px;text-align:center;font-size:38px;font-weight:700;background:transparent;border:none;border-bottom:2px solid rgba(243,239,228,.25);color:#f3efe4;padding:4px 0;outline:none;-moz-appearance:textfield;font-family:inherit}
+#qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
+#qc-sqm-v:focus{border-bottom-color:rgba(243,239,228,.7)}
+.qc-sqm-u{font-size:15px;font-weight:500;color:rgba(243,239,228,.5)}
+/* Save form */
+.qc-save-form{animation:qc-in .28s ease;flex:1;display:flex;flex-direction:column;gap:16px}
+.qc-save-lbl{color:rgba(243,239,228,.45);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;display:block;margin-bottom:5px}
+.qc-save-input{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.12);border-radius:10px;color:#f3efe4;padding:11px 14px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.qc-save-input:focus{border-color:rgba(243,239,228,.35)}
+.qc-save-subtitle{color:rgba(243,239,228,.35);font-size:13px;margin-bottom:4px}
+.qc-save-actions{display:flex;gap:10px;margin-top:4px}
+.qc-save-confirm{flex:1;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.qc-save-confirm:hover{opacity:.88}
+.qc-save-back{background:none;border:1.5px solid rgba(243,239,228,.16);border-radius:999px;color:rgba(243,239,228,.5);padding:14px 16px;font-size:14px;cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s}
+.qc-save-back:hover{color:#f3efe4;border-color:rgba(243,239,228,.3)}
+/* Success state */
+.qc-success{animation:qc-in .32s ease;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
+.qc-success-icon{font-size:36px;margin-bottom:4px}
+.qc-success-title{color:#f3efe4;font-size:20px;font-weight:600}
+.qc-success-sub{color:rgba(243,239,228,.45);font-size:14px}
+.qc-success a{color:#f3efe4;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(243,239,228,.35);margin-top:8px;display:inline-block}
+.qc-success-new{background:none;border:none;color:rgba(243,239,228,.35);font-size:13px;cursor:pointer;padding:8px;font-family:inherit;margin-top:4px}
+.qc-success-new:hover{color:rgba(243,239,228,.65)}
+/* Print */
+.qc-print{display:none}
+@media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="sb-logo" href="https://myquest.au">
+      <div class="sb-mark">MQ</div>
+      <span class="sb-name">MyQuest</span>
+    </a>
+    <nav class="sb-nav">
+      <a class="sb-item" href="overview.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="sb-item" href="index.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a class="sb-item" href="jobs.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Jobs
+      </a>
+      <a class="sb-item" href="quotes.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Quotes
+      </a>
+      <a class="sb-item" href="invoices.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
+        Invoices
+      </a>
+      <a class="sb-item on" href="calculator.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+        Calculator
+      </a>
+      <hr class="sb-div">
+      <a class="sb-item" href="reports.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </a>
+      <a class="sb-item" href="staff.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Staff
+      </a>
+    </nav>
+    <div class="sb-bottom">
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="ph pg-1">
+      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
+      <h1 class="ph-title">Quote Calculator</h1>
+    </div>
+
+    <div class="calc-wrap pg-2">
+      <div class="qc-card">
+        <div id="qc-dots" class="qc-dots"></div>
+        <div id="qc-wrap"></div>
+        <div class="qc-nav" id="qc-nav">
+          <button type="button" class="qc-backbtn" id="qc-back" style="display:none">&#8592; Back</button>
+          <button type="button" class="qc-next" id="qc-next" disabled>Continue &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html">Invoices</a><a href="calculator.html" class="mob-on">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+
+<div id="qc-print" class="qc-print"></div>
+
+<script>
+(function(){
+'use strict';
+
+var QC={
+  rate:65,
+  sqmHr:{maintenance:200,deep:85},
+  spaceMult:{office:1.0,retail:1.0,medical:1.5,industrial:1.0},
+  bathMins:22,
+  kitchenMins:25,
+  extras:{floor_polish:0.55,carpet:0.25,rubbish:25},
+  freqDisc:{once:1.0,monthly:1.0,fortnightly:1.0,weekly:1.0},
+  suppliesCost:20,
+  bufferPct:0.15,
+  minHrsMaint:2,
+  minHrsDeepRecurring:3,
+  minHrsDeep:5
+};
+
+var SPACE_LABELS=['Office / Corporate','Retail / Showroom','Medical / Allied Health','Industrial / Warehouse'];
+var SPACE_KEYS=['office','retail','medical','industrial'];
+var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
+var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
+var EXTRA_LABELS=['Hard floor polish','Carpet vacuum','Rubbish removal'];
+var EXTRA_KEYS=['floor_polish','carpet','rubbish'];
+
+var s={step:1,space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false};
+var lastResult=null;
+
+function resetState(){s={step:1,space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false};lastResult=null;}
+
+function calc(){
+  var sqm=Math.max(50,Math.min(5000,Math.floor(s.sqm||50)));
+  var hrs=(sqm/QC.sqmHr[s.type])*QC.spaceMult[s.space];
+  var bHrs=(s.baths*QC.bathMins)/60;
+  var kHrs=s.kitchen?QC.kitchenMins/60:0;
+  var total=Math.ceil((hrs+bHrs+kHrs)*2)/2;
+  if(s.type==='maintenance')total=Math.max(total,QC.minHrsMaint);
+  else if(s.freq==='once')total=Math.max(total,QC.minHrsDeep);
+  else total=Math.max(total,QC.minHrsDeepRecurring);
+  var labour=total*QC.rate;
+  var sup=QC.suppliesCost;
+  var ext=0;
+  if(s.extras.floor_polish)ext+=sqm*QC.extras.floor_polish;
+  if(s.extras.carpet)ext+=sqm*QC.extras.carpet;
+  if(s.extras.rubbish)ext+=QC.extras.rubbish;
+  var sub=labour+sup+ext;
+  var per=sub;
+  var bufferAmt=s.buffer?per*QC.bufferPct:0;
+  per+=bufferAmt;
+  var mthMult={once:null,monthly:1,fortnightly:2.17,weekly:4.33};
+  return{per:per,lo:r5(per*.9),hi:r5(per*1.1),monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,hrs:total,labour:labour,sup:sup,ext:ext,bufferAmt:bufferAmt};
+}
+function r5(n){return Math.round(n/5)*5;}
+function au(n){return '$'+Math.round(n).toLocaleString('en-AU');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function pill(label,key,on,group){
+  return '<button type="button" class="qc-pill'+(on?' on':'')+'" data-key="'+key+'"'+(group?' data-grp="'+group+'"':'')+'>'+label+'</button>';
+}
+
+function dots(){
+  var el=document.getElementById('qc-dots');
+  if(!el)return;
+  if(s.step>5){el.style.opacity='0';return;}
+  el.style.opacity='1';
+  var h='';for(var i=1;i<=5;i++)h+='<div class="qc-dot'+(i===s.step?' active':'')+'"></div>';
+  el.innerHTML=h;
+}
+
+function render(){
+  dots();
+  var w=document.getElementById('qc-wrap');
+  if(!w)return;
+  var h='',_back=false,_valid=false,_label='Continue →';
+
+  if(s.step===1){
+    _valid=!!s.space;
+    h=frame(1,'What kind of premises?','<div class="qc-pills qc-pills-v">'+SPACE_KEYS.map(function(k,i){return pill(SPACE_LABELS[i],k,s.space===k);}).join('')+'</div>');
+  }else if(s.step===2){
+    _back=true;_valid=s.sqm>=50;
+    h=frame(2,'Floor area to clean?',
+      '<div class="qc-sqm-wrap">'+
+      '<div class="qc-sqm-row">'+
+      '<button type="button" class="qc-sbtn" id="qc-sqm-m">&#8722;</button>'+
+      '<div class="qc-sqm-field"><input type="number" id="qc-sqm-v" min="50" max="5000" step="1" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="100"><span class="qc-sqm-u">sqm</span></div>'+
+      '<button type="button" class="qc-sbtn" id="qc-sqm-p">+</button></div>'+
+      '<p id="qc-sqm-hint" style="color:#f3efe480;font-size:13px;margin-top:8px;visibility:hidden;text-align:center">Minimum 50 sqm</p>'+
+      '<div class="qc-pills" style="margin-top:20px">'+
+      [50,100,200,500,1000].map(function(v){return '<button type="button" class="qc-pill'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';}).join('')+
+      '</div></div>');
+  }else if(s.step===3){
+    _back=true;_valid=s.kitchen!==null;
+    h=frame(3,'Bathrooms and kitchen?',
+      '<div class="qc-fields-wrap">'+
+        '<div><div class="qc-sub">Bathrooms / toilets</div>'+
+        '<div class="qc-stepper"><button type="button" class="qc-sbtn" id="qc-minus">&#8722;</button>'+
+        '<span class="qc-snum" id="qc-bnum">'+s.baths+'</span>'+
+        '<button type="button" class="qc-sbtn" id="qc-plus">+</button></div></div>'+
+        '<div><div class="qc-sub">Kitchen or breakroom?</div>'+
+        '<div class="qc-pills">'+pill('Yes','yes',s.kitchen===true,'kit')+pill('No','no',s.kitchen===false,'kit')+'</div></div>'+
+      '</div>');
+  }else if(s.step===4){
+    _back=true;_valid=!!s.freq&&!!s.type;
+    h=frame(4,'How often, and what type?',
+      '<div class="qc-fields-wrap">'+
+        '<div><div class="qc-sub">Frequency</div><div class="qc-pills qc-pills-v">'+FREQ_KEYS.map(function(k,i){return pill(FREQ_LABELS[i],k,s.freq===k,'freq');}).join('')+'</div></div>'+
+        '<div><div class="qc-sub">Type of clean</div><div class="qc-pills qc-pills-v">'+
+          pill('Maintenance','maintenance',s.type==='maintenance','type')+
+          pill('Deep clean','deep',s.type==='deep','type')+
+        '</div></div>'+
+      '</div>');
+  }else if(s.step===5){
+    _back=true;_valid=true;_label='Calculate →';
+    h=frame(5,'Any add-ons?',
+      '<div style="margin-bottom:8px;color:rgba(243,239,228,.35);font-size:13px">Optional — tap to toggle</div>'+
+      '<div class="qc-pills qc-pills-v">'+EXTRA_KEYS.map(function(k,i){return pill(EXTRA_LABELS[i],k,!!s.extras[k],'ext');}).join('')+'</div>');
+  }else{
+    h=renderResult();
+  }
+
+  var nav=document.getElementById('qc-nav');
+  if(nav)nav.style.display=(s.step>5)?'none':'flex';
+  var nb=document.getElementById('qc-back');
+  var nn=document.getElementById('qc-next');
+  if(nb)nb.style.display=_back?'':'none';
+  if(nn){nn.disabled=!_valid;nn.textContent=_label;}
+  w.innerHTML=h;
+  bind();
+}
+
+function frame(num,question,body){
+  return '<div class="qc-step"><div class="qc-eyebrow">Step '+num+' of 5</div><div class="qc-question">'+question+'</div>'+body+'</div>';
+}
+
+function renderResult(){
+  var r=calc();
+  lastResult=r;
+  var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space];
+  var qLab=s.sqm+' sqm';
+  var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)];
+  var tLab=s.type==='deep'?'Deep clean':'Maintenance';
+  var rows='';
+  rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
+  rows+=brow('Supplies',au(r.sup));
+  if(r.ext>0)rows+=brow('Add-ons',au(r.ext));
+  rows+='<button type="button" class="qc-buf-row'+(s.buffer?' on':'')+'" id="qc-buf">'+
+    '<span>Site allowance <span style="opacity:.55;font-size:12px">(+'+Math.round(QC.bufferPct*100)+'%)</span></span>'+
+    '<span>'+(s.buffer?'+'+au(r.bufferAmt):'tap to add')+'</span></button>';
+  rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
+  updatePrint(r,sLab,qLab,fLab,tLab);
+  return '<div class="qc-step">'+
+    '<div class="qc-rtags">'+
+      '<span class="qc-rtag">'+sLab+'</span>'+
+      '<span class="qc-rtag">'+qLab+'</span>'+
+      '<span class="qc-rtag">'+fLab+'</span>'+
+      '<span class="qc-rtag">'+tLab+'</span>'+
+    '</div>'+
+    '<div class="qc-range">'+au(r.lo)+' – '+au(r.hi)+'</div>'+
+    '<div class="qc-per-row">'+
+      '<span class="qc-per">per clean (estimate)</span>'+
+      (r.monthly?'<span class="qc-mth">≈'+au(r.monthly)+'/month</span>':'')+
+    '</div>'+
+    '<div class="qc-breakdown">'+rows+'</div>'+
+    '<button type="button" class="qc-save" id="qc-save">Save as quote →</button>'+
+    '<button type="button" class="qc-dl" id="qc-dl">↓ Download estimate</button>'+
+    '<button type="button" class="qc-restart" id="qc-restart">← Start over</button>'+
+  '</div>';
+}
+
+function brow(l,v){return '<div class="qc-brow"><span>'+l+'</span><span>'+v+'</span></div>';}
+
+function renderSaveForm(){
+  var r=lastResult||calc();
+  var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
+  var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
+  var tLab=s.type==='deep'?'Deep clean':'Maintenance';
+  var defaultDesc=s.sqm+'sqm '+sLab+' · '+fLab+' '+tLab.toLowerCase();
+  var annual=r.monthly?Math.round(r.per*{once:1,monthly:12,fortnightly:26,weekly:52}[s.freq]||0):0;
+  var clients=loadClients();
+  var opts='<option value="">Select client (optional)…</option>';
+  clients.forEach(function(c){opts+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  var nav=document.getElementById('qc-nav');
+  if(nav)nav.style.display='none';
+  document.getElementById('qc-dots').style.opacity='0';
+  document.getElementById('qc-wrap').innerHTML=
+    '<div class="qc-save-form">'+
+      '<div class="qc-question" style="margin-bottom:4px">Save as quote</div>'+
+      '<div class="qc-save-subtitle">'+au(r.lo)+' – '+au(r.hi)+' per clean</div>'+
+      '<div><label class="qc-save-lbl" for="qs-client">Client</label>'+
+        '<select class="qc-save-input" id="qs-client">'+opts+'</select></div>'+
+      '<div><label class="qc-save-lbl" for="qs-desc">Description</label>'+
+        '<input class="qc-save-input" type="text" id="qs-desc" value="'+esc(defaultDesc)+'"></div>'+
+      '<div><label class="qc-save-lbl" for="qs-val">Est. annual value</label>'+
+        '<input class="qc-save-input" type="number" id="qs-val" value="'+(annual||'')+'" placeholder="0"></div>'+
+      '<div class="qc-save-actions">'+
+        '<button type="button" class="qc-save-back" id="qs-cancel">Cancel</button>'+
+        '<button type="button" class="qc-save-confirm" id="qs-confirm">Save draft</button>'+
+      '</div>'+
+    '</div>';
+  document.getElementById('qs-cancel').addEventListener('click',function(){s.step=6;render();});
+  document.getElementById('qs-confirm').addEventListener('click',function(){
+    var sel=document.getElementById('qs-client');
+    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+    var desc=document.getElementById('qs-desc').value.trim();
+    var val=parseInt(document.getElementById('qs-val').value)||0;
+    var quotes=loadQuotes();
+    var nums=quotes.map(function(q){return parseInt((q.num||'').replace('Q-',''),10)||0;});
+    var nextNum='Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');
+    quotes.unshift({
+      id:'Q'+Date.now(),num:nextNum,
+      clientId:sel.value,clientName:clientName,
+      desc:desc,value:val,status:'draft',dateSent:null
+    });
+    localStorage.setItem('mq_quotes',JSON.stringify(quotes));
+    renderSuccess(nextNum,clientName);
+  });
+}
+
+function renderSuccess(num,clientName){
+  document.getElementById('qc-nav').style.display='none';
+  document.getElementById('qc-dots').style.opacity='0';
+  document.getElementById('qc-wrap').innerHTML=
+    '<div class="qc-success">'+
+      '<div class="qc-success-icon">✓</div>'+
+      '<div class="qc-success-title">Quote saved</div>'+
+      '<div class="qc-success-sub">'+(clientName?esc(clientName)+' · ':'')+num+' · Draft</div>'+
+      '<a href="quotes.html">View in Quotes →</a>'+
+      '<button type="button" class="qc-success-new" id="qs-new">Calculate another</button>'+
+    '</div>';
+  document.getElementById('qs-new').addEventListener('click',function(){resetState();render();});
+}
+
+function updatePrint(r,sLab,qLab,fLab,tLab){
+  var el=document.getElementById('qc-print');if(!el)return;
+  var date=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  var extList=EXTRA_KEYS.filter(function(k){return s.extras[k];}).map(function(k){return EXTRA_LABELS[EXTRA_KEYS.indexOf(k)];}).join(', ');
+  var basedOn=[qLab+' '+sLab,fLab+' '+tLab.toLowerCase()+' clean',s.baths+(s.baths===1?' bathroom':' bathrooms')];
+  if(s.kitchen)basedOn.push('Kitchenette');if(extList)basedOn.push(extList);
+  function prow(l,v){return '<tr><td style="padding:6px 0;color:#555;border-bottom:1px solid #eee">'+l+'</td><td style="padding:6px 0;text-align:right;font-weight:500;color:#000;border-bottom:1px solid #eee">'+v+'</td></tr>';}
+  el.innerHTML=
+    '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:16px;margin-bottom:24px">'+
+      '<div><div style="font-size:20px;font-weight:700;color:#000">MyQuest</div><div style="font-size:11px;color:#555;margin-top:2px">Pty Ltd</div></div>'+
+      '<div style="text-align:right"><div style="font-size:15px;font-weight:600;color:#000">Quote Estimate</div><div style="font-size:11px;color:#555;margin-top:2px">'+date+'</div></div>'+
+    '</div>'+
+    '<div style="margin-bottom:24px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:10px">Based on</div>'+
+    '<ul style="list-style:none;padding:0;margin:0">'+basedOn.map(function(item){return '<li style="font-size:14px;font-weight:500;color:#000;padding:4px 0;border-bottom:1px solid #f0f0f0">'+item+'</li>';}).join('')+'</ul></div>'+
+    '<div style="margin-bottom:24px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:10px">Price breakdown</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:13px">'+
+      prow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour))+
+      prow('Supplies',au(r.sup))+
+      (r.ext>0?prow(extList||'Add-ons',au(r.ext)):'')+
+      (r.bufferAmt>0?prow('Site allowance (+15%)','+'+au(r.bufferAmt)):'')+
+      '<tr><td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;border-top:2px solid #000">Per clean</td>'+
+      '<td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;text-align:right;border-top:2px solid #000">'+au(r.per)+'</td></tr>'+
+    '</table></div>'+
+    '<div style="background:#f5f5f5;border-radius:10px;padding:20px 24px;margin-bottom:20px">'+
+      '<div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Estimated price per clean</div>'+
+      '<div style="font-size:30px;font-weight:700;letter-spacing:-.02em;color:#000">'+au(r.lo)+' – '+au(r.hi)+'</div>'+
+      (r.monthly?'<div style="font-size:12px;color:#555;margin-top:4px">Approx. '+au(r.monthly)+' per month</div>':'')+
+    '</div>'+
+    '<div style="font-size:11px;color:#555;line-height:1.65;margin-bottom:22px">This is an estimate only. Final pricing will be confirmed in writing before any work begins.</div>'+
+    '<div style="font-size:12px;color:#000;border-top:1px solid #ddd;padding-top:12px">hello@myquest.au  ·  0413 154 932  ·  myquest.au</div>';
+}
+
+function loadClients(){try{var s=localStorage.getItem('mq_clients');return s?JSON.parse(s):[];}catch(e){return[];}}
+function loadQuotes(){try{var s=localStorage.getItem('mq_quotes');return s?JSON.parse(s):[];}catch(e){return[];}}
+
+function bind(){
+  document.querySelectorAll('#qc-wrap .qc-pill').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var key=this.dataset.key,grp=this.dataset.grp||'';
+      if(s.step===1)s.space=key;
+      else if(s.step===3&&grp==='kit')s.kitchen=(key==='yes');
+      else if(s.step===4&&grp==='freq')s.freq=key;
+      else if(s.step===4&&grp==='type')s.type=key;
+      else if(s.step===5)s.extras[key]=!s.extras[key];
+      render();
+    });
+  });
+  var m=document.getElementById('qc-minus');
+  var p=document.getElementById('qc-plus');
+  if(m)m.addEventListener('click',function(){if(s.baths>0){s.baths--;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;}});
+  if(p)p.addEventListener('click',function(){if(s.baths<8){s.baths++;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;}});
+  var sqmM=document.getElementById('qc-sqm-m');
+  var sqmP=document.getElementById('qc-sqm-p');
+  var sqmV=document.getElementById('qc-sqm-v');
+  if(sqmM)sqmM.addEventListener('click',function(){var v=Math.max(50,(s.sqm||100)-50);s.sqm=v;if(sqmV)sqmV.value=v;var nx=document.getElementById('qc-next');if(nx)nx.disabled=false;});
+  if(sqmP)sqmP.addEventListener('click',function(){var v=Math.min(5000,(s.sqm||0)+50);s.sqm=v;if(sqmV)sqmV.value=v;var nx=document.getElementById('qc-next');if(nx)nx.disabled=false;});
+  if(sqmV)sqmV.addEventListener('input',function(){
+    var v=parseInt(this.value,10);
+    s.sqm=(isNaN(v)||v<1)?0:Math.min(5000,v);
+    this.value=isNaN(v)?'':Math.min(5000,v);
+    var nx=document.getElementById('qc-next');if(nx)nx.disabled=!(s.sqm>=50);
+    var hint=document.getElementById('qc-sqm-hint');if(hint)hint.style.visibility=(s.sqm>=10&&s.sqm<50)?'visible':'hidden';
+  });
+  document.querySelectorAll('#qc-wrap .qc-sqm-wrap .qc-pill').forEach(function(btn){
+    btn.addEventListener('click',function(){s.sqm=parseInt(this.dataset.sqm,10);render();});
+  });
+  var nx=document.getElementById('qc-next');
+  if(nx)nx.onclick=function(){if(!this.disabled){s.step++;render();document.querySelector('#qc-wrap').scrollTop=0;}};
+  var bk=document.getElementById('qc-back');
+  if(bk)bk.onclick=function(){s.step--;render();};
+  var buf=document.getElementById('qc-buf');
+  if(buf)buf.addEventListener('click',function(){s.buffer=!s.buffer;render();});
+  var saveBtn=document.getElementById('qc-save');
+  if(saveBtn)saveBtn.addEventListener('click',renderSaveForm);
+  var dl=document.getElementById('qc-dl');
+  if(dl)dl.addEventListener('click',function(){
+    var el=document.getElementById('qc-print');if(!el||!el.innerHTML)return;
+    var html='<!DOCTYPE html><html lang="en-AU"><head><meta charset="UTF-8"><title>Quote Estimate — MyQuest</title>'+
+      '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.6;color:#000;padding:40px 48px}table{width:100%;border-collapse:collapse}@page{margin:15mm 18mm;size:A4}@media print{body{padding:0}}</style>'+
+      '</head><body>'+el.innerHTML+'</body></html>';
+    var w=window.open('','_blank');if(!w)return;
+    w.document.open();w.document.write(html);w.document.close();w.focus();
+    setTimeout(function(){w.print();},400);
+  });
+  var rs=document.getElementById('qc-restart');
+  if(rs)rs.addEventListener('click',function(){resetState();render();});
+}
+
+// Mobile nav
+var mob=document.getElementById('mob-menu');
+var mOverlay=document.getElementById('mob-overlay');
+function navClose(){document.body.classList.remove('mob-open');}
+if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+
+render();
+
+})();
+</script>
+</body>
+</html>

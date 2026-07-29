@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Invoices — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260728">
+<link rel="stylesheet" href="style.css?v=20260729">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -68,6 +68,10 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
         Invoices
       </a>
+      <a class="sb-item" href="calculator.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+        Calculator
+      </a>
       <hr class="sb-div">
       <a class="sb-item" href="reports.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -91,7 +95,7 @@
     <div class="ph pg-1">
       <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Invoices</h1>
-      <button class="ph-btn">
+      <button class="ph-btn" id="new-inv-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New invoice
       </button>
@@ -136,100 +140,182 @@
           <span>#</span><span>Client</span><span>Issued</span>
           <span>Due</span><span>Status</span><span style="text-align:right">Amount</span><span></span>
         </div>
-
-        <a class="inv-row overdue" href="client.html" data-status="overdue">
-          <div class="inv-num">#1008</div>
-          <div><div class="inv-client">Coastal Medical Centre</div><div class="inv-sub">Maintenance · Jun 2026</div></div>
-          <div class="inv-date">1 Jul 2026</div>
-          <div class="inv-due late">14 Jul 2026</div>
-          <span class="badge overdue">Overdue</span>
-          <div class="inv-amt">$480</div>
-          <div class="inv-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="inv-row unpaid" href="client.html" data-status="unpaid">
-          <div class="inv-num">#1011</div>
-          <div><div class="inv-client">Robina Business Park</div><div class="inv-sub">Maintenance · Jul 2026</div></div>
-          <div class="inv-date">14 Jul 2026</div>
-          <div class="inv-due warn">31 Jul 2026</div>
-          <span class="badge unpaid">Unpaid</span>
-          <div class="inv-amt">$240</div>
-          <div class="inv-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="inv-row paid" href="client.html" data-status="paid">
-          <div class="inv-num">#1010</div>
-          <div><div class="inv-client">Aria Property Group</div><div class="inv-sub">Maintenance + Deep clean · Jul 2026</div></div>
-          <div class="inv-date">7 Jul 2026</div>
-          <div class="inv-due ok">21 Jul 2026</div>
-          <span class="badge paid">Paid</span>
-          <div class="inv-amt">$600</div>
-          <div class="inv-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="inv-row paid" href="client.html" data-status="paid">
-          <div class="inv-num">#1009</div>
-          <div><div class="inv-client">Broadbeach Shopping Co.</div><div class="inv-sub">Maintenance · Jul 2026</div></div>
-          <div class="inv-date">7 Jul 2026</div>
-          <div class="inv-due ok">21 Jul 2026</div>
-          <span class="badge paid">Paid</span>
-          <div class="inv-amt">$760</div>
-          <div class="inv-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="inv-row paid" href="client.html" data-status="paid">
-          <div class="inv-num">#1007</div>
-          <div><div class="inv-client">Pacific Dental Group</div><div class="inv-sub">Maintenance · Jun 2026</div></div>
-          <div class="inv-date">1 Jul 2026</div>
-          <div class="inv-due ok">15 Jul 2026</div>
-          <span class="badge paid">Paid</span>
-          <div class="inv-amt">$320</div>
-          <div class="inv-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="inv-row paid" href="client.html" data-status="paid">
-          <div class="inv-num">#1006</div>
-          <div><div class="inv-client">Surfers Paradise Retail</div><div class="inv-sub">Maintenance · Jun 2026</div></div>
-          <div class="inv-date">1 Jul 2026</div>
-          <div class="inv-due ok">15 Jul 2026</div>
-          <span class="badge paid">Paid</span>
-          <div class="inv-amt">$560</div>
-          <div class="inv-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
+        <div id="inv-body"></div>
       </div>
       </div>
     </div>
 
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html" class="mob-on">Invoices</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html" class="mob-on">Invoices</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+
+<div class="modal-overlay" id="inv-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title">New invoice</span>
+      <button class="modal-close" id="inv-modal-close" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-lbl" for="if-client">Client</label>
+        <select class="form-input" id="if-client"><option value="">Select client…</option></select>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="if-desc">Description</label>
+        <input class="form-input" type="text" id="if-desc" placeholder="e.g. Maintenance · Jul 2026" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="if-amount">Amount</label>
+        <div class="input-pfx">
+          <span class="input-pfx-sym">$</span>
+          <input class="form-input pfx" type="number" id="if-amount" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="if-issued">Issued</label>
+          <input class="form-input" type="date" id="if-issued">
+        </div>
+        <div>
+          <label class="form-lbl" for="if-due">Due</label>
+          <input class="form-input" type="date" id="if-due">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="if-status">Status</label>
+        <select class="form-input" id="if-status">
+          <option value="unpaid">Unpaid</option>
+          <option value="paid">Paid</option>
+          <option value="overdue">Overdue</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel-btn" id="inv-modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="inv-modal-save">Add invoice</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
-  var pills=document.querySelectorAll('.f-pill');
-  var rows=document.querySelectorAll('.inv-row');
-  var active='all';
-  function filter(){
-    rows.forEach(function(r){
-      var s=r.getAttribute('data-status')||'';
-      r.style.display=(active==='all'||active===s)?'':'none';
-    });
+  var KEY='mq_invoices';
+  var CLIENT_KEY='mq_clients';
+  var DEFAULTS=[
+    {id:'I1008',num:'1008',clientName:'Coastal Medical Centre',desc:'Maintenance · Jun 2026',amount:480,issued:'2026-07-01',due:'2026-07-14',status:'overdue'},
+    {id:'I1011',num:'1011',clientName:'Robina Business Park',desc:'Maintenance · Jul 2026',amount:240,issued:'2026-07-14',due:'2026-07-31',status:'unpaid'},
+    {id:'I1010',num:'1010',clientName:'Aria Property Group',desc:'Maintenance + Deep clean · Jul 2026',amount:600,issued:'2026-07-07',due:'2026-07-21',status:'paid'},
+    {id:'I1009',num:'1009',clientName:'Broadbeach Shopping Co.',desc:'Maintenance · Jul 2026',amount:760,issued:'2026-07-07',due:'2026-07-21',status:'paid'},
+    {id:'I1007',num:'1007',clientName:'Pacific Dental Group',desc:'Maintenance · Jun 2026',amount:320,issued:'2026-07-01',due:'2026-07-15',status:'paid'},
+    {id:'I1006',num:'1006',clientName:'Surfers Paradise Retail',desc:'Maintenance · Jun 2026',amount:560,issued:'2026-07-01',due:'2026-07-15',status:'paid'}
+  ];
+  var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+  function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+  function nextNum(){var inv=load()||[];var nums=inv.map(function(x){return parseInt(x.num,10)||0;});return String(Math.max.apply(null,nums.length?nums:[1011])+1);}
+  var activeFilter='all';
+  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
+  function isDueLate(iso){if(!iso)return false;return new Date(iso+'T00:00:00')<new Date();}
+  function renderRow(inv){
+    var dueCls=inv.status==='overdue'?' late':inv.status==='unpaid'&&isDueLate(inv.due)?' late':inv.status==='unpaid'?' warn':' ok';
+    return '<div class="inv-row '+inv.status+'" data-status="'+inv.status+'">'+
+      '<div class="inv-num">#'+esc(inv.num)+'</div>'+
+      '<div><div class="inv-client">'+esc(inv.clientName||'—')+'</div><div class="inv-sub">'+esc(inv.desc||'')+'</div></div>'+
+      '<div class="inv-date">'+fmtDate(inv.issued)+'</div>'+
+      '<div class="inv-due'+dueCls+'">'+fmtDate(inv.due)+'</div>'+
+      '<span class="badge '+inv.status+'">'+inv.status.charAt(0).toUpperCase()+inv.status.slice(1)+'</span>'+
+      '<div class="inv-amt">$'+Number(inv.amount||0).toLocaleString()+'</div>'+
+      '<div class="inv-arr">'+ARR+'</div>'+
+    '</div>';
   }
+  function renderAll(){
+    var invs=load()||[];
+    var overdue=invs.filter(function(i){return i.status==='overdue';});
+    var unpaid=invs.filter(function(i){return i.status==='unpaid';});
+    var paid=invs.filter(function(i){return i.status==='paid';});
+    var overdueAmt=overdue.reduce(function(s,i){return s+(i.amount||0);},0);
+    var unpaidAmt=unpaid.reduce(function(s,i){return s+(i.amount||0);},0)+overdueAmt;
+    var paidAmt=paid.reduce(function(s,i){return s+(i.amount||0);},0);
+    var allAmt=invs.reduce(function(s,i){return s+(i.amount||0);},0);
+    var statsEl=document.querySelector('.stats');
+    if(statsEl) statsEl.innerHTML=
+      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+unpaidAmt.toLocaleString()+'</div><div class="stat-hint">'+(overdue.length+unpaid.length)+' unpaid</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Overdue</div><div class="stat-val">$'+overdueAmt.toLocaleString()+'</div><div class="stat-hint">'+overdue.length+' invoice'+(overdue.length!==1?'s':'')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Paid</div><div class="stat-val">$'+paidAmt.toLocaleString()+'</div><div class="stat-hint">'+paid.length+' invoice'+(paid.length!==1?'s':'')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Total invoiced</div><div class="stat-val">$'+allAmt.toLocaleString()+'</div><div class="stat-hint">All time</div></div>';
+    var html='';
+    invs.forEach(function(i){
+      if(activeFilter==='all'||activeFilter===i.status) html+=renderRow(i);
+    });
+    document.getElementById('inv-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No invoices match your filter.</div>';
+  }
+  // Filter pills
+  var pills=document.querySelectorAll('.f-pill');
   pills.forEach(function(p){
     p.addEventListener('click',function(){
       pills.forEach(function(x){x.classList.remove('on');});
       this.classList.add('on');
-      active=this.getAttribute('data-filter');
-      filter();
+      activeFilter=this.getAttribute('data-filter');
+      renderAll();
     });
   });
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var btn=document.getElementById('mob-menu');
-  var overlay=document.getElementById('mob-overlay');
-  function mobClose(){ document.body.classList.remove('mob-open'); }
-  if(btn) btn.addEventListener('click',function(){ document.body.classList.toggle('mob-open'); });
-  if(overlay) overlay.addEventListener('click',function(e){
-    if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') mobClose();
+  // Modal
+  var modal=document.getElementById('inv-modal');
+  function openModal(){
+    var clients=loadClients();
+    var sel=document.getElementById('if-client');
+    sel.innerHTML='<option value="">Select client…</option>';
+    clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+    var today=new Date().toISOString().slice(0,10);
+    var due=new Date();due.setDate(due.getDate()+14);
+    document.getElementById('if-issued').value=today;
+    document.getElementById('if-due').value=due.toISOString().slice(0,10);
+    modal.hidden=false;
+    setTimeout(function(){document.getElementById('if-client').focus();},40);
+  }
+  function closeModal(){
+    modal.hidden=true;
+    ['if-desc','if-amount'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('if-status').value='unpaid';
+  }
+  document.getElementById('new-inv-btn').addEventListener('click',openModal);
+  document.getElementById('inv-modal-close').addEventListener('click',closeModal);
+  document.getElementById('inv-modal-cancel').addEventListener('click',closeModal);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+  document.getElementById('inv-modal-save').addEventListener('click',function(){
+    var sel=document.getElementById('if-client');
+    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+    var amount=parseInt(document.getElementById('if-amount').value)||0;
+    if(!amount){document.getElementById('if-amount').focus();return;}
+    var invs=load()||[];
+    invs.unshift({
+      id:'I'+Date.now(),
+      num:nextNum(),
+      clientId:sel.value,
+      clientName:clientName,
+      desc:document.getElementById('if-desc').value.trim(),
+      amount:amount,
+      issued:document.getElementById('if-issued').value||new Date().toISOString().slice(0,10),
+      due:document.getElementById('if-due').value||'',
+      status:document.getElementById('if-status').value
+    });
+    save(invs);
+    closeModal();
+    renderAll();
   });
+  // Mobile nav
+  var mob=document.getElementById('mob-menu');
+  var mOverlay=document.getElementById('mob-overlay');
+  function navClose(){document.body.classList.remove('mob-open');}
+  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
+  init();
+  renderAll();
 })();
 </script>
 </body>

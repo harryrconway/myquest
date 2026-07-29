@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260728">
+<link rel="stylesheet" href="style.css?v=20260729">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -76,6 +76,10 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
         Invoices
       </a>
+      <a class="sb-item" href="calculator.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+        Calculator
+      </a>
       <hr class="sb-div">
       <a class="sb-item" href="reports.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -99,7 +103,7 @@
     <div class="ph pg-1">
       <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Jobs</h1>
-      <button class="ph-btn">
+      <button class="ph-btn" id="new-job-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New job
       </button>
@@ -145,129 +149,188 @@
           <span>Date</span><span>Client</span><span>Site</span>
           <span>Type</span><span>Team</span><span>Status</span><span style="text-align:right">Price</span>
         </div>
-
-        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
-          <div class="jl-date">31 Jul<br>Thu</div>
-          <div class="jl-client">Aria Property Group</div>
-          <div class="jl-site">142 Clarence St · L3</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
-          <span class="badge upcoming">Upcoming</span>
-          <div class="jl-price">$240</div>
-        </div>
-        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
-          <div class="jl-date">30 Jul<br>Wed</div>
-          <div class="jl-client">Surfers Paradise Retail</div>
-          <div class="jl-site">Shop 4, Cavill Ave</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">MK</div></div>
-          <span class="badge upcoming">Upcoming</span>
-          <div class="jl-price">$195</div>
-        </div>
-        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
-          <div class="jl-date">29 Jul<br>Tue</div>
-          <div class="jl-client">Coastal Medical Centre</div>
-          <div class="jl-site">88 Surf Parade · L1</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">SR</div></div>
-          <span class="badge upcoming">Upcoming</span>
-          <div class="jl-price">$280</div>
-        </div>
-        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
-          <div class="jl-date">28 Jul<br>Mon</div>
-          <div class="jl-client">Pacific Dental Group</div>
-          <div class="jl-site">128 Surf Pde · Suite 2</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
-          <span class="badge upcoming">Upcoming</span>
-          <div class="jl-price">$160</div>
-        </div>
-        <div class="jl-row next" data-type="maintenance" data-status="upcoming">
-          <div class="jl-date">28 Jul<br>Mon</div>
-          <div class="jl-client">Aria Property Group</div>
-          <div class="jl-site">142 Clarence St · L3</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
-          <span class="badge upcoming">Upcoming</span>
-          <div class="jl-price">$240</div>
-        </div>
-        <div class="jl-row done" data-type="maintenance" data-status="completed">
-          <div class="jl-date">24 Jul<br>Thu</div>
-          <div class="jl-client">Aria Property Group</div>
-          <div class="jl-site">142 Clarence St · L3</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div></div>
-          <span class="badge completed">Completed</span>
-          <div class="jl-price">$240</div>
-        </div>
-        <div class="jl-row done" data-type="deep" data-status="completed">
-          <div class="jl-date">4 Jul<br>Fri</div>
-          <div class="jl-client">Aria Property Group</div>
-          <div class="jl-site">142 Clarence St · L3</div>
-          <span class="jl-type deep">Deep clean</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">DT</div><div class="jl-av">MK</div></div>
-          <span class="badge completed">Completed</span>
-          <div class="jl-price">$360</div>
-        </div>
-        <div class="jl-row done" data-type="deep" data-status="completed">
-          <div class="jl-date">6 Jun<br>Fri</div>
-          <div class="jl-client">Coastal Medical Centre</div>
-          <div class="jl-site">88 Surf Parade · L1</div>
-          <span class="jl-type deep">Deep clean</span>
-          <div class="jl-crew"><div class="jl-av">JP</div><div class="jl-av">SR</div><div class="jl-av">DT</div></div>
-          <span class="badge completed">Completed</span>
-          <div class="jl-price">$520</div>
-        </div>
-        <div class="jl-row done" data-type="maintenance" data-status="completed">
-          <div class="jl-date">2 Jul<br>Wed</div>
-          <div class="jl-client">Broadbeach Shopping Co.</div>
-          <div class="jl-site">Shop 12, Broadbeach Mall</div>
-          <span class="jl-type">Maintenance</span>
-          <div class="jl-crew"><div class="jl-av">MK</div><div class="jl-av">SR</div></div>
-          <span class="badge completed">Completed</span>
-          <div class="jl-price">$380</div>
-        </div>
+        <div id="jl-body"></div>
       </div>
       </div>
     </div>
 
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html" class="mob-on">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html">Invoices</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html" class="mob-on">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html">Invoices</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+
+<div class="modal-overlay" id="job-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title">New job</span>
+      <button class="modal-close" id="job-modal-close" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-lbl" for="jf-date">Date</label>
+        <input class="form-input" type="date" id="jf-date">
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="jf-client">Client</label>
+        <select class="form-input" id="jf-client"><option value="">Select client…</option></select>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="jf-site">Site / location</label>
+        <input class="form-input" type="text" id="jf-site" placeholder="e.g. Level 3, 142 Clarence St" autocomplete="off">
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="jf-type">Type</label>
+          <select class="form-input" id="jf-type">
+            <option value="maintenance">Maintenance</option>
+            <option value="deep">Deep clean</option>
+            <option value="window">Window clean</option>
+            <option value="builders">Builders clean</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-lbl" for="jf-status">Status</label>
+          <select class="form-input" id="jf-status">
+            <option value="upcoming">Upcoming</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="jf-price">Price</label>
+        <div class="input-pfx">
+          <span class="input-pfx-sym">$</span>
+          <input class="form-input pfx" type="number" id="jf-price" min="0" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel-btn" id="job-modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="job-modal-save">Add job</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
-  var pills=document.querySelectorAll('.f-pill');
-  var rows=document.querySelectorAll('.jl-row');
-  var active='all';
-  function filter(){
-    rows.forEach(function(r){
-      var type=r.getAttribute('data-type')||'';
-      var status=r.getAttribute('data-status')||'';
-      var show=active==='all'||active===type||active===status;
-      r.style.display=show?'':'none';
-    });
+  var KEY='mq_jobs';
+  var CLIENT_KEY='mq_clients';
+  var DEFAULTS=[
+    {id:'j1',date:'2026-07-31',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
+    {id:'j2',date:'2026-07-30',clientName:'Surfers Paradise Retail',site:'Shop 4, Cavill Ave',type:'maintenance',status:'upcoming',price:195},
+    {id:'j3',date:'2026-07-29',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'maintenance',status:'upcoming',price:280},
+    {id:'j4',date:'2026-07-28',clientName:'Pacific Dental Group',site:'128 Surf Pde · Suite 2',type:'maintenance',status:'upcoming',price:160},
+    {id:'j5',date:'2026-07-28',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
+    {id:'j6',date:'2026-07-24',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'completed',price:240},
+    {id:'j7',date:'2026-07-04',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'deep',status:'completed',price:360},
+    {id:'j8',date:'2026-06-06',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'deep',status:'completed',price:520},
+    {id:'j9',date:'2026-07-02',clientName:'Broadbeach Shopping Co.',site:'Shop 12, Broadbeach Mall',type:'maintenance',status:'completed',price:380}
+  ];
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+  function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+  var activeFilter='all';
+  var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
+  function renderRow(j){
+    var typeLbl=TYPE_LABELS[j.type]||j.type;
+    var typeClass=j.type==='deep'?' deep':'';
+    var rowClass=j.status==='completed'?' done':' next';
+    var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
+    return '<div class="jl-row'+rowClass+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
+      '<div class="jl-date">'+fmtDate(j.date)+'</div>'+
+      '<div class="jl-client">'+esc(j.clientName||'—')+'</div>'+
+      '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
+      '<span class="jl-type'+typeClass+'">'+typeLbl+'</span>'+
+      '<div class="jl-crew"></div>'+
+      badge+
+      '<div class="jl-price">$'+Number(j.price||0).toLocaleString()+'</div>'+
+    '</div>';
   }
+  function renderAll(){
+    var jobs=load()||[];
+    var upcoming=jobs.filter(function(j){return j.status==='upcoming';});
+    var completed=jobs.filter(function(j){return j.status==='completed';});
+    // stats
+    var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
+    var doneThisMo=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).length;
+    var rev=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).reduce(function(s,j){return s+(j.price||0);},0);
+    var nxt7=new Date();nxt7.setDate(nxt7.getDate()+7);
+    var soon=upcoming.filter(function(j){var d=new Date(j.date+'T00:00:00');return d<=nxt7;}).length;
+    var statsEl=document.querySelector('.stats');
+    if(statsEl) statsEl.innerHTML=
+      '<div class="stat"><div class="stat-lbl">This month</div><div class="stat-val">'+doneThisMo+'</div><div class="stat-hint">Jobs completed</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+upcoming.length+'</div><div class="stat-hint">Next 7 days: '+soon+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val">$'+rev.toLocaleString()+'</div><div class="stat-hint">Month to date</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Total jobs</div><div class="stat-val">'+jobs.length+'</div><div class="stat-hint">All time</div></div>';
+    var html='';
+    jobs.forEach(function(j){
+      var show=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;
+      if(show) html+=renderRow(j);
+    });
+    document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
+  }
+  // Filter pills
+  var pills=document.querySelectorAll('.f-pill');
   pills.forEach(function(p){
     p.addEventListener('click',function(){
       pills.forEach(function(x){x.classList.remove('on');});
       this.classList.add('on');
-      active=this.getAttribute('data-filter');
-      filter();
+      activeFilter=this.getAttribute('data-filter');
+      renderAll();
     });
   });
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var btn=document.getElementById('mob-menu');
-  var overlay=document.getElementById('mob-overlay');
-  function mobClose(){ document.body.classList.remove('mob-open'); }
-  if(btn) btn.addEventListener('click',function(){ document.body.classList.toggle('mob-open'); });
-  if(overlay) overlay.addEventListener('click',function(e){
-    if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') mobClose();
+  // Modal
+  var modal=document.getElementById('job-modal');
+  function openModal(){
+    var clients=loadClients();
+    var sel=document.getElementById('jf-client');
+    sel.innerHTML='<option value="">Select client…</option>';
+    clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+    document.getElementById('jf-date').valueAsDate=new Date();
+    modal.hidden=false;
+    setTimeout(function(){document.getElementById('jf-client').focus();},40);
+  }
+  function closeModal(){
+    modal.hidden=true;
+    ['jf-date','jf-site','jf-price'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  }
+  document.getElementById('new-job-btn').addEventListener('click',openModal);
+  document.getElementById('job-modal-close').addEventListener('click',closeModal);
+  document.getElementById('job-modal-cancel').addEventListener('click',closeModal);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+  document.getElementById('job-modal-save').addEventListener('click',function(){
+    var date=document.getElementById('jf-date').value;
+    if(!date){document.getElementById('jf-date').focus();return;}
+    var sel=document.getElementById('jf-client');
+    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+    var jobs=load()||[];
+    jobs.unshift({
+      id:'j'+Date.now(),
+      date:date,
+      clientId:sel.value,
+      clientName:clientName,
+      site:document.getElementById('jf-site').value.trim(),
+      type:document.getElementById('jf-type').value,
+      status:document.getElementById('jf-status').value,
+      price:parseInt(document.getElementById('jf-price').value)||0
+    });
+    save(jobs);
+    closeModal();
+    renderAll();
   });
+  // Mobile nav
+  var mob=document.getElementById('mob-menu');
+  var mOverlay=document.getElementById('mob-overlay');
+  function navClose(){document.body.classList.remove('mob-open');}
+  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
+  init();
+  renderAll();
 })();
 </script>
 </body>

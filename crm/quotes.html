@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Quotes — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260728">
+<link rel="stylesheet" href="style.css?v=20260729">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -61,6 +61,10 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="10" y2="9"/></svg>
         Invoices
       </a>
+      <a class="sb-item" href="calculator.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+        Calculator
+      </a>
       <hr class="sb-div">
       <a class="sb-item" href="reports.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -84,7 +88,7 @@
     <div class="ph pg-1">
       <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Quotes</h1>
-      <button class="ph-btn">
+      <button class="ph-btn" id="new-quote-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New quote
       </button>
@@ -130,86 +134,169 @@
           <span>#</span><span>Client</span><span>Date sent</span>
           <span>Status</span><span style="text-align:right">Value</span><span></span>
         </div>
-
-        <a class="q-row" href="client.html" data-status="pending">
-          <div class="q-num">#Q-014</div>
-          <div><div class="q-client">The Grove Apartments</div><div class="q-sub">Weekly strata clean · 3 buildings</div></div>
-          <div class="q-date">22 Jul 2026</div>
-          <span class="badge pending">Pending</span>
-          <div class="q-val" style="text-align:right">$3,120/yr</div>
-          <div class="q-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="q-row" href="client.html" data-status="accepted">
-          <div class="q-num">#Q-013</div>
-          <div><div class="q-client">Robina Business Park</div><div class="q-sub">Fortnightly maintenance · 320 sqm</div></div>
-          <div class="q-date">14 Jul 2026</div>
-          <span class="badge accepted">Accepted</span>
-          <div class="q-val" style="text-align:right">$5,200/yr</div>
-          <div class="q-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="q-row" href="client.html" data-status="accepted">
-          <div class="q-num">#Q-012</div>
-          <div><div class="q-client">Surfers Paradise Retail</div><div class="q-sub">Weekly maintenance · 160 sqm</div></div>
-          <div class="q-date">2 Jul 2026</div>
-          <span class="badge accepted">Accepted</span>
-          <div class="q-val" style="text-align:right">$7,280/yr</div>
-          <div class="q-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="q-row" href="client.html" data-status="declined">
-          <div class="q-num">#Q-011</div>
-          <div><div class="q-client">Gold Coast Airport</div><div class="q-sub">Daily terminal clean · 1,200 sqm</div></div>
-          <div class="q-date">18 Jun 2026</div>
-          <span class="badge declined">Declined</span>
-          <div class="q-val" style="text-align:right">$48,000/yr</div>
-          <div class="q-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
-        <a class="q-row" href="client.html" data-status="draft">
-          <div class="q-num">#Q-010</div>
-          <div><div class="q-client">Pacific Dental Group</div><div class="q-sub">Additional site · 90 sqm</div></div>
-          <div class="q-date">—</div>
-          <span class="badge draft">Draft</span>
-          <div class="q-val" style="text-align:right">$2,600/yr</div>
-          <div class="q-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </a>
+        <div id="q-body"></div>
       </div>
       </div>
     </div>
 
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html" class="mob-on">Quotes</a><a href="invoices.html">Invoices</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html" class="mob-on">Quotes</a><a href="invoices.html">Invoices</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+
+<div class="modal-overlay" id="quote-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-title">New quote</span>
+      <button class="modal-close" id="quote-modal-close" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-lbl" for="qf-client">Client</label>
+        <select class="form-input" id="qf-client"><option value="">Select client…</option></select>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="qf-desc">Description</label>
+        <input class="form-input" type="text" id="qf-desc" placeholder="e.g. Weekly maintenance · 200 sqm" autocomplete="off">
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="qf-value">Est. annual value</label>
+          <div class="input-pfx">
+            <span class="input-pfx-sym">$</span>
+            <input class="form-input pfx" type="number" id="qf-value" min="0" placeholder="0">
+          </div>
+        </div>
+        <div>
+          <label class="form-lbl" for="qf-status">Status</label>
+          <select class="form-input" id="qf-status">
+            <option value="draft">Draft</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="declined">Declined</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" for="qf-date">Date sent</label>
+        <input class="form-input" type="date" id="qf-date">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel-btn" id="quote-modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="quote-modal-save">Add quote</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
-  var pills=document.querySelectorAll('.f-pill');
-  var rows=document.querySelectorAll('.q-row');
-  var active='all';
-  function filter(){
-    rows.forEach(function(r){
-      var s=r.getAttribute('data-status')||'';
-      r.style.display=(active==='all'||active===s)?'':'none';
-    });
+  var KEY='mq_quotes';
+  var CLIENT_KEY='mq_clients';
+  var DEFAULTS=[
+    {id:'Q014',num:'Q-014',clientName:'The Grove Apartments',desc:'Weekly strata clean · 3 buildings',value:3120,status:'pending',dateSent:'2026-07-22'},
+    {id:'Q013',num:'Q-013',clientName:'Robina Business Park',desc:'Fortnightly maintenance · 320 sqm',value:5200,status:'accepted',dateSent:'2026-07-14'},
+    {id:'Q012',num:'Q-012',clientName:'Surfers Paradise Retail',desc:'Weekly maintenance · 160 sqm',value:7280,status:'accepted',dateSent:'2026-07-02'},
+    {id:'Q011',num:'Q-011',clientName:'Gold Coast Airport',desc:'Daily terminal clean · 1,200 sqm',value:48000,status:'declined',dateSent:'2026-06-18'},
+    {id:'Q010',num:'Q-010',clientName:'Pacific Dental Group',desc:'Additional site · 90 sqm',value:2600,status:'draft',dateSent:null}
+  ];
+  var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
+  function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+  function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+  function nextNum(){var q=load()||[];var nums=q.map(function(x){return parseInt((x.num||'').replace('Q-',''),10)||0;});return 'Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');}
+  var activeFilter='all';
+  function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();}
+  function renderRow(q){
+    return '<div class="q-row" data-status="'+q.status+'">'+
+      '<div class="q-num">#'+esc(q.num)+'</div>'+
+      '<div><div class="q-client">'+esc(q.clientName||'—')+'</div><div class="q-sub">'+esc(q.desc||'')+'</div></div>'+
+      '<div class="q-date">'+fmtDate(q.dateSent)+'</div>'+
+      '<span class="badge '+q.status+'">'+q.status.charAt(0).toUpperCase()+q.status.slice(1)+'</span>'+
+      '<div class="q-val" style="text-align:right">$'+Number(q.value||0).toLocaleString()+'/yr</div>'+
+      '<div class="q-arr">'+ARR+'</div>'+
+    '</div>';
   }
+  function renderAll(){
+    var quotes=load()||[];
+    // stats
+    var sent=quotes.filter(function(q){return q.dateSent&&q.status!=='draft';}).length;
+    var accepted=quotes.filter(function(q){return q.status==='accepted';}).length;
+    var pending=quotes.filter(function(q){return q.status==='pending';}).length;
+    var totalVal=quotes.filter(function(q){return q.status==='accepted'||q.status==='pending';}).reduce(function(s,q){return s+(q.value||0);},0);
+    var conv=sent>0?Math.round(accepted/sent*100):0;
+    var statsEl=document.querySelector('.stats');
+    if(statsEl) statsEl.innerHTML=
+      '<div class="stat"><div class="stat-lbl">Sent</div><div class="stat-val">'+sent+'</div><div class="stat-hint">All time</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Accepted</div><div class="stat-val">'+accepted+'</div><div class="stat-hint">'+conv+'% conversion</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Pending</div><div class="stat-val">'+pending+'</div><div class="stat-hint">Awaiting response</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Active value</div><div class="stat-val">$'+totalVal.toLocaleString()+'</div><div class="stat-hint">Accepted + pending</div></div>';
+    var html='';
+    quotes.forEach(function(q){
+      if(activeFilter==='all'||activeFilter===q.status) html+=renderRow(q);
+    });
+    document.getElementById('q-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No quotes match your filter.</div>';
+  }
+  // Filter pills
+  var pills=document.querySelectorAll('.f-pill');
   pills.forEach(function(p){
     p.addEventListener('click',function(){
       pills.forEach(function(x){x.classList.remove('on');});
       this.classList.add('on');
-      active=this.getAttribute('data-filter');
-      filter();
+      activeFilter=this.getAttribute('data-filter');
+      renderAll();
     });
   });
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var btn=document.getElementById('mob-menu');
-  var overlay=document.getElementById('mob-overlay');
-  function mobClose(){ document.body.classList.remove('mob-open'); }
-  if(btn) btn.addEventListener('click',function(){ document.body.classList.toggle('mob-open'); });
-  if(overlay) overlay.addEventListener('click',function(e){
-    if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') mobClose();
+  // Modal
+  var modal=document.getElementById('quote-modal');
+  function openModal(){
+    var clients=loadClients();
+    var sel=document.getElementById('qf-client');
+    sel.innerHTML='<option value="">Select client…</option>';
+    clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+    modal.hidden=false;
+    setTimeout(function(){document.getElementById('qf-client').focus();},40);
+  }
+  function closeModal(){
+    modal.hidden=true;
+    ['qf-desc','qf-value','qf-date'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('qf-status').value='draft';
+  }
+  document.getElementById('new-quote-btn').addEventListener('click',openModal);
+  document.getElementById('quote-modal-close').addEventListener('click',closeModal);
+  document.getElementById('quote-modal-cancel').addEventListener('click',closeModal);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+  document.getElementById('quote-modal-save').addEventListener('click',function(){
+    var sel=document.getElementById('qf-client');
+    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
+    var num=nextNum();
+    var quotes=load()||[];
+    var status=document.getElementById('qf-status').value;
+    var dateSent=document.getElementById('qf-date').value||(status!=='draft'?new Date().toISOString().slice(0,10):null);
+    quotes.unshift({
+      id:'Q'+Date.now(),
+      num:num,
+      clientId:sel.value,
+      clientName:clientName,
+      desc:document.getElementById('qf-desc').value.trim(),
+      value:parseInt(document.getElementById('qf-value').value)||0,
+      status:status,
+      dateSent:dateSent||null
+    });
+    save(quotes);
+    closeModal();
+    renderAll();
   });
+  // Mobile nav
+  var mob=document.getElementById('mob-menu');
+  var mOverlay=document.getElementById('mob-overlay');
+  function navClose(){document.body.classList.remove('mob-open');}
+  if(mob) mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+  if(mOverlay) mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();});
+  init();
+  renderAll();
 })();
 </script>
 </body>

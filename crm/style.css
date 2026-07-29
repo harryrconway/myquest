@@ -217,6 +217,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   body.mob-open .mob-nav-links a:nth-child(5){transition-delay:.57s}
   body.mob-open .mob-nav-links a:nth-child(6){transition-delay:.65s}
   body.mob-open .mob-nav-links a:nth-child(7){transition-delay:.73s}
+  body.mob-open .mob-nav-links a:nth-child(8){transition-delay:.81s}
 }
 
 @media(max-width:700px){
