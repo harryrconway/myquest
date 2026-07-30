@@ -37,7 +37,7 @@
 .form-row{margin-bottom:14px}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
-.form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
+.form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);-webkit-text-fill-color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
 .form-input:focus{border-color:rgba(35,44,84,.4)}
 .form-input::placeholder{color:var(--stone)}
 select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
@@ -47,6 +47,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .modal-actions{display:flex;align-items:center;padding:16px 24px;border-top:1px solid var(--hair);gap:10px}
 .cancel-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
 .cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.25)}
+.sc-tenure{color:var(--stone);font-weight:400}
 </style>
 </head>
 <body>
@@ -175,7 +176,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       </div>
       <div class="form-row">
         <label class="form-lbl" for="sf-since">Start date</label>
-        <input class="form-input" type="date" id="sf-since">
+        <input class="form-input" type="date" id="sf-since" data-datepicker data-placeholder="Start date">
       </div>
     </div>
     <div class="modal-actions">
@@ -187,6 +188,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
+<script src="datepicker.js?v=20260730"></script>
 <script>
 (function(){
 'use strict';
@@ -203,6 +205,9 @@ function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
 function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
 function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
 function fmtSince(iso){if(!iso)return '';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
+function pad2(n){return n<10?'0'+n:String(n);}
+function sinceToIso(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';return p[1]+'-'+pad2(mi+1)+'-01';}
+function tenureText(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';var start=new Date(+p[1],mi,1);var now=new Date();var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());if(totalMo<1){var wks=Math.floor((now-start)/(7*24*3600*1000));return wks<=1?'1 week':wks+' weeks';}if(totalMo<12)return totalMo+(totalMo===1?' month':' months');var yrs=Math.floor(totalMo/12),rem=totalMo%12;return yrs+(yrs===1?' yr':' yrs')+(rem?' '+rem+' mo':'');}
 function renderCard(s){
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
@@ -212,7 +217,7 @@ function renderCard(s){
     '</div>'+
     (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
     (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
-    (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(s.since)+'</span></div>':'')+
+    (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(s.since)+'<span class="sc-tenure"> · '+esc(tenureText(s.since))+'</span></span></div>':'')+
   '</div>';
 }
 function renderAll(){
@@ -223,7 +228,7 @@ function renderAll(){
     '<div class="stat"><div class="stat-lbl">Total staff</div><div class="stat-val">'+staff.length+'</div><div class="stat-hint">'+active+' active</div></div>'+
     '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+active+'</div><div class="stat-hint">On the team</div></div>'+
     '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+[...new Set(staff.map(function(s){return s.role;}))].length+'</div><div class="stat-hint">Distinct roles</div></div>'+
-    '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+staff.filter(function(s){return s.since&&s.since.indexOf('2026')!==-1;}).length+'</div><div class="stat-hint">Joined in 2026</div></div>';
+    '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+staff.filter(function(s){return s.since&&s.since.indexOf(String(new Date().getFullYear()))!==-1;}).length+'</div><div class="stat-hint">Joined in '+new Date().getFullYear()+'</div></div>';
   var grid=document.getElementById('staff-grid');
   grid.innerHTML=staff.map(renderCard).join('')||'<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff added yet.</div>';
 }
@@ -252,7 +257,7 @@ function openEditModal(s){
   document.getElementById('sf-role').value=s.role||'Cleaner';
   document.getElementById('sf-phone').value=s.phone||'';
   document.getElementById('sf-email').value=s.email||'';
-  document.getElementById('sf-since').value='';
+  document.getElementById('sf-since').value=sinceToIso(s.since)||'';
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
 }

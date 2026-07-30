@@ -65,7 +65,7 @@
 .form-row{margin-bottom:14px}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
-.form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
+.form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);-webkit-text-fill-color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
 .form-input:focus{border-color:rgba(35,44,84,.4)}
 .form-input::placeholder{color:var(--stone)}
 select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
@@ -218,11 +218,11 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       <div class="form-row-2">
         <div>
           <label class="form-lbl" for="if-issued">Issued</label>
-          <input class="form-input" type="date" id="if-issued">
+          <input class="form-input" type="date" id="if-issued" data-datepicker data-placeholder="Issued date">
         </div>
         <div>
           <label class="form-lbl" for="if-due">Due</label>
-          <input class="form-input" type="date" id="if-due">
+          <input class="form-input" type="date" id="if-due" data-datepicker data-placeholder="Due date">
         </div>
       </div>
       <div class="form-row">
@@ -241,6 +241,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
+<script src="datepicker.js?v=20260730"></script>
 <script>
 (function(){
 'use strict';
