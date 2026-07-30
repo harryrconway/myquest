@@ -26,7 +26,9 @@ function closeActive(){
 }
 
 document.addEventListener('click',closeActive);
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeActive();});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&activePopup){closeActive();e.stopImmediatePropagation();}
+});
 
 function initInput(inputEl){
   // Wrap
@@ -110,10 +112,12 @@ function initInput(inputEl){
     renderCalendar();
     popup.hidden=false;
     activePopup=popup;
-    // Position above if near viewport bottom
+    // Position above if near viewport bottom, right-align if near right edge
     popup.classList.remove('dp-above');
+    popup.classList.remove('dp-right');
     var rect=popup.getBoundingClientRect();
     if(rect.bottom>window.innerHeight-8)popup.classList.add('dp-above');
+    if(rect.right>window.innerWidth-8)popup.classList.add('dp-right');
   }
 
   btn.addEventListener('click',function(e){

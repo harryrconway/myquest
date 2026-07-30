@@ -15,7 +15,7 @@
       --card:   #f3efe4;
       --navy:   #232c54;
       --stone:  #9b968a;
-      --hair:   #232c5420;
+      --hair:   #232c5424;
       --r:      22px;
       --font:   system-ui, -apple-system, sans-serif;
     }
@@ -123,7 +123,8 @@
     .policy-card p {
       font-size: 15px;
       line-height: 1.7;
-      color: #4a5070;
+      color: var(--navy);
+      opacity: .8;
       margin-bottom: 10px;
     }
 
@@ -134,7 +135,8 @@
     .policy-card ul li {
       font-size: 15px;
       line-height: 1.7;
-      color: #4a5070;
+      color: var(--navy);
+      opacity: .8;
       margin-bottom: 5px;
     }
 
@@ -161,6 +163,11 @@
       .policy-card { padding: 24px 20px; }
       .page-title { font-size: 26px; }
     }
+
+    .pg-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:720px;margin:40px auto 0;padding:24px clamp(16px,4vw,32px);border-top:1px solid var(--hair)}
+    .pg-footer-back{font-size:13px;font-weight:600;color:var(--stone);text-decoration:none;transition:color .2s}
+    .pg-footer-back:hover{color:var(--navy)}
+    .pg-footer-copy{font-size:12px;color:var(--stone);opacity:.7}
 
     .m-actions { display: none; }
 
@@ -275,7 +282,7 @@
       <h2>Privacy Policy</h2>
       <p>MyQuest Pty Ltd (ABN 65 693 175 405, ACN 693 175 405) is committed to protecting your personal information in accordance with the Australian Privacy Principles under the <em>Privacy Act 1988</em> (Cth).</p>
       <p>We collect your name, contact details, site address, and service preferences solely for the purpose of scheduling and delivering your cleaning services. We do not sell, rent, or share your information with third parties except as required to deliver our services or comply with legal obligations.</p>
-      <p>We use Google Analytics to understand how visitors use our website using anonymised data only. No advertising cookies are placed on your device. Enquiry and quote request forms on our website submit data to Web3Forms (web3forms.com), a third-party form processing service based outside Australia. By submitting a form you consent to your details being transmitted to and processed by Web3Forms in accordance with their privacy policy. You may request access to, correction of, or deletion of your personal information at any time by contacting us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>. We retain your personal information only for as long as necessary to provide our services or as required by law.</p>
+      <p>Enquiry and quote request forms on our website submit data to Web3Forms (web3forms.com), a third-party form processing service based outside Australia. By submitting a form you consent to your details being transmitted to and processed by Web3Forms in accordance with their privacy policy. You may request access to, correction of, or deletion of your personal information at any time by contacting us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>. We retain your personal information only for as long as necessary to provide our services or as required by law.</p>
     </div>
 
     <!-- Terms -->
@@ -311,6 +318,11 @@
     </div>
 
   </div>
+
+  <footer class="pg-footer">
+    <a href="/" class="pg-footer-back">← Back to site</a>
+    <span class="pg-footer-copy">© 2026 MyQuest Pty Ltd</span>
+  </footer>
 
   <div aria-label="Quick actions" class="m-actions">
     <a class="call" href="tel:+61413154932">Call</a>
