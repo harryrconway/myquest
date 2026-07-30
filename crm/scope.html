@@ -416,6 +416,18 @@ function init(){
   var sel=document.getElementById('scope-client');
   sel.innerHTML='<option value="">Select client…</option>';
   clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  sel.addEventListener('change',function(){
+    var found=null;clients.forEach(function(c){if(c.id===sel.value)found=c;});
+    var siteInput=document.getElementById('scope-site');
+    if(found&&found.site){
+      var parts=[];
+      if(found.site.name)parts.push(found.site.name);
+      if(found.site.address)parts.push(found.site.address);
+      siteInput.value=parts.join(', ');
+    } else {
+      siteInput.value='';
+    }
+  });
   document.getElementById('scope-date').valueAsDate=new Date();
   renderAreas([]);
   renderSavedList();
