@@ -250,11 +250,19 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     var hint=[];
     if(active) hint.push(active+' active');
     if(onb) hint.push(onb+' onboarding');
+    var jobs=JSON.parse(localStorage.getItem('mq_jobs')||'[]');
+    var now=new Date();
+    var dow=now.getDay()||7;
+    var mon=new Date(now);mon.setDate(now.getDate()-(dow-1));
+    var sun=new Date(mon);sun.setDate(mon.getDate()+6);
+    var monStr=mon.toISOString().slice(0,10);
+    var sunStr=sun.toISOString().slice(0,10);
+    var cleansThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
     var el=document.getElementById('stats-strip');
     if(!el) return;
     el.innerHTML=
       '<div class="stat"><div class="stat-lbl">Total clients</div><div class="stat-val">'+total+'</div><div class="stat-hint">'+(hint.join(' · ')||'—')+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">9</div><div class="stat-hint">Mon – Sun</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">'+cleansThisWeek+'</div><div class="stat-hint">Mon – Sun</div></div>'+
       '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+out.toLocaleString()+'</div><div class="stat-hint">Unpaid invoices</div></div>'+
       '<div class="stat"><div class="stat-lbl">Annual contracted</div><div class="stat-val">$'+contracted.toLocaleString()+'</div><div class="stat-hint">Across all clients</div></div>';
   }
@@ -286,7 +294,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     var html='';
     clients.forEach(function(c){
       var mf=activeFilter==='all'||activeFilter===c.status;
-      var ms=!searchTerm||c.name.toLowerCase().indexOf(searchTerm)!==-1;
+      var ms=!searchTerm||(c.name+' '+(c.contact||'')+' '+(c.email||'')).toLowerCase().indexOf(searchTerm)!==-1;
       if(mf&&ms) html+=renderRow(c);
     });
     body.innerHTML=html||'<div class="cl-empty">No clients match your filter.</div>';

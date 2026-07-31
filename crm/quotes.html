@@ -262,6 +262,7 @@ function nextNum(){var q=load()||[];var nums=q.map(function(x){return parseInt((
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 var activeFilter='all';
 var openId=null;
+var editingQuoteId=null;
 function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();}
 function renderExpand(q){
   var statuses=['draft','pending','accepted','declined'];
@@ -276,6 +277,7 @@ function renderExpand(q){
     '<div class="xp-lbl" style="margin-bottom:8px">Change status</div>'+
     '<div class="xp-status-pills">'+pills+'</div>'+
     '<div class="xp-actions">'+
+      '<button class="xp-btn" data-action="edit">Edit quote</button>'+
       '<button class="xp-btn primary" data-action="convert">Convert to invoice</button>'+
       '<button class="xp-btn danger" data-action="delete">Delete quote</button>'+
     '</div>';
@@ -321,20 +323,33 @@ pills.forEach(function(p){
   });
 });
 var modal=document.getElementById('quote-modal');
-function openModal(){
+function openModal(q){
+  editingQuoteId=q?q.id:null;
+  document.querySelector('#quote-modal .modal-title').textContent=q?'Edit quote':'New quote';
+  document.getElementById('quote-modal-save').textContent=q?'Save changes':'Add quote';
   var clients=loadClients();
   var sel=document.getElementById('qf-client');
   sel.innerHTML='<option value="">Select client…</option>';
   clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  if(q){
+    sel.value=q.clientId||'';
+    document.getElementById('qf-desc').value=q.desc||'';
+    document.getElementById('qf-value').value=q.value||'';
+    document.getElementById('qf-status').value=q.status||'draft';
+    document.getElementById('qf-date').value=q.dateSent||'';
+  }
   modal.hidden=false;
-  setTimeout(function(){document.getElementById('qf-client').focus();},40);
+  setTimeout(function(){document.getElementById(q?'qf-desc':'qf-client').focus();},40);
 }
 function closeModal(){
   modal.hidden=true;
+  editingQuoteId=null;
+  document.querySelector('#quote-modal .modal-title').textContent='New quote';
+  document.getElementById('quote-modal-save').textContent='Add quote';
   ['qf-desc','qf-value','qf-date'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('qf-status').value='draft';
 }
-document.getElementById('new-quote-btn').addEventListener('click',openModal);
+document.getElementById('new-quote-btn').addEventListener('click',function(){openModal();});
 document.getElementById('quote-modal-close').addEventListener('click',closeModal);
 document.getElementById('quote-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
@@ -351,11 +366,14 @@ document.getElementById('quote-modal-save').addEventListener('click',function(){
   var sel=document.getElementById('qf-client');
   if(!sel.value){sel.focus();return;}
   var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
-  var num=nextNum();
   var quotes=load()||[];
   var status=document.getElementById('qf-status').value;
   var dateSent=document.getElementById('qf-date').value||(status!=='draft'?new Date().toISOString().slice(0,10):null);
-  quotes.unshift({id:'Q'+Date.now(),num:num,clientId:sel.value,clientName:clientName,desc:document.getElementById('qf-desc').value.trim(),value:parseInt(document.getElementById('qf-value').value)||0,status:status,dateSent:dateSent||null});
+  if(editingQuoteId){
+    quotes.forEach(function(q){if(q.id===editingQuoteId){q.clientId=sel.value;q.clientName=clientName;q.desc=document.getElementById('qf-desc').value.trim();q.value=parseInt(document.getElementById('qf-value').value)||0;q.status=status;q.dateSent=dateSent||null;}});
+  } else {
+    quotes.unshift({id:'Q'+Date.now(),num:nextNum(),clientId:sel.value,clientName:clientName,desc:document.getElementById('qf-desc').value.trim(),value:parseInt(document.getElementById('qf-value').value)||0,status:status,dateSent:dateSent||null});
+  }
   save(quotes);closeModal();renderAll();
 });
 function updateQuoteStatus(id,newStatus){
@@ -386,7 +404,8 @@ document.getElementById('q-body').addEventListener('click',function(e){
   var actionEl=e.target.closest('[data-action]');
   if(actionEl){
     var wid=actionEl.closest('.xp-wrap').dataset.id;
-    if(actionEl.dataset.action==='convert')convertToInvoice(wid);
+    if(actionEl.dataset.action==='edit'){var quotes2=load()||[];var found=null;quotes2.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
+    else if(actionEl.dataset.action==='convert')convertToInvoice(wid);
     else if(actionEl.dataset.action==='delete')deleteQuote(wid);
     return;
   }

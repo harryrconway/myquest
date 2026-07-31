@@ -284,6 +284,7 @@ function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 var activeFilter='all';
 var openId=null;
+var editingJobId=null;
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -295,6 +296,7 @@ function renderExpand(j){
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
+  actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
   return '<div class="xp-grid">'+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val">'+fmtDateFull(j.date)+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.clientName||'—')+'</div></div>'+
@@ -326,6 +328,7 @@ function renderRow(j){
 }
 function renderAll(){
   var jobs=load()||[];
+  jobs.sort(function(a,b){var au=a.status==='upcoming',bu=b.status==='upcoming';if(au&&!bu)return -1;if(!au&&bu)return 1;return au?(a.date<b.date?-1:1):(a.date>b.date?-1:1);});
   var upcoming=jobs.filter(function(j){return j.status==='upcoming';});
   var completed=jobs.filter(function(j){return j.status==='completed';});
   var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
@@ -353,20 +356,35 @@ pills.forEach(function(p){
   });
 });
 var modal=document.getElementById('job-modal');
-function openModal(){
+function openModal(j){
+  editingJobId=j?j.id:null;
+  document.querySelector('#job-modal .modal-title').textContent=j?'Edit job':'New job';
+  document.getElementById('job-modal-save').textContent=j?'Save changes':'Add job';
   var clients=loadClients();
   var sel=document.getElementById('jf-client');
   sel.innerHTML='<option value="">Select client…</option>';
   clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-  document.getElementById('jf-date').valueAsDate=new Date();
+  if(j){
+    document.getElementById('jf-date').value=j.date||'';
+    sel.value=j.clientId||'';
+    document.getElementById('jf-site').value=j.site||'';
+    document.getElementById('jf-type').value=j.type||'maintenance';
+    document.getElementById('jf-status').value=j.status||'upcoming';
+    document.getElementById('jf-price').value=j.price||'';
+  } else {
+    document.getElementById('jf-date').valueAsDate=new Date();
+  }
   modal.hidden=false;
-  setTimeout(function(){document.getElementById('jf-client').focus();},40);
+  setTimeout(function(){document.getElementById(j?'jf-date':'jf-client').focus();},40);
 }
 function closeModal(){
   modal.hidden=true;
+  editingJobId=null;
+  document.querySelector('#job-modal .modal-title').textContent='New job';
+  document.getElementById('job-modal-save').textContent='Add job';
   ['jf-date','jf-site','jf-price'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
 }
-document.getElementById('new-job-btn').addEventListener('click',openModal);
+document.getElementById('new-job-btn').addEventListener('click',function(){openModal();});
 document.getElementById('job-modal-close').addEventListener('click',closeModal);
 document.getElementById('job-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
@@ -386,7 +404,11 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   if(!sel.value){sel.focus();return;}
   var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
   var jobs=load()||[];
-  jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,price:parseInt(document.getElementById('jf-price').value)||0});
+  if(editingJobId){
+    jobs.forEach(function(j){if(j.id===editingJobId){j.date=date;j.clientId=sel.value;j.clientName=clientName;j.site=document.getElementById('jf-site').value.trim();j.type=document.getElementById('jf-type').value;j.status=document.getElementById('jf-status').value;j.price=parseInt(document.getElementById('jf-price').value)||0;}});
+  } else {
+    jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,price:parseInt(document.getElementById('jf-price').value)||0});
+  }
   save(jobs);closeModal();renderAll();
 });
 function updateJobStatus(id,newStatus){
@@ -405,6 +427,7 @@ document.getElementById('jl-body').addEventListener('click',function(e){
     var wid=actionEl.closest('.xp-wrap').dataset.id;
     var act=actionEl.dataset.action;
     if(act==='delete')deleteJob(wid);
+    else if(act==='edit'){var jobs2=load()||[];var found=null;jobs2.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
     else updateJobStatus(wid,act);
     return;
   }

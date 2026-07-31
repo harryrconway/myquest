@@ -266,6 +266,7 @@ function nextNum(){var inv=load()||[];var nums=inv.map(function(x){return parseI
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 var activeFilter='all';
 var openId=null;
+var editingInvId=null;
 var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
 function isDueLate(iso){if(!iso)return false;return new Date(iso+'T00:00:00')<new Date();}
@@ -276,6 +277,7 @@ function renderExpand(inv){
   if(inv.status==='overdue')actions+='<button class="xp-btn" data-action="unpaid">Mark as unpaid</button>';
   if(inv.status==='unpaid')actions+='<button class="xp-btn" data-action="overdue">Mark as overdue</button>';
   if(inv.status==='paid')actions+='<button class="xp-btn" data-action="unpaid">Mark as unpaid</button>';
+  actions='<button class="xp-btn" data-action="edit">Edit invoice</button>'+actions;
   actions+='<button class="xp-btn danger" data-action="delete">Delete invoice</button>';
   return '<div class="xp-grid">'+
     '<div><div class="xp-lbl">Invoice</div><div class="xp-val">#'+esc(inv.num||'—')+'</div></div>'+
@@ -333,24 +335,39 @@ pills.forEach(function(p){
   });
 });
 var modal=document.getElementById('inv-modal');
-function openModal(){
+function openModal(inv){
+  editingInvId=inv?inv.id:null;
+  document.querySelector('#inv-modal .modal-title').textContent=inv?'Edit invoice':'New invoice';
+  document.getElementById('inv-modal-save').textContent=inv?'Save changes':'Add invoice';
   var clients=loadClients();
   var sel=document.getElementById('if-client');
   sel.innerHTML='<option value="">Select client…</option>';
   clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-  var today=new Date().toISOString().slice(0,10);
-  var due=new Date();due.setDate(due.getDate()+14);
-  document.getElementById('if-issued').value=today;
-  document.getElementById('if-due').value=due.toISOString().slice(0,10);
+  if(inv){
+    sel.value=inv.clientId||'';
+    document.getElementById('if-desc').value=inv.desc||'';
+    document.getElementById('if-amount').value=inv.amount||'';
+    document.getElementById('if-issued').value=inv.issued||'';
+    document.getElementById('if-due').value=inv.due||'';
+    document.getElementById('if-status').value=inv.status||'unpaid';
+  } else {
+    var today=new Date().toISOString().slice(0,10);
+    var due=new Date();due.setDate(due.getDate()+14);
+    document.getElementById('if-issued').value=today;
+    document.getElementById('if-due').value=due.toISOString().slice(0,10);
+  }
   modal.hidden=false;
-  setTimeout(function(){document.getElementById('if-client').focus();},40);
+  setTimeout(function(){document.getElementById(inv?'if-desc':'if-client').focus();},40);
 }
 function closeModal(){
   modal.hidden=true;
+  editingInvId=null;
+  document.querySelector('#inv-modal .modal-title').textContent='New invoice';
+  document.getElementById('inv-modal-save').textContent='Add invoice';
   ['if-desc','if-amount'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('if-status').value='unpaid';
 }
-document.getElementById('new-inv-btn').addEventListener('click',openModal);
+document.getElementById('new-inv-btn').addEventListener('click',function(){openModal();});
 document.getElementById('inv-modal-close').addEventListener('click',closeModal);
 document.getElementById('inv-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
@@ -370,7 +387,11 @@ document.getElementById('inv-modal-save').addEventListener('click',function(){
   var amount=parseInt(document.getElementById('if-amount').value)||0;
   if(!amount){document.getElementById('if-amount').focus();return;}
   var invs=load()||[];
-  invs.unshift({id:'I'+Date.now(),num:nextNum(),clientId:sel.value,clientName:clientName,desc:document.getElementById('if-desc').value.trim(),amount:amount,issued:document.getElementById('if-issued').value||new Date().toISOString().slice(0,10),due:document.getElementById('if-due').value||'',status:document.getElementById('if-status').value});
+  if(editingInvId){
+    invs.forEach(function(i){if(i.id===editingInvId){i.clientId=sel.value;i.clientName=clientName;i.desc=document.getElementById('if-desc').value.trim();i.amount=amount;i.issued=document.getElementById('if-issued').value||i.issued;i.due=document.getElementById('if-due').value||i.due;i.status=document.getElementById('if-status').value;}});
+  } else {
+    invs.unshift({id:'I'+Date.now(),num:nextNum(),clientId:sel.value,clientName:clientName,desc:document.getElementById('if-desc').value.trim(),amount:amount,issued:document.getElementById('if-issued').value||new Date().toISOString().slice(0,10),due:document.getElementById('if-due').value||'',status:document.getElementById('if-status').value});
+  }
   save(invs);closeModal();renderAll();
 });
 function updateInvStatus(id,newStatus){
@@ -389,6 +410,7 @@ document.getElementById('inv-body').addEventListener('click',function(e){
     var wid=actionEl.closest('.xp-wrap').dataset.id;
     var act=actionEl.dataset.action;
     if(act==='delete')deleteInvoice(wid);
+    else if(act==='edit'){var invs2=load()||[];var found=null;invs2.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
     else updateInvStatus(wid,act);
     return;
   }
