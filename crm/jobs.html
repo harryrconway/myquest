@@ -55,6 +55,12 @@
 .xp-btn.danger{color:var(--red);border-color:rgba(166,61,47,.2)}
 .xp-btn.danger:hover{background:var(--red-bg)}
 
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--stone);pointer-events:none}
+.search{width:100%;padding:9px 12px 9px 34px;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s}
+.search::placeholder{color:var(--stone)}
+.search:focus{border-color:var(--hair-md)}
+
 @media(max-width:1000px){
   .jl-head,.jl-row{grid-template-columns:80px 1fr 80px 80px}
   .jl-head span:nth-child(3),.jl-row .jl-site,
@@ -181,6 +187,10 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     </div>
 
     <div class="toolbar pg-3">
+      <div class="search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search" type="text" id="job-search" placeholder="Search jobs…" autocomplete="off">
+      </div>
       <div class="filters">
         <button class="f-pill on" data-filter="all">All</button>
         <button class="f-pill" data-filter="upcoming">Upcoming</button>
@@ -283,6 +293,7 @@ function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
 function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 var activeFilter='all';
+var searchTerm='';
 var openId=null;
 var editingJobId=null;
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
@@ -343,7 +354,11 @@ function renderAll(){
     '<div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val">$'+rev.toLocaleString()+'</div><div class="stat-hint">Month to date</div></div>'+
     '<div class="stat"><div class="stat-lbl">Total jobs</div><div class="stat-val">'+jobs.length+'</div><div class="stat-hint">All time</div></div>';
   var html='';
-  jobs.forEach(function(j){var show=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;if(show)html+=renderRow(j);});
+  jobs.forEach(function(j){
+    var mf=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;
+    var ms=!searchTerm||(j.clientName+' '+(j.site||'')).toLowerCase().indexOf(searchTerm)!==-1;
+    if(mf&&ms)html+=renderRow(j);
+  });
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
 }
 var pills=document.querySelectorAll('.f-pill');
@@ -451,6 +466,8 @@ var mOverlay=document.getElementById('mob-overlay');
 function navClose(){document.body.classList.remove('mob-open');}
 if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+var searchEl=document.getElementById('job-search');
+if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
 init();
 renderAll();
 if(getParam('newjob')==='1'){

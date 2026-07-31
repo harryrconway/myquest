@@ -174,7 +174,7 @@ var QC={
   bathMins:22,
   kitchenMins:25,
   extras:{floor_polish:0.55,carpet:0.25,rubbish:25},
-  freqDisc:{once:1.0,monthly:1.0,fortnightly:1.0,weekly:1.0},
+  freqDisc:{once:1.0,monthly:0.97,fortnightly:0.95,weekly:0.90},
   suppliesCost:20,
   bufferPct:0.15,
   minHrsMaint:2,
@@ -213,8 +213,11 @@ function calc(){
   var per=sub;
   var bufferAmt=s.buffer?per*QC.bufferPct:0;
   per+=bufferAmt;
+  var disc=QC.freqDisc[s.freq]||1.0;
+  var subBeforeDisc=per;
+  per=per*disc;
   var mthMult={once:null,monthly:1,fortnightly:2.17,weekly:4.33};
-  return{per:per,lo:r5(per*.9),hi:r5(per*1.1),monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,hrs:total,labour:labour,sup:sup,ext:ext,bufferAmt:bufferAmt};
+  return{per:per,lo:r5(per*.9),hi:r5(per*1.1),monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,hrs:total,labour:labour,sup:sup,ext:ext,bufferAmt:bufferAmt,disc:disc,subBeforeDisc:subBeforeDisc};
 }
 function r5(n){return Math.round(n/5)*5;}
 function au(n){return '$'+Math.round(n).toLocaleString('en-AU');}
@@ -312,6 +315,7 @@ function renderResult(){
   rows+='<button type="button" class="qc-buf-row'+(s.buffer?' on':'')+'" id="qc-buf">'+
     '<span>Site allowance <span style="opacity:.55;font-size:12px">(+'+Math.round(QC.bufferPct*100)+'%)</span></span>'+
     '<span>'+(s.buffer?'+'+au(r.bufferAmt):'tap to add')+'</span></button>';
+  if(r.disc<1.0)rows+=brow('Frequency discount ('+Math.round((1-r.disc)*100)+'% off)','−'+au(r.subBeforeDisc*(1-r.disc)));
   rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
   updatePrint(r,sLab,qLab,fLab,tLab);
   return '<div class="qc-step">'+
@@ -473,12 +477,7 @@ function bind(){
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){
     var el=document.getElementById('qc-print');if(!el||!el.innerHTML)return;
-    var html='<!DOCTYPE html><html lang="en-AU"><head><meta charset="UTF-8"><title>Quote Estimate — MyQuest</title>'+
-      '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.6;color:#000;padding:40px 48px}table{width:100%;border-collapse:collapse}@page{margin:15mm 18mm;size:A4}@media print{body{padding:0}}</style>'+
-      '</head><body>'+el.innerHTML+'</body></html>';
-    var w=window.open('','_blank');if(!w)return;
-    w.document.open();w.document.write(html);w.document.close();w.focus();
-    setTimeout(function(){w.print();},400);
+    window.print();
   });
   var rs=document.getElementById('qc-restart');
   if(rs)rs.addEventListener('click',function(){resetState();render();});

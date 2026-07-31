@@ -48,6 +48,16 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .cancel-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
 .cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.25)}
 .sc-tenure{color:var(--stone);font-weight:400}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
+.f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--stone);pointer-events:none}
+.search{width:100%;padding:9px 12px 9px 34px;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s}
+.search::placeholder{color:var(--stone)}
+.search:focus{border-color:var(--hair-md)}
 @media(max-width:600px){.form-row-2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -140,7 +150,18 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       </div>
     </div>
 
-    <div class="sh pg-3"><span class="sh-lbl">Team</span></div>
+    <div class="toolbar pg-3">
+      <div class="search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search" type="text" id="staff-search" placeholder="Search staff…" autocomplete="off">
+      </div>
+      <div class="filters">
+        <button class="f-pill on" data-sf="all">All</button>
+        <button class="f-pill" data-sf="active">Active</button>
+        <button class="f-pill" data-sf="on-leave">On leave</button>
+        <button class="f-pill" data-sf="left">Left</button>
+      </div>
+    </div>
     <div class="staff-grid pg-3" id="staff-grid"></div>
   </main>
 </div>
@@ -157,13 +178,23 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <label class="form-lbl" for="sf-name">Full name</label>
         <input class="form-input" type="text" id="sf-name" placeholder="e.g. Alex Chen" autocomplete="off">
       </div>
-      <div class="form-row">
-        <label class="form-lbl" for="sf-role">Role</label>
-        <select class="form-input" id="sf-role">
-          <option value="Lead cleaner">Lead cleaner</option>
-          <option value="Senior cleaner">Senior cleaner</option>
-          <option value="Cleaner">Cleaner</option>
-        </select>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="sf-role">Role</label>
+          <select class="form-input" id="sf-role">
+            <option value="Lead cleaner">Lead cleaner</option>
+            <option value="Senior cleaner">Senior cleaner</option>
+            <option value="Cleaner">Cleaner</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-lbl" for="sf-status">Status</label>
+          <select class="form-input" id="sf-status">
+            <option value="active">Active</option>
+            <option value="on-leave">On leave</option>
+            <option value="left">Left</option>
+          </select>
+        </div>
       </div>
       <div class="form-row-2">
         <div>
@@ -214,7 +245,7 @@ function renderCard(s){
     '<div class="sc-top">'+
       '<div class="sc-av">'+esc(s.initials)+'</div>'+
       '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+esc(s.role)+'</div></div>'+
-      '<span class="badge '+(s.status||'active')+'" style="margin-left:auto">'+esc((s.status||'active').charAt(0).toUpperCase()+(s.status||'active').slice(1))+'</span>'+
+      ((s.status||'active')!=='active'?'<span class="badge '+(s.status==='on-leave'?'onboarding':'exited')+'" style="margin-left:auto">'+(s.status==='on-leave'?'On leave':'Left')+'</span>':'')+
     '</div>'+
     (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
     (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
@@ -230,9 +261,16 @@ function renderAll(){
     '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+active+'</div><div class="stat-hint">On the team</div></div>'+
     '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+[...new Set(staff.map(function(s){return s.role;}))].length+'</div><div class="stat-hint">Distinct roles</div></div>'+
     '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+staff.filter(function(s){return s.since&&s.since.indexOf(String(new Date().getFullYear()))!==-1;}).length+'</div><div class="stat-hint">Joined in '+new Date().getFullYear()+'</div></div>';
+  var visible=staff.filter(function(s){
+    var mf=activeFilter==='all'||(s.status||'active')===activeFilter;
+    var ms=!searchTerm||(s.name+' '+(s.role||'')).toLowerCase().indexOf(searchTerm)!==-1;
+    return mf&&ms;
+  });
   var grid=document.getElementById('staff-grid');
-  grid.innerHTML=staff.map(renderCard).join('')||'<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff added yet.</div>';
+  grid.innerHTML=visible.map(renderCard).join('')||'<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff match your filter.</div>';
 }
+var activeFilter='all';
+var searchTerm='';
 var modal=document.getElementById('staff-modal');
 var saveBtn=document.getElementById('staff-modal-save');
 var delBtn=document.getElementById('staff-modal-delete');
@@ -245,6 +283,7 @@ function openNewModal(){
   delBtn.hidden=true;
   ['sf-name','sf-phone','sf-email'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('sf-role').value='Cleaner';
+  document.getElementById('sf-status').value='active';
   document.getElementById('sf-since').valueAsDate=new Date();
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
@@ -259,6 +298,7 @@ function openEditModal(s){
   document.getElementById('sf-phone').value=s.phone||'';
   document.getElementById('sf-email').value=s.email||'';
   document.getElementById('sf-since').value=sinceToIso(s.since)||'';
+  document.getElementById('sf-status').value=s.status||'active';
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
 }
@@ -285,10 +325,10 @@ saveBtn.addEventListener('click',function(){
   if(editingId){
     staff=staff.map(function(s){
       if(s.id!==editingId)return s;
-      return {id:s.id,name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):s.since,status:s.status||'active'};
+      return {id:s.id,name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):s.since,status:document.getElementById('sf-status').value};
     });
   } else {
-    staff.push({id:'s'+Date.now(),name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):'',status:'active'});
+    staff.push({id:'s'+Date.now(),name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):'',status:document.getElementById('sf-status').value});
   }
   save(staff);closeModal();renderAll();
 });
@@ -299,6 +339,17 @@ document.getElementById('staff-grid').addEventListener('click',function(e){
   var s;(load()||[]).forEach(function(x){if(x.id===sid)s=x;});
   if(s)openEditModal(s);
 });
+var sfPills=document.querySelectorAll('.f-pill[data-sf]');
+sfPills.forEach(function(p){
+  p.addEventListener('click',function(){
+    sfPills.forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    activeFilter=this.getAttribute('data-sf');
+    renderAll();
+  });
+});
+var staffSearchEl=document.getElementById('staff-search');
+if(staffSearchEl)staffSearchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
 var mob=document.getElementById('mob-menu');
 var mOverlay=document.getElementById('mob-overlay');
 function navClose(){document.body.classList.remove('mob-open');}

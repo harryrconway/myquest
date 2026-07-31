@@ -9,6 +9,11 @@
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--stone);pointer-events:none}
+.search{width:100%;padding:9px 12px 9px 34px;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s}
+.search::placeholder{color:var(--stone)}
+.search:focus{border-color:var(--hair-md)}
 @media(max-width:700px){
   .q-head,.q-row{grid-template-columns:70px 1.5fr 110px 90px 28px}
   .q-head span:nth-child(3),.q-row>*:nth-child(3){display:none}
@@ -169,6 +174,10 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     </div>
 
     <div class="toolbar pg-3">
+      <div class="search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search" type="text" id="quote-search" placeholder="Search quotes…" autocomplete="off">
+      </div>
       <div class="filters">
         <button class="f-pill on" data-filter="all">All</button>
         <button class="f-pill" data-filter="pending">Pending</button>
@@ -261,6 +270,7 @@ function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.
 function nextNum(){var q=load()||[];var nums=q.map(function(x){return parseInt((x.num||'').replace('Q-',''),10)||0;});return 'Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');}
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 var activeFilter='all';
+var searchTerm='';
 var openId=null;
 var editingQuoteId=null;
 function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();}
@@ -310,7 +320,11 @@ function renderAll(){
     '<div class="stat"><div class="stat-lbl">Pending</div><div class="stat-val">'+pending+'</div><div class="stat-hint">Awaiting response</div></div>'+
     '<div class="stat"><div class="stat-lbl">Active value</div><div class="stat-val">$'+totalVal.toLocaleString()+'</div><div class="stat-hint">Accepted + pending</div></div>';
   var html='';
-  quotes.forEach(function(q){if(activeFilter==='all'||activeFilter===q.status)html+=renderRow(q);});
+  quotes.forEach(function(q){
+    var mf=activeFilter==='all'||activeFilter===q.status;
+    var ms=!searchTerm||(q.clientName+' '+(q.desc||'')+' '+(q.num||'')).toLowerCase().indexOf(searchTerm)!==-1;
+    if(mf&&ms)html+=renderRow(q);
+  });
   document.getElementById('q-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No quotes match your filter.</div>';
 }
 var pills=document.querySelectorAll('.f-pill');
@@ -429,6 +443,8 @@ var mOverlay=document.getElementById('mob-overlay');
 function navClose(){document.body.classList.remove('mob-open');}
 if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+var searchEl=document.getElementById('quote-search');
+if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
 init();
 renderAll();
 if(getParam('newquote')==='1'){

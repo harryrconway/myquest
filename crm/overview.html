@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Overview — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260730">
+<link rel="stylesheet" href="style.css?v=20260731">
 <style>
 .date-sub{font-size:13px;color:var(--stone);margin-top:4px}
 
@@ -144,43 +144,7 @@
 
       <div>
         <div class="sh"><span class="sh-lbl">Today's schedule</span><a href="jobs.html" class="sh-btn">View all jobs</a></div>
-        <div class="sched-list">
-          <div class="sched-item">
-            <div class="si-time">6:00am<br>8:00am</div>
-            <div class="si-info">
-              <div class="si-client">Pacific Dental Group</div>
-              <div class="si-detail">Maintenance · 128 sqm · Broadbeach</div>
-              <div class="si-crew">
-                <div class="si-av">JP</div>
-                <div class="si-av">DT</div>
-              </div>
-            </div>
-            <span class="badge upcoming">Upcoming</span>
-          </div>
-          <div class="sched-item">
-            <div class="si-time">8:30am<br>10:30am</div>
-            <div class="si-info">
-              <div class="si-client">Aria Property Group</div>
-              <div class="si-detail">Maintenance · 200 sqm · Sydney CBD</div>
-              <div class="si-crew">
-                <div class="si-av">JP</div>
-                <div class="si-av">DT</div>
-              </div>
-            </div>
-            <span class="badge upcoming">Upcoming</span>
-          </div>
-          <div class="sched-item">
-            <div class="si-time">2:00pm<br>4:00pm</div>
-            <div class="si-info">
-              <div class="si-client">Surfers Paradise Retail</div>
-              <div class="si-detail">Maintenance · 160 sqm · Surfers Paradise</div>
-              <div class="si-crew">
-                <div class="si-av" style="background:rgba(176,125,42,.12);color:var(--amber)">?</div>
-              </div>
-            </div>
-            <span class="badge onboarding">Unassigned</span>
-          </div>
-        </div>
+        <div class="sched-list" id="ov-sched"></div>
       </div>
 
       <div>
@@ -228,6 +192,7 @@
 'use strict';
 
 function ls(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):[]; }catch(e){ return []; } }
+function esc(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 var clients=ls('mq_clients');
 var jobs=ls('mq_jobs');
@@ -303,6 +268,30 @@ if(monthEl){
     '<div class="qs-row"><span class="qs-lbl">Revenue collected</span><span class="qs-val">$'+paidTotal.toLocaleString('en-AU')+'</span></div>'+
     '<div class="qs-row"><span class="qs-lbl">Quotes accepted</span><span class="qs-val">'+accQ+'</span></div>'+
     '<div class="qs-row"><span class="qs-lbl">Quotes pending</span><span class="qs-val">'+pendQ+'</span></div>';
+}
+
+// Today's schedule
+var schedEl=document.getElementById('ov-sched');
+if(schedEl){
+  var todayStr=new Date().toISOString().slice(0,10);
+  var todayJobs=jobs.filter(function(j){return j.date===todayStr;});
+  var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+  if(!todayJobs.length){
+    schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for today</div></div></div>';
+  } else {
+    schedEl.innerHTML=todayJobs.map(function(j){
+      var tLbl=TYPE_LABELS[j.type]||j.type||'';
+      var bCls=j.status==='completed'?'completed':'upcoming';
+      var bLbl=j.status==='completed'?'Completed':'Upcoming';
+      return '<div class="sched-item" style="grid-template-columns:1fr auto">'+
+        '<div class="si-info">'+
+          '<div class="si-client">'+esc(j.clientName||'—')+'</div>'+
+          '<div class="si-detail">'+esc(tLbl)+(j.site?' · '+esc(j.site):'')+(j.price?' · $'+Number(j.price).toLocaleString():'')+'</div>'+
+        '</div>'+
+        '<span class="badge '+bCls+'">'+bLbl+'</span>'+
+      '</div>';
+    }).join('');
+  }
 }
 
 // Mobile nav

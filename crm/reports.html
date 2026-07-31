@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260730">
+<link rel="stylesheet" href="style.css?v=20260731">
 <style>
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 .rep-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:24px}
@@ -101,82 +101,117 @@
       <h1 class="ph-title">Reports</h1>
     </div>
 
-    <div class="stats pg-2">
-      <div class="stat">
-        <div class="stat-lbl">YTD revenue</div>
-        <div class="stat-val">$21,840</div>
-        <div class="stat-hint">Jan – Jul 2026</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Avg per month</div>
-        <div class="stat-val">$3,120</div>
-        <div class="stat-hint">Based on 7 months</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Jobs completed</div>
-        <div class="stat-val">86</div>
-        <div class="stat-hint">YTD</div>
-      </div>
-      <div class="stat">
-        <div class="stat-lbl">Collection rate</div>
-        <div class="stat-val">96.7%</div>
-        <div class="stat-hint">Invoices paid</div>
-      </div>
-    </div>
+    <div class="stats pg-2" id="rep-stats"></div>
 
     <div class="rep-grid pg-3">
-
-      <div class="rep-card">
-        <div class="rep-title">Monthly revenue — 2026</div>
-        <div class="bar-chart">
-          <div class="bar-row"><span class="bar-lbl">Jan</span><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><span class="bar-val">$2,880</span></div>
-          <div class="bar-row"><span class="bar-lbl">Feb</span><div class="bar-track"><div class="bar-fill" style="width:52%"></div></div><span class="bar-val">$2,560</span></div>
-          <div class="bar-row"><span class="bar-lbl">Mar</span><div class="bar-track"><div class="bar-fill" style="width:62%"></div></div><span class="bar-val">$3,080</span></div>
-          <div class="bar-row"><span class="bar-lbl">Apr</span><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div><span class="bar-val">$3,360</span></div>
-          <div class="bar-row"><span class="bar-lbl">May</span><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div><span class="bar-val">$3,560</span></div>
-          <div class="bar-row"><span class="bar-lbl">Jun</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="bar-val">$4,080</span></div>
-          <div class="bar-row"><span class="bar-lbl">Jul</span><div class="bar-track"><div class="bar-fill green" style="width:87%"></div></div><span class="bar-val">$4,320</span></div>
-        </div>
-      </div>
-
-      <div class="rep-card">
-        <div class="rep-title">Revenue by client</div>
-        <div>
-          <div class="cl-bar-row"><span class="cl-bar-name">Broadbeach Shopping Co.</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:100%"></div></div><span class="cl-bar-val">$6,560</span></div>
-          <div class="cl-bar-row"><span class="cl-bar-name">Coastal Medical Centre</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:78%"></div></div><span class="cl-bar-val">$5,120</span></div>
-          <div class="cl-bar-row"><span class="cl-bar-name">Surfers Paradise Retail</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:60%"></div></div><span class="cl-bar-val">$3,920</span></div>
-          <div class="cl-bar-row"><span class="cl-bar-name">Aria Property Group</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:55%"></div></div><span class="cl-bar-val">$3,600</span></div>
-          <div class="cl-bar-row"><span class="cl-bar-name">Robina Business Park</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:33%"></div></div><span class="cl-bar-val">$2,160</span></div>
-          <div class="cl-bar-row"><span class="cl-bar-name">Pacific Dental Group</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:22%"></div></div><span class="cl-bar-val">$1,440</span></div>
-        </div>
-      </div>
-
+      <div class="rep-card" id="rev-chart-card"></div>
+      <div class="rep-card" id="client-chart-card"></div>
     </div>
 
     <div class="sh pg-4"><span class="sh-lbl">Year to date summary</span></div>
-    <div class="ac pg-4">
-      <div class="sum-row"><span class="sum-lbl">Total revenue</span><span class="sum-val">$21,840</span></div>
-      <div class="sum-row"><span class="sum-lbl">Total invoices raised</span><span class="sum-val">62</span></div>
-      <div class="sum-row"><span class="sum-lbl">Total invoices paid</span><span class="sum-val">60</span></div>
-      <div class="sum-row"><span class="sum-lbl">Outstanding balance</span><span class="sum-val">$720</span></div>
-      <div class="sum-row"><span class="sum-lbl">Total jobs completed</span><span class="sum-val">86</span></div>
-      <div class="sum-row"><span class="sum-lbl">Quotes sent</span><span class="sum-val">14</span></div>
-      <div class="sum-row"><span class="sum-lbl">Quote acceptance rate</span><span class="sum-val">71%</span></div>
-    </div>
+    <div class="ac pg-4" id="rep-summary"></div>
 
   </main>
 </div>
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="quotes.html">Quotes</a><a href="invoices.html">Invoices</a><a href="calculator.html">Calculator</a><a href="scope.html">Scope</a><a href="reports.html" class="mob-on">Reports</a><a href="staff.html">Staff</a></nav></div></div>
 <script>
 (function(){
-  'use strict';
-  var btn=document.getElementById('mob-menu');
-  var overlay=document.getElementById('mob-overlay');
-  function mobClose(){ document.body.classList.remove('mob-open'); }
-  if(btn) btn.addEventListener('click',function(){ document.body.classList.toggle('mob-open'); });
-  if(overlay) overlay.addEventListener('click',function(e){
-    if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') mobClose();
-  });
+'use strict';
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ls(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):[];}catch(e){return[];}}
+
+var invoices=ls('mq_invoices');
+var jobs=ls('mq_jobs');
+var quotes=ls('mq_quotes');
+
+var now=new Date();
+var yr=now.getFullYear();
+var mo=now.getMonth();
+var MO_LABELS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+var paidYTD=invoices.filter(function(i){return i.status==='paid'&&i.issued&&i.issued.slice(0,4)===String(yr);});
+var ytdRev=paidYTD.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+var elapsedMonths=mo+1;
+var avgPerMonth=elapsedMonths>0?Math.round(ytdRev/elapsedMonths):0;
+var jobsDone=jobs.filter(function(j){return j.status==='completed'&&j.date&&j.date.slice(0,4)===String(yr);}).length;
+var totalInvYTD=invoices.filter(function(i){return i.issued&&i.issued.slice(0,4)===String(yr);}).length;
+var paidInvYTD=paidYTD.length;
+var collRate=totalInvYTD>0?(paidInvYTD/totalInvYTD*100).toFixed(1)+'%':'—';
+
+// Stat tiles
+var statsEl=document.getElementById('rep-stats');
+if(statsEl){
+  statsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">YTD revenue</div><div class="stat-val">$'+ytdRev.toLocaleString('en-AU')+'</div><div class="stat-hint">Jan – '+MO_LABELS[mo]+' '+yr+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Avg per month</div><div class="stat-val">$'+avgPerMonth.toLocaleString('en-AU')+'</div><div class="stat-hint">Based on '+elapsedMonths+' month'+(elapsedMonths!==1?'s':'')+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Jobs completed</div><div class="stat-val">'+jobsDone+'</div><div class="stat-hint">YTD</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Collection rate</div><div class="stat-val">'+collRate+'</div><div class="stat-hint">Invoices paid</div></div>';
+}
+
+// Monthly revenue bar chart
+var moRev=new Array(12).fill(0);
+paidYTD.forEach(function(i){var m=new Date(i.issued+'T00:00:00').getMonth();moRev[m]+=Number(i.amount)||0;});
+var maxMo=Math.max.apply(null,moRev.slice(0,mo+1).concat([1]));
+var chartCard=document.getElementById('rev-chart-card');
+if(chartCard){
+  var barRows=MO_LABELS.slice(0,mo+1).map(function(lbl,m){
+    var pct=Math.round(moRev[m]/maxMo*100);
+    return '<div class="bar-row">'+
+      '<span class="bar-lbl">'+lbl+'</span>'+
+      '<div class="bar-track"><div class="bar-fill'+(m===mo?' green':'')+'" style="width:'+pct+'%"></div></div>'+
+      '<span class="bar-val">$'+moRev[m].toLocaleString('en-AU')+'</span>'+
+    '</div>';
+  }).join('');
+  chartCard.innerHTML='<div class="rep-title">Monthly revenue — '+yr+'</div><div class="bar-chart">'+barRows+'</div>';
+}
+
+// Revenue by client
+var byClient={};
+invoices.forEach(function(i){if(!i.clientName)return;byClient[i.clientName]=(byClient[i.clientName]||0)+(Number(i.amount)||0);});
+var sorted=Object.keys(byClient).map(function(n){return{name:n,total:byClient[n]};}).sort(function(a,b){return b.total-a.total;});
+var clientCard=document.getElementById('client-chart-card');
+if(clientCard){
+  if(!sorted.length){
+    clientCard.innerHTML='<div class="rep-title">Revenue by client</div><div style="padding:12px 0;color:var(--stone);font-size:13px">No invoice data yet.</div>';
+  } else {
+    var maxClient=sorted[0].total||1;
+    var clientRows=sorted.slice(0,8).map(function(c){
+      return '<div class="cl-bar-row">'+
+        '<span class="cl-bar-name">'+esc(c.name)+'</span>'+
+        '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(c.total/maxClient*100)+'%"></div></div>'+
+        '<span class="cl-bar-val">$'+c.total.toLocaleString('en-AU')+'</span>'+
+      '</div>';
+    }).join('');
+    clientCard.innerHTML='<div class="rep-title">Revenue by client</div>'+clientRows;
+  }
+}
+
+// YTD summary table
+var allSentQ=quotes.filter(function(q){return q.status!=='draft';}).length;
+var accQ=quotes.filter(function(q){return q.status==='accepted';}).length;
+var accRate=allSentQ>0?Math.round(accQ/allSentQ*100)+'%':'—';
+var outstanding=invoices.filter(function(i){return i.status!=='paid';}).reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+var sumEl=document.getElementById('rep-summary');
+if(sumEl){
+  function srow(lbl,val){return '<div class="sum-row"><span class="sum-lbl">'+lbl+'</span><span class="sum-val">'+val+'</span></div>';}
+  sumEl.innerHTML=
+    srow('Total revenue','$'+ytdRev.toLocaleString('en-AU'))+
+    srow('Total invoices raised',String(totalInvYTD))+
+    srow('Total invoices paid',String(paidInvYTD))+
+    srow('Outstanding balance','$'+outstanding.toLocaleString('en-AU'))+
+    srow('Total jobs completed',String(jobsDone))+
+    srow('Quotes sent',String(allSentQ))+
+    srow('Quote acceptance rate',accRate);
+}
+
+// Mobile nav
+var btn=document.getElementById('mob-menu');
+var overlay=document.getElementById('mob-overlay');
+function mobClose(){document.body.classList.remove('mob-open');}
+if(btn)btn.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(overlay)overlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')mobClose();});
+
 })();
 </script>
 </body>
