@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260730">
+<link rel="stylesheet" href="style.css?v=20260805">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -108,12 +108,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         Staff
       </a>
     </nav>
-    <div class="sb-bottom">
-      <a class="sb-item" href="#">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </a>
-    </div>
   </aside>
 
   <main class="main">
@@ -222,65 +216,52 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 (function(){
   'use strict';
 
-  var KEY='mq_clients';
+  if(localStorage.getItem('mq_v')!=='2'){
+    Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
+    localStorage.setItem('mq_v','2');
+  }
 
-  var DEFAULTS=[
-    {id:'aria-property-group',name:'Aria Property Group',contact:'Sarah Chen',contactTitle:'Property Manager',email:'sarah@ariagroup.com.au',phone:'0412 234 567',industry:'Commercial office',status:'active',contract:6240,outstanding:0,nextClean:'31 Jul · Thu',totalCleans:24,notes:'No citrus-scented products. Sarah prefers morning slots before 10am. Building security requires sign-in at reception on Level 1 before heading upstairs.',site:{name:'142 Clarence Street',address:'Sydney NSW 2000',detail:'Level 3, Suite 301 · 200 sqm',sqm:200,tags:['Maintenance','Deep clean','Commercial office'],code:'1492',parking:'Loading bay, Clarence St · 30 min limit',security:'1800 242 111'},jobs:[{date:'31 Jul',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'next'},{date:'24 Jul',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'17 Jul',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'4 Jul',day:'Fri',type:'Deep clean',desc:'Clarence St · Level 3',sqm:200,price:360,status:'done'},{date:'26 Jun',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'19 Jun',day:'Thu',type:'Maintenance',desc:'Clarence St · Level 3',sqm:200,price:240,status:'done'},{date:'6 Jun',day:'Fri',type:'Deep clean',desc:'Clarence St · Level 3',sqm:200,price:360,status:'done'}],schedule:[{type:'Maintenance',sub:'Thursdays · 6:00–8:00am',freq:'Weekly'},{type:'Deep clean',sub:'First Friday · 7:00–11:00am',freq:'Monthly'}],team:[{initials:'JP',name:'Jessica Park',role:'Lead cleaner'},{initials:'DT',name:'David Tran',role:'Support cleaner'}]},
-    {id:'coastal-medical-centre',name:'Coastal Medical Centre',contact:'James Nguyen',contactTitle:'Practice Manager',email:'jnguyen@coastalmed.com.au',phone:'07 5523 4567',industry:'Medical',status:'active',contract:8320,outstanding:480,nextClean:'29 Jul · Tue',totalCleans:18,notes:'',site:null,jobs:[],schedule:[],team:[]},
-    {id:'broadbeach-shopping-co',name:'Broadbeach Shopping Co.',contact:'Michelle Park',contactTitle:'Centre Manager',email:'mpark@broadbeachsc.com.au',phone:'07 5534 2211',industry:'Retail',status:'active',contract:12480,outstanding:0,nextClean:'2 Aug · Sat',totalCleans:32,notes:'',site:null,jobs:[],schedule:[],team:[]},
-    {id:'pacific-dental-group',name:'Pacific Dental Group',contact:'Karen Wu',contactTitle:'Practice Owner',email:'karen@pacificdental.com.au',phone:'07 5567 8912',industry:'Medical',status:'active',contract:4160,outstanding:0,nextClean:'28 Jul · Mon',totalCleans:12,notes:'',site:null,jobs:[],schedule:[],team:[]},
-    {id:'robina-business-park',name:'Robina Business Park',contact:'Tony Marshall',contactTitle:'Facilities Manager',email:'tony@robinapark.com.au',phone:'07 5578 3344',industry:'Industrial',status:'active',contract:5200,outstanding:240,nextClean:'1 Aug · Fri',totalCleans:9,notes:'',site:null,jobs:[],schedule:[],team:[]},
-    {id:'surfers-paradise-retail',name:'Surfers Paradise Retail',contact:'Leanne Carter',contactTitle:'Retail Manager',email:'lcarter@spretail.com.au',phone:'07 5539 1122',industry:'Retail',status:'active',contract:7280,outstanding:0,nextClean:'30 Jul · Wed',totalCleans:14,notes:'',site:null,jobs:[],schedule:[],team:[]},
-    {id:'the-grove-apartments',name:'The Grove Apartments',contact:'David Lim',contactTitle:'Strata Manager',email:'dlim@thegrove.com.au',phone:'07 5512 9988',industry:'Strata',status:'onboarding',contract:3120,outstanding:0,nextClean:null,totalCleans:0,notes:'',site:null,jobs:[],schedule:[],team:[]}
-  ];
+  var KEY='mq_clients';
 
   function load(){ try{ var s=localStorage.getItem(KEY); return s?JSON.parse(s):null; }catch(e){ return null; } }
   function save(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
-  function init(){ var d=load(); if(!d){ d=DEFAULTS.slice(); save(d); } return d; }
   function slugify(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function fmtNextClean(iso){if(!iso)return null;var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' · '+DAYS[d.getDay()];}
 
   var activeFilter='all', searchTerm='';
 
-  function renderStats(clients){
+  function renderStats(clients,totalOut,cleansThisWeek){
     var total=clients.length;
     var active=clients.filter(function(c){return c.status==='active';}).length;
     var onb=clients.filter(function(c){return c.status==='onboarding';}).length;
-    var out=clients.reduce(function(s,c){return s+(c.outstanding||0);},0);
     var contracted=clients.reduce(function(s,c){return s+(c.contract||0);},0);
     var hint=[];
     if(active) hint.push(active+' active');
     if(onb) hint.push(onb+' onboarding');
-    var jobs=JSON.parse(localStorage.getItem('mq_jobs')||'[]');
-    var now=new Date();
-    var dow=now.getDay()||7;
-    var mon=new Date(now);mon.setDate(now.getDate()-(dow-1));
-    var sun=new Date(mon);sun.setDate(mon.getDate()+6);
-    var monStr=mon.toISOString().slice(0,10);
-    var sunStr=sun.toISOString().slice(0,10);
-    var cleansThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
     var el=document.getElementById('stats-strip');
     if(!el) return;
     el.innerHTML=
       '<div class="stat"><div class="stat-lbl">Total clients</div><div class="stat-val">'+total+'</div><div class="stat-hint">'+(hint.join(' · ')||'—')+'</div></div>'+
       '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">'+cleansThisWeek+'</div><div class="stat-hint">Mon – Sun</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+out.toLocaleString()+'</div><div class="stat-hint">Unpaid invoices</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+totalOut.toLocaleString()+'</div><div class="stat-hint">Unpaid invoices</div></div>'+
       '<div class="stat"><div class="stat-lbl">Annual contracted</div><div class="stat-val">$'+contracted.toLocaleString()+'</div><div class="stat-hint">Across all clients</div></div>';
   }
 
-  function renderRow(c){
+  function renderRow(c,ov,nc){
     var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
     var bl=c.status.charAt(0).toUpperCase()+c.status.slice(1);
-    var nc=c.nextClean||'—';
-    var ncCl=c.nextClean?'cl-next':'cl-next blank';
+    var ncStr=fmtNextClean(nc);
+    var ncCl=ncStr?'cl-next':'cl-next blank';
     var cv=c.contract?'$'+Number(c.contract).toLocaleString()+'<span style="font-size:10px;color:var(--stone)">/yr</span>':'—';
-    var ov=c.outstanding||0;
     var oCl=ov>0?'cl-val warn':'cl-val ok';
     var sub=c.contact?(c.contact+(c.email?' &nbsp;·&nbsp; '+c.email:'')):'';
     return '<a class="cl-row" href="client.html?id='+c.id+'" data-status="'+c.status+'" data-name="'+c.name.toLowerCase()+'">'+
       '<div><div class="cl-name">'+c.name+'</div>'+(sub?'<div class="cl-sub">'+sub+'</div>':'')+
       '<span class="cl-industry">'+(c.industry||'Other')+'</span></div>'+
       '<div><span class="badge '+bc+'">'+bl+'</span></div>'+
-      '<div class="'+ncCl+'">'+nc+'</div>'+
+      '<div class="'+ncCl+'">'+(ncStr||'—')+'</div>'+
       '<div class="cl-val">'+cv+'</div>'+
       '<div class="'+oCl+'">$'+ov.toLocaleString()+'</div>'+
       '<div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
@@ -289,13 +270,37 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 
   function renderAll(){
     var clients=load()||[];
-    renderStats(clients);
+    var invoices=JSON.parse(localStorage.getItem('mq_invoices')||'[]');
+    var jobs=JSON.parse(localStorage.getItem('mq_jobs')||'[]');
+    var today=new Date().toISOString().slice(0,10);
+    var outMap={};
+    invoices.forEach(function(i){
+      if((i.status==='unpaid'||i.status==='overdue')&&i.clientId){
+        outMap[i.clientId]=(outMap[i.clientId]||0)+(Number(i.amount)||0);
+      }
+    });
+    var totalOut=Object.keys(outMap).reduce(function(s,k){return s+(outMap[k]||0);},0);
+    var nextMap={};
+    jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;})
+      .sort(function(a,b){return a.date<b.date?-1:1;})
+      .forEach(function(j){if(!nextMap[j.clientId])nextMap[j.clientId]=j.date;});
+    var dow=new Date().getDay()||7;
+    var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
+    var sun=new Date(mon);sun.setDate(mon.getDate()+6);
+    var monStr=mon.toISOString().slice(0,10);
+    var sunStr=sun.toISOString().slice(0,10);
+    var cleansThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
+    renderStats(clients,totalOut,cleansThisWeek);
     var body=document.getElementById('cl-body');
+    if(!clients.length){
+      body.innerHTML='<div class="cl-empty">No clients yet — add your first one above.</div>';
+      return;
+    }
     var html='';
     clients.forEach(function(c){
       var mf=activeFilter==='all'||activeFilter===c.status;
       var ms=!searchTerm||(c.name+' '+(c.contact||'')+' '+(c.email||'')).toLowerCase().indexOf(searchTerm)!==-1;
-      if(mf&&ms) html+=renderRow(c);
+      if(mf&&ms) html+=renderRow(c,outMap[c.id]||0,nextMap[c.id]||null);
     });
     body.innerHTML=html||'<div class="cl-empty">No clients match your filter.</div>';
   }
@@ -338,8 +343,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       phone:document.getElementById('f-phone').value.trim(),
       email:document.getElementById('f-email').value.trim(),
       contract:parseInt(document.getElementById('f-contract').value)||0,
-      outstanding:0,nextClean:null,totalCleans:0,notes:'',
-      site:null,jobs:[],schedule:[],team:[]
+      notes:''
     });
     save(clients);
     closeModal();
@@ -355,7 +359,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') navClose();
   });
 
-  init();
   renderAll();
 
 })();

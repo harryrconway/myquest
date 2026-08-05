@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Quotes — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260730">
+<link rel="stylesheet" href="style.css?v=20260805">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -131,12 +131,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         Staff
       </a>
     </nav>
-    <div class="sb-bottom">
-      <a class="sb-item" href="#">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </a>
-    </div>
   </aside>
 
   <main class="main">
@@ -248,24 +242,21 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260730"></script>
+<script src="datepicker.js?v=20260805"></script>
 <script>
 (function(){
 'use strict';
+if(localStorage.getItem('mq_v')!=='2'){
+  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
+  localStorage.setItem('mq_v','2');
+}
 var KEY='mq_quotes';
 var CLIENT_KEY='mq_clients';
-var DEFAULTS=[
-  {id:'Q014',num:'Q-014',clientName:'The Grove Apartments',desc:'Weekly strata clean · 3 buildings',value:3120,status:'pending',dateSent:'2026-07-22'},
-  {id:'Q013',num:'Q-013',clientName:'Robina Business Park',desc:'Fortnightly maintenance · 320 sqm',value:5200,status:'accepted',dateSent:'2026-07-14'},
-  {id:'Q012',num:'Q-012',clientName:'Surfers Paradise Retail',desc:'Weekly maintenance · 160 sqm',value:7280,status:'accepted',dateSent:'2026-07-02'},
-  {id:'Q011',num:'Q-011',clientName:'Gold Coast Airport',desc:'Daily terminal clean · 1,200 sqm',value:48000,status:'declined',dateSent:'2026-06-18'},
-  {id:'Q010',num:'Q-010',clientName:'Pacific Dental Group',desc:'Additional site · 90 sqm',value:2600,status:'draft',dateSent:null}
-];
 var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+return d;}
 function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
 function nextNum(){var q=load()||[];var nums=q.map(function(x){return parseInt((x.num||'').replace('Q-',''),10)||0;});return 'Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');}
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
@@ -445,7 +436,6 @@ if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('m
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
 var searchEl=document.getElementById('quote-search');
 if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
-init();
 renderAll();
 if(getParam('newquote')==='1'){
   openModal();

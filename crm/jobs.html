@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260730">
+<link rel="stylesheet" href="style.css?v=20260805">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -144,12 +144,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         Staff
       </a>
     </nav>
-    <div class="sb-bottom">
-      <a class="sb-item" href="#">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </a>
-    </div>
   </aside>
 
   <main class="main">
@@ -268,28 +262,21 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260730"></script>
+<script src="datepicker.js?v=20260805"></script>
 <script>
 (function(){
 'use strict';
+if(localStorage.getItem('mq_v')!=='2'){
+  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
+  localStorage.setItem('mq_v','2');
+}
 var KEY='mq_jobs';
 var CLIENT_KEY='mq_clients';
-var DEFAULTS=[
-  {id:'j1',date:'2026-07-31',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
-  {id:'j2',date:'2026-07-30',clientName:'Surfers Paradise Retail',site:'Shop 4, Cavill Ave',type:'maintenance',status:'upcoming',price:195},
-  {id:'j3',date:'2026-07-29',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'maintenance',status:'upcoming',price:280},
-  {id:'j4',date:'2026-07-28',clientName:'Pacific Dental Group',site:'128 Surf Pde · Suite 2',type:'maintenance',status:'upcoming',price:160},
-  {id:'j5',date:'2026-07-28',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'upcoming',price:240},
-  {id:'j6',date:'2026-07-24',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'maintenance',status:'completed',price:240},
-  {id:'j7',date:'2026-07-04',clientName:'Aria Property Group',site:'142 Clarence St · L3',type:'deep',status:'completed',price:360},
-  {id:'j8',date:'2026-06-06',clientName:'Coastal Medical Centre',site:'88 Surf Parade · L1',type:'deep',status:'completed',price:520},
-  {id:'j9',date:'2026-07-02',clientName:'Broadbeach Shopping Co.',site:'Shop 12, Broadbeach Mall',type:'maintenance',status:'completed',price:380}
-];
 var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-function init(){var d=load();if(!d){d=DEFAULTS.slice();save(d);}return d;}
+return d;}
 function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 var activeFilter='all';
@@ -468,7 +455,6 @@ if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('m
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
 var searchEl=document.getElementById('job-search');
 if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
-init();
 renderAll();
 if(getParam('newjob')==='1'){
   openModal();

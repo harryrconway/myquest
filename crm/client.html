@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Client — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260730">
+<link rel="stylesheet" href="style.css?v=20260805">
 <style>
 .client-hd{background:var(--navy);border-radius:var(--r);padding:30px 34px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:14px}
 .ch-namerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
@@ -189,12 +189,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         Staff
       </a>
     </nav>
-    <div class="sb-bottom">
-      <a class="sb-item" href="#">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </a>
-    </div>
   </aside>
 
   <main class="main" id="main-content">
@@ -340,10 +334,15 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260730"></script>
+<script src="datepicker.js?v=20260805"></script>
 <script>
 (function(){
   'use strict';
+
+  if(localStorage.getItem('mq_v')!=='2'){
+    Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
+    localStorage.setItem('mq_v','2');
+  }
 
   var KEY='mq_clients';
   var currentClient=null;
@@ -419,6 +418,9 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     var clients=load()||[];
     clients=clients.filter(function(x){ return x.id!==id; });
     save(clients);
+    ['mq_jobs','mq_quotes','mq_invoices','mq_contracts'].forEach(function(k){
+      try{var items=JSON.parse(localStorage.getItem(k)||'[]');localStorage.setItem(k,JSON.stringify(items.filter(function(x){return x.clientId!==id;})));}catch(e){}
+    });
     window.location.href='index.html';
   });
 
@@ -591,16 +593,9 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     '</div>';
   }
   function loadAndAppendClientHistory(c){
-    var mqJobs=loadFromKey('mq_jobs').filter(function(j){return j.clientId===c.id;});
     var mqQuotes=loadFromKey('mq_quotes').filter(function(q){return q.clientId===c.id;});
     var mqInvoices=loadFromKey('mq_invoices').filter(function(i){return i.clientId===c.id;});
     var html='';
-    if(mqJobs.length){
-      html+='<div class="pg-4" style="margin-top:20px">'+
-        '<div class="sh"><span class="sh-lbl">Jobs</span><a href="jobs.html" class="sh-btn" style="font-size:11px;color:var(--stone);text-decoration:none">View all</a></div>'+
-        '<div class="jobs">'+mqJobs.map(renderMqJobRow).join('')+'</div>'+
-      '</div>';
-    }
     if(mqQuotes.length){
       html+='<div class="pg-4" style="margin-top:20px">'+
         '<div class="sh"><span class="sh-lbl">Quotes</span><a href="quotes.html" class="sh-btn" style="font-size:11px;color:var(--stone);text-decoration:none">View all</a></div>'+
@@ -669,31 +664,26 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       '</div>';
     }
 
-    // Stats
-    var ncHint=c.nextClean?'Confirmed':'Not scheduled';
+    // Stats — computed live from mq_invoices/mq_jobs
+    var today=new Date().toISOString().slice(0,10);
+    var allInv=JSON.parse(localStorage.getItem('mq_invoices')||'[]').filter(function(i){return i.clientId===c.id;});
+    var allJobs=JSON.parse(localStorage.getItem('mq_jobs')||'[]').filter(function(j){return j.clientId===c.id;});
+    var outstanding=allInv.filter(function(i){return i.status==='unpaid'||i.status==='overdue';}).reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+    var futureJobs=allJobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).sort(function(a,b){return a.date<b.date?-1:1;});
+    var nextCleanIso=futureJobs.length?futureJobs[0].date:null;
+    var Mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var nextCleanStr=nextCleanIso?(function(){var d=new Date(nextCleanIso+'T00:00:00');return d.getDate()+' '+Mo[d.getMonth()]+' '+d.getFullYear();})():null;
+    var totalCleans=allJobs.filter(function(j){return j.status==='completed';}).length;
     var stats='<div class="stats pg-3">'+
-      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+(c.outstanding||0).toLocaleString()+'</div><div class="stat-hint">'+(c.outstanding?'Unpaid invoices':'All invoices clear')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+outstanding.toLocaleString()+'</div><div class="stat-hint">'+(outstanding?'Unpaid invoices':'All invoices clear')+'</div></div>'+
       '<div class="stat"><div class="stat-lbl">Contract value</div><div class="stat-val">'+(c.contract?'$'+Number(c.contract).toLocaleString():'—')+'</div><div class="stat-hint">'+(c.contract?'Per year · '+bl.toLowerCase():'Not set')+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Next clean</div><div class="stat-val">'+(c.nextClean?c.nextClean.split('·')[0].trim():'—')+'</div><div class="stat-hint">'+ncHint+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Total cleans</div><div class="stat-val">'+(c.totalCleans||0)+'</div><div class="stat-hint">'+(c.totalCleans?'Since client start':'No cleans yet')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Next clean</div><div class="stat-val">'+(nextCleanStr||'—')+'</div><div class="stat-hint">'+(nextCleanStr?'Confirmed':'Not scheduled')+'</div></div>'+
+      '<div class="stat"><div class="stat-lbl">Total cleans</div><div class="stat-val">'+totalCleans+'</div><div class="stat-hint">'+(totalCleans?'Since client start':'No cleans yet')+'</div></div>'+
     '</div>';
 
-    // Jobs
-    var jobsHtml;
-    if(c.jobs&&c.jobs.length){
-      var rows=c.jobs.map(function(j){
-        var isDeep=j.type==='Deep clean';
-        return '<div class="job '+j.status+'">'+
-          '<div class="j-date">'+escHtml(j.date)+'<br>'+escHtml(j.day)+'</div>'+
-          '<div class="j-info"><div class="j-tag'+(isDeep?' deep':'')+'">'+escHtml(j.type)+'</div><div class="j-desc">'+escHtml(j.desc)+'</div></div>'+
-          '<div class="j-sqm">'+j.sqm+' sqm</div>'+
-          '<div class="j-price">$'+j.price+'</div>'+
-        '</div>';
-      }).join('');
-      jobsHtml='<div class="jobs">'+rows+'</div>';
-    } else {
-      jobsHtml='<div class="empty-state">No jobs scheduled yet.</div>';
-    }
+    // Jobs — read from mq_jobs flat store (unified, no embedded client.jobs)
+    var clientJobs=allJobs.slice().sort(function(a,b){return a.date>b.date?-1:1;});
+    var jobsHtml=clientJobs.length?'<div class="jobs">'+clientJobs.map(renderMqJobRow).join('')+'</div>':'<div class="empty-state">No jobs yet.</div>';
 
     // Schedule
     var schedHtml;
