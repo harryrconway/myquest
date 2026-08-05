@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Quote Calculator — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260806">
+<link rel="stylesheet" href="style.css?v=20260807">
 <style>
 .calc-wrap{display:flex;justify-content:center;align-items:flex-start;padding:8px 0 40px}
 .qc-card{background:#141c38;width:100%;max-width:420px;min-height:560px;max-height:calc(100dvh - 180px);overflow:hidden;padding:48px 28px 36px;position:relative;display:flex;flex-direction:column;border-radius:26px;box-shadow:0 24px 54px rgba(20,28,56,.35)}
@@ -132,9 +132,9 @@
 (function(){
 'use strict';
 
-if(localStorage.getItem('mq_v')!=='2'){
+if(localStorage.getItem('mq_v')!=='3'){
   Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','2');
+  localStorage.setItem('mq_v','3');
 }
 var QC={
   rate:65,

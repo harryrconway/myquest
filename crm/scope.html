@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260806">
+<link rel="stylesheet" href="style.css?v=20260807">
 <style>
 .form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
 .form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);-webkit-text-fill-color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
@@ -227,13 +227,13 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260806"></script>
+<script src="datepicker.js?v=20260807"></script>
 <script>
 (function(){
 'use strict';
-if(localStorage.getItem('mq_v')!=='2'){
+if(localStorage.getItem('mq_v')!=='3'){
   Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','2');
+  localStorage.setItem('mq_v','3');
 }
 var KEY='mq_scopes';
 var CLIENT_KEY='mq_clients';

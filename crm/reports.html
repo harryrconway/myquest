@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260806">
+<link rel="stylesheet" href="style.css?v=20260807">
 <style>
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 .rep-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:24px}
@@ -104,9 +104,9 @@
 (function(){
 'use strict';
 
-if(localStorage.getItem('mq_v')!=='2'){
+if(localStorage.getItem('mq_v')!=='3'){
   Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','2');
+  localStorage.setItem('mq_v','3');
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function ls(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):[];}catch(e){return[];}}
