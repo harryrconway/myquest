@@ -46,8 +46,6 @@
 .qc-brow.tot{color:#f3efe4;font-weight:600;border-bottom:none;padding-top:14px;font-size:14.5px;border-top:1px solid rgba(243,239,228,.15);margin-top:4px}
 .qc-buf-row{width:100%;border:none;border-bottom:1px solid rgba(243,239,228,.07);background:none;font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:13.5px;color:rgba(243,239,228,.3);transition:color .15s;text-align:left}
 .qc-buf-row:hover{color:rgba(243,239,228,.55)}.qc-buf-row.on{color:rgba(243,239,228,.55)}
-.qc-save{width:100%;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:15px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .18s;font-family:inherit;letter-spacing:-.01em;margin-top:20px}
-.qc-save:hover{opacity:.88}
 .qc-dl{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.15);border-radius:999px;color:#f3efe4;padding:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:8px;font-family:inherit;letter-spacing:.01em}
 .qc-dl:hover{background:rgba(243,239,228,.12);border-color:rgba(243,239,228,.3)}
 .qc-restart{background:none;border:none;color:rgba(243,239,228,.3);font-size:13px;cursor:pointer;padding:10px;transition:color .2s;width:100%;text-align:center;font-family:inherit;margin-top:0}
@@ -60,26 +58,6 @@
 #qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
 #qc-sqm-v:focus{border-bottom-color:rgba(243,239,228,.7)}
 .qc-sqm-u{font-size:15px;font-weight:500;color:rgba(243,239,228,.5)}
-/* Save form */
-.qc-save-form{animation:qc-in .28s ease;flex:1;display:flex;flex-direction:column;gap:16px}
-.qc-save-lbl{color:rgba(243,239,228,.45);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;display:block;margin-bottom:5px}
-.qc-save-input{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.12);border-radius:10px;color:#f3efe4;padding:11px 14px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
-.qc-save-input:focus{border-color:rgba(243,239,228,.35)}
-select.qc-save-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%23a09880' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.qc-save-subtitle{color:rgba(243,239,228,.35);font-size:13px;margin-bottom:4px}
-.qc-save-actions{display:flex;gap:10px;margin-top:4px}
-.qc-save-confirm{flex:1;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s}
-.qc-save-confirm:hover{opacity:.88}
-.qc-save-back{background:none;border:1.5px solid rgba(243,239,228,.16);border-radius:999px;color:rgba(243,239,228,.5);padding:14px 16px;font-size:14px;cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s}
-.qc-save-back:hover{color:#f3efe4;border-color:rgba(243,239,228,.3)}
-/* Success state */
-.qc-success{animation:qc-in .32s ease;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
-.qc-success-icon{font-size:36px;margin-bottom:4px}
-.qc-success-title{color:#f3efe4;font-size:20px;font-weight:600}
-.qc-success-sub{color:rgba(243,239,228,.45);font-size:14px}
-.qc-success a{color:#f3efe4;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(243,239,228,.35);margin-top:8px;display:inline-block}
-.qc-success-new{background:none;border:none;color:rgba(243,239,228,.35);font-size:13px;cursor:pointer;padding:8px;font-family:inherit;margin-top:4px}
-.qc-success-new:hover{color:rgba(243,239,228,.65)}
 /* Print */
 .qc-print{display:none}
 @media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
@@ -322,7 +300,6 @@ function renderResult(){
       (r.monthly?'<span class="qc-mth">≈'+au(r.monthly)+'/month</span>':'')+
     '</div>'+
     '<div class="qc-breakdown">'+rows+'</div>'+
-    '<button type="button" class="qc-save" id="qc-save">Save as quote →</button>'+
     '<button type="button" class="qc-dl" id="qc-dl">↓ Download estimate</button>'+
     '<button type="button" class="qc-restart" id="qc-restart">← Start over</button>'+
   '</div>';
@@ -330,65 +307,6 @@ function renderResult(){
 
 function brow(l,v){return '<div class="qc-brow"><span>'+l+'</span><span>'+v+'</span></div>';}
 
-function renderSaveForm(){
-  var r=lastResult||calc();
-  var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
-  var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
-  var tLab=s.type==='deep'?'Deep clean':'Maintenance';
-  var defaultDesc=s.sqm+'sqm '+sLab+' · '+fLab+' '+tLab.toLowerCase();
-  var annual=r.monthly?Math.round(r.per*{once:1,monthly:12,fortnightly:26,weekly:52}[s.freq]||0):0;
-  var clients=loadClients();
-  var opts='<option value="">Select client (optional)…</option>';
-  clients.forEach(function(c){opts+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-  var nav=document.getElementById('qc-nav');
-  if(nav)nav.style.display='none';
-  document.getElementById('qc-dots').style.opacity='0';
-  document.getElementById('qc-wrap').innerHTML=
-    '<div class="qc-save-form">'+
-      '<div class="qc-question" style="margin-bottom:4px">Save as quote</div>'+
-      '<div class="qc-save-subtitle">'+au(r.lo)+' – '+au(r.hi)+' per clean</div>'+
-      '<div><label class="qc-save-lbl" for="qs-client">Client</label>'+
-        '<select class="qc-save-input" id="qs-client">'+opts+'</select></div>'+
-      '<div><label class="qc-save-lbl" for="qs-desc">Description</label>'+
-        '<input class="qc-save-input" type="text" id="qs-desc" value="'+esc(defaultDesc)+'"></div>'+
-      '<div><label class="qc-save-lbl" for="qs-val">Est. annual value</label>'+
-        '<input class="qc-save-input" type="number" id="qs-val" value="'+(annual||'')+'" placeholder="0"></div>'+
-      '<div class="qc-save-actions">'+
-        '<button type="button" class="qc-save-back" id="qs-cancel">Cancel</button>'+
-        '<button type="button" class="qc-save-confirm" id="qs-confirm">Save draft</button>'+
-      '</div>'+
-    '</div>';
-  document.getElementById('qs-cancel').addEventListener('click',function(){s.step=6;render();});
-  document.getElementById('qs-confirm').addEventListener('click',function(){
-    var sel=document.getElementById('qs-client');
-    var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
-    var desc=document.getElementById('qs-desc').value.trim();
-    var val=parseInt(document.getElementById('qs-val').value)||0;
-    var quotes=loadQuotes();
-    var nums=quotes.map(function(q){return parseInt((q.num||'').replace('Q-',''),10)||0;});
-    var nextNum='Q-'+(Math.max.apply(null,nums.length?nums:[14])+1).toString().padStart(3,'0');
-    quotes.unshift({
-      id:'Q'+Date.now(),num:nextNum,
-      clientId:sel.value,clientName:clientName,
-      desc:desc,value:val,status:'draft',dateSent:null
-    });
-    localStorage.setItem('mq_quotes',JSON.stringify(quotes));
-    renderSuccess(nextNum,clientName);
-  });
-}
-
-function renderSuccess(num,clientName){
-  document.getElementById('qc-nav').style.display='none';
-  document.getElementById('qc-dots').style.opacity='0';
-  document.getElementById('qc-wrap').innerHTML=
-    '<div class="qc-success">'+
-      '<div class="qc-success-icon">✓</div>'+
-      '<div class="qc-success-title">Quote saved</div>'+
-      '<div class="qc-success-sub">'+(clientName?esc(clientName)+' · ':'')+num+' · Draft</div>'+
-      '<button type="button" class="qc-success-new" id="qs-new">Calculate another</button>'+
-    '</div>';
-  document.getElementById('qs-new').addEventListener('click',function(){resetState();render();});
-}
 
 function updatePrint(r,sLab,qLab,fLab,tLab){
   var el=document.getElementById('qc-print');if(!el)return;
@@ -422,8 +340,6 @@ function updatePrint(r,sLab,qLab,fLab,tLab){
     '<div style="font-size:12px;color:#000;border-top:1px solid #ddd;padding-top:12px">hello@myquest.au  ·  0413 154 932  ·  myquest.au</div>';
 }
 
-function loadClients(){try{var s=localStorage.getItem('mq_clients');return s?JSON.parse(s):[];}catch(e){return[];}}
-function loadQuotes(){try{var s=localStorage.getItem('mq_quotes');return s?JSON.parse(s):[];}catch(e){return[];}}
 
 function bind(){
   document.querySelectorAll('#qc-wrap .qc-pill').forEach(function(btn){
@@ -462,8 +378,6 @@ function bind(){
   if(bk)bk.onclick=function(){s.step--;render();};
   var buf=document.getElementById('qc-buf');
   if(buf)buf.addEventListener('click',function(){s.buffer=!s.buffer;render();});
-  var saveBtn=document.getElementById('qc-save');
-  if(saveBtn)saveBtn.addEventListener('click',renderSaveForm);
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){
     var el=document.getElementById('qc-print');if(!el||!el.innerHTML)return;
