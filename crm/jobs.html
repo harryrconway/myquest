@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260808">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -152,23 +152,23 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     <div class="stats pg-2">
       <div class="stat">
         <div class="stat-lbl">This month</div>
-        <div class="stat-val">18</div>
+        <div class="stat-val">0</div>
         <div class="stat-hint">Jobs completed</div>
       </div>
       <div class="stat">
         <div class="stat-lbl">Upcoming</div>
-        <div class="stat-val">5</div>
+        <div class="stat-val">0</div>
         <div class="stat-hint">Next 7 days</div>
       </div>
       <div class="stat">
-        <div class="stat-lbl">Revenue</div>
-        <div class="stat-val">$4,320</div>
-        <div class="stat-hint">July to date</div>
+        <div class="stat-lbl">Completed</div>
+        <div class="stat-val">0</div>
+        <div class="stat-hint">All time</div>
       </div>
       <div class="stat">
-        <div class="stat-lbl">Hours logged</div>
-        <div class="stat-val">86</div>
-        <div class="stat-hint">Across all staff</div>
+        <div class="stat-lbl">Total jobs</div>
+        <div class="stat-val">0</div>
+        <div class="stat-hint">All time</div>
       </div>
     </div>
 
@@ -254,7 +254,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260807"></script>
+<script src="datepicker.js?v=20260808"></script>
 <script>
 (function(){
 'use strict';
@@ -323,14 +323,13 @@ function renderAll(){
   var completed=jobs.filter(function(j){return j.status==='completed';});
   var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
   var doneThisMo=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).length;
-  var rev=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).reduce(function(s,j){return s+(j.price||0);},0);
   var nxt7=new Date();nxt7.setDate(nxt7.getDate()+7);
   var soon=upcoming.filter(function(j){var d=new Date(j.date+'T00:00:00');return d<=nxt7;}).length;
   var statsEl=document.querySelector('.stats');
   if(statsEl) statsEl.innerHTML=
     '<div class="stat"><div class="stat-lbl">This month</div><div class="stat-val">'+doneThisMo+'</div><div class="stat-hint">Jobs completed</div></div>'+
     '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+upcoming.length+'</div><div class="stat-hint">Next 7 days: '+soon+'</div></div>'+
-    '<div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val">$'+rev.toLocaleString()+'</div><div class="stat-hint">Month to date</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Completed</div><div class="stat-val">'+completed.length+'</div><div class="stat-hint">All time</div></div>'+
     '<div class="stat"><div class="stat-lbl">Total jobs</div><div class="stat-val">'+jobs.length+'</div><div class="stat-hint">All time</div></div>';
   var html='';
   jobs.forEach(function(j){
