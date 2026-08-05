@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260805">
+<link rel="stylesheet" href="style.css?v=20260806">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -197,13 +197,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <label class="form-lbl" for="f-email">Email</label>
         <input class="form-input" type="email" id="f-email" placeholder="name@company.com.au">
       </div>
-      <div class="form-row">
-        <label class="form-lbl" for="f-contract">Estimated annual contract</label>
-        <div class="input-pfx">
-          <span class="input-pfx-sym">$</span>
-          <input class="form-input pfx" type="number" id="f-contract" min="0" placeholder="0">
-        </div>
-      </div>
     </div>
     <div class="modal-actions">
       <button type="button" class="cancel-btn" id="modal-cancel">Cancel</button>
@@ -232,11 +225,10 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 
   var activeFilter='all', searchTerm='';
 
-  function renderStats(clients,totalOut,cleansThisWeek){
+  function renderStats(clients,totalOut,cleansThisWeek,contracted){
     var total=clients.length;
     var active=clients.filter(function(c){return c.status==='active';}).length;
     var onb=clients.filter(function(c){return c.status==='onboarding';}).length;
-    var contracted=clients.reduce(function(s,c){return s+(c.contract||0);},0);
     var hint=[];
     if(active) hint.push(active+' active');
     if(onb) hint.push(onb+' onboarding');
@@ -249,12 +241,12 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       '<div class="stat"><div class="stat-lbl">Annual contracted</div><div class="stat-val">$'+contracted.toLocaleString()+'</div><div class="stat-hint">Across all clients</div></div>';
   }
 
-  function renderRow(c,ov,nc){
+  function renderRow(c,ov,nc,contract){
     var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
     var bl=c.status.charAt(0).toUpperCase()+c.status.slice(1);
     var ncStr=fmtNextClean(nc);
     var ncCl=ncStr?'cl-next':'cl-next blank';
-    var cv=c.contract?'$'+Number(c.contract).toLocaleString()+'<span style="font-size:10px;color:var(--stone)">/yr</span>':'—';
+    var cv=contract?'$'+Number(contract).toLocaleString()+'<span style="font-size:10px;color:var(--stone)">/yr</span>':'—';
     var oCl=ov>0?'cl-val warn':'cl-val ok';
     var sub=c.contact?(c.contact+(c.email?' &nbsp;·&nbsp; '+c.email:'')):'';
     return '<a class="cl-row" href="client.html?id='+c.id+'" data-status="'+c.status+'" data-name="'+c.name.toLowerCase()+'">'+
@@ -272,6 +264,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     var clients=load()||[];
     var invoices=JSON.parse(localStorage.getItem('mq_invoices')||'[]');
     var jobs=JSON.parse(localStorage.getItem('mq_jobs')||'[]');
+    var quotes=JSON.parse(localStorage.getItem('mq_quotes')||'[]');
     var today=new Date().toISOString().slice(0,10);
     var outMap={};
     invoices.forEach(function(i){
@@ -284,13 +277,19 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;})
       .sort(function(a,b){return a.date<b.date?-1:1;})
       .forEach(function(j){if(!nextMap[j.clientId])nextMap[j.clientId]=j.date;});
+    var contractMap={};
+    var contracted=0;
+    quotes.filter(function(q){return q.status==='accepted';}).forEach(function(q){
+      if(q.clientId){contractMap[q.clientId]=(contractMap[q.clientId]||0)+(q.value||0);}
+      contracted+=(q.value||0);
+    });
     var dow=new Date().getDay()||7;
     var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
     var sun=new Date(mon);sun.setDate(mon.getDate()+6);
     var monStr=mon.toISOString().slice(0,10);
     var sunStr=sun.toISOString().slice(0,10);
     var cleansThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
-    renderStats(clients,totalOut,cleansThisWeek);
+    renderStats(clients,totalOut,cleansThisWeek,contracted);
     var body=document.getElementById('cl-body');
     if(!clients.length){
       body.innerHTML='<div class="cl-empty">No clients yet — add your first one above.</div>';
@@ -300,7 +299,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     clients.forEach(function(c){
       var mf=activeFilter==='all'||activeFilter===c.status;
       var ms=!searchTerm||(c.name+' '+(c.contact||'')+' '+(c.email||'')).toLowerCase().indexOf(searchTerm)!==-1;
-      if(mf&&ms) html+=renderRow(c,outMap[c.id]||0,nextMap[c.id]||null);
+      if(mf&&ms) html+=renderRow(c,outMap[c.id]||0,nextMap[c.id]||null,contractMap[c.id]||0);
     });
     body.innerHTML=html||'<div class="cl-empty">No clients match your filter.</div>';
   }
@@ -322,7 +321,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   // Modal
   var overlay=document.getElementById('modal-overlay');
   function openModal(){ overlay.hidden=false; setTimeout(function(){ document.getElementById('f-name').focus(); },40); }
-  function closeModal(){ overlay.hidden=true; document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-phone').value=''; document.getElementById('f-email').value=''; document.getElementById('f-contract').value=''; }
+  function closeModal(){ overlay.hidden=true; document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-phone').value=''; document.getElementById('f-email').value=''; }
   document.getElementById('new-client-btn').addEventListener('click',openModal);
   document.getElementById('modal-close').addEventListener('click',closeModal);
   document.getElementById('modal-cancel').addEventListener('click',closeModal);
@@ -342,7 +341,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       contactTitle:'',
       phone:document.getElementById('f-phone').value.trim(),
       email:document.getElementById('f-email').value.trim(),
-      contract:parseInt(document.getElementById('f-contract').value)||0,
       notes:''
     });
     save(clients);
