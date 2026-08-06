@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var SUPABASE_URL='https://mxgvkzyifphucndovypt.supabase.co';
+var SUPABASE_URL='https://sfyalevtmdiwvefnsaja.supabase.co';
 var SUPABASE_KEY='sb_publishable_7efLI_KQ7QAkZenEyXeuOA_qNnnH8U2';
 var ALLOWED=['harryrconway@icloud.com','hello@myquest.au'];
 
