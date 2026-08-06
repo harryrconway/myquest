@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260810">
+<link rel="stylesheet" href="style.css?v=20260811">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -247,7 +247,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260810"></script>
+<script src="datepicker.js?v=20260811"></script>
 <script>
 (function(){
 'use strict';
@@ -396,7 +396,15 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   } else {
     jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value});
   }
-  save(jobs);closeModal();renderAll();
+  save(jobs);
+  var site=document.getElementById('jf-site').value.trim();
+  if(site&&sel.value){
+    var cls=loadClients();
+    var updated=false;
+    cls.forEach(function(c){if(c.id===sel.value&&!c.siteAddress){c.siteAddress=site;updated=true;}});
+    if(updated)localStorage.setItem(CLIENT_KEY,JSON.stringify(cls));
+  }
+  closeModal();renderAll();
 });
 function updateJobStatus(id,newStatus){
   var jobs=load()||[];
