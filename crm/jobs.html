@@ -118,10 +118,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Jobs
       </a>
-      <a class="sb-item" href="schedules.html">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Schedules
-      </a>
       <a class="sb-item" href="scope.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
         Scope
@@ -252,7 +248,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 </div>
 
 <script src="datepicker.js?v=20260807"></script>
-<script src="schedules.js?v=20260808"></script>
+<script src="schedules.js?v=20260806"></script>
 <script>
 (function(){
 'use strict';
@@ -276,20 +272,32 @@ var editingJobId=null;
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function fmtDate(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
-function fmtDateFull(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
+function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
+function fmtDate(isoStr){if(!isoStr)return '—';var d=new Date(isoStr+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
+function fmtDateFull(isoStr){if(!isoStr)return '—';var d=new Date(isoStr+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
+var REPEAT_OPTS=[['none','Does not repeat'],['weekly','Weekly'],['fortnightly','Fortnightly'],['4-weekly','Every 4 weeks'],['monthly','Monthly']];
 function renderExpand(j){
   var typeLbl=TYPE_LABELS[j.type]||j.type;
   var actions='';
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
-  actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
+  if(!j.fromSchedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
+  var repeatRow='';
+  if(j.fromSchedule){
+    repeatRow='<div style="grid-column:1/-1"><div class="xp-lbl">Repeat</div><div class="xp-val" style="font-size:12px;color:var(--stone)">Auto-generated recurring job</div></div>';
+  } else {
+    var cur=j.repeat||'none';
+    var opts=REPEAT_OPTS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('');
+    repeatRow='<div style="grid-column:1/-1"><div class="xp-lbl">Repeat</div>'+
+      '<select class="xp-repeat-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+opts+'</select></div>';
+  }
   return '<div class="xp-grid">'+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val">'+fmtDateFull(j.date)+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.clientName||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Site</div><div class="xp-val">'+esc(j.site||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
+    repeatRow+
     '</div>'+
     '<div class="xp-actions">'+actions+'</div>';
 }
@@ -419,8 +427,22 @@ function updateJobStatus(id,newStatus){
 }
 function deleteJob(id){
   if(!confirm('Delete this job? This cannot be undone.'))return;
-  save((load()||[]).filter(function(j){return j.id!==id;}));
+  var jobs=load()||[];
+  // Delete the job and any generated instances linked to it
+  jobs=jobs.filter(function(j){return j.id!==id&&j.sourceJobId!==id;});
+  save(jobs);
   openId=null;renderAll();
+}
+function updateJobRepeat(id,newRepeat){
+  var jobs=load()||[];
+  var today=new Date();today.setHours(0,0,0,0);
+  var ts=iso(today);
+  // Remove future generated instances for this template
+  jobs=jobs.filter(function(j){return !(j.sourceJobId===id&&j.date>ts&&j.status==='upcoming');});
+  jobs.forEach(function(j){if(j.id===id)j.repeat=newRepeat;});
+  save(jobs);
+  if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate();
+  renderAll();
 }
 document.getElementById('jl-body').addEventListener('click',function(e){
   var actionEl=e.target.closest('[data-action]');
@@ -446,6 +468,12 @@ document.getElementById('jl-body').addEventListener('click',function(e){
     wrap.querySelector('.xp-body').classList.add('open');
     openId=id;
   }
+});
+document.getElementById('jl-body').addEventListener('change',function(e){
+  var sel=e.target.closest('.xp-repeat-sel');
+  if(!sel)return;
+  var wid=sel.closest('.xp-wrap').dataset.id;
+  updateJobRepeat(wid,sel.value);
 });
 var mob=document.getElementById('mob-menu');
 var mOverlay=document.getElementById('mob-overlay');

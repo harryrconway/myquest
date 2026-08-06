@@ -151,10 +151,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Jobs
       </a>
-      <a class="sb-item" href="schedules.html">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Schedules
-      </a>
       <a class="sb-item" href="scope.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
         Scope
@@ -215,7 +211,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html" class="mob-on">Clients</a><a href="jobs.html">Jobs</a><a href="schedules.html">Schedules</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html" class="mob-on">Clients</a><a href="jobs.html">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
 
 <!-- New client modal -->
 <div class="modal-overlay" id="modal-overlay" hidden>
@@ -400,7 +396,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 </div>
 
 <script src="datepicker.js?v=20260807"></script>
-<script src="schedules.js?v=20260808"></script>
+<script src="schedules.js?v=20260806"></script>
 <script>
 (function(){
   'use strict';
@@ -504,25 +500,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     // Notes
     var notesHtml=c.notes?'<div class="ci-notes-txt">'+esc(c.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
 
-    // Schedules
-    var clientScheds=loadFromKey('mq_schedules').filter(function(s){return s.clientId===c.id;});
-    var FREQ_LS={'weekly':'Weekly','fortnightly':'Fortnightly','4-weekly':'Every 4 weeks','monthly':'Monthly'};
-    var DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    function schDayLbl(s){if(!s.startDate)return '';var d=new Date(s.startDate+'T00:00:00');if(s.frequency==='monthly'){var n=d.getDate();return n+(n===1||n===21?'st':n===2||n===22?'nd':n===3||n===23?'rd':'th')+' each month';}return DN[d.getDay()]+'s';}
-    function schNextLbl(s){var n=window.mqNextOcc?window.mqNextOcc(s):null;if(!n)return '';var d=new Date(n+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()];}
-    var schedsHtml='<div class="ci-sh"><span>Recurring schedule</span><a href="schedules.html?newfor='+esc(c.id)+'" class="ci-add-btn">+ Add</a></div>'+
-      '<div class="ci-panel" style="margin-bottom:20px">'+
-      (clientScheds.length?clientScheds.map(function(s){
-        var next=schNextLbl(s);
-        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--hair);font-size:12.5px">'+
-          '<div><span class="badge '+(s.active?'active':'exited')+'" style="font-size:8px">'+esc(FREQ_LS[s.frequency]||s.frequency)+'</span> <span style="color:var(--navy);margin-left:6px">'+esc(schDayLbl(s))+'</span></div>'+
-          (next?'<div style="color:var(--stone);font-size:11.5px">Next '+next+'</div>':'')+
-        '</div>';
-      }).join('')+
-      '<div style="padding:7px 14px;border-top:'+(clientScheds.length?'none':'0')+'"><a href="schedules.html" style="font-size:11.5px;color:var(--stone);text-decoration:none">Manage schedules →</a></div>':
-      '<div class="ci-empty">No recurring schedule. <a href="schedules.html?newfor='+esc(c.id)+'" style="color:var(--stone)">Add one →</a></div>')+
-      '</div>';
-
     var left=
       '<div class="ci-sh">Jobs</div>'+
       '<div class="ci-panel">'+jobsHtml+'</div>'+
@@ -548,7 +525,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       '</div>'+
       '<button class="ci-del-btn" data-delete-id="'+esc(c.id)+'">Delete client</button>';
 
-    return hdr+schedsHtml+'<div class="ci-grid"><div>'+left+'</div><div>'+right+'</div></div>';
+    return hdr+'<div class="ci-grid"><div>'+left+'</div><div>'+right+'</div></div>';
   }
 
   function expandWrap(wrap){
