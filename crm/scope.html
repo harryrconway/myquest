@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260810">
+<link rel="stylesheet" href="style.css?v=20260811">
 <style>
 .form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
 .form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);-webkit-text-fill-color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
@@ -227,7 +227,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260810"></script>
+<script src="datepicker.js?v=20260811"></script>
 <script>
 (function(){
 'use strict';
@@ -237,12 +237,14 @@ if(localStorage.getItem('mq_v')!=='3'){
 }
 var KEY='mq_scopes';
 var CLIENT_KEY='mq_clients';
+var JOB_KEY='mq_jobs';
 var editingId=null;
 
 function uid(){return '_'+Math.random().toString(36).slice(2,9);}
 function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
 function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+function loadJobs(){try{var s=localStorage.getItem(JOB_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 var FREQ_OPTS=[
@@ -412,7 +414,16 @@ function init(){
   sel.addEventListener('change',function(){
     var found=null;clients.forEach(function(c){if(c.id===sel.value)found=c;});
     var siteInput=document.getElementById('scope-site');
-    siteInput.value=found&&found.siteAddress?found.siteAddress:'';
+    if(found&&found.siteAddress){
+      siteInput.value=found.siteAddress;
+    } else if(found){
+      var jobs=loadJobs();
+      var clientJobs=jobs.filter(function(j){return j.clientId===found.id&&j.site;});
+      clientJobs.sort(function(a,b){return a.date<b.date?1:-1;});
+      siteInput.value=clientJobs.length?clientJobs[0].site:'';
+    } else {
+      siteInput.value='';
+    }
   });
   document.getElementById('scope-date').valueAsDate=new Date();
   renderAreas([]);
