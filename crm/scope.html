@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260812">
+<link rel="stylesheet" href="style.css?v=20260813">
 <style>
 .form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
 .form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);-webkit-text-fill-color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
@@ -64,8 +64,9 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .scope-new-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
 
 .saved-scopes{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;margin-bottom:40px}
-.ss-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:12px 20px;border-bottom:1px solid var(--hair);align-items:center;cursor:pointer;transition:background .1s}
-.ss-row:last-child{border-bottom:none}
+.ss-wrap{border-bottom:1px solid var(--hair)}
+.ss-wrap:last-child{border-bottom:none}
+.ss-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:12px 20px;align-items:center;cursor:pointer;transition:background .1s}
 .ss-row:hover{background:rgba(35,44,84,.03)}
 .ss-name{font-size:13px;font-weight:600;color:var(--navy)}
 .ss-sub{font-size:11.5px;color:var(--stone);margin-top:2px}
@@ -73,6 +74,27 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .ss-del{background:none;border:none;color:var(--stone);cursor:pointer;padding:4px 7px;border-radius:5px;transition:color .12s,background .12s;font-size:12px;font-family:var(--font);font-weight:600}
 .ss-del:hover{color:var(--red);background:var(--red-bg)}
 .ss-site{font-size:12px;color:var(--navy);margin-top:1px;font-weight:500}
+.ss-arr{color:var(--stone);font-size:14px;line-height:1;transition:transform .22s;display:inline-block}
+.ss-wrap.open .ss-arr{transform:rotate(90deg)}
+.ss-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.ss-body.open{max-height:4000px}
+.ss-inner{padding:18px 20px 22px;border-top:1px solid var(--hair);background:var(--field)}
+.sv-area{margin-bottom:16px}
+.sv-area:last-of-type{margin-bottom:0}
+.sv-area-name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:8px}
+.sv-task{display:flex;align-items:center;gap:9px;padding:5px 0}
+.sv-check{width:13px;height:13px;border:1.5px solid rgba(35,44,84,.25);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sv-check.done{background:var(--green);border-color:var(--green)}
+.sv-check.done::after{content:'';display:block;width:3px;height:6px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+.sv-task-text{font-size:12.5px;color:var(--navy)}
+.sv-task-text.done{text-decoration:line-through;color:var(--stone)}
+.sv-freq{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
+.sv-notes{font-size:11.5px;color:var(--stone);padding-left:22px;margin-top:2px;font-style:italic}
+.sv-global{margin-top:14px;padding-top:12px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--stone);line-height:1.7}
+.sv-global-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:4px}
+.sv-footer{display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--hair)}
+.sv-edit-btn{padding:7px 14px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:background .12s,border-color .12s}
+.sv-edit-btn:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
 
 .empty-areas{padding:36px 24px;text-align:center;color:var(--stone);font-size:13px;border:1.5px dashed rgba(35,44,84,.12);border-radius:var(--r);margin-bottom:14px}
 .empty-areas p{margin-bottom:12px}
@@ -229,7 +251,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260812"></script>
+<script src="datepicker.js?v=20260813"></script>
 <script>
 (function(){
 'use strict';
@@ -355,10 +377,12 @@ function saveScope(){
   editingId=sc.id;
   save(scopes);
   renderSavedList();
-  var btn=document.getElementById('scope-save-btn');
-  var orig=btn.textContent;
-  btn.textContent='Saved ✓';
-  setTimeout(function(){btn.textContent=orig;},1800);
+  ['scope-save-btn','scope-save-btn-2'].forEach(function(id){
+    var b=document.getElementById(id);
+    var orig=b.textContent;
+    b.textContent='Saved ✓';
+    setTimeout(function(){b.textContent=orig;},1800);
+  });
 }
 
 function resetEditor(){
@@ -389,6 +413,29 @@ function fmtDate(iso){
   return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();
 }
 
+var FREQ_LABELS={daily:'Daily',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly',quarterly:'Quarterly','as-needed':'As needed'};
+function renderScopeView(sc){
+  var areas=(sc.areas||[]).map(function(a){
+    var tasks=(a.tasks||[]).map(function(t){
+      return '<div class="sv-task">'+
+        '<div class="sv-check'+(t.done?' done':'')+'"></div>'+
+        '<span class="sv-task-text'+(t.done?' done':'')+'">'+esc(t.text||'')+'</span>'+
+        '<span class="sv-freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span>'+
+      '</div>'+
+      (a.notes?'<div class="sv-notes">'+esc(a.notes)+'</div>':'');
+    }).join('');
+    return '<div class="sv-area">'+
+      '<div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+
+      tasks+
+    '</div>';
+  }).join('');
+  var global=sc.globalNotes?('<div class="sv-global"><div class="sv-global-lbl">General notes</div>'+esc(sc.globalNotes)+'</div>'):'';
+  return areas+global+
+    '<div class="sv-footer">'+
+      '<button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button>'+
+    '</div>';
+}
+
 function renderSavedList(){
   var scopes=load();
   var sec=document.getElementById('saved-scopes-section');
@@ -396,14 +443,20 @@ function renderSavedList(){
   if(!scopes.length){sec.hidden=true;return;}
   sec.hidden=false;
   list.innerHTML=scopes.map(function(sc){
-    return '<div class="ss-row" data-load-id="'+esc(sc.id)+'">'+
-      '<div>'+
-        '<div class="ss-name">'+esc(sc.name||'Untitled scope')+'</div>'+
-        (sc.site?'<div class="ss-site">'+esc(sc.site)+'</div>':'')+
-        '<div class="ss-sub">'+esc(sc.clientName||'')+'</div>'+
+    return '<div class="ss-wrap" data-scope-id="'+esc(sc.id)+'">'+
+      '<div class="ss-row">'+
+        '<div>'+
+          '<div class="ss-name">'+esc(sc.name||'Untitled scope')+'</div>'+
+          (sc.site?'<div class="ss-site">'+esc(sc.site)+'</div>':'')+
+          '<div class="ss-sub">'+esc(sc.clientName||'')+'</div>'+
+        '</div>'+
+        '<div class="ss-date">'+fmtDate(sc.date)+'</div>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete</button>'+
+          '<span class="ss-arr">›</span>'+
+        '</div>'+
       '</div>'+
-      '<div class="ss-date">'+fmtDate(sc.date)+'</div>'+
-      '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete</button>'+
+      '<div class="ss-body"><div class="ss-inner">'+renderScopeView(sc)+'</div></div>'+
     '</div>';
   }).join('');
 }
@@ -466,11 +519,22 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
     renderSavedList();
     return;
   }
-  var row=e.target.closest('[data-load-id]');
-  if(row&&!e.target.closest('[data-del-id]')){
-    var id=row.dataset.loadId;
-    var sc=load().find(function(x){return x.id===id;});
+  var editBtn=e.target.closest('[data-edit-id]');
+  if(editBtn){
+    var sc=load().find(function(x){return x.id===editBtn.dataset.editId;});
     if(sc) loadIntoEditor(sc);
+    return;
+  }
+  var row=e.target.closest('.ss-row');
+  if(row){
+    var wrap=row.closest('.ss-wrap');
+    var body=wrap.querySelector('.ss-body');
+    var isOpen=wrap.classList.contains('open');
+    document.querySelectorAll('.ss-wrap.open').forEach(function(w){
+      w.classList.remove('open');
+      w.querySelector('.ss-body').classList.remove('open');
+    });
+    if(!isOpen){wrap.classList.add('open');body.classList.add('open');}
   }
 });
 
