@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260809">
+<link rel="stylesheet" href="style.css?v=20260810">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -14,10 +14,10 @@
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 
 .job-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-.jl-head{display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.jl-head{display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .jl-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .jl-row{
-  display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 80px 28px;
+  display:grid;grid-template-columns:90px 1.4fr 1fr 90px 90px 100px 28px;
   gap:12px;padding:13px 20px;align-items:center;
   border-bottom:1px solid var(--hair);
   border-left:3px solid transparent;
@@ -65,7 +65,7 @@
   .jl-head,.jl-row{grid-template-columns:80px 1fr 80px 80px}
   .jl-head span:nth-child(3),.jl-row .jl-site,
   .jl-head span:nth-child(5),.jl-row .jl-crew,
-  .jl-head span:nth-child(8),.jl-row .jl-arr{display:none}
+  .jl-head span:nth-child(7),.jl-row .jl-arr{display:none}
 }
 @media(max-width:700px){
   .jl-head,.jl-row{grid-template-columns:72px 1fr 80px}
@@ -191,7 +191,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       <div class="job-list">
         <div class="jl-head">
           <span>Date</span><span>Client</span><span>Site</span>
-          <span>Type</span><span>Team</span><span>Status</span><span style="text-align:right">Price</span><span></span>
+          <span>Type</span><span>Team</span><span>Status</span><span></span>
         </div>
         <div id="jl-body"></div>
       </div>
@@ -239,13 +239,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
           </select>
         </div>
       </div>
-      <div class="form-row">
-        <label class="form-lbl" for="jf-price">Price</label>
-        <div class="input-pfx">
-          <span class="input-pfx-sym">$</span>
-          <input class="form-input pfx" type="number" id="jf-price" min="0" placeholder="0">
-        </div>
-      </div>
     </div>
     <div class="modal-actions">
       <button type="button" class="cancel-btn" id="job-modal-cancel">Cancel</button>
@@ -254,7 +247,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260809"></script>
+<script src="datepicker.js?v=20260810"></script>
 <script>
 (function(){
 'use strict';
@@ -291,7 +284,6 @@ function renderExpand(j){
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.clientName||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Site</div><div class="xp-val">'+esc(j.site||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
-    '<div><div class="xp-lbl">Price</div><div class="xp-val" style="font-size:15px;font-weight:700">$'+Number(j.price||0).toLocaleString()+'</div></div>'+
     '</div>'+
     '<div class="xp-actions">'+actions+'</div>';
 }
@@ -309,7 +301,6 @@ function renderRow(j){
       '<span class="jl-type'+typeClass+'">'+typeLbl+'</span>'+
       '<div class="jl-crew"></div>'+
       badge+
-      '<div class="jl-price">$'+Number(j.price||0).toLocaleString()+'</div>'+
       '<div class="jl-arr">'+ARR+'</div>'+
     '</div>'+
     '<div class="xp-body'+(isOpen?' open':'')+'"><div class="xp-inner">'+renderExpand(j)+'</div></div>'+
@@ -356,13 +347,17 @@ function openModal(j){
   var sel=document.getElementById('jf-client');
   sel.innerHTML='<option value="">Select client…</option>';
   clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  sel.addEventListener('change',function(){
+    var found=null;clients.forEach(function(c){if(c.id===sel.value)found=c;});
+    var siteEl=document.getElementById('jf-site');
+    if(!siteEl.value&&found&&found.siteAddress)siteEl.value=found.siteAddress;
+  });
   if(j){
     document.getElementById('jf-date').value=j.date||'';
     sel.value=j.clientId||'';
     document.getElementById('jf-site').value=j.site||'';
     document.getElementById('jf-type').value=j.type||'maintenance';
     document.getElementById('jf-status').value=j.status||'upcoming';
-    document.getElementById('jf-price').value=j.price||'';
   } else {
     document.getElementById('jf-date').valueAsDate=new Date();
   }
@@ -374,7 +369,7 @@ function closeModal(){
   editingJobId=null;
   document.querySelector('#job-modal .modal-title').textContent='New job';
   document.getElementById('job-modal-save').textContent='Add job';
-  ['jf-date','jf-site','jf-price'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['jf-date','jf-site'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
 }
 document.getElementById('new-job-btn').addEventListener('click',function(){openModal();});
 document.getElementById('job-modal-close').addEventListener('click',closeModal);
@@ -397,9 +392,9 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
   var jobs=load()||[];
   if(editingJobId){
-    jobs.forEach(function(j){if(j.id===editingJobId){j.date=date;j.clientId=sel.value;j.clientName=clientName;j.site=document.getElementById('jf-site').value.trim();j.type=document.getElementById('jf-type').value;j.status=document.getElementById('jf-status').value;j.price=parseInt(document.getElementById('jf-price').value)||0;}});
+    jobs.forEach(function(j){if(j.id===editingJobId){j.date=date;j.clientId=sel.value;j.clientName=clientName;j.site=document.getElementById('jf-site').value.trim();j.type=document.getElementById('jf-type').value;j.status=document.getElementById('jf-status').value;}});
   } else {
-    jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,price:parseInt(document.getElementById('jf-price').value)||0});
+    jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value});
   }
   save(jobs);closeModal();renderAll();
 });

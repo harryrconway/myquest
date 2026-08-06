@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Client — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260809">
+<link rel="stylesheet" href="style.css?v=20260810">
 <style>
 .client-hd{background:var(--navy);border-radius:var(--r);padding:30px 34px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:14px}
 .ch-namerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
@@ -244,6 +244,10 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
           <input class="form-input" type="email" id="ef-email">
         </div>
       </div>
+      <div class="form-row">
+        <label class="form-lbl" for="ef-site-address">Site address</label>
+        <input class="form-input" type="text" id="ef-site-address" autocomplete="off">
+      </div>
     </div>
     <div class="modal-actions">
       <button type="button" class="delete-btn" id="edit-modal-delete">Delete client</button>
@@ -319,7 +323,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260809"></script>
+<script src="datepicker.js?v=20260810"></script>
 <script>
 (function(){
   'use strict';
@@ -371,6 +375,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     document.getElementById('ef-ctitle').value=c.contactTitle||'';
     document.getElementById('ef-phone').value=c.phone||'';
     document.getElementById('ef-email').value=c.email||'';
+    document.getElementById('ef-site-address').value=c.siteAddress||'';
     editModal.hidden=false;
     setTimeout(function(){ document.getElementById('ef-name').focus(); },40);
   }
@@ -390,6 +395,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     currentClient.contactTitle=document.getElementById('ef-ctitle').value.trim();
     currentClient.phone=document.getElementById('ef-phone').value.trim();
     currentClient.email=document.getElementById('ef-email').value.trim();
+    currentClient.siteAddress=document.getElementById('ef-site-address').value.trim();
     saveCurrentClient();
     closeEditModal();
     renderClient(currentClient);

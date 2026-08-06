@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260810">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -189,6 +189,10 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <label class="form-lbl" for="f-email">Email</label>
         <input class="form-input" type="email" id="f-email" placeholder="name@company.com.au">
       </div>
+      <div class="form-row">
+        <label class="form-lbl" for="f-site-address">Site address</label>
+        <input class="form-input" type="text" id="f-site-address" placeholder="e.g. Level 3, 142 Clarence St, Sydney" autocomplete="off">
+      </div>
     </div>
     <div class="modal-actions">
       <button type="button" class="cancel-btn" id="modal-cancel">Cancel</button>
@@ -313,7 +317,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   // Modal
   var overlay=document.getElementById('modal-overlay');
   function openModal(){ overlay.hidden=false; setTimeout(function(){ document.getElementById('f-name').focus(); },40); }
-  function closeModal(){ overlay.hidden=true; document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-phone').value=''; document.getElementById('f-email').value=''; }
+  function closeModal(){ overlay.hidden=true; document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-phone').value=''; document.getElementById('f-email').value=''; document.getElementById('f-site-address').value=''; }
   document.getElementById('new-client-btn').addEventListener('click',openModal);
   document.getElementById('modal-close').addEventListener('click',closeModal);
   document.getElementById('modal-cancel').addEventListener('click',closeModal);
@@ -333,6 +337,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       contactTitle:'',
       phone:document.getElementById('f-phone').value.trim(),
       email:document.getElementById('f-email').value.trim(),
+      siteAddress:document.getElementById('f-site-address').value.trim(),
       notes:''
     });
     save(clients);
