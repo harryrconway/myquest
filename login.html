@@ -110,6 +110,14 @@ h1{
 }
 .f-input:focus{border-color:var(--txt);background:rgba(35,44,84,.03)}
 .f-input::placeholder{color:var(--stone);opacity:.6}
+.f-input:-webkit-autofill,
+.f-input:-webkit-autofill:hover,
+.f-input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px #ede9e0 inset;
+  -webkit-text-fill-color:var(--txt);
+  border-color:var(--txt);
+  transition:background-color 5000s ease-in-out 0s;
+}
 
 .btn{
   display:block;
