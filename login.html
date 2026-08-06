@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in — MyQuest</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#232c54;
+  --bg-deep:#1a2140;
+  --card:#f3efe4;
+  --txt:#232c54;
+  --stone:#9b968a;
+  --line:rgba(35,44,84,.15);
+  --btn-bg:#232c54;
+  --btn-fg:#f3efe4;
+  --err:#a63d2f;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0d1528;
+    --bg-deep:#070e1e;
+    --card:#1a2140;
+    --txt:#ede8dd;
+    --stone:#8a9bba;
+    --line:rgba(237,232,221,.12);
+    --btn-bg:#ede8dd;
+    --btn-fg:#1a2140;
+    --err:#e07060;
+  }
+}
+:root[data-theme=light]{--bg:#232c54;--bg-deep:#1a2140;--card:#f3efe4;--txt:#232c54;--stone:#9b968a;--line:rgba(35,44,84,.15);--btn-bg:#232c54;--btn-fg:#f3efe4;--err:#a63d2f}
+:root[data-theme=dark]{--bg:#0d1528;--bg-deep:#070e1e;--card:#1a2140;--txt:#ede8dd;--stone:#8a9bba;--line:rgba(237,232,221,.12);--btn-bg:#ede8dd;--btn-fg:#1a2140;--err:#e07060}
+
+html,body{height:100%}
+body{
+  background:radial-gradient(ellipse at 35% 45%,var(--bg) 0%,var(--bg-deep) 100%);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100%;
+  padding:24px 16px;
+}
+
+.card{
+  width:100%;
+  max-width:400px;
+  background:var(--card);
+  border-radius:20px;
+  padding:44px 48px 52px;
+}
+
+.wordmark{
+  font-size:19px;
+  font-weight:600;
+  letter-spacing:-.01em;
+  color:var(--txt);
+  line-height:1;
+}
+
+.eyebrow{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:var(--stone);
+  margin-top:36px;
+}
+
+h1{
+  font-size:34px;
+  font-weight:300;
+  letter-spacing:-.03em;
+  color:var(--txt);
+  line-height:1.1;
+  text-wrap:balance;
+  margin-top:6px;
+}
+
+.form-area{margin-top:40px}
+
+.f-label{
+  display:block;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--stone);
+  margin-bottom:11px;
+}
+
+.f-input{
+  display:block;
+  width:100%;
+  background:transparent;
+  border:0;
+  border-bottom:1.5px solid var(--line);
+  color:var(--txt);
+  font-size:16px;
+  font-weight:400;
+  font-family:inherit;
+  padding:0 0 13px;
+  outline:none;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.f-input:focus{border-bottom-color:var(--txt)}
+.f-input::placeholder{color:var(--stone);opacity:.5}
+
+.btn{
+  display:block;
+  width:100%;
+  margin-top:32px;
+  background:var(--btn-bg);
+  color:var(--btn-fg);
+  border:none;
+  border-radius:999px;
+  padding:16px 24px;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.06em;
+  cursor:pointer;
+  transition:opacity .15s;
+}
+.btn:hover:not(:disabled){opacity:.82}
+.btn:disabled{opacity:.5;cursor:default}
+
+.err{
+  display:none;
+  margin-top:16px;
+  font-size:12px;
+  color:var(--err);
+  line-height:1.5;
+}
+
+/* sent state */
+#sent{display:none;text-align:center;padding:4px 0}
+.sent-icon{
+  width:48px;height:48px;
+  border-radius:50%;
+  background:rgba(35,44,84,.07);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 22px;
+}
+@media(prefers-color-scheme:dark){.sent-icon{background:rgba(237,232,221,.07)}}
+:root[data-theme=dark] .sent-icon{background:rgba(237,232,221,.07)}
+.sent-h{font-size:22px;font-weight:300;letter-spacing:-.02em;color:var(--txt);margin-bottom:10px}
+.sent-p{font-size:13px;color:var(--stone);line-height:1.7}
+.sent-em{font-weight:500;color:var(--txt);display:block;margin-top:2px;word-break:break-all}
+.back{
+  display:inline-block;margin-top:28px;
+  font-size:12px;color:var(--stone);
+  background:none;border:none;font-family:inherit;
+  cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;
+  transition:color .15s;
+}
+.back:hover{color:var(--txt)}
+
+@media(max-width:480px){
+  .card{padding:36px 28px 44px;border-radius:16px}
+  h1{font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="wordmark">MyQuest</div>
+
+  <p class="eyebrow">Staff portal</p>
+  <h1>Sign in to<br>continue</h1>
+
+  <div id="form-area" class="form-area">
+    <form id="form" autocomplete="on" novalidate>
+      <label class="f-label" for="em">Email address</label>
+      <input class="f-input" type="email" id="em" name="email"
+             placeholder="you@example.com" autocomplete="email" inputmode="email">
+      <button class="btn" id="btn" type="submit">Send magic link</button>
+    </form>
+    <p class="err" id="err"></p>
+  </div>
+
+  <div id="sent">
+    <div class="sent-icon">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--txt)"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <p class="sent-h">Check your inbox</p>
+    <p class="sent-p">We sent a sign-in link to<span class="sent-em" id="sent-em"></span></p>
+    <button class="back" id="back" type="button">Use a different email</button>
+  </div>
+</div>
+
+<script src="crm/supabase.min.js"></script>
+<script>
+(function(){
+'use strict';
+var SURL='https://mxgvkzyifphucndovypt.supabase.co';
+var SKEY='sb_publishable_7efLI_KQ7QAkZenEyXeuOA_qNnnH8U2';
+var ALLOWED=['harryrconway@icloud.com','hello@myquest.au'];
+var sb=supabase.createClient(SURL,SKEY);
+
+function goApp(){location.href='/crm/overview.html';}
+
+sb.auth.onAuthStateChange(function(ev,session){
+  if(!session)return;
+  if(ALLOWED.indexOf(session.user.email)===-1){
+    sb.auth.signOut().then(function(){showErr('This email is not authorised to access MyQuest.');});
+    return;
+  }
+  goApp();
+});
+
+sb.auth.getSession().then(function(r){
+  var s=r.data.session;
+  if(!s)return;
+  if(ALLOWED.indexOf(s.user.email)===-1){sb.auth.signOut();return;}
+  goApp();
+});
+
+function showErr(msg){
+  var el=document.getElementById('err');
+  el.textContent=msg;
+  el.style.display='block';
+}
+
+document.getElementById('form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var email=document.getElementById('em').value.trim().toLowerCase();
+  if(!email){document.getElementById('em').focus();return;}
+  document.getElementById('err').style.display='none';
+  var btn=document.getElementById('btn');
+  btn.textContent='Sending…';
+  btn.disabled=true;
+  sb.auth.signInWithOtp({
+    email:email,
+    options:{emailRedirectTo:'https://myquest.au/login.html'}
+  }).then(function(r){
+    if(r.error){
+      showErr(r.error.message||'Something went wrong. Please try again.');
+      btn.textContent='Send magic link';
+      btn.disabled=false;
+      return;
+    }
+    document.getElementById('form-area').style.display='none';
+    document.getElementById('sent-em').textContent=email;
+    document.getElementById('sent').style.display='block';
+  });
+});
+
+document.getElementById('back').addEventListener('click',function(){
+  document.getElementById('sent').style.display='none';
+  document.getElementById('form-area').style.display='block';
+  var btn=document.getElementById('btn');
+  btn.textContent='Send magic link';
+  btn.disabled=false;
+  document.getElementById('em').value='';
+  document.getElementById('err').style.display='none';
+  document.getElementById('em').focus();
+});
+})();
+</script>
+</body>
+</html>
