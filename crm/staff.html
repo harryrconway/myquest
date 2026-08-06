@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260808">
+<link rel="stylesheet" href="style.css?v=20260809">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
@@ -206,7 +206,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260808"></script>
+<script src="datepicker.js?v=20260809"></script>
 <script>
 (function(){
 'use strict';
@@ -218,7 +218,6 @@ var KEY='mq_staff';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-return d;}
 function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
 function fmtSince(iso){if(!iso)return '';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
 function pad2(n){return n<10?'0'+n:String(n);}

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Client — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260809">
 <style>
 .client-hd{background:var(--navy);border-radius:var(--r);padding:30px 34px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:14px}
 .ch-namerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
@@ -244,13 +244,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
           <input class="form-input" type="email" id="ef-email">
         </div>
       </div>
-      <div class="form-row" style="margin-bottom:0">
-        <label class="form-lbl" for="ef-contract">Annual contract value</label>
-        <div class="input-pfx">
-          <span class="input-pfx-sym">$</span>
-          <input class="form-input pfx" type="number" id="ef-contract" min="0">
-        </div>
-      </div>
     </div>
     <div class="modal-actions">
       <button type="button" class="delete-btn" id="edit-modal-delete">Delete client</button>
@@ -326,7 +319,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260807"></script>
+<script src="datepicker.js?v=20260809"></script>
 <script>
 (function(){
   'use strict';
@@ -378,7 +371,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     document.getElementById('ef-ctitle').value=c.contactTitle||'';
     document.getElementById('ef-phone').value=c.phone||'';
     document.getElementById('ef-email').value=c.email||'';
-    document.getElementById('ef-contract').value=c.contract||'';
     editModal.hidden=false;
     setTimeout(function(){ document.getElementById('ef-name').focus(); },40);
   }
@@ -398,7 +390,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     currentClient.contactTitle=document.getElementById('ef-ctitle').value.trim();
     currentClient.phone=document.getElementById('ef-phone').value.trim();
     currentClient.email=document.getElementById('ef-email').value.trim();
-    currentClient.contract=parseInt(document.getElementById('ef-contract').value)||0;
     saveCurrentClient();
     closeEditModal();
     renderClient(currentClient);
@@ -668,7 +659,6 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     var totalCleans=allJobs.filter(function(j){return j.status==='completed';}).length;
     var stats='<div class="stats pg-3">'+
       '<div class="stat"><div class="stat-lbl">Outstanding</div><div class="stat-val">$'+outstanding.toLocaleString()+'</div><div class="stat-hint">'+(outstanding?'Unpaid invoices':'All invoices clear')+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Contract value</div><div class="stat-val">'+(c.contract?'$'+Number(c.contract).toLocaleString():'—')+'</div><div class="stat-hint">'+(c.contract?'Per year · '+bl.toLowerCase():'Not set')+'</div></div>'+
       '<div class="stat"><div class="stat-lbl">Next clean</div><div class="stat-val">'+(nextCleanStr||'—')+'</div><div class="stat-hint">'+(nextCleanStr?'Confirmed':'Not scheduled')+'</div></div>'+
       '<div class="stat"><div class="stat-lbl">Total cleans</div><div class="stat-val">'+totalCleans+'</div><div class="stat-hint">'+(totalCleans?'Since client start':'No cleans yet')+'</div></div>'+
     '</div>';
