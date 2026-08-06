@@ -219,10 +219,11 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
 function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
-function fmtSince(iso){if(!iso)return '';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
 function pad2(n){return n<10?'0'+n:String(n);}
-function sinceToIso(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';return p[1]+'-'+pad2(mi+1)+'-01';}
-function tenureText(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';var start=new Date(+p[1],mi,1);var now=new Date();var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());if(totalMo<1){var wks=Math.floor((now-start)/(7*24*3600*1000));return wks<1?'< 1 week':wks===1?'1 week':wks+' weeks';}if(totalMo<12)return totalMo+(totalMo===1?' month':' months');var yrs=Math.floor(totalMo/12),rem=totalMo%12;return yrs+(yrs===1?' yr':' yrs')+(rem?' '+rem+' mo':'');}
+function parseStartDate(since){if(!since)return null;if(/^\d{4}-\d{2}-\d{2}$/.test(since))return new Date(since+'T00:00:00');var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return null;return new Date(+p[1],mi,1);}
+function displaySince(since){if(!since)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(since)){var d=new Date(since+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}return since;}
+function sinceToIso(since){if(!since)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(since))return since;var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';return p[1]+'-'+pad2(mi+1)+'-01';}
+function tenureText(since){var start=parseStartDate(since);if(!start)return '';var now=new Date();var diff=now-start;if(diff<0)return 'Not started';var days=Math.floor(diff/(24*3600*1000));if(days===0)return 'Today';if(days===1)return '1 day';if(days<7)return days+' days';if(days<30){var wks=Math.floor(days/7);return wks===1?'1 week':wks+' weeks';}var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());if(totalMo<12)return totalMo===1?'1 month':totalMo+' months';var yrs=Math.floor(totalMo/12),rem=totalMo%12;return(yrs===1?'1 yr':yrs+' yrs')+(rem?' '+rem+' mo':'');}
 function renderCard(s){
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
@@ -232,7 +233,7 @@ function renderCard(s){
     '</div>'+
     (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
     (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
-    (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(s.since)+'<span class="sc-tenure"> · '+esc(tenureText(s.since))+'</span></span></div>':'')+
+    (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(displaySince(s.since))+'<span class="sc-tenure"> · '+esc(tenureText(s.since))+'</span></span></div>':'')+
   '</div>';
 }
 function renderAll(){
@@ -308,10 +309,10 @@ saveBtn.addEventListener('click',function(){
   if(editingId){
     staff=staff.map(function(s){
       if(s.id!==editingId)return s;
-      return {id:s.id,name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):s.since,status:document.getElementById('sf-status').value};
+      return {id:s.id,name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso||s.since,status:document.getElementById('sf-status').value};
     });
   } else {
-    staff.push({id:'s'+Date.now(),name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso?fmtSince(sinceIso):'',status:document.getElementById('sf-status').value});
+    staff.push({id:'s'+Date.now(),name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso||'',status:document.getElementById('sf-status').value});
   }
   save(staff);closeModal();renderAll();
 });
