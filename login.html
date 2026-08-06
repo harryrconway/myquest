@@ -95,21 +95,21 @@ h1{
 .f-input{
   display:block;
   width:100%;
-  background:transparent;
-  border:0;
-  border-bottom:1.5px solid var(--line);
+  background:rgba(35,44,84,.05);
+  border:1.5px solid var(--line);
+  border-radius:10px;
   color:var(--txt);
   font-size:16px;
   font-weight:400;
   font-family:inherit;
-  padding:0 0 13px;
+  padding:14px 16px;
   outline:none;
-  transition:border-color .15s;
+  transition:border-color .15s,background .15s;
   -webkit-appearance:none;
   appearance:none;
 }
-.f-input:focus{border-bottom-color:var(--txt)}
-.f-input::placeholder{color:var(--stone);opacity:.5}
+.f-input:focus{border-color:var(--txt);background:rgba(35,44,84,.03)}
+.f-input::placeholder{color:var(--stone);opacity:.6}
 
 .btn{
   display:block;
