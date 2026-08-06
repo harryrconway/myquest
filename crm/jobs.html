@@ -495,7 +495,12 @@ renderAll();
 if(getParam('newjob')==='1'){
   openModal();
   var cid=getParam('cid');
-  if(cid)setTimeout(function(){document.getElementById('jf-client').value=cid;},50);
+  if(cid)setTimeout(function(){
+    document.getElementById('jf-client').value=cid;
+    var cls=JSON.parse(localStorage.getItem('mq_clients')||'[]');
+    var found=cls.find(function(c){return c.id===cid;});
+    if(found&&found.siteAddress)document.getElementById('jf-site').value=found.siteAddress;
+  },50);
 }
 }); // end requireAuth
 })();
