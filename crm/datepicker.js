@@ -112,12 +112,15 @@ function initInput(inputEl){
     renderCalendar();
     popup.hidden=false;
     activePopup=popup;
-    // Position above if near viewport bottom, right-align if near right edge
-    popup.classList.remove('dp-above');
-    popup.classList.remove('dp-right');
-    var rect=popup.getBoundingClientRect();
-    if(rect.bottom>window.innerHeight-8)popup.classList.add('dp-above');
-    if(rect.right>window.innerWidth-8)popup.classList.add('dp-right');
+    // Fixed positioning so the popup escapes overflow:hidden/auto containers (e.g. scrollable modals)
+    var btnRect=btn.getBoundingClientRect();
+    popup.style.position='fixed';
+    popup.style.left=btnRect.left+'px';
+    popup.style.top=(btnRect.bottom+6)+'px';
+    popup.style.bottom='';
+    var pr=popup.getBoundingClientRect();
+    if(pr.right>window.innerWidth-8)popup.style.left=(window.innerWidth-pr.width-8)+'px';
+    if(pr.bottom>window.innerHeight-8)popup.style.top=(btnRect.top-pr.height-6)+'px';
   }
 
   btn.addEventListener('click',function(e){
