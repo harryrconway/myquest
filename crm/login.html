@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Sign in — MyQuest</title>
+<link rel="stylesheet" href="style.css?v=20260806">
+<style>
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+.login-wrap{width:100%;max-width:360px;padding:20px}
+.login-logo{display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:32px}
+.login-card{background:var(--card);border:1px solid var(--hair);border-radius:var(--r);padding:28px}
+.login-title{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.02em;margin:0 0 6px}
+.login-sub{font-size:13px;color:var(--stone);line-height:1.6;margin:0 0 22px}
+.login-err{font-size:12.5px;color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.15);border-radius:var(--r-sm);padding:9px 12px;margin-bottom:14px}
+.login-sent-icon{width:44px;height:44px;border-radius:50%;background:rgba(35,44,84,.07);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.login-sent-icon svg{color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-logo">
+    <div class="sb-mark">MQ</div>
+    <span class="sb-name">MyQuest</span>
+  </div>
+  <div class="login-card">
+
+    <div id="login-form">
+      <h1 class="login-title">Sign in</h1>
+      <p class="login-sub">Enter your email and we'll send you a magic link to sign in instantly.</p>
+      <div id="login-err" class="login-err" style="display:none"></div>
+      <div class="form-row">
+        <label class="form-lbl" for="lg-email">Email address</label>
+        <input class="form-input" type="email" id="lg-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <button class="ph-btn" id="login-btn" style="width:100%;justify-content:center">Send magic link</button>
+    </div>
+
+    <div id="login-sent" style="display:none;text-align:center">
+      <div class="login-sent-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h2 class="login-title" style="text-align:center">Check your inbox</h2>
+      <p class="login-sub" style="text-align:center">We sent a sign-in link to <strong id="sent-to"></strong>. Click it to continue — no password needed.</p>
+      <button class="cancel-btn" id="try-again" style="width:100%;justify-content:center;margin-top:4px">Use a different email</button>
+    </div>
+
+  </div>
+</div>
+<script src="supabase.min.js?v=20260806"></script>
+<script src="auth.js?v=20260806"></script>
+<script>
+(function(){
+'use strict';
+
+// If already signed in (or magic link callback), go straight to the app
+MQ.sb.auth.onAuthStateChange(function(event,session){
+  if(session)location.href='overview.html';
+});
+MQ.sb.auth.getSession().then(function(res){
+  if(res.data.session)location.href='overview.html';
+});
+
+// Show error if redirected back as unauthorised
+if(location.search.indexOf('e=1')!==-1){
+  var errEl=document.getElementById('login-err');
+  errEl.textContent='That email isn\'t authorised to access MyQuest.';
+  errEl.style.display='block';
+}
+
+var btn=document.getElementById('login-btn');
+var input=document.getElementById('lg-email');
+var errEl2=document.getElementById('login-err');
+
+function sendLink(){
+  var email=input.value.trim();
+  if(!email){input.focus();return;}
+  btn.disabled=true;
+  btn.textContent='Sending…';
+  errEl2.style.display='none';
+  MQ.sb.auth.signInWithOtp({
+    email:email,
+    options:{emailRedirectTo:'https://myquest.au/crm/login.html'}
+  }).then(function(res){
+    if(res.error){
+      errEl2.textContent=res.error.message||'Something went wrong. Try again.';
+      errEl2.style.display='block';
+      btn.disabled=false;
+      btn.textContent='Send magic link';
+      return;
+    }
+    document.getElementById('sent-to').textContent=email;
+    document.getElementById('login-form').style.display='none';
+    document.getElementById('login-sent').style.display='block';
+  });
+}
+
+btn.addEventListener('click',sendLink);
+input.addEventListener('keydown',function(e){if(e.key==='Enter')sendLink();});
+document.getElementById('try-again').addEventListener('click',function(){
+  document.getElementById('login-sent').style.display='none';
+  document.getElementById('login-form').style.display='block';
+  input.value='';
+  btn.disabled=false;
+  btn.textContent='Send magic link';
+  input.focus();
+});
+
+})();
+</script>
+</body>
+</html>
