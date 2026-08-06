@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Overview — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260808">
 <style>
 .date-sub{font-size:13px;color:var(--stone);margin-top:4px}
 
@@ -130,7 +130,9 @@
 
       <div>
         <div class="sh"><span class="sh-lbl">Today's schedule</span><a href="jobs.html" class="sh-btn">View all jobs</a></div>
-        <div class="sched-list" id="ov-sched"></div>
+        <div class="sched-list" id="ov-sched" style="margin-bottom:20px"></div>
+        <div class="sh"><span class="sh-lbl">Next week</span></div>
+        <div class="sched-list" id="ov-next-week"></div>
       </div>
 
       <div>
@@ -272,7 +274,40 @@ if(schedEl){
       return '<div class="sched-item" style="grid-template-columns:1fr auto">'+
         '<div class="si-info">'+
           '<div class="si-client">'+esc(j.clientName||'—')+'</div>'+
-          '<div class="si-detail">'+esc(tLbl)+(j.site?' · '+esc(j.site):'')+(j.price?' · $'+Number(j.price).toLocaleString():'')+'</div>'+
+          '<div class="si-detail">'+esc(tLbl)+(j.site?' · '+esc(j.site):'')+'</div>'+
+        '</div>'+
+        '<span class="badge '+bCls+'">'+bLbl+'</span>'+
+      '</div>';
+    }).join('');
+  }
+}
+
+// Next week schedule
+var nextWeekEl=document.getElementById('ov-next-week');
+if(nextWeekEl){
+  var nwMon=new Date();nwMon.setDate(nwMon.getDate()+(8-(nwMon.getDay()||7)));
+  var nwSun=new Date(nwMon);nwSun.setDate(nwMon.getDate()+6);
+  var nwMonStr=nwMon.toISOString().slice(0,10);
+  var nwSunStr=nwSun.toISOString().slice(0,10);
+  var nwJobs=jobs.filter(function(j){return j.date>=nwMonStr&&j.date<=nwSunStr;})
+    .sort(function(a,b){return a.date<b.date?-1:1;});
+  var TYPE_LABELS2={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+  var DSHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if(!nwJobs.length){
+    nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
+  } else {
+    nextWeekEl.innerHTML=nwJobs.map(function(j){
+      var tLbl=TYPE_LABELS2[j.type]||j.type||'';
+      var bCls=j.status==='completed'?'completed':'upcoming';
+      var bLbl=j.status==='completed'?'Completed':'Upcoming';
+      var jd=new Date(j.date+'T00:00:00');
+      var dateStr=DSHORT[jd.getDay()]+' '+jd.getDate()+' '+MSHORT[jd.getMonth()];
+      return '<div class="sched-item" style="grid-template-columns:70px 1fr auto">'+
+        '<div class="si-time">'+dateStr+'</div>'+
+        '<div class="si-info">'+
+          '<div class="si-client">'+esc(j.clientName||'—')+'</div>'+
+          '<div class="si-detail">'+esc(tLbl)+(j.site?' · '+esc(j.site):'')+'</div>'+
         '</div>'+
         '<span class="badge '+bCls+'">'+bLbl+'</span>'+
       '</div>';
