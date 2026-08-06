@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260811">
+<link rel="stylesheet" href="style.css?v=20260806">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
@@ -206,7 +206,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
   </div>
 </div>
 
-<script src="datepicker.js?v=20260811"></script>
+<script src="datepicker.js?v=20260806"></script>
 <script>
 (function(){
 'use strict';
@@ -222,7 +222,7 @@ function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=
 function fmtSince(iso){if(!iso)return '';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
 function pad2(n){return n<10?'0'+n:String(n);}
 function sinceToIso(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';return p[1]+'-'+pad2(mi+1)+'-01';}
-function tenureText(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';var start=new Date(+p[1],mi,1);var now=new Date();var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());if(totalMo<1){var wks=Math.floor((now-start)/(7*24*3600*1000));return wks<=1?'1 week':wks+' weeks';}if(totalMo<12)return totalMo+(totalMo===1?' month':' months');var yrs=Math.floor(totalMo/12),rem=totalMo%12;return yrs+(yrs===1?' yr':' yrs')+(rem?' '+rem+' mo':'');}
+function tenureText(since){if(!since)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';var start=new Date(+p[1],mi,1);var now=new Date();var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());if(totalMo<1){var wks=Math.floor((now-start)/(7*24*3600*1000));return wks<1?'< 1 week':wks===1?'1 week':wks+' weeks';}if(totalMo<12)return totalMo+(totalMo===1?' month':' months');var yrs=Math.floor(totalMo/12),rem=totalMo%12;return yrs+(yrs===1?' yr':' yrs')+(rem?' '+rem+' mo':'');}
 function renderCard(s){
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
