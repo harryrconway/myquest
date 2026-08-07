@@ -121,110 +121,101 @@
 (function(){
 'use strict';
 window.MQ.requireAuth(function(){
-if(localStorage.getItem('mq_v')!=='3'){
-  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','3');
-}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function ls(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):[];}catch(e){return[];}}
-
-var jobs=ls('mq_jobs');
-var clients=ls('mq_clients');
-var staff=ls('mq_staff');
+var sb=MQ.sb;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function srow(lbl,val){return'<div class="sum-row"><span class="sum-lbl">'+lbl+'</span><span class="sum-val">'+val+'</span></div>';}
 
 var now=new Date();
 var yr=now.getFullYear();
 var mo=now.getMonth();
 var today=now.toISOString().slice(0,10);
 var MO_LABELS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var dow=now.getDay()||7;
+var mon=new Date(now);mon.setDate(now.getDate()-(dow-1));
+var sun=new Date(mon);sun.setDate(mon.getDate()+6);
+var monStr=mon.toISOString().slice(0,10);
+var sunStr=sun.toISOString().slice(0,10);
 
-var jobsDoneYTD=jobs.filter(function(j){return j.status==='completed'&&j.date&&j.date.slice(0,4)===String(yr);});
-var jobsDoneTotal=jobs.filter(function(j){return j.status==='completed';}).length;
-var upcomingJobs=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).length;
-var activeClients=clients.filter(function(c){return c.status==='active';}).length;
-var activeStaff=staff.filter(function(s){return(s.status||'active')==='active';}).length;
-var onLeaveStaff=staff.filter(function(s){return s.status==='on-leave';}).length;
-var resignedStaff=staff.filter(function(s){return s.status==='left';}).length;
+Promise.all([
+  sb.from('jobs').select('id,status,date,client_name'),
+  sb.from('clients').select('id,status'),
+  sb.from('staff').select('id,status,role')
+]).then(function(results){
+  var jobs=results[0].data||[];
+  var clients=results[1].data||[];
+  var staff=results[2].data||[];
 
-// Stat tiles
-var statsEl=document.getElementById('rep-stats');
-if(statsEl){
-  statsEl.innerHTML=
+  var jobsDoneYTD=jobs.filter(function(j){return j.status==='completed'&&j.date&&j.date.slice(0,4)===String(yr);});
+  var jobsDoneTotal=jobs.filter(function(j){return j.status==='completed';}).length;
+  var upcomingJobs=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).length;
+  var activeClients=clients.filter(function(c){return c.status==='active';}).length;
+  var activeStaff=staff.filter(function(s){return s.status==='active';}).length;
+  var onLeaveStaff=staff.filter(function(s){return s.status==='on-leave';}).length;
+  var resignedStaff=staff.filter(function(s){return s.status==='left';}).length;
+  var onboardingClients=clients.filter(function(c){return c.status==='onboarding';}).length;
+  var jobsThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
+
+  var statsEl=document.getElementById('rep-stats');
+  if(statsEl)statsEl.innerHTML=
     '<div class="stat"><div class="stat-lbl">Jobs completed YTD</div><div class="stat-val">'+jobsDoneYTD.length+'</div><div class="stat-hint">Jan – '+MO_LABELS[mo]+' '+yr+'</div></div>'+
     '<div class="stat"><div class="stat-lbl">Jobs completed</div><div class="stat-val">'+jobsDoneTotal+'</div><div class="stat-hint">All time</div></div>'+
     '<div class="stat"><div class="stat-lbl">Upcoming jobs</div><div class="stat-val">'+upcomingJobs+'</div><div class="stat-hint">Scheduled ahead</div></div>'+
     '<div class="stat"><div class="stat-lbl">Active clients</div><div class="stat-val">'+activeClients+'</div><div class="stat-hint">'+clients.length+' total</div></div>';
-}
 
-// Jobs per month bar chart
-var moJobs=new Array(12).fill(0);
-jobsDoneYTD.forEach(function(j){var m=new Date(j.date+'T00:00:00').getMonth();moJobs[m]++;});
-var maxMo=Math.max.apply(null,moJobs.slice(0,mo+1).concat([1]));
-var chartCard=document.getElementById('rev-chart-card');
-if(chartCard){
-  var barRows=MO_LABELS.slice(0,mo+1).map(function(lbl,m){
-    var pct=Math.round(moJobs[m]/maxMo*100);
-    return '<div class="bar-row">'+
-      '<span class="bar-lbl">'+lbl+'</span>'+
-      '<div class="bar-track"><div class="bar-fill'+(m===mo?' green':'')+'" style="width:'+pct+'%"></div></div>'+
-      '<span class="bar-val">'+moJobs[m]+'</span>'+
-    '</div>';
-  }).join('');
-  chartCard.innerHTML='<div class="rep-title">Jobs completed per month — '+yr+'</div><div class="bar-chart">'+barRows+'</div>';
-}
-
-// Jobs by client
-var byClient={};
-jobs.filter(function(j){return j.status==='completed';}).forEach(function(j){if(!j.clientName)return;byClient[j.clientName]=(byClient[j.clientName]||0)+1;});
-var sorted=Object.keys(byClient).map(function(n){return{name:n,total:byClient[n]};}).sort(function(a,b){return b.total-a.total;});
-var clientCard=document.getElementById('client-chart-card');
-if(clientCard){
-  if(!sorted.length){
-    clientCard.innerHTML='<div class="rep-title">Jobs by client</div><div style="padding:12px 0;color:var(--stone);font-size:13px">No completed jobs yet.</div>';
-  } else {
-    var maxClient=sorted[0].total||1;
-    var clientRows=sorted.slice(0,8).map(function(c){
-      return '<div class="cl-bar-row">'+
-        '<span class="cl-bar-name">'+esc(c.name)+'</span>'+
-        '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(c.total/maxClient*100)+'%"></div></div>'+
-        '<span class="cl-bar-val">'+c.total+(c.total===1?' job':' jobs')+'</span>'+
-      '</div>';
+  var moJobs=new Array(12).fill(0);
+  jobsDoneYTD.forEach(function(j){var m=new Date(j.date+'T00:00:00').getMonth();moJobs[m]++;});
+  var maxMo=Math.max.apply(null,moJobs.slice(0,mo+1).concat([1]));
+  var chartCard=document.getElementById('rev-chart-card');
+  if(chartCard){
+    var barRows=MO_LABELS.slice(0,mo+1).map(function(lbl,m){
+      return '<div class="bar-row">'+
+        '<span class="bar-lbl">'+lbl+'</span>'+
+        '<div class="bar-track"><div class="bar-fill'+(m===mo?' green':'')+'" style="width:'+Math.round(moJobs[m]/maxMo*100)+'%"></div></div>'+
+        '<span class="bar-val">'+moJobs[m]+'</span></div>';
     }).join('');
-    clientCard.innerHTML='<div class="rep-title">Jobs by client</div>'+clientRows;
+    chartCard.innerHTML='<div class="rep-title">Jobs completed per month — '+yr+'</div><div class="bar-chart">'+barRows+'</div>';
   }
-}
 
-// Staff by role
-var rolesCard=document.getElementById('staff-roles-card');
-if(rolesCard){
-  var byRole={};
-  staff.forEach(function(s){if(!s.role)return;byRole[s.role]=(byRole[s.role]||0)+1;});
-  var rolesSorted=Object.keys(byRole).map(function(r){return{role:r,n:byRole[r]};}).sort(function(a,b){return b.n-a.n;});
-  if(!rolesSorted.length){
-    rolesCard.innerHTML='<div class="rep-title">Team breakdown</div><div style="padding:12px 0;color:var(--stone);font-size:13px">No staff yet.</div>';
-  } else {
-    var maxRole=rolesSorted[0].n||1;
-    var roleRows=rolesSorted.map(function(r){
-      return '<div class="role-row">'+
-        '<span class="role-name">'+esc(r.role)+'</span>'+
-        '<div class="role-track"><div class="role-fill" style="width:'+Math.round(r.n/maxRole*100)+'%"></div></div>'+
-        '<span class="role-val">'+r.n+'</span>'+
-      '</div>';
-    }).join('');
-    rolesCard.innerHTML='<div class="rep-title">Team breakdown</div>'+roleRows;
+  var byClient={};
+  jobs.filter(function(j){return j.status==='completed';}).forEach(function(j){
+    if(!j.client_name)return;byClient[j.client_name]=(byClient[j.client_name]||0)+1;
+  });
+  var sorted=Object.keys(byClient).map(function(n){return{name:n,total:byClient[n]};}).sort(function(a,b){return b.total-a.total;});
+  var clientCard=document.getElementById('client-chart-card');
+  if(clientCard){
+    if(!sorted.length){
+      clientCard.innerHTML='<div class="rep-title">Jobs by client</div><div style="padding:12px 0;color:var(--stone);font-size:13px">No completed jobs yet.</div>';
+    } else {
+      var maxClient=sorted[0].total||1;
+      clientCard.innerHTML='<div class="rep-title">Jobs by client</div>'+sorted.slice(0,8).map(function(c){
+        return '<div class="cl-bar-row">'+
+          '<span class="cl-bar-name">'+esc(c.name)+'</span>'+
+          '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(c.total/maxClient*100)+'%"></div></div>'+
+          '<span class="cl-bar-val">'+c.total+(c.total===1?' job':' jobs')+'</span></div>';
+      }).join('');
+    }
   }
-}
 
-// Summary table
-var sumEl=document.getElementById('rep-summary');
-if(sumEl){
-  function srow(lbl,val){return '<div class="sum-row"><span class="sum-lbl">'+lbl+'</span><span class="sum-val">'+val+'</span></div>';}
-  var dow=now.getDay()||7;
-  var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
-  var sun=new Date(mon);sun.setDate(mon.getDate()+6);
-  var jobsThisWeek=jobs.filter(function(j){return j.date>=mon.toISOString().slice(0,10)&&j.date<=sun.toISOString().slice(0,10);}).length;
-  var onboardingClients=clients.filter(function(c){return c.status==='onboarding';}).length;
-  sumEl.innerHTML=
+  var rolesCard=document.getElementById('staff-roles-card');
+  if(rolesCard){
+    var byRole={};
+    staff.forEach(function(s){if(!s.role)return;byRole[s.role]=(byRole[s.role]||0)+1;});
+    var rolesSorted=Object.keys(byRole).map(function(r){return{role:r,n:byRole[r]};}).sort(function(a,b){return b.n-a.n;});
+    if(!rolesSorted.length){
+      rolesCard.innerHTML='<div class="rep-title">Team breakdown</div><div style="padding:12px 0;color:var(--stone);font-size:13px">No staff yet.</div>';
+    } else {
+      var maxRole=rolesSorted[0].n||1;
+      rolesCard.innerHTML='<div class="rep-title">Team breakdown</div>'+rolesSorted.map(function(r){
+        return '<div class="role-row">'+
+          '<span class="role-name">'+esc(r.role)+'</span>'+
+          '<div class="role-track"><div class="role-fill" style="width:'+Math.round(r.n/maxRole*100)+'%"></div></div>'+
+          '<span class="role-val">'+r.n+'</span></div>';
+      }).join('');
+    }
+  }
+
+  var sumEl=document.getElementById('rep-summary');
+  if(sumEl)sumEl.innerHTML=
     srow('Total clients',String(clients.length))+
     srow('Active clients',String(activeClients))+
     srow('Clients onboarding',String(onboardingClients))+
@@ -234,14 +225,12 @@ if(sumEl){
     (resignedStaff?srow('Resigned',String(resignedStaff)):'')+
     srow('Jobs this week',String(jobsThisWeek))+
     srow('Total jobs completed',String(jobsDoneTotal));
-}
+});
 
-// Mobile nav
 var btn=document.getElementById('mob-menu');
 var overlay=document.getElementById('mob-overlay');
-function mobClose(){document.body.classList.remove('mob-open');}
 if(btn)btn.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-if(overlay)overlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')mobClose();});
+if(overlay)overlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')document.body.classList.remove('mob-open');});
 
 }); // end requireAuth
 })();

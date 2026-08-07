@@ -184,157 +184,130 @@
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html" class="mob-on">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260806"></script>
-<script src="schedules.js?v=20260806"></script>
+<script src="schedules.js?v=20260807"></script>
 <script>
 (function(){
 'use strict';
 window.MQ.requireAuth(function(){
-if(window.mqGenerate)window.mqGenerate();
+var sb=MQ.sb;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-if(localStorage.getItem('mq_v')!=='3'){
-  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','3');
-}
-function ls(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):[]; }catch(e){ return []; } }
-function esc(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-var clients=ls('mq_clients');
-var jobs=ls('mq_jobs');
-var staff=ls('mq_staff');
-
-// Dynamic date + greeting
 var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DSHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+
 var now=new Date();
 var hour=now.getHours();
-var greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
 var titleEl=document.querySelector('.ph-title');
-if(titleEl)titleEl.textContent=greeting;
+if(titleEl)titleEl.textContent=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
 var subEl=document.querySelector('.date-sub');
 if(subEl)subEl.textContent=DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
 
-// Stats strip
-var today=new Date().toISOString().slice(0,10);
-var dow=new Date().getDay()||7;
-var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
+var today=now.toISOString().slice(0,10);
+var dow=now.getDay()||7;
+var mon=new Date(now);mon.setDate(mon.getDate()-(dow-1));
 var sun=new Date(mon);sun.setDate(mon.getDate()+6);
 var monStr=mon.toISOString().slice(0,10);
 var sunStr=sun.toISOString().slice(0,10);
-var activeClients=clients.filter(function(c){return c.status==='active';}).length;
-var activeStaff=staff.filter(function(s){return s.status==='active';}).length;
-var jobsThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
-var completedJobs=jobs.filter(function(j){return j.status==='completed';}).length;
-var statsEl=document.getElementById('ov-stats');
-if(statsEl){
-  statsEl.innerHTML=
+var tomorrow=new Date(now);tomorrow.setDate(now.getDate()+1);
+var tomorrowStr=tomorrow.toISOString().slice(0,10);
+var nwMon=new Date(now);nwMon.setDate(now.getDate()+(8-(now.getDay()||7)));
+var nwSun=new Date(nwMon);nwSun.setDate(nwMon.getDate()+6);
+var nwMonStr=nwMon.toISOString().slice(0,10);
+var nwSunStr=nwSun.toISOString().slice(0,10);
+
+Promise.all([
+  sb.from('clients').select('id,status'),
+  sb.from('jobs').select('id,date,status,type,site,client_name'),
+  sb.from('staff').select('id,status')
+]).then(function(results){
+  var clients=results[0].data||[];
+  var jobs=results[1].data||[];
+  var staff=results[2].data||[];
+
+  var activeClients=clients.filter(function(c){return c.status==='active';}).length;
+  var activeStaff=staff.filter(function(s){return s.status==='active';}).length;
+  var jobsThisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;}).length;
+  var completedJobs=jobs.filter(function(j){return j.status==='completed';}).length;
+  var statsEl=document.getElementById('ov-stats');
+  if(statsEl)statsEl.innerHTML=
     '<div class="stat"><div class="stat-lbl">Active clients</div><div class="stat-val">'+activeClients+'</div><div class="stat-hint">'+clients.length+' total</div></div>'+
     '<div class="stat"><div class="stat-lbl">Jobs this week</div><div class="stat-val">'+jobsThisWeek+'</div><div class="stat-hint">Mon – Sun</div></div>'+
     '<div class="stat"><div class="stat-lbl">Jobs completed</div><div class="stat-val">'+completedJobs+'</div><div class="stat-hint">All time</div></div>'+
     '<div class="stat"><div class="stat-lbl">Active staff</div><div class="stat-val">'+activeStaff+'</div><div class="stat-hint">'+staff.length+' total</div></div>';
-}
 
-// Needs attention
-var attnEl=document.getElementById('ov-attn');
-if(attnEl){
-  var html='';
-  var tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
-  var tomorrowStr=tomorrow.toISOString().slice(0,10);
-  var jobsTomorrow=jobs.filter(function(j){return j.date===tomorrowStr&&j.status==='upcoming';});
-  if(jobsTomorrow.length){
-    html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
+  var attnEl=document.getElementById('ov-attn');
+  if(attnEl){
+    var html='';
+    var jobsTomorrow=jobs.filter(function(j){return j.date===tomorrowStr&&j.status==='upcoming';});
+    if(jobsTomorrow.length)html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
       '<div class="attn-title">'+jobsTomorrow.length+' job'+(jobsTomorrow.length!==1?'s':'')+' scheduled for tomorrow</div>'+
       '<div class="attn-sub"><a href="jobs.html" style="color:inherit">View in Jobs →</a></div></div></div>';
-  }
-  var onboarding=clients.filter(function(c){return c.status==='onboarding';});
-  if(onboarding.length){
-    html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
+    var onboarding=clients.filter(function(c){return c.status==='onboarding';});
+    if(onboarding.length)html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
       '<div class="attn-title">'+onboarding.length+' client'+(onboarding.length!==1?'s':'')+' still onboarding</div>'+
       '<div class="attn-sub"><a href="index.html" style="color:inherit">View in Clients →</a></div></div></div>';
+    if(!html)html='<div class="attn-item"><div class="attn-dot" style="background:var(--green)"></div><div>'+
+      '<div class="attn-title">All clear</div><div class="attn-sub">No items need attention right now</div></div></div>';
+    attnEl.innerHTML=html;
   }
-  if(!html)html='<div class="attn-item"><div class="attn-dot" style="background:var(--green)"></div><div>'+
-    '<div class="attn-title">All clear</div><div class="attn-sub">No items need attention right now</div></div></div>';
-  attnEl.innerHTML=html;
-}
 
-// Quick stats summary
-var monthEl=document.getElementById('ov-month');
-if(monthEl){
-  var upcomingJobs=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).length;
-  var onboardingStaff=staff.filter(function(s){return s.status==='onboarding';}).length;
-  var newClients=clients.filter(function(c){return c.status==='onboarding';}).length;
-  monthEl.innerHTML=
-    '<div class="qs-row"><span class="qs-lbl">Total clients</span><span class="qs-val">'+clients.length+'</span></div>'+
-    '<div class="qs-row"><span class="qs-lbl">Upcoming jobs</span><span class="qs-val">'+upcomingJobs+'</span></div>'+
-    '<div class="qs-row"><span class="qs-lbl">Jobs completed</span><span class="qs-val">'+completedJobs+'</span></div>'+
-    '<div class="qs-row"><span class="qs-lbl">Total staff</span><span class="qs-val">'+staff.length+'</span></div>'+
-    '<div class="qs-row"><span class="qs-lbl">Staff onboarding</span><span class="qs-val">'+onboardingStaff+'</span></div>';
-}
-
-// Today's schedule
-var schedEl=document.getElementById('ov-sched');
-if(schedEl){
-  var todayStr=new Date().toISOString().slice(0,10);
-  var todayJobs=jobs.filter(function(j){return j.date===todayStr;});
-  var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
-  if(!todayJobs.length){
-    schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for today</div></div></div>';
-  } else {
-    schedEl.innerHTML=todayJobs.map(function(j){
-      var tLbl=TYPE_LABELS[j.type]||j.type||'';
-      var bCls=j.status==='completed'?'completed':'upcoming';
-      var bLbl=j.status==='completed'?'Completed':'Upcoming';
-      return '<div class="sched-item" style="grid-template-columns:1fr auto">'+
-        '<div class="si-info">'+
-          '<div class="si-client">'+esc(j.clientName||'—')+'</div>'+
-          '<div class="si-detail">'+esc(tLbl)+(j.site?' · '+esc(j.site):'')+'</div>'+
-        '</div>'+
-        '<span class="badge '+bCls+'">'+bLbl+'</span>'+
-      '</div>';
-    }).join('');
+  var monthEl=document.getElementById('ov-month');
+  if(monthEl){
+    var upcomingJobs=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).length;
+    monthEl.innerHTML=
+      '<div class="qs-row"><span class="qs-lbl">Total clients</span><span class="qs-val">'+clients.length+'</span></div>'+
+      '<div class="qs-row"><span class="qs-lbl">Upcoming jobs</span><span class="qs-val">'+upcomingJobs+'</span></div>'+
+      '<div class="qs-row"><span class="qs-lbl">Jobs completed</span><span class="qs-val">'+completedJobs+'</span></div>'+
+      '<div class="qs-row"><span class="qs-lbl">Total staff</span><span class="qs-val">'+staff.length+'</span></div>'+
+      '<div class="qs-row"><span class="qs-lbl">Active staff</span><span class="qs-val">'+activeStaff+'</span></div>';
   }
-}
 
-// Next week schedule
-var nextWeekEl=document.getElementById('ov-next-week');
-if(nextWeekEl){
-  var nwMon=new Date();nwMon.setDate(nwMon.getDate()+(8-(nwMon.getDay()||7)));
-  var nwSun=new Date(nwMon);nwSun.setDate(nwMon.getDate()+6);
-  var nwMonStr=nwMon.toISOString().slice(0,10);
-  var nwSunStr=nwSun.toISOString().slice(0,10);
-  var nwJobs=jobs.filter(function(j){return j.date>=nwMonStr&&j.date<=nwSunStr;})
-    .sort(function(a,b){return a.date<b.date?-1:1;});
-  var TYPE_LABELS2={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
-  var DSHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  if(!nwJobs.length){
-    nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
-  } else {
-    nextWeekEl.innerHTML=nwJobs.map(function(j){
-      var tLbl=TYPE_LABELS2[j.type]||j.type||'';
-      var bCls=j.status==='completed'?'completed':'upcoming';
-      var bLbl=j.status==='completed'?'Completed':'Upcoming';
-      var jd=new Date(j.date+'T00:00:00');
-      var dateStr=DSHORT[jd.getDay()]+' '+jd.getDate()+' '+MSHORT[jd.getMonth()];
-      return '<div class="sched-item" style="grid-template-columns:70px 1fr auto">'+
-        '<div class="si-time">'+dateStr+'</div>'+
-        '<div class="si-info">'+
-          '<div class="si-client">'+esc(j.clientName||'—')+'</div>'+
-          '<div class="si-detail">'+esc(tLbl)+(j.site?' · '+esc(j.site):'')+'</div>'+
-        '</div>'+
-        '<span class="badge '+bCls+'">'+bLbl+'</span>'+
-      '</div>';
-    }).join('');
+  var schedEl=document.getElementById('ov-sched');
+  if(schedEl){
+    var todayJobs=jobs.filter(function(j){return j.date===today;});
+    if(!todayJobs.length){
+      schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for today</div></div></div>';
+    } else {
+      schedEl.innerHTML=todayJobs.map(function(j){
+        var bCls=j.status==='completed'?'completed':'upcoming';
+        return '<div class="sched-item" style="grid-template-columns:1fr auto">'+
+          '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
+          '<div class="si-detail">'+(TYPE_LABELS[j.type]||j.type||'')+(j.site?' · '+esc(j.site):'')+'</div></div>'+
+          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></div>';
+      }).join('');
+    }
   }
-}
 
-// Mobile nav
+  var nextWeekEl=document.getElementById('ov-next-week');
+  if(nextWeekEl){
+    var nwJobs=jobs.filter(function(j){return j.date>=nwMonStr&&j.date<=nwSunStr;})
+      .sort(function(a,b){return a.date<b.date?-1:1;});
+    if(!nwJobs.length){
+      nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
+    } else {
+      nextWeekEl.innerHTML=nwJobs.map(function(j){
+        var jd=new Date(j.date+'T00:00:00');
+        var dateStr=DSHORT[jd.getDay()]+' '+jd.getDate()+' '+MSHORT[jd.getMonth()];
+        var bCls=j.status==='completed'?'completed':'upcoming';
+        return '<div class="sched-item" style="grid-template-columns:70px 1fr auto">'+
+          '<div class="si-time">'+dateStr+'</div>'+
+          '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
+          '<div class="si-detail">'+(TYPE_LABELS[j.type]||j.type||'')+(j.site?' · '+esc(j.site):'')+'</div></div>'+
+          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></div>';
+      }).join('');
+    }
+  }
+
+  if(window.mqGenerate)window.mqGenerate();
+});
+
 var btn=document.getElementById('mob-menu');
 var overlay=document.getElementById('mob-overlay');
-function mobClose(){ document.body.classList.remove('mob-open'); }
-if(btn)btn.addEventListener('click',function(){ document.body.classList.toggle('mob-open'); });
-if(overlay)overlay.addEventListener('click',function(e){
-  if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A') mobClose();
-});
+if(btn)btn.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(overlay)overlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')document.body.classList.remove('mob-open');});
 
 }); // end requireAuth
 })();

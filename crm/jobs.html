@@ -256,90 +256,76 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260806"></script>
 <script src="datepicker.js?v=20260807"></script>
-<script src="schedules.js?v=20260806"></script>
+<script src="schedules.js?v=20260807"></script>
 <script>
 (function(){
 'use strict';
 window.MQ.requireAuth(function(){
-if(window.mqGenerate)window.mqGenerate();
-if(localStorage.getItem('mq_v')!=='3'){
-  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','3');
-}
-var KEY='mq_jobs';
-var CLIENT_KEY='mq_clients';
+var sb=MQ.sb;
 var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>';
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
-var activeFilter='all';
-var searchTerm='';
-var openId=null;
-var editingJobId=null;
+function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
+var activeFilter='all',searchTerm='',openId=null,editingJobId=null;
+var allJobs=[],allClients=[];
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
-function fmtDate(isoStr){if(!isoStr)return '—';var d=new Date(isoStr+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
-function fmtDateFull(isoStr){if(!isoStr)return '—';var d=new Date(isoStr+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
 var REPEAT_OPTS=[['none','Does not repeat'],['weekly','Weekly'],['fortnightly','Fortnightly'],['4-weekly','Every 4 weeks'],['monthly','Monthly']];
+function fmtDate(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
+function fmtDateFull(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
+
 function renderExpand(j){
   var typeLbl=TYPE_LABELS[j.type]||j.type;
   var actions='';
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
-  if(!j.fromSchedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
+  if(!j.from_schedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
   var repeatRow='';
-  if(j.fromSchedule){
+  if(j.from_schedule){
     repeatRow='<div style="grid-column:1/-1"><div class="xp-lbl">Repeat</div><div class="xp-val" style="font-size:12px;color:var(--stone)">Auto-generated recurring job</div></div>';
   } else {
     var cur=j.repeat||'none';
-    var opts=REPEAT_OPTS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('');
+    var opts=REPEAT_OPTS.map(function(o){return'<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('');
     repeatRow='<div style="grid-column:1/-1"><div class="xp-lbl">Repeat</div>'+
       '<select class="xp-repeat-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+opts+'</select></div>';
   }
   return '<div class="xp-grid">'+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val">'+fmtDateFull(j.date)+'</div></div>'+
-    '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.clientName||'—')+'</div></div>'+
+    '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Site</div><div class="xp-val">'+esc(j.site||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
-    repeatRow+
-    '</div>'+
-    '<div class="xp-actions">'+actions+'</div>';
+    repeatRow+'</div><div class="xp-actions">'+actions+'</div>';
 }
 function renderRow(j){
   var isOpen=openId===j.id;
   var typeLbl=TYPE_LABELS[j.type]||j.type;
-  var typeClass=j.type==='deep'?' deep':'';
-  var rowClass=j.status==='completed'?' done':' next';
   var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
   return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
-    '<div class="jl-row'+rowClass+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
+    '<div class="jl-row'+(j.status==='completed'?' done':' next')+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
       '<div class="jl-date">'+fmtDate(j.date)+'</div>'+
-      '<div class="jl-client">'+esc(j.clientName||'—')+'</div>'+
+      '<div class="jl-client">'+esc(j.client_name||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
-      '<span class="jl-type'+typeClass+'">'+typeLbl+'</span>'+
-      '<div class="jl-crew"></div>'+
-      badge+
+      '<span class="jl-type'+(j.type==='deep'?' deep':'')+'">'+typeLbl+'</span>'+
+      '<div class="jl-crew"></div>'+badge+
       '<div class="jl-arr">'+ARR+'</div>'+
     '</div>'+
     '<div class="xp-body'+(isOpen?' open':'')+'"><div class="xp-inner">'+renderExpand(j)+'</div></div>'+
   '</div>';
 }
+
 function renderAll(){
-  var jobs=load()||[];
+  var jobs=allJobs.slice();
   jobs.sort(function(a,b){var au=a.status==='upcoming',bu=b.status==='upcoming';if(au&&!bu)return -1;if(!au&&bu)return 1;return au?(a.date<b.date?-1:1):(a.date>b.date?-1:1);});
   var upcoming=jobs.filter(function(j){return j.status==='upcoming';});
   var completed=jobs.filter(function(j){return j.status==='completed';});
   var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
   var doneThisMo=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).length;
   var nxt7=new Date();nxt7.setDate(nxt7.getDate()+7);
-  var soon=upcoming.filter(function(j){var d=new Date(j.date+'T00:00:00');return d<=nxt7;}).length;
+  var soon=upcoming.filter(function(j){return new Date(j.date+'T00:00:00')<=nxt7;}).length;
   var statsEl=document.querySelector('.stats');
-  if(statsEl) statsEl.innerHTML=
+  if(statsEl)statsEl.innerHTML=
     '<div class="stat"><div class="stat-lbl">This month</div><div class="stat-val">'+doneThisMo+'</div><div class="stat-hint">Jobs completed</div></div>'+
     '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+upcoming.length+'</div><div class="stat-hint">Next 7 days: '+soon+'</div></div>'+
     '<div class="stat"><div class="stat-lbl">Completed</div><div class="stat-val">'+completed.length+'</div><div class="stat-hint">All time</div></div>'+
@@ -347,37 +333,39 @@ function renderAll(){
   var html='';
   jobs.forEach(function(j){
     var mf=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;
-    var ms=!searchTerm||(j.clientName+' '+(j.site||'')).toLowerCase().indexOf(searchTerm)!==-1;
+    var ms=!searchTerm||(j.client_name+' '+(j.site||'')).toLowerCase().indexOf(searchTerm)!==-1;
     if(mf&&ms)html+=renderRow(j);
   });
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
 }
+function reload(cb){
+  sb.from('jobs').select('*').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
+}
+
 var pills=document.querySelectorAll('.f-pill');
 pills.forEach(function(p){
   p.addEventListener('click',function(){
     pills.forEach(function(x){x.classList.remove('on');});
-    this.classList.add('on');
-    activeFilter=this.getAttribute('data-filter');
-    renderAll();
+    this.classList.add('on');activeFilter=this.getAttribute('data-filter');renderAll();
   });
 });
+
 var modal=document.getElementById('job-modal');
 function openModal(j){
   editingJobId=j?j.id:null;
   document.querySelector('#job-modal .modal-title').textContent=j?'Edit job':'New job';
   document.getElementById('job-modal-save').textContent=j?'Save changes':'Add job';
-  var clients=loadClients();
   var sel=document.getElementById('jf-client');
   sel.innerHTML='<option value="">Select client…</option>';
-  clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+  allClients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
   sel.addEventListener('change',function(){
-    var found=null;clients.forEach(function(c){if(c.id===sel.value)found=c;});
+    var found=null;allClients.forEach(function(c){if(c.id===sel.value)found=c;});
     var siteEl=document.getElementById('jf-site');
-    if(!siteEl.value&&found&&found.siteAddress)siteEl.value=found.siteAddress;
+    if(!siteEl.value&&found&&found.site_address)siteEl.value=found.site_address;
   });
   if(j){
     document.getElementById('jf-date').value=j.date||'';
-    sel.value=j.clientId||'';
+    sel.value=j.client_id||'';
     document.getElementById('jf-site').value=j.site||'';
     document.getElementById('jf-type').value=j.type||'maintenance';
     document.getElementById('jf-status').value=j.status||'upcoming';
@@ -388,8 +376,7 @@ function openModal(j){
   setTimeout(function(){document.getElementById(j?'jf-date':'jf-client').focus();},40);
 }
 function closeModal(){
-  modal.hidden=true;
-  editingJobId=null;
+  modal.hidden=true;editingJobId=null;
   document.querySelector('#job-modal .modal-title').textContent='New job';
   document.getElementById('job-modal-save').textContent='Add job';
   ['jf-date','jf-site'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
@@ -399,67 +386,65 @@ document.getElementById('job-modal-close').addEventListener('click',closeModal);
 document.getElementById('job-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
 document.addEventListener('keydown',function(e){
-  if(e.key!=='Escape') return;
+  if(e.key!=='Escape')return;
   if(!modal.hidden){closeModal();return;}
-  if(openId){
-    var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');
-    if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}
-    openId=null;
-  }
+  if(openId){var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}openId=null;}
 });
+
 document.getElementById('job-modal-save').addEventListener('click',function(){
   var date=document.getElementById('jf-date').value;
   if(!date){document.getElementById('jf-date').focus();return;}
   var sel=document.getElementById('jf-client');
   if(!sel.value){sel.focus();return;}
   var clientName=sel.selectedIndex>0?sel.options[sel.selectedIndex].text:'';
-  var jobs=load()||[];
-  if(editingJobId){
-    jobs.forEach(function(j){if(j.id===editingJobId){j.date=date;j.clientId=sel.value;j.clientName=clientName;j.site=document.getElementById('jf-site').value.trim();j.type=document.getElementById('jf-type').value;j.status=document.getElementById('jf-status').value;}});
-  } else {
-    jobs.unshift({id:'j'+Date.now(),date:date,clientId:sel.value,clientName:clientName,site:document.getElementById('jf-site').value.trim(),type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value});
-  }
-  save(jobs);
   var site=document.getElementById('jf-site').value.trim();
-  if(site&&sel.value){
-    var cls=loadClients();
-    var updated=false;
-    cls.forEach(function(c){if(c.id===sel.value&&!c.siteAddress){c.siteAddress=site;updated=true;}});
-    if(updated)localStorage.setItem(CLIENT_KEY,JSON.stringify(cls));
+  var row={date:date,client_id:sel.value,client_name:clientName,site:site,
+    type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value};
+  if(editingJobId){
+    sb.from('jobs').update(row).eq('id',editingJobId).then(function(){
+      // Backfill client site_address if blank
+      if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
+        if(found)sb.from('clients').update({site_address:site}).eq('id',found.id);}
+      closeModal();reload();
+    });
+  } else {
+    sb.from('jobs').insert(row).then(function(){
+      if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
+        if(found)sb.from('clients').update({site_address:site}).eq('id',found.id);}
+      closeModal();reload();
+    });
   }
-  closeModal();renderAll();
 });
+
 function updateJobStatus(id,newStatus){
-  var jobs=load()||[];
-  jobs.forEach(function(j){if(j.id===id)j.status=newStatus;});
-  save(jobs);renderAll();
+  sb.from('jobs').update({status:newStatus}).eq('id',id).then(function(){
+    allJobs.forEach(function(j){if(j.id===id)j.status=newStatus;});renderAll();
+  });
 }
 function deleteJob(id){
   if(!confirm('Delete this job? This cannot be undone.'))return;
-  var jobs=load()||[];
-  // Delete the job and any generated instances linked to it
-  jobs=jobs.filter(function(j){return j.id!==id&&j.sourceJobId!==id;});
-  save(jobs);
-  openId=null;renderAll();
+  // Also delete generated instances (source_job_id match)
+  sb.from('jobs').delete().eq('source_job_id',id).then(function(){
+    sb.from('jobs').delete().eq('id',id).then(function(){openId=null;reload();});
+  });
 }
 function updateJobRepeat(id,newRepeat){
-  var jobs=load()||[];
-  var today=new Date();today.setHours(0,0,0,0);
-  var ts=iso(today);
-  // Remove future generated instances for this template
-  jobs=jobs.filter(function(j){return !(j.sourceJobId===id&&j.date>ts&&j.status==='upcoming');});
-  jobs.forEach(function(j){if(j.id===id)j.repeat=newRepeat;});
-  save(jobs);
-  if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate();
-  renderAll();
+  var today=iso(new Date());
+  // Delete future generated instances for this template
+  sb.from('jobs').delete().eq('source_job_id',id).eq('status','upcoming').gt('date',today).then(function(){
+    sb.from('jobs').update({repeat:newRepeat}).eq('id',id).then(function(){
+      reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
+    });
+  });
 }
+
 document.getElementById('jl-body').addEventListener('click',function(e){
   var actionEl=e.target.closest('[data-action]');
   if(actionEl){
     var wid=actionEl.closest('.xp-wrap').dataset.id;
     var act=actionEl.dataset.action;
     if(act==='delete')deleteJob(wid);
-    else if(act==='edit'){var jobs2=load()||[];var found=null;jobs2.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
+    else if(act==='edit'){var found=null;allJobs.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
     else updateJobStatus(wid,act);
     return;
   }
@@ -467,23 +452,18 @@ document.getElementById('jl-body').addEventListener('click',function(e){
   if(!row)return;
   var wrap=row.parentElement;
   var id=wrap.dataset.id;
-  if(openId===id){
-    wrap.classList.remove('open');
-    wrap.querySelector('.xp-body').classList.remove('open');
-    openId=null;
-  } else {
+  if(openId===id){wrap.classList.remove('open');wrap.querySelector('.xp-body').classList.remove('open');openId=null;}
+  else{
     if(openId){var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}}
-    wrap.classList.add('open');
-    wrap.querySelector('.xp-body').classList.add('open');
-    openId=id;
+    wrap.classList.add('open');wrap.querySelector('.xp-body').classList.add('open');openId=id;
   }
 });
 document.getElementById('jl-body').addEventListener('change',function(e){
   var sel=e.target.closest('.xp-repeat-sel');
   if(!sel)return;
-  var wid=sel.closest('.xp-wrap').dataset.id;
-  updateJobRepeat(wid,sel.value);
+  updateJobRepeat(sel.closest('.xp-wrap').dataset.id,sel.value);
 });
+
 var mob=document.getElementById('mob-menu');
 var mOverlay=document.getElementById('mob-overlay');
 function navClose(){document.body.classList.remove('mob-open');}
@@ -491,17 +471,28 @@ if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('m
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
 var searchEl=document.getElementById('job-search');
 if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
-renderAll();
-if(getParam('newjob')==='1'){
-  openModal();
-  var cid=getParam('cid');
-  if(cid)setTimeout(function(){
-    document.getElementById('jf-client').value=cid;
-    var cls=JSON.parse(localStorage.getItem('mq_clients')||'[]');
-    var found=cls.find(function(c){return c.id===cid;});
-    if(found&&found.siteAddress)document.getElementById('jf-site').value=found.siteAddress;
-  },50);
-}
+
+// Initial load
+sb.from('clients').select('id,name,site_address').order('name').then(function(cr){
+  allClients=cr.data||[];
+  sb.from('jobs').select('*').then(function(jr){
+    allJobs=jr.data||[];
+    renderAll();
+    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('*').then(function(r2){allJobs=r2.data||[];renderAll();});});
+    if(getParam('newjob')==='1'){
+      openModal();
+      var cid=getParam('cid');
+      if(cid){
+        setTimeout(function(){
+          document.getElementById('jf-client').value=cid;
+          var found=null;allClients.forEach(function(c){if(c.id===cid)found=c;});
+          if(found&&found.site_address)document.getElementById('jf-site').value=found.site_address;
+        },50);
+      }
+    }
+  });
+});
+
 }); // end requireAuth
 })();
 </script>

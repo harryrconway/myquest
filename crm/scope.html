@@ -264,36 +264,22 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 (function(){
 'use strict';
 window.MQ.requireAuth(function(){
-if(localStorage.getItem('mq_v')!=='3'){
-  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','3');
-}
-var KEY='mq_scopes';
-var CLIENT_KEY='mq_clients';
-var JOB_KEY='mq_jobs';
+var sb=MQ.sb;
 var editingId=null;
+var allClients=[];
 
 function uid(){return '_'+Math.random().toString(36).slice(2,9);}
-function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
-function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-function loadClients(){try{var s=localStorage.getItem(CLIENT_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
-function loadJobs(){try{var s=localStorage.getItem(JOB_KEY);return s?JSON.parse(s):[];}catch(e){return[];}}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 var FREQ_OPTS=[
-  {v:'daily',l:'Daily'},
-  {v:'weekly',l:'Weekly'},
-  {v:'fortnightly',l:'Fortnightly'},
-  {v:'monthly',l:'Monthly'},
-  {v:'quarterly',l:'Quarterly'},
-  {v:'as-needed',l:'As needed'}
+  {v:'daily',l:'Daily'},{v:'weekly',l:'Weekly'},{v:'fortnightly',l:'Fortnightly'},
+  {v:'monthly',l:'Monthly'},{v:'quarterly',l:'Quarterly'},{v:'as-needed',l:'As needed'}
 ];
-function freqOpts(sel){
-  return FREQ_OPTS.map(function(o){
-    return '<option value="'+o.v+'"'+(sel===o.v?' selected':'')+'>'+o.l+'</option>';
-  }).join('');
-}
+var FREQ_LABELS={daily:'Daily',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly',quarterly:'Quarterly','as-needed':'As needed'};
 
+function freqOpts(sel){
+  return FREQ_OPTS.map(function(o){return'<option value="'+o.v+'"'+(sel===o.v?' selected':'')+'>'+o.l+'</option>';}).join('');
+}
 function taskHTML(t){
   return '<div class="sa-task'+(t.done?' done':'')+'" data-task-id="'+esc(t.id)+'">'+
     '<span class="sa-check-box" data-check="1"></span>'+
@@ -302,98 +288,83 @@ function taskHTML(t){
     '<button class="sa-task-rm" data-rm-task="1" title="Remove task">&times;</button>'+
   '</div>';
 }
-
 function areaHTML(a){
-  var tasks=(a.tasks||[]).map(taskHTML).join('');
   return '<div class="scope-area" data-area-id="'+esc(a.id)+'">'+
     '<div class="sa-header">'+
       '<input class="sa-name" type="text" placeholder="Area name — e.g. Reception, Level 2, Bathrooms…" value="'+esc(a.name||'')+'" autocomplete="off">'+
       '<button class="sa-remove" data-rm-area="1">Remove area</button>'+
     '</div>'+
-    '<div class="sa-tasks">'+tasks+'</div>'+
+    '<div class="sa-tasks">'+((a.tasks||[]).map(taskHTML).join(''))+'</div>'+
     '<div class="sa-footer">'+
       '<button class="sa-add-task" data-add-task="1">+ Add task</button>'+
       '<textarea class="sa-notes" placeholder="Area notes (optional)…" rows="1">'+esc(a.notes||'')+'</textarea>'+
     '</div>'+
   '</div>';
 }
-
 function renderAreas(areas){
   var el=document.getElementById('scope-areas');
-  if(!areas||!areas.length){
-    el.innerHTML='<div class="empty-areas"><p>Walk through the building and add each area below.</p></div>';
-    return;
-  }
+  if(!areas||!areas.length){el.innerHTML='<div class="empty-areas"><p>Walk through the building and add each area below.</p></div>';return;}
   el.innerHTML=areas.map(areaHTML).join('');
 }
-
 function addArea(){
   var el=document.getElementById('scope-areas');
-  var existing=el.querySelectorAll('.scope-area');
-  if(el.querySelector('.empty-areas')) el.innerHTML='';
+  if(el.querySelector('.empty-areas'))el.innerHTML='';
   var a={id:uid(),name:'',tasks:[{id:uid(),text:'',freq:'weekly'}],notes:''};
-  var div=document.createElement('div');
-  div.innerHTML=areaHTML(a);
+  var div=document.createElement('div');div.innerHTML=areaHTML(a);
   el.appendChild(div.firstChild);
-  var areaEl=el.lastElementChild;
-  areaEl.querySelector('.sa-name').focus();
+  el.lastElementChild.querySelector('.sa-name').focus();
 }
-
 function addTask(areaEl){
   var tasksEl=areaEl.querySelector('.sa-tasks');
   var t={id:uid(),text:'',freq:'weekly'};
-  var div=document.createElement('div');
-  div.innerHTML=taskHTML(t);
+  var div=document.createElement('div');div.innerHTML=taskHTML(t);
   tasksEl.appendChild(div.firstChild);
   tasksEl.lastElementChild.querySelector('.sa-task-text').focus();
 }
-
 function readScope(){
-  var name=document.getElementById('scope-name').value.trim();
   var clientSel=document.getElementById('scope-client');
   var clientId=clientSel.value;
   var clientName=clientId&&clientSel.selectedIndex>0?clientSel.options[clientSel.selectedIndex].text:'';
-  var site=document.getElementById('scope-site').value.trim();
-  var date=document.getElementById('scope-date').value;
-  var globalNotes=document.getElementById('scope-global-notes').value.trim();
   var areas=[];
   document.querySelectorAll('.scope-area').forEach(function(aEl){
-    var areaId=aEl.dataset.areaId;
     var areaName=aEl.querySelector('.sa-name').value.trim();
     var tasks=[];
     aEl.querySelectorAll('.sa-task').forEach(function(tEl){
       var text=tEl.querySelector('.sa-task-text').value.trim();
-      if(!text) return;
+      if(!text)return;
       tasks.push({id:tEl.dataset.taskId,text:text,freq:tEl.querySelector('.sa-freq').value,done:tEl.classList.contains('done')});
     });
     var notes=aEl.querySelector('.sa-notes').value.trim();
-    if(areaName||tasks.length) areas.push({id:areaId,name:areaName,tasks:tasks,notes:notes});
+    if(areaName||tasks.length)areas.push({id:aEl.dataset.areaId,name:areaName,tasks:tasks,notes:notes});
   });
-  return {id:editingId||null,name:name,clientId:clientId,clientName:clientName,site:site,date:date,areas:areas,globalNotes:globalNotes};
+  return {
+    name:document.getElementById('scope-name').value.trim(),
+    client_id:clientId,client_name:clientName,
+    site:document.getElementById('scope-site').value.trim(),
+    date:document.getElementById('scope-date').value||null,
+    areas:areas,
+    global_notes:document.getElementById('scope-global-notes').value.trim()
+  };
 }
-
+function flashSaved(){
+  ['scope-save-btn','scope-save-btn-2'].forEach(function(id){
+    var b=document.getElementById(id);var orig=b.textContent;
+    b.textContent='Saved ✓';setTimeout(function(){b.textContent=orig;},1800);
+  });
+}
 function saveScope(){
   var sc=readScope();
   if(!sc.name&&!sc.areas.length){alert('Add a scope name or at least one area first.');return;}
-  if(!sc.name) sc.name=(sc.clientName||'Untitled scope');
-  var scopes=load();
-  if(sc.id){
-    scopes=scopes.map(function(x){return x.id===sc.id?sc:x;});
+  if(!sc.name)sc.name=sc.client_name||'Untitled scope';
+  if(editingId){
+    sb.from('scopes').update(sc).eq('id',editingId).then(function(){flashSaved();renderSavedList();});
   } else {
-    sc.id='sc'+Date.now();
-    scopes.unshift(sc);
+    sb.from('scopes').insert(sc).select('id').single().then(function(r){
+      if(r.data)editingId=r.data.id;
+      flashSaved();renderSavedList();
+    });
   }
-  editingId=sc.id;
-  save(scopes);
-  renderSavedList();
-  ['scope-save-btn','scope-save-btn-2'].forEach(function(id){
-    var b=document.getElementById(id);
-    var orig=b.textContent;
-    b.textContent='Saved ✓';
-    setTimeout(function(){b.textContent=orig;},1800);
-  });
 }
-
 function resetEditor(){
   editingId=null;
   document.getElementById('scope-name').value='';
@@ -404,90 +375,76 @@ function resetEditor(){
   renderAreas([]);
   document.getElementById('scope-name').focus();
 }
-
 function loadIntoEditor(sc){
   editingId=sc.id;
   document.getElementById('scope-name').value=sc.name||'';
-  document.getElementById('scope-client').value=sc.clientId||'';
+  document.getElementById('scope-client').value=sc.client_id||'';
   document.getElementById('scope-site').value=sc.site||'';
   document.getElementById('scope-date').value=sc.date||'';
-  document.getElementById('scope-global-notes').value=sc.globalNotes||'';
+  document.getElementById('scope-global-notes').value=sc.global_notes||'';
   renderAreas(sc.areas||[]);
   document.getElementById('scope-name').scrollIntoView({behavior:'smooth',block:'start'});
 }
-
-function fmtDate(iso){
-  if(!iso) return '';
-  var d=new Date(iso+'T00:00:00');
+function fmtDate(s){
+  if(!s)return'';var d=new Date(s+'T00:00:00');
   return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();
 }
-
-var FREQ_LABELS={daily:'Daily',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly',quarterly:'Quarterly','as-needed':'As needed'};
 function renderScopeView(sc){
   var areas=(sc.areas||[]).map(function(a){
     var tasks=(a.tasks||[]).map(function(t){
-      return '<div class="sv-task">'+
-        '<div class="sv-check'+(t.done?' done':'')+'"></div>'+
+      return '<div class="sv-task"><div class="sv-check'+(t.done?' done':'')+'"></div>'+
         '<span class="sv-task-text'+(t.done?' done':'')+'">'+esc(t.text||'')+'</span>'+
-        '<span class="sv-freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span>'+
-      '</div>'+
-      (a.notes?'<div class="sv-notes">'+esc(a.notes)+'</div>':'');
+        '<span class="sv-freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span></div>'+
+        (a.notes?'<div class="sv-notes">'+esc(a.notes)+'</div>':'');
     }).join('');
-    return '<div class="sv-area">'+
-      '<div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+
-      tasks+
-    '</div>';
+    return '<div class="sv-area"><div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+tasks+'</div>';
   }).join('');
-  var global=sc.globalNotes?('<div class="sv-global"><div class="sv-global-lbl">General notes</div>'+esc(sc.globalNotes)+'</div>'):'';
-  return areas+global+
-    '<div class="sv-footer">'+
-      '<button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button>'+
-    '</div>';
+  var global=sc.global_notes?('<div class="sv-global"><div class="sv-global-lbl">General notes</div>'+esc(sc.global_notes)+'</div>'):'';
+  return areas+global+'<div class="sv-footer"><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button></div>';
 }
-
 function renderSavedList(){
-  var scopes=load();
-  var sec=document.getElementById('saved-scopes-section');
-  var list=document.getElementById('saved-scopes-list');
-  if(!scopes.length){sec.hidden=true;return;}
-  sec.hidden=false;
-  list.innerHTML=scopes.map(function(sc){
-    return '<div class="ss-wrap" data-scope-id="'+esc(sc.id)+'">'+
-      '<div class="ss-row">'+
-        '<div>'+
+  sb.from('scopes').select('*').order('created_at',{ascending:false}).then(function(r){
+    var scopes=r.data||[];
+    var sec=document.getElementById('saved-scopes-section');
+    var list=document.getElementById('saved-scopes-list');
+    if(!scopes.length){sec.hidden=true;return;}
+    sec.hidden=false;
+    list.innerHTML=scopes.map(function(sc){
+      return '<div class="ss-wrap" data-scope-id="'+esc(sc.id)+'">'+
+        '<div class="ss-row"><div>'+
           '<div class="ss-name">'+esc(sc.name||'Untitled scope')+'</div>'+
           (sc.site?'<div class="ss-site">'+esc(sc.site)+'</div>':'')+
-          '<div class="ss-sub">'+esc(sc.clientName||'')+'</div>'+
+          '<div class="ss-sub">'+esc(sc.client_name||'')+'</div></div>'+
+          '<div class="ss-date">'+fmtDate(sc.date)+'</div>'+
+          '<div style="display:flex;align-items:center;gap:8px">'+
+            '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete</button>'+
+            '<span class="ss-arr">›</span>'+
+          '</div>'+
         '</div>'+
-        '<div class="ss-date">'+fmtDate(sc.date)+'</div>'+
-        '<div style="display:flex;align-items:center;gap:8px">'+
-          '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete</button>'+
-          '<span class="ss-arr">›</span>'+
-        '</div>'+
-      '</div>'+
-      '<div class="ss-body"><div class="ss-inner">'+renderScopeView(sc)+'</div></div>'+
-    '</div>';
-  }).join('');
+        '<div class="ss-body"><div class="ss-inner">'+renderScopeView(sc)+'</div></div>'+
+      '</div>';
+    }).join('');
+  });
 }
 
 function init(){
-  var clients=loadClients();
-  var sel=document.getElementById('scope-client');
-  sel.innerHTML='<option value="">Select client…</option>';
-  clients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-  sel.addEventListener('change',function(){
-    var found=null;clients.forEach(function(c){if(c.id===sel.value)found=c;});
-    var siteInput=document.getElementById('scope-site');
-    if(found&&found.siteAddress){
-      siteInput.value=found.siteAddress;
-    } else if(found){
-      var jobs=loadJobs();
-      var clientJobs=jobs.filter(function(j){return j.clientId===found.id&&j.site;});
-      clientJobs.sort(function(a,b){return a.date<b.date?1:-1;});
-      siteInput.value=clientJobs.length?clientJobs[0].site:'';
-    } else {
-      siteInput.value='';
-    }
+  sb.from('clients').select('id,name,site_address').order('name').then(function(r){
+    allClients=r.data||[];
+    var sel=document.getElementById('scope-client');
+    sel.innerHTML='<option value="">Select client…</option>';
+    allClients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
+    sel.addEventListener('change',function(){
+      var found=null;allClients.forEach(function(c){if(c.id===sel.value)found=c;});
+      var siteInput=document.getElementById('scope-site');
+      if(found&&found.site_address){
+        siteInput.value=found.site_address;
+      } else if(found){
+        sb.from('jobs').select('site').eq('client_id',found.id).not('site','is',null).order('date',{ascending:false}).limit(1)
+          .then(function(jr){siteInput.value=(jr.data&&jr.data[0])?jr.data[0].site:'';});
+      } else {
+        siteInput.value='';
+      }
+    });
   });
   document.getElementById('scope-date').valueAsDate=new Date();
   renderAreas([]);
@@ -509,11 +466,9 @@ document.getElementById('scope-areas').addEventListener('click',function(e){
   if(addTask2){addTask(addTask2.closest('.scope-area'));return;}
   var rmArea=e.target.closest('[data-rm-area]');
   if(rmArea){
-    var aEl=rmArea.closest('.scope-area');
-    aEl.remove();
-    if(!document.querySelector('.scope-area')){
+    rmArea.closest('.scope-area').remove();
+    if(!document.querySelector('.scope-area'))
       document.getElementById('scope-areas').innerHTML='<div class="empty-areas"><p>Walk through the building and add each area below.</p></div>';
-    }
     return;
   }
 });
@@ -521,17 +476,17 @@ document.getElementById('scope-areas').addEventListener('click',function(e){
 document.getElementById('saved-scopes-list').addEventListener('click',function(e){
   var delBtn=e.target.closest('[data-del-id]');
   if(delBtn){
-    if(!confirm('Delete this scope?')) return;
+    if(!confirm('Delete this scope?'))return;
     var id=delBtn.dataset.delId;
-    save(load().filter(function(x){return x.id!==id;}));
-    if(editingId===id) resetEditor();
-    renderSavedList();
+    sb.from('scopes').delete().eq('id',id).then(function(){
+      if(editingId===id)resetEditor();
+      renderSavedList();
+    });
     return;
   }
   var editBtn=e.target.closest('[data-edit-id]');
   if(editBtn){
-    var sc=load().find(function(x){return x.id===editBtn.dataset.editId;});
-    if(sc) loadIntoEditor(sc);
+    sb.from('scopes').select('*').eq('id',editBtn.dataset.editId).single().then(function(r){if(r.data)loadIntoEditor(r.data);});
     return;
   }
   var row=e.target.closest('.ss-row');
@@ -539,28 +494,19 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
     var wrap=row.closest('.ss-wrap');
     var body=wrap.querySelector('.ss-body');
     var isOpen=wrap.classList.contains('open');
-    document.querySelectorAll('.ss-wrap.open').forEach(function(w){
-      w.classList.remove('open');
-      w.querySelector('.ss-body').classList.remove('open');
-    });
+    document.querySelectorAll('.ss-wrap.open').forEach(function(w){w.classList.remove('open');w.querySelector('.ss-body').classList.remove('open');});
     if(!isOpen){wrap.classList.add('open');body.classList.add('open');}
   }
 });
 
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') document.activeElement.blur();
-});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.activeElement.blur();});
+
+var btn=document.getElementById('mob-menu-btn');
+var overlay=document.getElementById('mob-overlay');
+if(btn)btn.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(overlay)overlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')document.body.classList.remove('mob-open');});
 
 init();
-
-function wireMobileNav(){
-  var btn=document.getElementById('mob-menu-btn');
-  var overlay=document.getElementById('mob-overlay');
-  if(!btn||!overlay) return;
-  btn.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-  overlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A'){document.body.classList.remove('mob-open');}});
-}
-wireMobileNav();
 
 }); // end requireAuth
 })();

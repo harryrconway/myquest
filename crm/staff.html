@@ -219,62 +219,73 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 (function(){
 'use strict';
 window.MQ.requireAuth(function(){
-if(localStorage.getItem('mq_v')!=='3'){
-  Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-  localStorage.setItem('mq_v','3');
+var sb=MQ.sb;
+var activeFilter='all',searchTerm='',editingId=null;
+var allStaff=[];
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function initials(name){var p=name.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
+function displayDate(iso){if(!iso)return'';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
+function tenureText(iso){
+  if(!iso)return'';var start=new Date(iso+'T00:00:00');var now=new Date();var diff=now-start;
+  if(diff<0)return'Not started';var days=Math.floor(diff/86400000);
+  if(days===0)return'Today';if(days===1)return'1 day';if(days<7)return days+' days';
+  if(days<30){var wks=Math.floor(days/7);return wks===1?'1 week':wks+' weeks';}
+  var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());
+  if(totalMo<12)return totalMo===1?'1 month':totalMo+' months';
+  var yrs=Math.floor(totalMo/12),rem=totalMo%12;
+  return(yrs===1?'1 yr':yrs+' yrs')+(rem?' '+rem+' mo':'');
 }
-var KEY='mq_staff';
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-function initials(name){var parts=name.trim().split(/\s+/);return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
-function pad2(n){return n<10?'0'+n:String(n);}
-function parseStartDate(since){if(!since)return null;if(/^\d{4}-\d{2}-\d{2}$/.test(since))return new Date(since+'T00:00:00');var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return null;return new Date(+p[1],mi,1);}
-function displaySince(since){if(!since)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(since)){var d=new Date(since+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}return since;}
-function sinceToIso(since){if(!since)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(since))return since;var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=since.split(' ');var mi=mo.indexOf(p[0]);if(mi<0||!p[1])return '';return p[1]+'-'+pad2(mi+1)+'-01';}
-function tenureText(since){var start=parseStartDate(since);if(!start)return '';var now=new Date();var diff=now-start;if(diff<0)return 'Not started';var days=Math.floor(diff/(24*3600*1000));if(days===0)return 'Today';if(days===1)return '1 day';if(days<7)return days+' days';if(days<30){var wks=Math.floor(days/7);return wks===1?'1 week':wks+' weeks';}var totalMo=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());if(totalMo<12)return totalMo===1?'1 month':totalMo+' months';var yrs=Math.floor(totalMo/12),rem=totalMo%12;return(yrs===1?'1 yr':yrs+' yrs')+(rem?' '+rem+' mo':'');}
+
 function renderCard(s){
+  var badgeCls=s.status==='on-leave'?'onboarding':s.status==='left'?'declined':'active';
+  var badgeLbl=s.status==='on-leave'?'On leave':s.status==='left'?'Resigned':'Active';
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
-      '<div class="sc-av">'+esc(s.initials)+'</div>'+
-      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+esc(s.role)+'</div></div>'+
-      '<span class="badge '+(s.status==='on-leave'?'onboarding':s.status==='left'?'declined':'active')+'" style="margin-left:auto">'+(s.status==='on-leave'?'On leave':s.status==='left'?'Resigned':'Active')+'</span>'+
+      '<div class="sc-av">'+initials(s.name||'?')+'</div>'+
+      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+esc(s.role||'')+'</div></div>'+
+      '<span class="badge '+badgeCls+'" style="margin-left:auto">'+badgeLbl+'</span>'+
     '</div>'+
     (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
     (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
-    (s.since?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+esc(displaySince(s.since))+'<span class="sc-tenure"> · '+esc(tenureText(s.since))+'</span></span></div>':'')+
+    (s.start_date?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+displayDate(s.start_date)+'<span class="sc-tenure"> · '+tenureText(s.start_date)+'</span></span></div>':'')+
   '</div>';
 }
+
 function renderAll(){
-  var staff=load()||[];
-  var active=staff.filter(function(s){return(s.status||'active')==='active';}).length;
+  var active=allStaff.filter(function(s){return(s.status||'active')==='active';}).length;
+  var yr=new Date().getFullYear();
+  var newThisYear=allStaff.filter(function(s){return s.start_date&&s.start_date.slice(0,4)===String(yr);}).length;
+  var roles=[];
+  allStaff.forEach(function(s){if(s.role&&roles.indexOf(s.role)===-1)roles.push(s.role);});
   var statsEl=document.querySelector('.stats');
-  if(statsEl) statsEl.innerHTML=
-    '<div class="stat"><div class="stat-lbl">Total staff</div><div class="stat-val">'+staff.length+'</div><div class="stat-hint">'+active+' active</div></div>'+
+  if(statsEl)statsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">Total staff</div><div class="stat-val">'+allStaff.length+'</div><div class="stat-hint">'+active+' active</div></div>'+
     '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+active+'</div><div class="stat-hint">On the team</div></div>'+
-    '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+[...new Set(staff.map(function(s){return s.role;}))].length+'</div><div class="stat-hint">Distinct roles</div></div>'+
-    '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+staff.filter(function(s){return s.since&&s.since.indexOf(String(new Date().getFullYear()))!==-1;}).length+'</div><div class="stat-hint">Joined in '+new Date().getFullYear()+'</div></div>';
-  var visible=staff.filter(function(s){
+    '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+roles.length+'</div><div class="stat-hint">Distinct roles</div></div>'+
+    '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+newThisYear+'</div><div class="stat-hint">Joined in '+yr+'</div></div>';
+  var visible=allStaff.filter(function(s){
     var mf=activeFilter==='all'||(s.status||'active')===activeFilter;
     var ms=!searchTerm||(s.name+' '+(s.role||'')).toLowerCase().indexOf(searchTerm)!==-1;
     return mf&&ms;
   });
-  var grid=document.getElementById('staff-grid');
-  grid.innerHTML=visible.map(renderCard).join('')||'<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff match your filter.</div>';
+  document.getElementById('staff-grid').innerHTML=visible.map(renderCard).join('')||
+    '<div style="padding:28px 0;color:var(--stone);font-size:13px">No staff match your filter.</div>';
 }
-var activeFilter='all';
-var searchTerm='';
+
+function reload(){
+  sb.from('staff').select('*').order('name').then(function(r){allStaff=r.data||[];renderAll();});
+}
+
 var modal=document.getElementById('staff-modal');
 var saveBtn=document.getElementById('staff-modal-save');
 var delBtn=document.getElementById('staff-modal-delete');
 var titleEl=document.getElementById('staff-modal-title');
-var editingId=null;
+
 function openNewModal(){
   editingId=null;
-  titleEl.textContent='Add staff member';
-  saveBtn.textContent='Add staff';
-  delBtn.hidden=true;
-  ['sf-name','sf-phone','sf-email'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  titleEl.textContent='Add staff member';saveBtn.textContent='Add staff';delBtn.hidden=true;
+  ['sf-name','sf-phone','sf-email'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('sf-role').value='Cleaner';
   document.getElementById('sf-status').value='active';
   document.getElementById('sf-since').valueAsDate=new Date();
@@ -283,72 +294,70 @@ function openNewModal(){
 }
 function openEditModal(s){
   editingId=s.id;
-  titleEl.textContent='Edit staff member';
-  saveBtn.textContent='Save changes';
-  delBtn.hidden=false;
+  titleEl.textContent='Edit staff member';saveBtn.textContent='Save changes';delBtn.hidden=false;
   document.getElementById('sf-name').value=s.name||'';
   document.getElementById('sf-role').value=s.role||'Cleaner';
   document.getElementById('sf-phone').value=s.phone||'';
   document.getElementById('sf-email').value=s.email||'';
-  document.getElementById('sf-since').value=sinceToIso(s.since)||'';
+  document.getElementById('sf-since').value=s.start_date||'';
   document.getElementById('sf-status').value=s.status||'active';
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
 }
-function closeModal(){
-  modal.hidden=true;
-  editingId=null;
-}
+function closeModal(){modal.hidden=true;editingId=null;}
+
 document.getElementById('new-staff-btn').addEventListener('click',openNewModal);
 document.getElementById('staff-modal-close').addEventListener('click',closeModal);
 document.getElementById('staff-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden) closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden)closeModal();});
+
 delBtn.addEventListener('click',function(){
   if(!editingId)return;
   if(!confirm('Remove this staff member? This cannot be undone.'))return;
-  save((load()||[]).filter(function(s){return s.id!==editingId;}));
-  closeModal();renderAll();
+  sb.from('staff').delete().eq('id',editingId).then(function(){closeModal();reload();});
 });
+
 saveBtn.addEventListener('click',function(){
   var name=document.getElementById('sf-name').value.trim();
   if(!name){document.getElementById('sf-name').focus();return;}
-  var sinceIso=document.getElementById('sf-since').value;
-  var staff=load()||[];
+  var row={name:name,role:document.getElementById('sf-role').value,
+    phone:document.getElementById('sf-phone').value.trim(),
+    email:document.getElementById('sf-email').value.trim(),
+    start_date:document.getElementById('sf-since').value||null,
+    status:document.getElementById('sf-status').value};
   if(editingId){
-    staff=staff.map(function(s){
-      if(s.id!==editingId)return s;
-      return {id:s.id,name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso||s.since,status:document.getElementById('sf-status').value};
-    });
+    sb.from('staff').update(row).eq('id',editingId).then(function(){closeModal();reload();});
   } else {
-    staff.push({id:'s'+Date.now(),name:name,initials:initials(name),role:document.getElementById('sf-role').value,phone:document.getElementById('sf-phone').value.trim(),email:document.getElementById('sf-email').value.trim(),since:sinceIso||'',status:document.getElementById('sf-status').value});
+    sb.from('staff').insert(row).then(function(){closeModal();reload();});
   }
-  save(staff);closeModal();renderAll();
 });
+
 document.getElementById('staff-grid').addEventListener('click',function(e){
   var card=e.target.closest('.staff-card');
   if(!card)return;
   var sid=card.dataset.id;
-  var s;(load()||[]).forEach(function(x){if(x.id===sid)s=x;});
-  if(s)openEditModal(s);
+  var found=null;allStaff.forEach(function(s){if(s.id===sid)found=s;});
+  if(found)openEditModal(found);
 });
+
 var sfPills=document.querySelectorAll('.f-pill[data-sf]');
 sfPills.forEach(function(p){
   p.addEventListener('click',function(){
     sfPills.forEach(function(x){x.classList.remove('on');});
-    this.classList.add('on');
-    activeFilter=this.getAttribute('data-sf');
-    renderAll();
+    this.classList.add('on');activeFilter=this.getAttribute('data-sf');renderAll();
   });
 });
+
 var staffSearchEl=document.getElementById('staff-search');
 if(staffSearchEl)staffSearchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
+
 var mob=document.getElementById('mob-menu');
 var mOverlay=document.getElementById('mob-overlay');
-function navClose(){document.body.classList.remove('mob-open');}
 if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
-renderAll();
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')document.body.classList.remove('mob-open');});
+
+reload();
 }); // end requireAuth
 })();
 </script>

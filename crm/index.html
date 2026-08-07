@@ -404,501 +404,411 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260806"></script>
 <script src="datepicker.js?v=20260807"></script>
-<script src="schedules.js?v=20260806"></script>
+<script src="schedules.js?v=20260807"></script>
 <script>
 (function(){
-  'use strict';
-  window.MQ.requireAuth(function(){
-  if(window.mqGenerate)window.mqGenerate();
+'use strict';
+window.MQ.requireAuth(function(){
+var sb=MQ.sb;
+var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var TL2={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 
-  if(localStorage.getItem('mq_v')!=='3'){
-    Object.keys(localStorage).filter(function(k){return k.indexOf('mq_')===0;}).forEach(function(k){localStorage.removeItem(k);});
-    localStorage.setItem('mq_v','3');
-  }
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDateShort(iso){if(!iso)return'—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
+function fmtNextClean(iso){if(!iso)return null;var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' · '+DAYS[d.getDay()];}
+function contractStatus(ct){
+  if(!ct.end_date)return{cls:'active',lbl:'Ongoing'};
+  var today=new Date();today.setHours(0,0,0,0);
+  var end=new Date(ct.end_date+'T00:00:00');
+  var soon=new Date();soon.setDate(soon.getDate()+60);
+  if(end<today)return{cls:'expired',lbl:'Expired'};
+  if(end<=soon)return{cls:'expiring',lbl:'Expiring soon'};
+  return{cls:'active',lbl:'Active'};
+}
+var CT_TYPE_LABELS={'12-month':'12-month','6-month':'6-month','ongoing':'Ongoing','trial':'Trial','ad-hoc':'Ad hoc'};
+function renderContractRow(ct){
+  var typeLbl=CT_TYPE_LABELS[ct.type]||ct.type||'Contract';
+  var dates='';
+  if(ct.start_date||ct.end_date)dates=(ct.start_date?fmtDateShort(ct.start_date):'—')+' → '+(ct.end_date?fmtDateShort(ct.end_date):'ongoing');
+  var st=contractStatus(ct);
+  return '<div class="cd-row ct-clickable" data-ct-id="'+esc(ct.id)+'">'+
+    '<div class="cd-num">'+esc(typeLbl)+'</div>'+
+    '<div class="cd-desc">'+esc(dates)+(ct.pdf_path?'<span class="ct-has-pdf">PDF</span>':'')+(ct.notes?'<div style="font-size:10.5px;color:var(--stone);margin-top:2px">'+esc(ct.notes)+'</div>':'')+'</div>'+
+    '<span class="badge '+st.cls+'" style="font-size:8.5px;white-space:nowrap">'+st.lbl+'</span>'+
+  '</div>';
+}
 
-  var KEY='mq_clients';
-  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var allClients=[],allJobs=[],allContracts=[];
+var activeFilter='all',searchTerm='';
 
-  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function load(){try{var s=localStorage.getItem(KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
-  function save(d){localStorage.setItem(KEY,JSON.stringify(d));}
-  function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
-  function loadFromKey(key){try{var s=localStorage.getItem(key);return s?JSON.parse(s):[];}catch(e){return[];}}
-  function fmtDateShort(iso){if(!iso)return '—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
-  function fmtNextClean(iso){if(!iso)return null;var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' · '+DAYS[d.getDay()];}
+function loadAll(cb){
+  sb.from('clients').select('*').order('name').then(function(r1){
+    allClients=r1.data||[];
+    sb.from('jobs').select('id,client_id,date,type,status,site').then(function(r2){
+      allJobs=r2.data||[];
+      sb.from('contracts').select('*').then(function(r3){
+        allContracts=r3.data||[];
+        if(cb)cb();
+      });
+    });
+  });
+}
 
-  // Contract helpers
-  function loadContracts(cid){try{var all=JSON.parse(localStorage.getItem('mq_contracts')||'[]');return all.filter(function(x){return x.clientId===cid;});}catch(e){return[];}}
-  function saveContractData(ct){
-    try{
-      var all=JSON.parse(localStorage.getItem('mq_contracts')||'[]');
-      var idx=-1;all.forEach(function(x,i){if(x.id===ct.id)idx=i;});
-      if(idx>=0)all[idx]=ct;else all.unshift(ct);
-      localStorage.setItem('mq_contracts',JSON.stringify(all));
-      return true;
-    }catch(e){
-      if(e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'){alert('The PDF is too large to store locally. Try compressing it first.');}
-      return false;
-    }
-  }
-  function deleteContractData(cid){try{var all=JSON.parse(localStorage.getItem('mq_contracts')||'[]');localStorage.setItem('mq_contracts',JSON.stringify(all.filter(function(x){return x.id!==cid;})));}catch(e){}}
-  function contractStatus(ct){
-    if(!ct.endDate)return{cls:'active',lbl:'Ongoing'};
-    var today=new Date();today.setHours(0,0,0,0);
-    var end=new Date(ct.endDate+'T00:00:00');
-    var soon=new Date();soon.setDate(soon.getDate()+60);
-    if(end<today)return{cls:'expired',lbl:'Expired'};
-    if(end<=soon)return{cls:'expiring',lbl:'Expiring soon'};
-    return{cls:'active',lbl:'Active'};
-  }
-  var CT_TYPE_LABELS={'12-month':'12-month','6-month':'6-month','ongoing':'Ongoing','trial':'Trial','ad-hoc':'Ad hoc'};
-  function renderContractRow(ct){
-    var typeLbl=CT_TYPE_LABELS[ct.type]||ct.type||'Contract';
-    var dates='';
-    if(ct.startDate||ct.endDate)dates=(ct.startDate?fmtDateShort(ct.startDate):'—')+' → '+(ct.endDate?fmtDateShort(ct.endDate):'ongoing');
+function buildClientDetail(c,jobs,contracts){
+  var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
+  var bl=(c.status||'active');bl=bl.charAt(0).toUpperCase()+bl.slice(1);
+  var hdr='<div class="ci-hd">'+
+    '<div class="ci-badge-row"><span class="ci-name">'+esc(c.name)+'</span><span class="badge '+bc+'">'+bl+'</span>'+
+    '<button class="ci-edit-btn" data-edit-id="'+esc(c.id)+'">Edit client</button></div>'+
+    (c.industry?'<div class="ci-industry">'+esc(c.industry)+'</div>':'')+
+    '<div class="ci-meta">'+
+    (c.contact?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'+esc(c.contact)+(c.contact_title?' · <span style="opacity:.7">'+esc(c.contact_title)+'</span>':'')+'</div>':'')+
+    (c.email?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a></div>':'')+
+    (c.phone?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:'+esc(c.phone.replace(/\s/g,''))+'">'+esc(c.phone)+'</a></div>':'')+
+    (c.site_address?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+esc(c.site_address)+'</div>':'')+
+    '</div></div>';
+  jobs.sort(function(a,b){return a.date>b.date?-1:1;});
+  var jobsHtml=jobs.length?jobs.map(function(j){
+    var lbl=TL2[j.type]||j.type||'Clean';
+    var cls=j.status==='completed'?'done':'next';
+    var dateStr='—';
+    if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+MONTHS[dd.getMonth()]+'<br>'+DAYS[dd.getDay()];}
+    return '<div class="ci-job '+cls+'"><div class="ci-job-date">'+dateStr+'</div>'+
+      '<div><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div></div>';
+  }).join(''):'<div class="ci-empty">No jobs yet.</div>';
+  var ctHtml=contracts.length?contracts.map(renderContractRow).join(''):'<div class="ct-empty">No contracts on file.</div>';
+  var notesHtml=c.notes?'<div class="ci-notes-txt">'+esc(c.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
+  var left='<div class="ci-sh">Jobs</div><div class="ci-panel">'+jobsHtml+'</div>'+
+    '<div class="ci-sh" style="margin-top:18px"><span>Contracts</span><button class="ci-add-btn" data-add-contract="'+esc(c.id)+'">+ Add</button></div>'+
+    '<div class="ci-panel ci-contracts">'+ctHtml+'</div>';
+  var emailBtn=c.email?'<button class="ci-act-btn" data-action="email" data-email="'+esc(c.email)+'">'+
+    '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send email</button>':'';
+  var right='<div class="ci-sh"><span>Notes</span><button class="ci-add-btn" data-notes-edit="'+esc(c.id)+'">Edit</button></div>'+
+    '<div class="ci-panel ci-notes-panel">'+notesHtml+'</div>'+
+    '<div class="ci-sh" style="margin-top:18px">Actions</div>'+
+    '<div class="ci-panel">'+
+      '<button class="ci-act-btn" data-action="job" data-cid="'+esc(c.id)+'" data-cname="'+esc(c.name)+'">'+
+        '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>'+
+        'Schedule a clean</button>'+emailBtn+
+    '</div>'+
+    '<button class="ci-del-btn" data-delete-id="'+esc(c.id)+'">Delete client</button>';
+  return hdr+'<div class="ci-grid"><div>'+left+'</div><div>'+right+'</div></div>';
+}
+
+function expandWrap(wrap){
+  var cid=wrap.dataset.id;
+  var c=null;allClients.forEach(function(x){if(x.id===cid)c=x;});
+  if(!c)return;
+  var body=wrap.querySelector('.cl-body');
+  body.innerHTML='<div class="cl-inner"><div style="padding:24px;color:var(--stone);font-size:13px">Loading…</div></div>';
+  wrap.classList.add('open');body.classList.add('open');
+  sb.from('jobs').select('*').eq('client_id',cid).order('date',{ascending:false}).then(function(jr){
+    sb.from('contracts').select('*').eq('client_id',cid).order('created_at',{ascending:false}).then(function(cr){
+      body.innerHTML='<div class="cl-inner">'+buildClientDetail(c,jr.data||[],cr.data||[])+'</div>';
+    });
+  });
+}
+function reExpandClient(cid){
+  var wrap=document.querySelector('.cl-wrap[data-id="'+cid+'"]');
+  if(wrap&&wrap.classList.contains('open'))expandWrap(wrap);
+}
+
+function renderStats(){
+  var active=allClients.filter(function(c){return c.status==='active';}).length;
+  var onb=allClients.filter(function(c){return c.status==='onboarding';}).length;
+  var activeContracts=0,expiring=0;
+  allContracts.forEach(function(ct){var st=contractStatus(ct);if(st.cls==='active')activeContracts++;if(st.cls==='expiring')expiring++;});
+  var dow=new Date().getDay()||7;
+  var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
+  var sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  var cleansThisWeek=allJobs.filter(function(j){return j.date>=mon.toISOString().slice(0,10)&&j.date<=sun.toISOString().slice(0,10);}).length;
+  var el=document.getElementById('stats-strip');if(!el)return;
+  el.innerHTML='<div class="stat"><div class="stat-lbl">Total clients</div><div class="stat-val">'+allClients.length+'</div><div class="stat-hint">'+(active?' '+active+' active':'—')+(onb?' · '+onb+' onboarding':'')+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">'+cleansThisWeek+'</div><div class="stat-hint">Mon – Sun</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Active contracts</div><div class="stat-val">'+activeContracts+'</div><div class="stat-hint">Across all clients</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Expiring soon</div><div class="stat-val">'+expiring+'</div><div class="stat-hint">Within 60 days</div></div>';
+}
+function renderRow(c,nc,ctSt){
+  var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
+  var bl=(c.status||'active');bl=bl.charAt(0).toUpperCase()+bl.slice(1);
+  var ncStr=fmtNextClean(nc);
+  var ctCol=ctSt?'<span class="badge '+ctSt.cls+'" style="font-size:8.5px">'+ctSt.lbl+'</span>':'<span style="color:var(--stone);font-size:12px">—</span>';
+  var sub=c.contact?(esc(c.contact)+(c.email?' <span style="opacity:.4">·</span> <span style="color:var(--stone)">'+esc(c.email)+'</span>':'')):'';
+  return '<div class="cl-wrap" data-id="'+esc(c.id)+'">'+
+    '<div class="cl-row"><div><div class="cl-name">'+esc(c.name)+'</div>'+(sub?'<div class="cl-sub">'+sub+'</div>':'')+
+    '<span class="cl-industry">'+esc(c.industry||'Other')+'</span></div>'+
+    '<div><span class="badge '+bc+'">'+bl+'</span></div>'+
+    '<div class="'+(ncStr?'cl-next':'cl-next blank')+'">'+(ncStr||'—')+'</div>'+
+    '<div>'+ctCol+'</div>'+
+    '<div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>'+
+    '<div class="cl-body"></div></div>';
+}
+function renderAll(){
+  renderStats();
+  var today=new Date().toISOString().slice(0,10);
+  var nextMap={};
+  allJobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;})
+    .sort(function(a,b){return a.date<b.date?-1:1;})
+    .forEach(function(j){if(!nextMap[j.client_id])nextMap[j.client_id]=j.date;});
+  var ctStatusMap={};
+  allContracts.forEach(function(ct){
     var st=contractStatus(ct);
-    return '<div class="cd-row ct-clickable" data-ct-id="'+esc(ct.id)+'">'+
-      '<div class="cd-num">'+esc(typeLbl)+'</div>'+
-      '<div class="cd-desc">'+esc(dates)+(ct.pdfData?'<span class="ct-has-pdf">PDF</span>':'')+(ct.notes?'<div style="font-size:10.5px;color:var(--stone);margin-top:2px">'+esc(ct.notes)+'</div>':'')+'</div>'+
-      '<span class="badge '+st.cls+'" style="font-size:8.5px;white-space:nowrap">'+st.lbl+'</span>'+
-    '</div>';
+    var prev=ctStatusMap[ct.client_id];
+    if(!prev||st.cls==='expiring'||(st.cls==='active'&&prev.cls!=='expiring'))ctStatusMap[ct.client_id]=st;
+  });
+  var body=document.getElementById('cl-body');
+  if(!allClients.length){body.innerHTML='<div class="cl-empty">No clients yet — add your first one above.</div>';return;}
+  var html='';
+  allClients.forEach(function(c){
+    var mf=activeFilter==='all'||activeFilter===c.status;
+    var ms=!searchTerm||(c.name+' '+(c.contact||'')+' '+(c.email||'')).toLowerCase().indexOf(searchTerm)!==-1;
+    if(mf&&ms)html+=renderRow(c,nextMap[c.id]||null,ctStatusMap[c.id]||null);
+  });
+  body.innerHTML=html||'<div class="cl-empty">No clients match your filter.</div>';
+}
+function reload(cb){loadAll(function(){renderAll();if(cb)cb();});}
+
+// Event delegation
+document.getElementById('cl-body').addEventListener('click',function(e){
+  var editBtn=e.target.closest('[data-edit-id]');
+  if(editBtn){openEditModal(editBtn.dataset.editId);return;}
+  var notesEditBtn=e.target.closest('[data-notes-edit]');
+  if(notesEditBtn){
+    var cid=notesEditBtn.dataset.notesEdit;
+    var panel=notesEditBtn.closest('.cl-body').querySelector('.ci-notes-panel');
+    var c=null;allClients.forEach(function(x){if(x.id===cid)c=x;});
+    if(panel&&c){
+      panel.innerHTML='<textarea class="ci-notes-ta">'+esc(c.notes||'')+'</textarea>'+
+        '<div class="ci-notes-save"><button class="cancel-btn" style="font-size:12px;padding:6px 12px" data-notes-cancel>Cancel</button>'+
+        '<button class="ph-btn" style="font-size:12px;padding:6px 14px" data-notes-save="'+esc(cid)+'">Save</button></div>';
+      panel.querySelector('.ci-notes-ta').focus();
+    }return;
   }
-
-  // Build accordion inner HTML for a client
-  function buildClientDetail(c){
-    var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
-    var bl=(c.status||'active');bl=bl.charAt(0).toUpperCase()+bl.slice(1);
-
-    var hdr='<div class="ci-hd">'+
-      '<div class="ci-badge-row">'+
-        '<span class="ci-name">'+esc(c.name)+'</span>'+
-        '<span class="badge '+bc+'">'+bl+'</span>'+
-        '<button class="ci-edit-btn" data-edit-id="'+esc(c.id)+'">Edit client</button>'+
-      '</div>'+
-      (c.industry?'<div class="ci-industry">'+esc(c.industry)+'</div>':'')+
-      '<div class="ci-meta">'+
-        (c.contact?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'+esc(c.contact)+(c.contactTitle?' · <span style="opacity:.7">'+esc(c.contactTitle)+'</span>':'')+'</div>':'')+
-        (c.email?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a></div>':'')+
-        (c.phone?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:'+esc(c.phone.replace(/\s/g,''))+'">'+esc(c.phone)+'</a></div>':'')+
-        (c.siteAddress?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+esc(c.siteAddress)+'</div>':'')+
-      '</div>'+
-    '</div>';
-
-    // Jobs
-    var today=new Date().toISOString().slice(0,10);
-    var allJobs=loadFromKey('mq_jobs').filter(function(j){return j.clientId===c.id;});
-    allJobs.sort(function(a,b){return a.date>b.date?-1:1;});
-    var TL={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
-    var jobsHtml=allJobs.length?allJobs.map(function(j){
-      var lbl=TL[j.type]||j.type||'Clean';
-      var cls=j.status==='completed'?'done':'next';
-      var dateStr='—';
-      if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+MONTHS[dd.getMonth()]+'<br>'+DAYS[dd.getDay()];}
-      return '<div class="ci-job '+cls+'">'+
-        '<div class="ci-job-date">'+dateStr+'</div>'+
-        '<div><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div>'+
-      '</div>';
-    }).join(''):'<div class="ci-empty">No jobs yet.</div>';
-
-    // Contracts
-    var contracts=loadContracts(c.id);
-    var ctHtml=contracts.length?contracts.map(renderContractRow).join(''):'<div class="ct-empty">No contracts on file.</div>';
-
-    // Notes
-    var notesHtml=c.notes?'<div class="ci-notes-txt">'+esc(c.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
-
-    var left=
-      '<div class="ci-sh">Jobs</div>'+
-      '<div class="ci-panel">'+jobsHtml+'</div>'+
-      '<div class="ci-sh" style="margin-top:18px"><span>Contracts</span><button class="ci-add-btn" data-add-contract="'+esc(c.id)+'">+ Add</button></div>'+
-      '<div class="ci-panel ci-contracts">'+ctHtml+'</div>';
-
-    var emailBtn=c.email?
-      '<button class="ci-act-btn" data-action="email" data-email="'+esc(c.email)+'">'+
-        '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'+
-        'Send email'+
-      '</button>':'';
-
-    var right=
-      '<div class="ci-sh"><span>Notes</span><button class="ci-add-btn" data-notes-edit="'+esc(c.id)+'">Edit</button></div>'+
-      '<div class="ci-panel ci-notes-panel">'+notesHtml+'</div>'+
-      '<div class="ci-sh" style="margin-top:18px">Actions</div>'+
-      '<div class="ci-panel">'+
-        '<button class="ci-act-btn" data-action="job" data-cid="'+esc(c.id)+'" data-cname="'+esc(c.name)+'">'+
-          '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>'+
-          'Schedule a clean'+
-        '</button>'+
-        emailBtn+
-      '</div>'+
-      '<button class="ci-del-btn" data-delete-id="'+esc(c.id)+'">Delete client</button>';
-
-    return hdr+'<div class="ci-grid"><div>'+left+'</div><div>'+right+'</div></div>';
+  if(e.target.closest('[data-notes-cancel]')){
+    var wrap0=e.target.closest('.cl-wrap');
+    var c0=null;allClients.forEach(function(x){if(x.id===(wrap0?wrap0.dataset.id:''))c0=x;});
+    var panel0=e.target.closest('.ci-notes-panel');
+    if(panel0&&c0)panel0.innerHTML=c0.notes?'<div class="ci-notes-txt">'+esc(c0.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
+    return;
   }
-
-  function expandWrap(wrap){
-    var cid=wrap.dataset.id;
-    var clients=load()||[];
-    var c=null;clients.forEach(function(x){if(x.id===cid)c=x;});
-    if(!c) return;
-    var body=wrap.querySelector('.cl-body');
-    body.innerHTML='<div class="cl-inner">'+buildClientDetail(c)+'</div>';
-    wrap.classList.add('open');
-    body.classList.add('open');
-  }
-
-  // Stats
-  function renderStats(clients,cleansThisWeek,activeContracts,expiring){
-    var total=clients.length;
-    var active=clients.filter(function(c){return c.status==='active';}).length;
-    var onb=clients.filter(function(c){return c.status==='onboarding';}).length;
-    var el=document.getElementById('stats-strip');
-    if(!el)return;
-    el.innerHTML=
-      '<div class="stat"><div class="stat-lbl">Total clients</div><div class="stat-val">'+total+'</div><div class="stat-hint">'+(active?' '+active+' active':'—')+(onb?' · '+onb+' onboarding':'')+'</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">'+cleansThisWeek+'</div><div class="stat-hint">Mon – Sun</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Active contracts</div><div class="stat-val">'+activeContracts+'</div><div class="stat-hint">Across all clients</div></div>'+
-      '<div class="stat"><div class="stat-lbl">Expiring soon</div><div class="stat-val">'+expiring+'</div><div class="stat-hint">Within 60 days</div></div>';
-  }
-
-  function renderRow(c,nc,ctSt){
-    var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
-    var bl=(c.status||'active');bl=bl.charAt(0).toUpperCase()+bl.slice(1);
-    var ncStr=fmtNextClean(nc);
-    var ncCl=ncStr?'cl-next':'cl-next blank';
-    var ctCol=ctSt?'<span class="badge '+ctSt.cls+'" style="font-size:8.5px">'+ctSt.lbl+'</span>':'<span style="color:var(--stone);font-size:12px">—</span>';
-    var sub=c.contact?(esc(c.contact)+(c.email?' <span style="opacity:.4">·</span> <span style="color:var(--stone)">'+esc(c.email)+'</span>':'')):'';
-    return '<div class="cl-wrap" data-id="'+esc(c.id)+'">'+
-      '<div class="cl-row">'+
-        '<div><div class="cl-name">'+esc(c.name)+'</div>'+(sub?'<div class="cl-sub">'+sub+'</div>':'')+
-        '<span class="cl-industry">'+esc(c.industry||'Other')+'</span></div>'+
-        '<div><span class="badge '+bc+'">'+bl+'</span></div>'+
-        '<div class="'+ncCl+'">'+(ncStr||'—')+'</div>'+
-        '<div>'+ctCol+'</div>'+
-        '<div class="cl-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
-      '</div>'+
-      '<div class="cl-body"></div>'+
-    '</div>';
-  }
-
-  var activeFilter='all',searchTerm='';
-
-  function renderAll(){
-    var clients=load()||[];
-    var jobs=loadFromKey('mq_jobs');
-    var allContracts=loadFromKey('mq_contracts');
-    var today=new Date().toISOString().slice(0,10);
-    var nextMap={};
-    jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;})
-      .sort(function(a,b){return a.date<b.date?-1:1;})
-      .forEach(function(j){if(!nextMap[j.clientId])nextMap[j.clientId]=j.date;});
-    var ctStatusMap={};
-    var activeContracts=0,expiring=0;
-    allContracts.forEach(function(ct){
-      var st=contractStatus(ct);
-      if(st.cls==='active')activeContracts++;
-      if(st.cls==='expiring')expiring++;
-      var prev=ctStatusMap[ct.clientId];
-      if(!prev||st.cls==='expiring'||(st.cls==='active'&&prev.cls!=='expiring'))ctStatusMap[ct.clientId]=st;
-    });
-    var dow=new Date().getDay()||7;
-    var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
-    var sun=new Date(mon);sun.setDate(mon.getDate()+6);
-    var cleansThisWeek=jobs.filter(function(j){return j.date>=mon.toISOString().slice(0,10)&&j.date<=sun.toISOString().slice(0,10);}).length;
-    renderStats(clients,cleansThisWeek,activeContracts,expiring);
-    var body=document.getElementById('cl-body');
-    if(!clients.length){body.innerHTML='<div class="cl-empty">No clients yet — add your first one above.</div>';return;}
-    var html='';
-    clients.forEach(function(c){
-      var mf=activeFilter==='all'||activeFilter===c.status;
-      var ms=!searchTerm||(c.name+' '+(c.contact||'')+' '+(c.email||'')).toLowerCase().indexOf(searchTerm)!==-1;
-      if(mf&&ms)html+=renderRow(c,nextMap[c.id]||null,ctStatusMap[c.id]||null);
-    });
-    body.innerHTML=html||'<div class="cl-empty">No clients match your filter.</div>';
-  }
-
-  // Accordion + inner action delegation
-  document.getElementById('cl-body').addEventListener('click',function(e){
-    // Edit client
-    var editBtn=e.target.closest('[data-edit-id]');
-    if(editBtn){openEditModal(editBtn.dataset.editId);return;}
-
-    // Notes: open editor
-    var notesEditBtn=e.target.closest('[data-notes-edit]');
-    if(notesEditBtn){
-      var cid=notesEditBtn.dataset.notesEdit;
-      var panel=notesEditBtn.closest('.cl-body').querySelector('.ci-notes-panel');
-      var clients=load()||[];var c=null;clients.forEach(function(x){if(x.id===cid)c=x;});
-      if(panel&&c){
-        panel.innerHTML=
-          '<textarea class="ci-notes-ta">'+esc(c.notes||'')+'</textarea>'+
-          '<div class="ci-notes-save">'+
-            '<button class="cancel-btn" style="font-size:12px;padding:6px 12px" data-notes-cancel>Cancel</button>'+
-            '<button class="ph-btn" style="font-size:12px;padding:6px 14px" data-notes-save="'+esc(cid)+'">Save</button>'+
-          '</div>';
-        panel.querySelector('.ci-notes-ta').focus();
-      }
-      return;
-    }
-
-    // Notes: cancel
-    if(e.target.closest('[data-notes-cancel]')){
-      var wrap0=e.target.closest('.cl-wrap');
-      var cid0=wrap0?wrap0.dataset.id:'';
-      var clients0=load()||[];var c0=null;clients0.forEach(function(x){if(x.id===cid0)c0=x;});
-      var panel0=e.target.closest('.ci-notes-panel');
-      if(panel0&&c0)panel0.innerHTML=c0.notes?'<div class="ci-notes-txt">'+esc(c0.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
-      return;
-    }
-
-    // Notes: save
-    var notesSaveBtn=e.target.closest('[data-notes-save]');
-    if(notesSaveBtn){
-      var cidN=notesSaveBtn.dataset.notesSave;
-      var ta=notesSaveBtn.closest('.ci-notes-panel').querySelector('.ci-notes-ta');
-      var val=ta?ta.value.trim():'';
-      var clients1=load()||[];clients1.forEach(function(x){if(x.id===cidN)x.notes=val;});
-      save(clients1);
-      var panel1=notesSaveBtn.closest('.ci-notes-panel');
+  var notesSaveBtn=e.target.closest('[data-notes-save]');
+  if(notesSaveBtn){
+    var cidN=notesSaveBtn.dataset.notesSave;
+    var ta=notesSaveBtn.closest('.ci-notes-panel').querySelector('.ci-notes-ta');
+    var val=ta?ta.value.trim():'';
+    var panel1=notesSaveBtn.closest('.ci-notes-panel');
+    sb.from('clients').update({notes:val}).eq('id',cidN).then(function(){
+      allClients.forEach(function(x){if(x.id===cidN)x.notes=val;});
       if(panel1)panel1.innerHTML=val?'<div class="ci-notes-txt">'+esc(val)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
-      return;
-    }
+    });return;
+  }
+  var addCtBtn=e.target.closest('[data-add-contract]');
+  if(addCtBtn){openCtModal(null,addCtBtn.dataset.addContract);return;}
+  var ctRow=e.target.closest('.ct-clickable[data-ct-id]');
+  if(ctRow){
+    var wrapCt=ctRow.closest('.cl-wrap');
+    sb.from('contracts').select('*').eq('id',ctRow.dataset.ctId).single().then(function(r){
+      if(r.data)openCtModal(r.data,wrapCt?wrapCt.dataset.id:'');
+    });return;
+  }
+  var actBtn=e.target.closest('[data-action]');
+  if(actBtn){
+    if(actBtn.dataset.action==='job')window.location.href='jobs.html?newjob=1&cid='+encodeURIComponent(actBtn.dataset.cid)+'&cname='+encodeURIComponent(actBtn.dataset.cname);
+    if(actBtn.dataset.action==='email'&&actBtn.dataset.email)window.location.href='mailto:'+encodeURIComponent(actBtn.dataset.email);
+    return;
+  }
+  var delBtn=e.target.closest('[data-delete-id]');
+  if(delBtn){
+    var name4='';allClients.forEach(function(x){if(x.id===delBtn.dataset.deleteId)name4=x.name;});
+    if(!confirm('Delete '+name4+'? Jobs, contracts and scopes will also be deleted.'))return;
+    sb.from('clients').delete().eq('id',delBtn.dataset.deleteId).then(function(){reload();});
+    return;
+  }
+  var row=e.target.closest('.cl-row');
+  if(row){
+    var wrap=row.closest('.cl-wrap');
+    var isOpen=wrap.classList.contains('open');
+    document.querySelectorAll('#cl-body .cl-wrap.open').forEach(function(w){w.classList.remove('open');w.querySelector('.cl-body').classList.remove('open');});
+    if(!isOpen)expandWrap(wrap);
+  }
+});
 
-    // Add contract
-    var addCtBtn=e.target.closest('[data-add-contract]');
-    if(addCtBtn){openCtModal(null,addCtBtn.dataset.addContract);return;}
+document.querySelectorAll('.f-pill').forEach(function(p){
+  p.addEventListener('click',function(){
+    document.querySelectorAll('.f-pill').forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');activeFilter=this.getAttribute('data-filter');renderAll();
+  });
+});
+var searchEl=document.querySelector('.search');
+if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
 
-    // Edit contract
-    var ctRow=e.target.closest('.ct-clickable[data-ct-id]');
-    if(ctRow){
-      var ctId=ctRow.dataset.ctId;
-      var wrapCt=ctRow.closest('.cl-wrap');
-      var cidCt=wrapCt?wrapCt.dataset.id:'';
-      var cts=loadContracts(cidCt);
-      var found=null;cts.forEach(function(x){if(x.id===ctId)found=x;});
-      if(found)openCtModal(found,cidCt);
-      return;
-    }
+// New client modal
+var overlay=document.getElementById('modal-overlay');
+function openModal(){overlay.hidden=false;setTimeout(function(){document.getElementById('f-name').focus();},40);}
+function closeModal(){
+  overlay.hidden=true;
+  ['f-name','f-contact','f-phone','f-email','f-site-address'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-industry').value='Commercial office';
+}
+document.getElementById('new-client-btn').addEventListener('click',openModal);
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-cancel').addEventListener('click',closeModal);
+overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
+document.getElementById('modal-save').addEventListener('click',function(){
+  var name=document.getElementById('f-name').value.trim();
+  if(!name){document.getElementById('f-name').focus();return;}
+  sb.from('clients').insert({name:name,industry:document.getElementById('f-industry').value,status:'active',
+    contact:document.getElementById('f-contact').value.trim(),contact_title:'',
+    phone:document.getElementById('f-phone').value.trim(),email:document.getElementById('f-email').value.trim(),
+    site_address:document.getElementById('f-site-address').value.trim(),notes:''}).select('id').then(function(r){
+    if(r.error){alert(r.error.message);return;}
+    var newId=r.data[0].id;
+    closeModal();reload(function(){setTimeout(function(){var w=document.querySelector('.cl-wrap[data-id="'+newId+'"]');if(w)expandWrap(w);},50);});
+  });
+});
 
-    // Actions
-    var actBtn=e.target.closest('[data-action]');
-    if(actBtn){
-      var action=actBtn.dataset.action;
-      if(action==='job')window.location.href='jobs.html?newjob=1&cid='+encodeURIComponent(actBtn.dataset.cid)+'&cname='+encodeURIComponent(actBtn.dataset.cname);
-      if(action==='email'&&actBtn.dataset.email)window.location.href='mailto:'+encodeURIComponent(actBtn.dataset.email);
-      return;
-    }
+// Edit client modal
+var editModal=document.getElementById('edit-modal');
+var editingClientId=null;
+function openEditModal(cid){
+  var c=null;allClients.forEach(function(x){if(x.id===cid)c=x;});if(!c)return;
+  editingClientId=cid;
+  document.getElementById('ef-name').value=c.name||'';
+  document.getElementById('ef-industry').value=c.industry||'Commercial office';
+  document.getElementById('ef-status').value=c.status||'active';
+  document.getElementById('ef-contact').value=c.contact||'';
+  document.getElementById('ef-ctitle').value=c.contact_title||'';
+  document.getElementById('ef-phone').value=c.phone||'';
+  document.getElementById('ef-email').value=c.email||'';
+  document.getElementById('ef-site-address').value=c.site_address||'';
+  editModal.hidden=false;setTimeout(function(){document.getElementById('ef-name').focus();},40);
+}
+function closeEditModal(){editModal.hidden=true;editingClientId=null;}
+document.getElementById('edit-modal-close').addEventListener('click',closeEditModal);
+document.getElementById('edit-modal-cancel').addEventListener('click',closeEditModal);
+editModal.addEventListener('click',function(e){if(e.target===editModal)closeEditModal();});
+document.getElementById('edit-modal-save').addEventListener('click',function(){
+  var name=document.getElementById('ef-name').value.trim();
+  if(!name){document.getElementById('ef-name').focus();return;}
+  var savedId=editingClientId;
+  sb.from('clients').update({name:name,industry:document.getElementById('ef-industry').value,
+    status:document.getElementById('ef-status').value,contact:document.getElementById('ef-contact').value.trim(),
+    contact_title:document.getElementById('ef-ctitle').value.trim(),phone:document.getElementById('ef-phone').value.trim(),
+    email:document.getElementById('ef-email').value.trim(),site_address:document.getElementById('ef-site-address').value.trim()
+  }).eq('id',savedId).then(function(){
+    closeEditModal();reload(function(){setTimeout(function(){var w=document.querySelector('.cl-wrap[data-id="'+savedId+'"]');if(w)expandWrap(w);},50);});
+  });
+});
+document.getElementById('edit-modal-delete').addEventListener('click',function(){
+  if(!editingClientId)return;
+  var name='';allClients.forEach(function(c){if(c.id===editingClientId)name=c.name;});
+  if(!confirm('Delete '+name+'? This cannot be undone.'))return;
+  sb.from('clients').delete().eq('id',editingClientId).then(function(){closeEditModal();reload();});
+});
 
-    // Delete client
-    var delBtn=e.target.closest('[data-delete-id]');
-    if(delBtn){
-      var cid4=delBtn.dataset.deleteId;
-      var clients4=load()||[];var name4='';clients4.forEach(function(x){if(x.id===cid4)name4=x.name;});
-      if(!confirm('Delete '+name4+'? This cannot be undone.'))return;
-      save(clients4.filter(function(x){return x.id!==cid4;}));
-      ['mq_jobs','mq_quotes','mq_invoices','mq_contracts','mq_scopes'].forEach(function(k){
-        try{var items=JSON.parse(localStorage.getItem(k)||'[]');localStorage.setItem(k,JSON.stringify(items.filter(function(x){return x.clientId!==cid4;})));}catch(e){}
+// Contract modal
+var ctModal=document.getElementById('contract-modal');
+var ctClientId=null,editingCtId=null,pendingPdfFile=null,existingPdfPath=null;
+function viewPdf(path){
+  sb.storage.from('contract-pdfs').createSignedUrl(path,3600).then(function(r){
+    if(r.data&&r.data.signedUrl)window.open(r.data.signedUrl,'_blank');
+  });
+}
+function renderPdfUi(){
+  var ui=document.getElementById('ct-pdf-ui');if(!ui)return;
+  if(pendingPdfFile){
+    ui.innerHTML='<span class="ct-pdf-name">'+esc(pendingPdfFile.name)+'</span><button type="button" class="ct-pdf-clear" id="ct-pdf-clear-btn">Remove</button>';
+    document.getElementById('ct-pdf-clear-btn').addEventListener('click',function(){pendingPdfFile=null;renderPdfUi();});
+  } else if(existingPdfPath){
+    ui.innerHTML='<button type="button" class="ct-pdf-view" id="ct-pdf-view-btn">View PDF</button> <button type="button" class="ct-pdf-replace" id="ct-pdf-replace-btn">Replace…</button>';
+    document.getElementById('ct-pdf-view-btn').addEventListener('click',function(){viewPdf(existingPdfPath);});
+    document.getElementById('ct-pdf-replace-btn').addEventListener('click',function(){document.getElementById('ct-pdf-file').click();});
+  } else {
+    ui.innerHTML='<button type="button" class="ct-upload-btn" id="ct-pdf-attach-btn">Attach PDF…</button>';
+    document.getElementById('ct-pdf-attach-btn').addEventListener('click',function(){document.getElementById('ct-pdf-file').click();});
+  }
+}
+document.getElementById('ct-pdf-file').addEventListener('change',function(){
+  var file=this.files[0];if(!file)return;
+  pendingPdfFile=file;existingPdfPath=null;renderPdfUi();this.value='';
+});
+function openCtModal(ct,cid){
+  ctClientId=cid||ctClientId;editingCtId=ct?ct.id:null;
+  pendingPdfFile=null;existingPdfPath=ct&&ct.pdf_path?ct.pdf_path:null;
+  document.getElementById('ct-modal-title').textContent=ct?'Edit contract':'Add contract';
+  document.getElementById('ct-modal-delete').hidden=!ct;
+  document.getElementById('ct-type').value=ct&&ct.type?ct.type:'12-month';
+  document.getElementById('ct-value').value=ct&&ct.value?ct.value:'';
+  document.getElementById('ct-start').value=ct&&ct.start_date?ct.start_date:'';
+  document.getElementById('ct-end').value=ct&&ct.end_date?ct.end_date:'';
+  document.getElementById('ct-renewal').value=ct&&ct.renewal_date?ct.renewal_date:'';
+  document.getElementById('ct-signed').value=ct&&ct.signed_date?ct.signed_date:'';
+  document.getElementById('ct-notes').value=ct&&ct.notes?ct.notes:'';
+  renderPdfUi();ctModal.hidden=false;
+  setTimeout(function(){document.getElementById('ct-type').focus();},40);
+}
+function closeCtModal(){ctModal.hidden=true;editingCtId=null;pendingPdfFile=null;existingPdfPath=null;}
+document.getElementById('ct-modal-close').addEventListener('click',closeCtModal);
+document.getElementById('ct-modal-cancel').addEventListener('click',closeCtModal);
+ctModal.addEventListener('click',function(e){if(e.target===ctModal)closeCtModal();});
+document.getElementById('ct-modal-save').addEventListener('click',function(){
+  var ctData={client_id:ctClientId,type:document.getElementById('ct-type').value,
+    value:parseInt(document.getElementById('ct-value').value)||0,
+    start_date:document.getElementById('ct-start').value||null,
+    end_date:document.getElementById('ct-end').value||null,
+    renewal_date:document.getElementById('ct-renewal').value||null,
+    signed_date:document.getElementById('ct-signed').value||null,
+    notes:document.getElementById('ct-notes').value.trim(),
+    pdf_path:existingPdfPath};
+  var cid=ctClientId;
+  var btn=document.getElementById('ct-modal-save');btn.disabled=true;btn.textContent='Saving…';
+  function afterSave(ctId){
+    if(pendingPdfFile){
+      var path=ctId+'.pdf';
+      sb.storage.from('contract-pdfs').upload(path,pendingPdfFile,{upsert:true}).then(function(sr){
+        sb.from('contracts').update({pdf_path:sr.error?null:path}).eq('id',ctId).then(function(){
+          btn.disabled=false;btn.textContent='Save contract';closeCtModal();reload(function(){reExpandClient(cid);});
+        });
       });
-      renderAll();
-      return;
-    }
-
-    // Accordion row toggle
-    var row=e.target.closest('.cl-row');
-    if(row){
-      var wrap=row.closest('.cl-wrap');
-      var isOpen=wrap.classList.contains('open');
-      document.querySelectorAll('#cl-body .cl-wrap.open').forEach(function(w){
-        w.classList.remove('open');
-        w.querySelector('.cl-body').classList.remove('open');
-      });
-      if(!isOpen)expandWrap(wrap);
-    }
-  });
-
-  // Filter pills
-  document.querySelectorAll('.f-pill').forEach(function(p){
-    p.addEventListener('click',function(){
-      document.querySelectorAll('.f-pill').forEach(function(x){x.classList.remove('on');});
-      this.classList.add('on');
-      activeFilter=this.getAttribute('data-filter');
-      renderAll();
+    } else {btn.disabled=false;btn.textContent='Save contract';closeCtModal();reload(function(){reExpandClient(cid);});}
+  }
+  if(editingCtId){
+    sb.from('contracts').update(ctData).eq('id',editingCtId).then(function(r){
+      if(r.error){btn.disabled=false;btn.textContent='Save contract';alert(r.error.message);return;}
+      afterSave(editingCtId);
     });
-  });
-
-  // Search
-  var searchEl=document.querySelector('.search');
-  if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.trim().toLowerCase();renderAll();});
-
-  // New client modal
-  var overlay=document.getElementById('modal-overlay');
-  function openModal(){overlay.hidden=false;setTimeout(function(){document.getElementById('f-name').focus();},40);}
-  function closeModal(){
-    overlay.hidden=true;
-    ['f-name','f-contact','f-phone','f-email','f-site-address'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    document.getElementById('f-industry').value='Commercial office';
-  }
-  document.getElementById('new-client-btn').addEventListener('click',openModal);
-  document.getElementById('modal-close').addEventListener('click',closeModal);
-  document.getElementById('modal-cancel').addEventListener('click',closeModal);
-  overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
-  document.getElementById('modal-save').addEventListener('click',function(){
-    var name=document.getElementById('f-name').value.trim();
-    if(!name){document.getElementById('f-name').focus();return;}
-    var clients=load()||[];
-    var id=slugify(name);
-    if(clients.some(function(c){return c.id===id;}))id=id+'-'+Date.now();
-    clients.push({id:id,name:name,industry:document.getElementById('f-industry').value,status:'active',contact:document.getElementById('f-contact').value.trim(),contactTitle:'',phone:document.getElementById('f-phone').value.trim(),email:document.getElementById('f-email').value.trim(),siteAddress:document.getElementById('f-site-address').value.trim(),notes:''});
-    save(clients);closeModal();renderAll();
-  });
-
-  // Edit client modal
-  var editModal=document.getElementById('edit-modal');
-  var editingClientId=null;
-  function openEditModal(cid){
-    var clients=load()||[];var c=null;clients.forEach(function(x){if(x.id===cid)c=x;});
-    if(!c)return;
-    editingClientId=cid;
-    document.getElementById('ef-name').value=c.name||'';
-    document.getElementById('ef-industry').value=c.industry||'Commercial office';
-    document.getElementById('ef-status').value=c.status||'active';
-    document.getElementById('ef-contact').value=c.contact||'';
-    document.getElementById('ef-ctitle').value=c.contactTitle||'';
-    document.getElementById('ef-phone').value=c.phone||'';
-    document.getElementById('ef-email').value=c.email||'';
-    document.getElementById('ef-site-address').value=c.siteAddress||'';
-    editModal.hidden=false;
-    setTimeout(function(){document.getElementById('ef-name').focus();},40);
-  }
-  function closeEditModal(){editModal.hidden=true;editingClientId=null;}
-  document.getElementById('edit-modal-close').addEventListener('click',closeEditModal);
-  document.getElementById('edit-modal-cancel').addEventListener('click',closeEditModal);
-  editModal.addEventListener('click',function(e){if(e.target===editModal)closeEditModal();});
-  document.getElementById('edit-modal-save').addEventListener('click',function(){
-    var name=document.getElementById('ef-name').value.trim();
-    if(!name){document.getElementById('ef-name').focus();return;}
-    var clients=load()||[];
-    clients.forEach(function(c){
-      if(c.id!==editingClientId)return;
-      c.name=name;
-      c.industry=document.getElementById('ef-industry').value;
-      c.status=document.getElementById('ef-status').value;
-      c.contact=document.getElementById('ef-contact').value.trim();
-      c.contactTitle=document.getElementById('ef-ctitle').value.trim();
-      c.phone=document.getElementById('ef-phone').value.trim();
-      c.email=document.getElementById('ef-email').value.trim();
-      c.siteAddress=document.getElementById('ef-site-address').value.trim();
+  } else {
+    sb.from('contracts').insert(ctData).select('id').then(function(r){
+      if(r.error){btn.disabled=false;btn.textContent='Save contract';alert(r.error.message);return;}
+      afterSave(r.data[0].id);
     });
-    save(clients);
-    var savedId=editingClientId;
-    closeEditModal();
-    renderAll();
-    setTimeout(function(){
-      var wrap=document.querySelector('.cl-wrap[data-id="'+savedId+'"]');
-      if(wrap)expandWrap(wrap);
-    },20);
-  });
-  document.getElementById('edit-modal-delete').addEventListener('click',function(){
-    if(!editingClientId)return;
-    var clients=load()||[];var name='';clients.forEach(function(c){if(c.id===editingClientId)name=c.name;});
-    if(!confirm('Delete '+name+'? This cannot be undone.'))return;
-    save(clients.filter(function(x){return x.id!==editingClientId;}));
-    ['mq_jobs','mq_quotes','mq_invoices','mq_contracts','mq_scopes'].forEach(function(k){
-      try{var items=JSON.parse(localStorage.getItem(k)||'[]');localStorage.setItem(k,JSON.stringify(items.filter(function(x){return x.clientId!==editingClientId;})));}catch(e){}
-    });
-    closeEditModal();renderAll();
-  });
-
-  // Contract modal
-  var ctModal=document.getElementById('contract-modal');
-  var ctClientId=null,editingCtId=null,pendingPdfData=null,pendingPdfName=null,existingPdfData=null;
-  function renderPdfUi(){
-    var ui=document.getElementById('ct-pdf-ui');
-    if(!ui)return;
-    if(pendingPdfData){
-      ui.innerHTML='<span class="ct-pdf-name">'+esc(pendingPdfName||'document.pdf')+'</span><button type="button" class="ct-pdf-clear" id="ct-pdf-clear-btn">Remove</button>';
-      document.getElementById('ct-pdf-clear-btn').addEventListener('click',function(){pendingPdfData=null;pendingPdfName=null;renderPdfUi();});
-    } else if(existingPdfData){
-      ui.innerHTML='<button type="button" class="ct-pdf-view" id="ct-pdf-view-btn">View PDF</button> <button type="button" class="ct-pdf-replace" id="ct-pdf-replace-btn">Replace…</button>';
-      document.getElementById('ct-pdf-view-btn').addEventListener('click',function(){window.open(existingPdfData,'_blank');});
-      document.getElementById('ct-pdf-replace-btn').addEventListener('click',function(){document.getElementById('ct-pdf-file').click();});
-    } else {
-      ui.innerHTML='<button type="button" class="ct-upload-btn" id="ct-pdf-attach-btn">Attach PDF…</button>';
-      document.getElementById('ct-pdf-attach-btn').addEventListener('click',function(){document.getElementById('ct-pdf-file').click();});
-    }
   }
-  document.getElementById('ct-pdf-file').addEventListener('change',function(){
-    var file=this.files[0];if(!file)return;
-    var reader=new FileReader();
-    reader.onload=function(ev){pendingPdfData=ev.target.result;pendingPdfName=file.name;existingPdfData=null;renderPdfUi();};
-    reader.readAsDataURL(file);this.value='';
-  });
-  function openCtModal(ct,cid){
-    ctClientId=cid||ctClientId;
-    editingCtId=ct?ct.id:null;
-    pendingPdfData=null;pendingPdfName=null;
-    existingPdfData=ct&&ct.pdfData?ct.pdfData:null;
-    document.getElementById('ct-modal-title').textContent=ct?'Edit contract':'Add contract';
-    document.getElementById('ct-modal-delete').hidden=!ct;
-    document.getElementById('ct-type').value=ct&&ct.type?ct.type:'12-month';
-    document.getElementById('ct-value').value=ct&&ct.value?ct.value:'';
-    document.getElementById('ct-start').value=ct&&ct.startDate?ct.startDate:'';
-    document.getElementById('ct-end').value=ct&&ct.endDate?ct.endDate:'';
-    document.getElementById('ct-renewal').value=ct&&ct.renewalDate?ct.renewalDate:'';
-    document.getElementById('ct-signed').value=ct&&ct.signedDate?ct.signedDate:'';
-    document.getElementById('ct-notes').value=ct&&ct.notes?ct.notes:'';
-    renderPdfUi();
-    ctModal.hidden=false;
-    setTimeout(function(){document.getElementById('ct-type').focus();},40);
-  }
-  function closeCtModal(){ctModal.hidden=true;editingCtId=null;pendingPdfData=null;pendingPdfName=null;existingPdfData=null;}
-  document.getElementById('ct-modal-close').addEventListener('click',closeCtModal);
-  document.getElementById('ct-modal-cancel').addEventListener('click',closeCtModal);
-  ctModal.addEventListener('click',function(e){if(e.target===ctModal)closeCtModal();});
-  document.getElementById('ct-modal-save').addEventListener('click',function(){
-    var ct={
-      id:editingCtId||'ct'+Date.now(),clientId:ctClientId,
-      type:document.getElementById('ct-type').value,
-      value:parseInt(document.getElementById('ct-value').value)||0,
-      startDate:document.getElementById('ct-start').value,
-      endDate:document.getElementById('ct-end').value,
-      renewalDate:document.getElementById('ct-renewal').value,
-      signedDate:document.getElementById('ct-signed').value,
-      notes:document.getElementById('ct-notes').value.trim(),
-      pdfData:pendingPdfData!==null?pendingPdfData:(existingPdfData||null)
-    };
-    var saved=saveContractData(ct);if(!saved)return;
-    var cid=ctClientId;closeCtModal();
-    var wrap=document.querySelector('.cl-wrap[data-id="'+cid+'"]');
-    if(wrap&&wrap.classList.contains('open'))expandWrap(wrap);
-  });
-  document.getElementById('ct-modal-delete').addEventListener('click',function(){
-    if(!editingCtId)return;
-    if(!confirm('Delete this contract?'))return;
-    deleteContractData(editingCtId);
-    var cid=ctClientId;closeCtModal();
-    var wrap=document.querySelector('.cl-wrap[data-id="'+cid+'"]');
-    if(wrap&&wrap.classList.contains('open'))expandWrap(wrap);
-  });
+});
+document.getElementById('ct-modal-delete').addEventListener('click',function(){
+  if(!editingCtId)return;
+  if(!confirm('Delete this contract?'))return;
+  var cid=ctClientId;
+  function doDelete(){sb.from('contracts').delete().eq('id',editingCtId).then(function(){closeCtModal();reload(function(){reExpandClient(cid);});});}
+  if(existingPdfPath){sb.storage.from('contract-pdfs').remove([existingPdfPath]).then(doDelete);}else{doDelete();}
+});
 
-  // Escape key
-  document.addEventListener('keydown',function(e){
-    if(e.key!=='Escape')return;
-    if(!ctModal.hidden){closeCtModal();return;}
-    if(!editModal.hidden){closeEditModal();return;}
-    if(!overlay.hidden)closeModal();
-  });
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(!ctModal.hidden){closeCtModal();return;}
+  if(!editModal.hidden){closeEditModal();return;}
+  if(!overlay.hidden)closeModal();
+});
 
-  // Mobile nav
-  var mob=document.getElementById('mob-menu');
-  var mOverlay=document.getElementById('mob-overlay');
-  function navClose(){document.body.classList.remove('mob-open');}
-  if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
-  if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
+var mob=document.getElementById('mob-menu');
+var mOverlay=document.getElementById('mob-overlay');
+function navClose(){document.body.classList.remove('mob-open');}
+if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
 
-  renderAll();
+loadAll(function(){renderAll();if(window.mqGenerate)window.mqGenerate();});
 
-  }); // end requireAuth
+}); // end requireAuth
 })();
 </script>
 </body>
