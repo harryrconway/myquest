@@ -41,6 +41,21 @@
 .cl-inner{padding:22px 24px 26px;border-top:1px solid var(--hair);background:var(--bg)}
 .cl-empty{padding:48px 20px;text-align:center;color:var(--stone);font-size:13px}
 
+@media(max-width:760px){
+  .tbl-scroll .client-list{min-width:0}
+  .cl-head{grid-template-columns:1fr 90px 36px}
+  .cl-row{grid-template-columns:1fr 90px 36px}
+  .cl-head span:nth-child(3),.cl-head span:nth-child(4){display:none}
+  .cl-row>div:nth-child(3),.cl-row>div:nth-child(4){display:none}
+}
+@media(max-width:520px){
+  .cl-head{display:none}
+  .cl-row{grid-template-columns:1fr 36px;padding:12px 16px}
+  .cl-row>div:nth-child(2),.cl-row>div:nth-child(3),.cl-row>div:nth-child(4){display:none}
+  .ci-grid{grid-template-columns:1fr}
+  .cl-inner{padding:16px}
+}
+
 /* Accordion inner layout */
 .ci-hd{margin-bottom:20px}
 .ci-badge-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
