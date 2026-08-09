@@ -403,7 +403,7 @@ function renderScopeView(sc){
   return areas+global+'<div class="sv-footer"><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button></div>';
 }
 function renderSavedList(){
-  sb.from('scopes').select('*').order('created_at',{ascending:false}).then(function(r){
+  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').order('created_at',{ascending:false}).then(function(r){
     var scopes=r.data||[];
     var sec=document.getElementById('saved-scopes-section');
     var list=document.getElementById('saved-scopes-list');
@@ -486,7 +486,7 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
   }
   var editBtn=e.target.closest('[data-edit-id]');
   if(editBtn){
-    sb.from('scopes').select('*').eq('id',editBtn.dataset.editId).single().then(function(r){if(r.data)loadIntoEditor(r.data);});
+    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){if(r.data)loadIntoEditor(r.data);});
     return;
   }
   var row=e.target.closest('.ss-row');

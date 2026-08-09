@@ -274,7 +274,7 @@ function renderAll(){
 }
 
 function reload(){
-  sb.from('staff').select('*').order('name').then(function(r){allStaff=r.data||[];renderAll();});
+  sb.from('staff').select('id,name,role,phone,email,start_date,status').order('name').then(function(r){allStaff=r.data||[];renderAll();});
 }
 
 var modal=document.getElementById('staff-modal');

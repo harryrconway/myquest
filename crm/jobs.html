@@ -276,7 +276,7 @@ function fmtDate(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.get
 function fmtDateFull(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
 
 function renderExpand(j){
-  var typeLbl=TYPE_LABELS[j.type]||j.type;
+  var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
   var actions='';
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
@@ -300,7 +300,7 @@ function renderExpand(j){
 }
 function renderRow(j){
   var isOpen=openId===j.id;
-  var typeLbl=TYPE_LABELS[j.type]||j.type;
+  var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
   var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
   return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
     '<div class="jl-row'+(j.status==='completed'?' done':' next')+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
@@ -339,7 +339,7 @@ function renderAll(){
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
 }
 function reload(cb){
-  sb.from('jobs').select('*').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
 }
 
 var pills=document.querySelectorAll('.f-pill');
@@ -475,10 +475,10 @@ if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.t
 // Initial load
 sb.from('clients').select('id,name,site_address').order('name').then(function(cr){
   allClients=cr.data||[];
-  sb.from('jobs').select('*').then(function(jr){
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule').then(function(jr){
     allJobs=jr.data||[];
     renderAll();
-    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('*').then(function(r2){allJobs=r2.data||[];renderAll();});});
+    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule').then(function(r2){allJobs=r2.data||[];renderAll();});});
     if(getParam('newjob')==='1'){
       openModal();
       var cid=getParam('cid');

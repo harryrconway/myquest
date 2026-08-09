@@ -459,11 +459,11 @@ var allClients=[],allJobs=[],allContracts=[];
 var activeFilter='all',searchTerm='';
 
 function loadAll(cb){
-  sb.from('clients').select('*').order('name').then(function(r1){
+  sb.from('clients').select('id,name,status,contact,contact_title,email,industry,phone,notes,site_address,created_at').order('name').then(function(r1){
     allClients=r1.data||[];
     sb.from('jobs').select('id,client_id,date,type,status,site').then(function(r2){
       allJobs=r2.data||[];
-      sb.from('contracts').select('*').then(function(r3){
+      sb.from('contracts').select('id,client_id,type,value,start_date,end_date,renewal_date,signed_date,notes,pdf_path').then(function(r3){
         allContracts=r3.data||[];
         if(cb)cb();
       });
@@ -519,8 +519,8 @@ function expandWrap(wrap){
   var body=wrap.querySelector('.cl-body');
   body.innerHTML='<div class="cl-inner"><div style="padding:24px;color:var(--stone);font-size:13px">Loading…</div></div>';
   wrap.classList.add('open');body.classList.add('open');
-  sb.from('jobs').select('*').eq('client_id',cid).order('date',{ascending:false}).then(function(jr){
-    sb.from('contracts').select('*').eq('client_id',cid).order('created_at',{ascending:false}).then(function(cr){
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule').eq('client_id',cid).order('date',{ascending:false}).then(function(jr){
+    sb.from('contracts').select('id,client_id,type,value,start_date,end_date,renewal_date,signed_date,notes,pdf_path').eq('client_id',cid).order('created_at',{ascending:false}).then(function(cr){
       body.innerHTML='<div class="cl-inner">'+buildClientDetail(c,jr.data||[],cr.data||[])+'</div>';
     });
   });
@@ -624,7 +624,7 @@ document.getElementById('cl-body').addEventListener('click',function(e){
   var ctRow=e.target.closest('.ct-clickable[data-ct-id]');
   if(ctRow){
     var wrapCt=ctRow.closest('.cl-wrap');
-    sb.from('contracts').select('*').eq('id',ctRow.dataset.ctId).single().then(function(r){
+    sb.from('contracts').select('id,client_id,type,value,start_date,end_date,renewal_date,signed_date,notes,pdf_path').eq('id',ctRow.dataset.ctId).single().then(function(r){
       if(r.data)openCtModal(r.data,wrapCt?wrapCt.dataset.id:'');
     });return;
   }

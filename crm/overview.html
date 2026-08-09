@@ -275,7 +275,7 @@ Promise.all([
         var bCls=j.status==='completed'?'completed':'upcoming';
         return '<div class="sched-item" style="grid-template-columns:1fr auto">'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
-          '<div class="si-detail">'+(TYPE_LABELS[j.type]||j.type||'')+(j.site?' · '+esc(j.site):'')+'</div></div>'+
+          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div></div>'+
           '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></div>';
       }).join('');
     }
@@ -295,7 +295,7 @@ Promise.all([
         return '<div class="sched-item" style="grid-template-columns:70px 1fr auto">'+
           '<div class="si-time">'+dateStr+'</div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
-          '<div class="si-detail">'+(TYPE_LABELS[j.type]||j.type||'')+(j.site?' · '+esc(j.site):'')+'</div></div>'+
+          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div></div>'+
           '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></div>';
       }).join('');
     }
