@@ -28,6 +28,7 @@
 .jl-row.done{border-left-color:var(--green)}
 .jl-row.next{border-left-color:var(--navy)}
 .jl-date{font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums;line-height:1.4}
+.jl-num{display:block;font-size:9px;font-weight:700;letter-spacing:.05em;color:var(--stone);opacity:.55;margin-bottom:2px}
 .jl-client{font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jl-site{font-size:12px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jl-type{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;justify-self:center;align-self:center}
@@ -303,7 +304,7 @@ function renderExpand(j){
   var teamRow='<div><div class="xp-lbl">Team member</div>'+
     '<select class="xp-staff-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+staffOpts+'</select></div>';
   return '<div class="xp-grid">'+
-    '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val">'+fmtDateFull(j.date)+'</div></div>'+
+    '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val" style="display:flex;align-items:center;gap:10px">'+fmtDateFull(j.date)+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
     teamRow+repeatRow+
@@ -320,7 +321,7 @@ function renderRow(j){
   }
   return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
     '<div class="jl-row'+(j.status==='completed'?' done':' next')+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
-      '<div class="jl-date">'+fmtDate(j.date)+'</div>'+
+      '<div class="jl-date">'+(j.job_number?'<span class="jl-num">#'+String(j.job_number).padStart(3,'0')+'</span>':'')+fmtDate(j.date)+'</div>'+
       '<div class="jl-client">'+esc(j.client_name||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
       '<span class="jl-type'+(j.type==='deep'?' deep':'')+'">'+typeLbl+'</span>'+
@@ -355,7 +356,7 @@ function renderAll(){
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
 }
 function reload(cb){
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
 }
 
 var pills=document.querySelectorAll('.f-pill');
@@ -518,10 +519,10 @@ Promise.all([
 ]).then(function(results){
   allClients=results[0].data||[];
   allStaff=results[1].data||[];
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name').then(function(jr){
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number').then(function(jr){
     allJobs=jr.data||[];
     renderAll();
-    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name').then(function(r2){allJobs=r2.data||[];renderAll();});});
+    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number').then(function(r2){allJobs=r2.data||[];renderAll();});});
     if(getParam('newjob')==='1'){
       openModal();
       var cid=getParam('cid');
