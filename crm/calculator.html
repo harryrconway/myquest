@@ -118,8 +118,6 @@
 .qc-row:last-child{border-bottom:none}
 .qc-row.total{color:var(--navy);font-weight:600;font-size:13.5px;border-bottom:none;border-top:1px solid var(--hair-md);padding-top:10px;margin-top:4px}
 .qc-row.ann{color:var(--navy);font-weight:700;font-size:13px;border-bottom:none;padding-top:6px}
-.qc-row.disc span:first-child{color:var(--green)}
-.qc-row.disc span:last-child{color:var(--green)}
 
 /* Buffer toggle row */
 .qc-buf-btn{
@@ -305,7 +303,6 @@ var QC={
   bathMins:22,
   kitchenMins:25,
   extras:{floor_polish:0.55,carpet:0.25,rubbish:25},
-  freqDisc:{once:1.0,monthly:0.97,fortnightly:0.95,weekly:0.90},
   suppliesCost:20,
   bufferPct:0.15,
   minHrsMaint:2,
@@ -355,15 +352,11 @@ function calc(){
   var per=labour+sup+ext;
   var bufferAmt=s.buffer?per*QC.bufferPct:0;
   per+=bufferAmt;
-  var disc=QC.freqDisc[s.freq]||1.0;
-  var subBeforeDisc=per;
-  per=per*disc;
   var mthMult={once:null,monthly:1,fortnightly:2.17,weekly:4.33};
   return{
     per:per,lo:r5(per*.9),hi:r5(per*1.1),
     monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,
-    hrs:total,labour:labour,sup:sup,ext:ext,
-    bufferAmt:bufferAmt,disc:disc,subBeforeDisc:subBeforeDisc
+    hrs:total,labour:labour,sup:sup,ext:ext,bufferAmt:bufferAmt
   };
 }
 function r5(n){return Math.round(n/5)*5;}
@@ -472,9 +465,7 @@ function renderFormCol(){
         '<div class="qc-two-lbl">Frequency</div>'+
         '<div class="qc-choices col">'+
           FREQ_KEYS.map(function(k,i){
-            var disc=QC.freqDisc[k];
-            var badge=disc<1?'<span style="margin-left:auto;font-size:10px;font-weight:700;color:'+(s.freq===k?'rgba(243,239,228,.65)':'var(--green)')+'">&#8722;'+Math.round((1-disc)*100)+'%</span>':'';
-            return '<button type="button" class="qc-choice'+(s.freq===k?' on':'')+'" data-key="'+k+'" data-grp="freq" style="justify-content:space-between">'+FREQ_LABELS[i]+badge+'</button>';
+            return '<button type="button" class="qc-choice'+(s.freq===k?' on':'')+'" data-key="'+k+'" data-grp="freq">'+FREQ_LABELS[i]+'</button>';
           }).join('')+
         '</div>'+
       '</div>'+
@@ -578,7 +569,6 @@ function renderPreview(r){
     '<span>Site allowance <span style="font-size:11px;opacity:.55">(+'+Math.round(QC.bufferPct*100)+'% buffer)</span></span>'+
     '<span>'+(s.buffer?'+'+au(r.bufferAmt):'+ Add')+'</span>'+
   '</button>';
-  if(r.disc<1.0)h+=row('<span style="color:var(--green)">Recurring discount (&#8722;'+Math.round((1-r.disc)*100)+'%)</span>','<span style="color:var(--green)">&#8722;'+au(r.subBeforeDisc*(1-r.disc))+'</span>');
   h+=row('Per clean total',au(r.per),'total');
   if(annVal)h+=row('Annual contract value','&#8776; '+au(annVal),'ann');
 
