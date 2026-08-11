@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260811">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -32,8 +32,8 @@
 .jl-site{font-size:12px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jl-type{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block}
 .jl-type.deep{color:var(--navy);background:rgba(35,44,84,.12)}
-.jl-crew{display:flex;gap:4px}
-.jl-av{width:22px;height:22px;border-radius:50%;background:rgba(35,44,84,.1);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--navy)}
+.jl-crew{display:flex;gap:4px;min-width:0;overflow:hidden}
+.jl-crew-name{font-size:12px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .jl-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
 .jl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
 .jl-row:hover .jl-arr{color:var(--navy)}
@@ -206,7 +206,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html" class="mob-on">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html" class="mob-on">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 
 <div class="modal-overlay" id="job-modal" hidden>
   <div class="modal-card">
@@ -286,6 +286,7 @@ function renderExpand(j){
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   if(!j.from_schedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
+  actions+='<button class="xp-btn" data-action="scope">Manage scope</button>';
   var repeatRow='';
   if(j.from_schedule){
     repeatRow='<div><div class="xp-lbl">Repeat</div><div class="xp-val" style="font-size:12px;color:var(--stone)">Auto-generated recurring job</div></div>';
@@ -295,9 +296,9 @@ function renderExpand(j){
     repeatRow='<div><div class="xp-lbl">Repeat</div>'+
       '<select class="xp-repeat-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+opts+'</select></div>';
   }
-  var activeStaff=allStaff.filter(function(s){return s.status!=='left';});
-  var staffOpts='<option value="">No team member</option>'+activeStaff.map(function(s){
-    return '<option value="'+esc(s.id)+'"'+(j.assigned_staff_id===s.id?' selected':'')+'>'+esc(s.name)+'</option>';
+  var STAFF_STATUS={active:'Active','on-leave':'On leave',left:'Resigned'};
+  var staffOpts='<option value="">No team member</option>'+allStaff.map(function(s){
+    return '<option value="'+esc(s.id)+'"'+(j.assigned_staff_id===s.id?' selected':'')+'>'+esc(s.name)+' — '+(STAFF_STATUS[s.status]||s.status)+'</option>';
   }).join('');
   var teamRow='<div><div class="xp-lbl">Team member</div>'+
     '<select class="xp-staff-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+staffOpts+'</select></div>';
@@ -315,8 +316,7 @@ function renderRow(j){
   var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
   var crewHtml='';
   if(j.assigned_staff_name){
-    var ini=j.assigned_staff_name.trim().split(/\s+/).map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
-    crewHtml='<div class="jl-av" title="'+esc(j.assigned_staff_name)+'">'+esc(ini)+'</div>';
+    crewHtml='<span class="jl-crew-name">'+esc(j.assigned_staff_name)+'</span>';
   }
   return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
     '<div class="jl-row'+(j.status==='completed'?' done':' next')+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
@@ -380,9 +380,10 @@ function openModal(j){
     if(!siteEl.value&&found&&found.site_address)siteEl.value=found.site_address;
   });
   var staffSel=document.getElementById('jf-staff');
+  var MODAL_STAFF_STATUS={active:'Active','on-leave':'On leave',left:'Resigned'};
   staffSel.innerHTML='<option value="">No team member</option>';
-  allStaff.filter(function(s){return s.status!=='left';}).forEach(function(s){
-    staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';
+  allStaff.forEach(function(s){
+    staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+' — '+(MODAL_STAFF_STATUS[s.status]||s.status)+'</option>';
   });
   if(j){
     document.getElementById('jf-date').value=j.date||'';
@@ -422,7 +423,7 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   var site=document.getElementById('jf-site').value.trim();
   var staffEl=document.getElementById('jf-staff');
   var staffId=staffEl.value||null;
-  var staffName=staffId?staffEl.options[staffEl.selectedIndex].text:null;
+  var staffName=null;if(staffId)allStaff.forEach(function(s){if(s.id===staffId)staffName=s.name;});
   var row={date:date,client_id:sel.value,client_name:clientName,site:site,
     type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,
     assigned_staff_id:staffId,assigned_staff_name:staffName};
@@ -477,6 +478,7 @@ document.getElementById('jl-body').addEventListener('click',function(e){
     var act=actionEl.dataset.action;
     if(act==='delete')deleteJob(wid);
     else if(act==='edit'){var found=null;allJobs.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
+    else if(act==='scope'){window.location.href='scope.html?job_id='+encodeURIComponent(wid);}
     else updateJobStatus(wid,act);
     return;
   }
@@ -496,7 +498,7 @@ document.getElementById('jl-body').addEventListener('change',function(e){
   var staffSel=e.target.closest('.xp-staff-sel');
   if(staffSel){
     var sid=staffSel.value;
-    var sname=sid?staffSel.options[staffSel.selectedIndex].text:'';
+    var sname='';if(sid)allStaff.forEach(function(s){if(s.id===sid)sname=s.name;});
     updateJobStaff(staffSel.closest('.xp-wrap').dataset.id,sid,sname);
   }
 });

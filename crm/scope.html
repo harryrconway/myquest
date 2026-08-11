@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260811">
 <style>
 .form-lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);margin-bottom:5px}
 .form-input{width:100%;padding:9px 12px;background:var(--field);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);-webkit-text-fill-color:var(--navy);outline:none;transition:border-color .12s;-webkit-appearance:none;appearance:none}
@@ -194,6 +194,9 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 
     <div class="pg-3">
 
+      <div id="scope-no-job" hidden style="padding:48px 0 24px;text-align:center;color:var(--stone);font-size:13px;line-height:1.6">Open a job and click <strong style="color:var(--navy)">Manage scope</strong> to create or edit a scope.</div>
+
+      <div id="scope-editor">
       <div class="scope-info">
         <div class="scope-name-row">
           <input class="scope-name-input" id="scope-name" type="text" placeholder="Scope name — e.g. Aria Property Group · Weekly" autocomplete="off">
@@ -231,6 +234,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <button class="ph-btn" id="scope-save-btn-2">Save scope</button>
         <button class="scope-new-btn" id="scope-new-btn">+ New scope</button>
       </div>
+      </div><!-- end #scope-editor -->
 
       <div id="saved-scopes-section" hidden>
         <div class="sh pg-4">
@@ -254,6 +258,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       <a href="reports.html">Reports</a>
       <a href="staff.html">Staff</a>
     </nav>
+    <button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button>
   </div>
 </div>
 
@@ -267,9 +272,11 @@ window.MQ.requireAuth(function(){
 var sb=MQ.sb;
 var editingId=null;
 var allClients=[];
+var jobId=null;
 
 function uid(){return '_'+Math.random().toString(36).slice(2,9);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 
 var FREQ_OPTS=[
   {v:'daily',l:'Daily'},{v:'weekly',l:'Weekly'},{v:'fortnightly',l:'Fortnightly'},
@@ -356,6 +363,7 @@ function saveScope(){
   var sc=readScope();
   if(!sc.name&&!sc.areas.length){alert('Add a scope name or at least one area first.');return;}
   if(!sc.name)sc.name=sc.client_name||'Untitled scope';
+  if(jobId)sc.job_id=jobId;
   if(editingId){
     sb.from('scopes').update(sc).eq('id',editingId).then(function(){flashSaved();renderSavedList();});
   } else {
@@ -428,6 +436,13 @@ function renderSavedList(){
 }
 
 function init(){
+  jobId=getParam('job_id');
+  if(!jobId){
+    document.getElementById('scope-editor').hidden=true;
+    document.getElementById('scope-no-job').hidden=false;
+    renderSavedList();
+    return;
+  }
   sb.from('clients').select('id,name,site_address').order('name').then(function(r){
     allClients=r.data||[];
     var sel=document.getElementById('scope-client');
@@ -445,10 +460,22 @@ function init(){
         siteInput.value='';
       }
     });
+    sb.from('jobs').select('id,client_id,client_name,site').eq('id',jobId).single().then(function(jr){
+      var job=jr.data;
+      if(job){
+        sel.value=job.client_id||'';
+        sel.disabled=true;
+        if(job.site)document.getElementById('scope-site').value=job.site;
+        if(!document.getElementById('scope-name').value)
+          document.getElementById('scope-name').value=(job.client_name||'')+(job.client_name?' — Scope':'Scope');
+      }
+      sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas').eq('job_id',jobId).maybeSingle().then(function(sr){
+        if(sr.data){loadIntoEditor(sr.data);}
+        else{renderAreas([]);}
+      });
+    });
   });
   document.getElementById('scope-date').valueAsDate=new Date();
-  renderAreas([]);
-  renderSavedList();
 }
 
 document.getElementById('scope-add-area').addEventListener('click',addArea);

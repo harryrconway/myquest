@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260807">
+<link rel="stylesheet" href="style.css?v=20260811">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
@@ -157,7 +157,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
     <div class="staff-grid pg-3" id="staff-grid"></div>
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html" class="mob-on">Staff</a></nav></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html" class="mob-on">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 
 <div class="modal-overlay" id="staff-modal" hidden>
   <div class="modal-card">
@@ -184,7 +184,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
           <select class="form-input" id="sf-status">
             <option value="active">Active</option>
             <option value="on-leave">On leave</option>
-            <option value="left">Left</option>
+            <option value="left">Resigned</option>
           </select>
         </div>
       </div>
