@@ -7,160 +7,204 @@
 <title>Quote Calculator — MyQuest CRM</title>
 <link rel="stylesheet" href="style.css?v=20260814">
 <style>
-:root{
-  --qc-bg:#131720;
-  --qc-panel:#1c2230;
-  --qc-rule:rgba(255,255,255,.07);
-  --qc-rule-md:rgba(255,255,255,.12);
-  --qc-label:rgba(240,236,224,.38);
-  --qc-body:rgba(240,236,224,.72);
-  --qc-cream:#f0ece0;
-  --qc-gold:#c8a96a;
-  --qc-seg:rgba(255,255,255,.06);
-  --qc-seg-bd:rgba(255,255,255,.12);
+/* ── Two-column grid (matches overview.html) ── */
+.qc-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.qc-left{min-width:0}
+
+/* ── Section cards (matches .ac) ── */
+.qc-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 22px;margin-bottom:14px}
+.qc-card:last-child{margin-bottom:0}
+.qc-card-head{margin-bottom:14px}
+.qc-card-lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
+.qc-card-hint{font-size:11.5px;color:var(--stone);margin-top:3px}
+
+/* ── Choice buttons ── */
+.qc-choices{display:flex;flex-wrap:wrap;gap:8px}
+.qc-choice{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 16px;
+  background:var(--field);
+  border:1.5px solid var(--hair-md);
+  border-radius:var(--r-sm);
+  color:var(--stone);font-size:13.5px;font-family:inherit;
+  cursor:pointer;transition:border-color .13s,color .13s,background .13s;
+  line-height:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
+.qc-choice:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-choice.on{background:var(--navy);border-color:var(--navy);color:var(--on);font-weight:600}
+.qc-choices.col{flex-direction:column}
+.qc-choices.col .qc-choice{width:100%}
+.qc-choice-ico{width:18px;height:18px;flex-shrink:0;opacity:.55}
+.qc-choice.on .qc-choice-ico{opacity:.7}
 
-/* ── Dark canvas override ── */
-.qc-main{background:var(--qc-bg)}
-.qc-main .ph{border-bottom:1px solid var(--qc-rule);padding-bottom:28px;margin-bottom:0}
-.qc-main .ph-title{color:var(--qc-cream)}
-.qc-main .mob-bar{background:var(--qc-cream)}
-
-/* ── Layout ── */
-.qc-layout{display:grid;grid-template-columns:1fr 400px;gap:32px;align-items:start;padding-top:32px}
-.qc-form-col{min-width:0}
-
-/* ── Pricing toolbar ── */
-.qc-toolbar{display:flex;flex-wrap:wrap;gap:6px 20px;padding:18px 0;border-bottom:1px solid var(--qc-rule);margin-bottom:0;font-size:12px;color:var(--qc-label);letter-spacing:.03em;align-items:center}
-.qc-toolbar-sep{color:var(--qc-rule-md);font-size:10px;user-select:none}
-
-/* ── Form slabs ── */
-.qc-slab{display:grid;grid-template-columns:116px 1fr;gap:20px;align-items:start;padding:28px 0;border-bottom:1px solid var(--qc-rule)}
-.qc-slab:last-child{border-bottom:none}
-.qc-slab-head{padding-top:3px}
-.qc-slab-num{font-size:10px;font-family:ui-monospace,monospace;color:var(--qc-label);opacity:.45;display:block;margin-bottom:5px;letter-spacing:.04em}
-.qc-slab-lbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--qc-label);line-height:1.45}
-.qc-slab-body{min-width:0}
-
-/* ── Segmented control ── */
-.qc-seg-ctrl{display:inline-flex;background:var(--qc-seg);border:1px solid var(--qc-seg-bd);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
-.qc-seg-ctrl.block{display:flex;width:100%}
-.qc-seg-ctrl.block .qc-seg-btn{flex:1}
-.qc-seg-btn{border:none;background:transparent;color:var(--qc-body);font-family:inherit;font-size:13.5px;padding:9px 18px;border-radius:7px;cursor:pointer;transition:background .13s,color .13s;white-space:nowrap;line-height:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.qc-seg-btn:hover{color:var(--qc-cream)}
-.qc-seg-btn.on{background:var(--qc-cream);color:#131720;font-weight:600}
-
-/* ── SQM ── */
-.qc-sqm-ctrl{display:flex;align-items:center;gap:16px;margin-bottom:16px}
-#qc-sqm-v{font-size:72px;font-weight:700;color:var(--qc-cream);background:transparent;border:none;outline:none;text-align:center;width:180px;-moz-appearance:textfield;font-family:inherit;letter-spacing:-.03em;line-height:1}
+/* ── SQM input ── */
+.qc-sqm-wrap{display:flex;align-items:center;gap:12px}
+.qc-sqm-btns{display:flex;flex-direction:column;gap:4px}
+.qc-sqm-pm{
+  background:var(--field);border:1.5px solid var(--hair-md);border-radius:7px;
+  color:var(--stone);font-family:inherit;font-size:16px;width:34px;height:28px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .13s,color .13s;line-height:1;-webkit-tap-highlight-color:transparent;
+}
+.qc-sqm-pm:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-sqm-display{display:flex;align-items:baseline;gap:6px}
+#qc-sqm-v{
+  width:110px;font-size:44px;font-weight:700;color:var(--navy);
+  background:transparent;border:none;outline:none;text-align:center;
+  -moz-appearance:textfield;font-family:inherit;letter-spacing:-.02em;line-height:1;
+}
 #qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
-.qc-sqm-label{display:flex;align-items:center}
-.qc-sqm-u{font-size:18px;font-weight:300;color:var(--qc-label);margin-left:6px;line-height:1}
-.qc-sqm-pm{background:none;border:1px solid var(--qc-seg-bd);color:var(--qc-body);font-family:inherit;font-size:22px;width:44px;height:44px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s,color .13s;flex-shrink:0;line-height:1}
-.qc-sqm-pm:hover{border-color:var(--qc-cream);color:var(--qc-cream)}
-.qc-sqm-picks{display:flex;gap:18px;flex-wrap:wrap}
-.qc-sqm-pick{background:none;border:none;font-family:inherit;font-size:12.5px;color:var(--qc-label);cursor:pointer;padding:2px 0;border-bottom:1px solid transparent;transition:color .13s,border-color .13s}
-.qc-sqm-pick:hover,.qc-sqm-pick.on{color:var(--qc-cream);border-bottom-color:var(--qc-gold)}
-.qc-sqm-hint{font-size:11px;color:var(--qc-gold);margin-top:8px;display:none}
+.qc-sqm-unit{font-size:15px;font-weight:500;color:var(--stone);letter-spacing:.02em}
+.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.qc-sqm-pick{
+  background:none;border:1px solid var(--hair);border-radius:6px;
+  font-family:inherit;font-size:12px;color:var(--stone);cursor:pointer;
+  padding:4px 10px;transition:border-color .13s,color .13s,background .13s;
+}
+.qc-sqm-pick:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-sqm-pick.on{background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.25);color:var(--navy);font-weight:600}
+.qc-sqm-hint{font-size:11.5px;color:var(--amber);margin-top:6px;display:none}
 .qc-sqm-hint.vis{display:block}
 
-/* ── Bath stepper ── */
-.qc-bath-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.qc-bath-group{display:flex;flex-direction:column;gap:10px}
-.qc-bath-sub{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--qc-label);opacity:.7}
-.qc-bath-row{display:flex;align-items:center;gap:14px}
-.qc-bath-btn{background:none;border:1px solid var(--qc-seg-bd);color:var(--qc-body);font-family:inherit;font-size:18px;width:38px;height:38px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s,color .13s;-webkit-tap-highlight-color:transparent}
-.qc-bath-btn:hover{border-color:var(--qc-cream);color:var(--qc-cream)}
-.qc-bath-num{font-size:28px;font-weight:700;color:var(--qc-cream);min-width:36px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
-.qc-bath-divider{width:1px;height:40px;background:var(--qc-rule-md);flex-shrink:0}
+/* ── Bathroom stepper ── */
+.qc-stepper-row{display:flex;align-items:center;gap:16px}
+.qc-ste-btn{
+  background:var(--field);border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
+  color:var(--stone);font-family:inherit;font-size:18px;width:38px;height:38px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .13s,color .13s;-webkit-tap-highlight-color:transparent;
+}
+.qc-ste-btn:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-ste-val{font-size:26px;font-weight:700;color:var(--navy);min-width:32px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+.qc-ste-sub{font-size:11.5px;color:var(--stone);margin-top:2px}
 
-/* ── Freq+Type pair ── */
-.qc-pair{display:flex;gap:24px;flex-wrap:wrap}
-.qc-pair-col{display:flex;flex-direction:column;gap:10px}
-.qc-pair-sub{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--qc-label);opacity:.7}
+/* ── Two-up layout within a card ── */
+.qc-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.qc-two-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
 
-/* ── Preview panel ── */
-#qc-preview{background:var(--qc-panel);border-radius:16px;padding:28px 26px;position:sticky;top:28px;border:1px solid rgba(255,255,255,.06)}
+/* ── Right panel: live preview ── */
+#qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);position:sticky;top:28px;overflow:hidden}
 
 /* Placeholder */
-.qc-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 20px;gap:12px;text-align:center}
-.qc-ph-arrow{font-size:28px;color:var(--qc-cream);opacity:.12}
-.qc-ph-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--qc-label);opacity:.7}
-.qc-ph-hint{font-size:13px;color:var(--qc-label);line-height:1.6}
+.qc-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:52px 24px;gap:10px;text-align:center}
+.qc-ph-icon{opacity:.2;color:var(--navy);margin-bottom:2px}
+.qc-ph-ttl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone)}
+.qc-ph-sub{font-size:13px;color:var(--stone);line-height:1.55}
 
-/* Result */
-.qc-rtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
-.qc-rtag{font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--qc-body);background:rgba(255,255,255,.06);border-radius:6px;padding:3px 8px}
-.qc-range{font-size:48px;font-weight:700;color:var(--qc-cream);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
-.qc-range-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:7px}
-.qc-range-lbl{font-size:12px;color:var(--qc-label)}
-.qc-range-mth{font-size:12px;color:var(--qc-label)}
-.qc-per-sub{font-size:12px;color:var(--qc-label);margin-top:3px}
+/* Checklist inside placeholder */
+.qc-ph-list{display:flex;flex-direction:column;gap:5px;margin-top:10px;text-align:left;width:100%;max-width:220px}
+.qc-ph-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone)}
+.qc-ph-item.done{color:var(--navy)}
+.qc-ph-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--hair-md)}
+.qc-ph-item.done .qc-ph-dot{background:var(--navy)}
 
-.qc-breakdown{margin:20px 0 0;border-top:1px solid rgba(255,255,255,.08)}
-.qc-brow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);color:var(--qc-body);font-size:13px;font-variant-numeric:tabular-nums}
-.qc-brow.tot{color:var(--qc-cream);font-weight:600;font-size:14px;border-bottom:none;border-top:1px solid rgba(255,255,255,.1);padding-top:13px;margin-top:4px}
-.qc-brow.ann{color:var(--qc-gold);font-size:13px;font-weight:600;border-bottom:none;padding-top:6px}
-.qc-buf-row{width:100%;border:none;border-bottom:1px solid rgba(255,255,255,.05);background:none;font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:rgba(240,236,224,.2);transition:color .15s;text-align:left;-webkit-tap-highlight-color:transparent}
-.qc-buf-row:hover,.qc-buf-row.on{color:var(--qc-body)}
+/* Quote panel header band */
+.qc-q-band{background:var(--navy);padding:22px 22px 18px}
+.qc-q-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.qc-q-tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:rgba(243,239,228,.55);background:rgba(243,239,228,.1);border-radius:5px;padding:3px 8px}
+.qc-q-range{font-size:40px;font-weight:700;color:var(--on);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.qc-q-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}
+.qc-q-lbl{font-size:12px;color:var(--on-sub)}
+.qc-q-mth{font-size:12px;color:var(--on-sub)}
+.qc-q-wk{font-size:11.5px;color:var(--on-sub);margin-top:3px}
 
-.qc-incl{border-top:1px solid rgba(255,255,255,.07);margin:16px 0 0;padding-top:12px}
-.qc-incl-row{font-size:11.5px;color:var(--qc-label);padding:3px 0}
-.qc-valid{font-size:10.5px;color:rgba(240,236,224,.18);text-align:center;margin-top:6px;letter-spacing:.04em}
+/* Quote panel body */
+.qc-q-body{padding:18px 22px}
+.qc-q-sec{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin:14px 0 8px}
+.qc-q-sec:first-child{margin-top:0}
 
-/* Buttons */
-.qc-save{width:100%;background:var(--qc-cream);color:#131720;border:none;border-radius:10px;padding:14px 20px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:opacity .15s;margin-top:20px;-webkit-tap-highlight-color:transparent}
-.qc-save:hover{opacity:.88}
-.qc-dl{width:100%;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--qc-body);padding:11px;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .2s,color .2s;margin-top:8px;font-family:inherit}
-.qc-dl:hover{border-color:rgba(255,255,255,.35);color:var(--qc-cream)}
-.qc-restart{background:none;border:none;color:var(--qc-label);font-size:12px;cursor:pointer;padding:10px;transition:color .2s;width:100%;text-align:center;font-family:inherit}
-.qc-restart:hover{color:var(--qc-cream)}
+/* Breakdown rows */
+.qc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--hair);color:var(--stone);font-size:13px;font-variant-numeric:tabular-nums}
+.qc-row:last-child{border-bottom:none}
+.qc-row.total{color:var(--navy);font-weight:600;font-size:13.5px;border-bottom:none;border-top:1px solid var(--hair-md);padding-top:10px;margin-top:4px}
+.qc-row.ann{color:var(--navy);font-weight:700;font-size:13px;border-bottom:none;padding-top:6px}
+.qc-row.disc span:first-child{color:var(--green)}
+.qc-row.disc span:last-child{color:var(--green)}
+
+/* Buffer toggle row */
+.qc-buf-btn{
+  width:100%;border:none;border-bottom:1px solid var(--hair);background:none;
+  font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;
+  align-items:center;padding:7px 0;font-size:13px;color:rgba(35,44,84,.3);
+  transition:color .15s;text-align:left;-webkit-tap-highlight-color:transparent;
+}
+.qc-buf-btn:hover,.qc-buf-btn.on{color:var(--stone)}
+.qc-buf-btn.on span:last-child{color:var(--navy)}
+
+/* Inclusions */
+.qc-incl{display:flex;flex-direction:column;gap:4px}
+.qc-incl-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone)}
+.qc-incl-check{width:14px;height:14px;border-radius:50%;background:rgba(58,107,78,.12);border:1px solid rgba(58,107,78,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;color:var(--green)}
+
+/* Valid notice */
+.qc-valid{font-size:11px;color:var(--stone);text-align:center;padding:12px 22px;border-top:1px solid var(--hair);background:var(--field);opacity:.7;letter-spacing:.02em}
+
+/* Action buttons */
+.qc-actions{padding:16px 22px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:8px}
+.qc-btn-save{
+  width:100%;background:var(--navy);color:var(--on);border:none;
+  border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:background .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.qc-btn-save:hover{background:var(--navy-deep)}
+.qc-btn-dl{
+  width:100%;background:transparent;border:1.5px solid var(--hair-md);
+  border-radius:var(--r-sm);color:var(--navy);padding:10px;font-size:13px;font-weight:500;
+  cursor:pointer;transition:border-color .15s;font-family:inherit;
+}
+.qc-btn-dl:hover{border-color:rgba(35,44,84,.3)}
+.qc-btn-back{background:none;border:none;color:var(--stone);font-size:12.5px;cursor:pointer;padding:4px;font-family:inherit;transition:color .15s;width:100%;text-align:center}
+.qc-btn-back:hover{color:var(--navy)}
 
 /* Save form */
-.qc-sf-title{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--qc-label);margin-bottom:14px}
-.qc-sf-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.qc-sf-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 .qc-sf-row{display:flex;flex-direction:column;gap:5px}
-.qc-sf-row label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--qc-label);font-weight:700}
-.qc-sf-row input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;font-size:14px;color:var(--qc-cream);font-family:inherit;outline:none;-webkit-appearance:none;transition:border-color .18s}
-.qc-sf-row input::placeholder{color:rgba(240,236,224,.2)}
-.qc-sf-row input:focus{border-color:rgba(255,255,255,.35)}
-.qc-sf-submit{width:100%;background:var(--qc-cream);color:#131720;border:none;border-radius:10px;padding:14px 20px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .18s}
-.qc-sf-submit:hover{opacity:.88}
+.qc-sf-row label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);font-weight:700}
+.qc-sf-row input{
+  background:var(--field);border:1.5px solid var(--hair);border-radius:var(--r-sm);
+  padding:10px 13px;font-size:13.5px;color:var(--navy);font-family:inherit;
+  outline:none;-webkit-appearance:none;transition:border-color .15s;
+}
+.qc-sf-row input::placeholder{color:rgba(35,44,84,.25)}
+.qc-sf-row input:focus{border-color:rgba(35,44,84,.4)}
+.qc-sf-submit{
+  width:100%;background:var(--navy);color:var(--on);border:none;
+  border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:background .15s;
+}
+.qc-sf-submit:hover{background:var(--navy-deep)}
 .qc-sf-submit:disabled{opacity:.35;cursor:not-allowed}
 
 /* Success */
-.qc-ok{display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 0}
-.qc-ok-tick{width:48px;height:48px;background:rgba(200,169,106,.12);border:1px solid rgba(200,169,106,.28);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:20px;color:var(--qc-gold)}
-.qc-ok-title{font-size:22px;font-weight:700;color:var(--qc-cream);letter-spacing:-.02em;margin-bottom:7px}
-.qc-ok-sub{font-size:14px;color:var(--qc-body);line-height:1.6;margin-bottom:24px}
-.qc-view-jobs{display:block;width:100%;background:var(--qc-cream);color:#131720;border:none;border-radius:10px;padding:14px 20px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;margin-bottom:4px;box-sizing:border-box}
-.qc-view-jobs:hover{opacity:.88}
+.qc-ok{display:flex;flex-direction:column;align-items:center;text-align:center;padding:36px 24px}
+.qc-ok-tick{width:44px;height:44px;background:rgba(58,107,78,.1);border:1px solid rgba(58,107,78,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--green);font-size:18px}
+.qc-ok-title{font-size:20px;font-weight:700;color:var(--navy);letter-spacing:-.02em;margin-bottom:6px}
+.qc-ok-sub{font-size:13.5px;color:var(--stone);line-height:1.6;margin-bottom:22px}
+.qc-ok-jobs{display:block;width:100%;background:var(--navy);color:var(--on);border:none;border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;margin-bottom:4px;box-sizing:border-box;transition:background .15s}
+.qc-ok-jobs:hover{background:var(--navy-deep)}
 
-/* Mobile bar */
-.qc-mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#0e1119;color:var(--qc-cream);padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);align-items:center;justify-content:space-between}
-.qc-mob-price{font-size:18px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.qc-mob-sub{font-size:11px;color:var(--qc-label);margin-top:2px}
-.qc-mob-see{background:rgba(255,255,255,.1);border:none;color:var(--qc-cream);font-family:inherit;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+/* Mobile sticky bar */
+.qc-mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--navy);color:var(--on);padding:13px 20px;border-top:1px solid rgba(243,239,228,.1);align-items:center;justify-content:space-between}
+.qc-mob-price{font-size:17px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.qc-mob-sub{font-size:11px;color:var(--on-sub);margin-top:2px}
+.qc-mob-see{background:rgba(243,239,228,.1);border:1px solid rgba(243,239,228,.18);color:var(--on);font-family:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 
 /* Print */
 .qc-print{display:none}
 @media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
 
 /* Mobile */
-@media(max-width:768px){
-  .qc-main.main{padding:20px 16px 88px}
-  .qc-toolbar{display:none}
-  .qc-layout{grid-template-columns:1fr;gap:0;padding-top:0}
-  .qc-slab{grid-template-columns:1fr;gap:14px}
-  .qc-slab-head{display:flex;gap:10px;align-items:baseline}
-  .qc-slab-num{margin-bottom:0}
-  #qc-preview{position:static;border-radius:0 0 16px 16px}
+@media(max-width:900px){
+  .qc-grid{grid-template-columns:1fr}
+  #qc-preview{position:static}
+  .qc-two{grid-template-columns:1fr;gap:14px}
   .qc-mob-bar{display:flex}
-  .qc-range{font-size:36px}
-  #qc-sqm-v{font-size:52px;width:130px}
-  .qc-pair{flex-direction:column;gap:18px}
-  .qc-bath-wrap{gap:14px}
-  .qc-bath-divider{display:none}
+  .main{padding-bottom:80px}
+}
+@media(max-width:600px){
+  .qc-choices{flex-direction:column}
+  .qc-q-range{font-size:32px}
 }
 </style>
 </head>
@@ -211,17 +255,17 @@
     </div>
   </aside>
 
-  <main class="main qc-main">
+  <main class="main">
 
     <div class="ph pg-1">
       <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Quote Calculator</h1>
     </div>
 
-    <div class="qc-toolbar pg-2" id="qc-toolbar"></div>
+    <div class="stats pg-2" id="qc-stats"></div>
 
-    <div class="qc-layout pg-3">
-      <div class="qc-form-col" id="qc-form"></div>
+    <div class="qc-grid pg-3">
+      <div class="qc-left" id="qc-form"></div>
       <div id="qc-preview"></div>
     </div>
 
@@ -252,6 +296,8 @@ if(localStorage.getItem('mq_v')!=='3'){
   localStorage.setItem('mq_v','3');
 }
 
+// ─── Config ──────────────────────────────────────────────────────
+
 var QC={
   rate:65,
   sqmHr:{maintenance:200,deep:85},
@@ -269,24 +315,27 @@ var QC={
 
 var SPACE_LABELS=['Office / Corporate','Retail / Showroom','Medical / Allied Health','Industrial / Warehouse'];
 var SPACE_KEYS=['office','retail','medical','industrial'];
+var SPACE_HINTS=['Workstations, meeting rooms, amenities','Shopfront, fitting rooms, stockroom','Enhanced protocols, treatment areas','Warehouse floor, amenities, offices'];
+
 var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
 var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
-var EXTRA_LABELS=['Hard floor polish','Carpet vacuum','Rubbish removal'];
+
+var EXTRA_LABELS=['Hard floor polish','Carpet vacuum & spot clean','Rubbish removal & bins'];
 var EXTRA_KEYS=['floor_polish','carpet','rubbish'];
+
+// ─── State ───────────────────────────────────────────────────────
 
 var s={
   space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,
   extras:{},buffer:false,hasResult:false,
   saving:false,saved:false,savedClientName:''
 };
-var lastResult=null;
 
 function resetState(){
   s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,hasResult:false,saving:false,saved:false,savedClientName:''};
-  lastResult=null;
 }
 
-// ─── CALC UTILS (unchanged) ───────────────────────────────────
+// ─── Calculation (unchanged) ─────────────────────────────────────
 
 function calc(){
   var sqm=Math.max(50,Math.min(5000,Math.floor(s.sqm||50)));
@@ -310,301 +359,294 @@ function calc(){
   var subBeforeDisc=per;
   per=per*disc;
   var mthMult={once:null,monthly:1,fortnightly:2.17,weekly:4.33};
-  return{per:per,lo:r5(per*.9),hi:r5(per*1.1),monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,hrs:total,labour:labour,sup:sup,ext:ext,bufferAmt:bufferAmt,disc:disc,subBeforeDisc:subBeforeDisc};
+  return{
+    per:per,lo:r5(per*.9),hi:r5(per*1.1),
+    monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,
+    hrs:total,labour:labour,sup:sup,ext:ext,
+    bufferAmt:bufferAmt,disc:disc,subBeforeDisc:subBeforeDisc
+  };
 }
 function r5(n){return Math.round(n/5)*5;}
 function au(n){return '$'+Math.round(n).toLocaleString('en-AU');}
 function esc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function brow(l,v){return '<div class="qc-brow"><span>'+l+'</span><span>'+v+'</span></div>';}
-function seg(label,key,on,group){
-  return '<button type="button" class="qc-seg-btn'+(on?' on':'')+'" data-key="'+key+'" data-grp="'+group+'">'+label+'</button>';
-}
+function row(l,v,cls){return '<div class="qc-row'+(cls?' '+cls:'')+'"><span>'+l+'</span><span>'+v+'</span></div>';}
+function chk(txt){return '<div class="qc-incl-row"><div class="qc-incl-check">&#10003;</div><span>'+txt+'</span></div>';}
 
-// ─── TOOLBAR ─────────────────────────────────────────────────
+// ─── Stats strip ─────────────────────────────────────────────────
 
-function initToolbar(){
-  var el=document.getElementById('qc-toolbar');
+function initStats(){
+  var el=document.getElementById('qc-stats');
   if(!el)return;
   var minCost=QC.rate*QC.minHrsMaint;
   var deepCost=QC.rate*QC.minHrsDeep+QC.suppliesCost;
-  var sep='<span class="qc-toolbar-sep">&middot;</span>';
   el.innerHTML=
-    '<span>$'+QC.rate+' / hr labour</span>'+sep+
-    '<span>'+QC.minHrsMaint+' hr minimum &mdash; '+au(minCost)+'</span>'+sep+
-    '<span>deep clean from '+au(deepCost)+'</span>'+sep+
-    '<span>+'+Math.round(QC.bufferPct*100)+'% site allowance available</span>';
+    '<div class="stat"><div class="stat-lbl">Labour rate</div><div class="stat-val">$'+QC.rate+'<span style="font-size:13px;opacity:.55;font-weight:500"> /hr</span></div></div>'+
+    '<div class="stat"><div class="stat-lbl">Maintenance minimum</div><div class="stat-val">'+QC.minHrsMaint+' hrs</div><div class="stat-hint">'+au(minCost)+' minimum charge</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Deep clean from</div><div class="stat-val">'+au(deepCost)+'</div><div class="stat-hint">'+QC.minHrsDeep+' hr minimum</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Site allowance</div><div class="stat-val">+'+Math.round(QC.bufferPct*100)+'%</div><div class="stat-hint">Optional buffer</div></div>';
 }
 
-// ─── FORM COLUMN ─────────────────────────────────────────────
+// ─── Form rendering ───────────────────────────────────────────────
+
+function choice(label,key,on,group,hint){
+  return '<button type="button" class="qc-choice'+(on?' on':'')+'" data-key="'+key+'" data-grp="'+group+'">'+(hint?'<span>'+label+'</span>':label)+'</button>';
+}
 
 function renderFormCol(){
   var h='';
 
-  h+='<div class="qc-slab">'+
-    '<div class="qc-slab-head">'+
-      '<span class="qc-slab-num">01</span>'+
-      '<span class="qc-slab-lbl">Premises type</span>'+
+  // 1 — Premises
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head">'+
+      '<div class="qc-card-lbl">Premises type</div>'+
     '</div>'+
-    '<div class="qc-slab-body">'+
-      '<div class="qc-seg-ctrl block">'+
-        SPACE_KEYS.map(function(k,i){return seg(SPACE_LABELS[i],k,s.space===k,'space');}).join('')+
-      '</div>'+
+    '<div class="qc-choices col">'+
+      SPACE_KEYS.map(function(k,i){
+        return '<button type="button" class="qc-choice'+(s.space===k?' on':'')+'" data-key="'+k+'" data-grp="space" style="justify-content:space-between">'+
+          '<span>'+SPACE_LABELS[i]+'</span>'+
+          '<span style="font-size:11.5px;opacity:'+(s.space===k?'.65':'.4')+';font-weight:400">'+SPACE_HINTS[i]+'</span>'+
+        '</button>';
+      }).join('')+
     '</div>'+
   '</div>';
 
-  h+='<div class="qc-slab">'+
-    '<div class="qc-slab-head">'+
-      '<span class="qc-slab-num">02</span>'+
-      '<span class="qc-slab-lbl">Floor area</span>'+
+  // 2 — Floor area
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head">'+
+      '<div class="qc-card-lbl">Floor area</div>'+
     '</div>'+
-    '<div class="qc-slab-body">'+
-      '<div class="qc-sqm-ctrl">'+
-        '<button type="button" class="qc-sqm-pm" id="qc-sqm-m">&#8722;</button>'+
-        '<div class="qc-sqm-label">'+
-          '<input type="number" id="qc-sqm-v" min="50" max="5000" step="1" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="100">'+
-          '<span class="qc-sqm-u">sqm</span>'+
-        '</div>'+
+    '<div class="qc-sqm-wrap">'+
+      '<div class="qc-sqm-btns">'+
         '<button type="button" class="qc-sqm-pm" id="qc-sqm-p">+</button>'+
+        '<button type="button" class="qc-sqm-pm" id="qc-sqm-m">&#8722;</button>'+
       '</div>'+
-      '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
-      '<div class="qc-sqm-picks">'+
-        [50,100,200,500,1000].map(function(v){
-          return '<button type="button" class="qc-sqm-pick'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';
-        }).join('')+
-      '</div>'+
-    '</div>'+
-  '</div>';
-
-  h+='<div class="qc-slab">'+
-    '<div class="qc-slab-head">'+
-      '<span class="qc-slab-num">03</span>'+
-      '<span class="qc-slab-lbl">Bathrooms &amp; kitchen</span>'+
-    '</div>'+
-    '<div class="qc-slab-body">'+
-      '<div class="qc-bath-wrap">'+
-        '<div class="qc-bath-group">'+
-          '<div class="qc-bath-sub">Bathrooms / toilets</div>'+
-          '<div class="qc-bath-row">'+
-            '<button type="button" class="qc-bath-btn" id="qc-minus">&#8722;</button>'+
-            '<span class="qc-bath-num" id="qc-bnum">'+s.baths+'</span>'+
-            '<button type="button" class="qc-bath-btn" id="qc-plus">+</button>'+
-          '</div>'+
+      '<div>'+
+        '<div class="qc-sqm-display">'+
+          '<input type="number" id="qc-sqm-v" min="50" max="5000" step="1" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="100">'+
+          '<span class="qc-sqm-unit">sqm</span>'+
         '</div>'+
-        '<div class="qc-bath-divider"></div>'+
-        '<div class="qc-bath-group">'+
-          '<div class="qc-bath-sub">Kitchen or breakroom?</div>'+
-          '<div class="qc-seg-ctrl">'+
-            seg('Yes','yes',s.kitchen===true,'kit')+
-            seg('No','no',s.kitchen===false,'kit')+
-          '</div>'+
+        '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
+        '<div class="qc-sqm-picks">'+
+          [50,100,200,500,1000,2000].map(function(v){
+            return '<button type="button" class="qc-sqm-pick'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';
+          }).join('')+
         '</div>'+
       '</div>'+
     '</div>'+
   '</div>';
 
-  h+='<div class="qc-slab">'+
-    '<div class="qc-slab-head">'+
-      '<span class="qc-slab-num">04</span>'+
-      '<span class="qc-slab-lbl">Frequency &amp; clean type</span>'+
+  // 3 — Bathrooms & kitchen
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head">'+
+      '<div class="qc-card-lbl">Bathrooms &amp; kitchen</div>'+
     '</div>'+
-    '<div class="qc-slab-body">'+
-      '<div class="qc-pair">'+
-        '<div class="qc-pair-col">'+
-          '<div class="qc-pair-sub">Frequency</div>'+
-          '<div class="qc-seg-ctrl">'+
-            FREQ_KEYS.map(function(k,i){return seg(FREQ_LABELS[i],k,s.freq===k,'freq');}).join('')+
+    '<div class="qc-two">'+
+      '<div>'+
+        '<div class="qc-two-lbl">Bathrooms / toilets</div>'+
+        '<div class="qc-stepper-row">'+
+          '<button type="button" class="qc-ste-btn" id="qc-minus">&#8722;</button>'+
+          '<div>'+
+            '<div class="qc-ste-val" id="qc-bnum">'+s.baths+'</div>'+
+            '<div class="qc-ste-sub" id="qc-bsub">'+(s.baths===1?'bathroom':'bathrooms')+'</div>'+
           '</div>'+
+          '<button type="button" class="qc-ste-btn" id="qc-plus">+</button>'+
         '</div>'+
-        '<div class="qc-pair-col">'+
-          '<div class="qc-pair-sub">Type of clean</div>'+
-          '<div class="qc-seg-ctrl">'+
-            seg('Maintenance','maintenance',s.type==='maintenance','type')+
-            seg('Deep clean','deep',s.type==='deep','type')+
-          '</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="qc-two-lbl">Kitchenette or breakroom?</div>'+
+        '<div class="qc-choices">'+
+          choice('Yes','yes',s.kitchen===true,'kit')+
+          choice('No','no',s.kitchen===false,'kit')+
         '</div>'+
       '</div>'+
     '</div>'+
   '</div>';
 
-  h+='<div class="qc-slab">'+
-    '<div class="qc-slab-head">'+
-      '<span class="qc-slab-num">05</span>'+
-      '<span class="qc-slab-lbl">Add-ons <span style="font-weight:400;opacity:.55;text-transform:none;letter-spacing:0;font-size:9px">optional</span></span>'+
+  // 4 — Frequency & type
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head">'+
+      '<div class="qc-card-lbl">Service schedule</div>'+
     '</div>'+
-    '<div class="qc-slab-body">'+
-      '<div class="qc-seg-ctrl">'+
-        EXTRA_KEYS.map(function(k,i){return seg(EXTRA_LABELS[i],k,!!s.extras[k],'ext');}).join('')+
+    '<div class="qc-two">'+
+      '<div>'+
+        '<div class="qc-two-lbl">Frequency</div>'+
+        '<div class="qc-choices col">'+
+          FREQ_KEYS.map(function(k,i){
+            var disc=QC.freqDisc[k];
+            var badge=disc<1?'<span style="margin-left:auto;font-size:10px;font-weight:700;color:'+(s.freq===k?'rgba(243,239,228,.65)':'var(--green)')+'">&#8722;'+Math.round((1-disc)*100)+'%</span>':'';
+            return '<button type="button" class="qc-choice'+(s.freq===k?' on':'')+'" data-key="'+k+'" data-grp="freq" style="justify-content:space-between">'+FREQ_LABELS[i]+badge+'</button>';
+          }).join('')+
+        '</div>'+
       '</div>'+
+      '<div>'+
+        '<div class="qc-two-lbl">Clean type</div>'+
+        '<div class="qc-choices col">'+
+          '<button type="button" class="qc-choice'+(s.type==='maintenance'?' on':'')+'" data-key="maintenance" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
+            '<span>Maintenance</span>'+
+            '<span style="font-size:11px;opacity:'+(s.type==='maintenance'?'.65':'.55')+';font-weight:400">Regular upkeep clean</span>'+
+          '</button>'+
+          '<button type="button" class="qc-choice'+(s.type==='deep'?' on':'')+'" data-key="deep" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
+            '<span>Deep clean</span>'+
+            '<span style="font-size:11px;opacity:'+(s.type==='deep'?'.65':'.55')+';font-weight:400">Thorough top-to-bottom</span>'+
+          '</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+
+  // 5 — Add-ons
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head">'+
+      '<div class="qc-card-lbl">Optional add-ons</div>'+
+      '<div class="qc-card-hint">Select any that apply — priced by floor area</div>'+
+    '</div>'+
+    '<div class="qc-choices">'+
+      EXTRA_KEYS.map(function(k,i){
+        return '<button type="button" class="qc-choice'+(s.extras[k]?' on':'')+'" data-key="'+k+'" data-grp="ext">'+
+          (s.extras[k]?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><circle cx="6" cy="6" r="5" fill="rgba(243,239,228,.3)"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+
+          EXTRA_LABELS[i]+
+        '</button>';
+      }).join('')+
     '</div>'+
   '</div>';
 
   return h;
 }
 
-function initForm(){
-  var fc=document.getElementById('qc-form');
-  if(fc)fc.innerHTML=renderFormCol();
-  bindForm();
-}
-
-function bindForm(){
-  document.querySelectorAll('#qc-form .qc-seg-btn[data-grp]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var key=this.dataset.key,grp=this.dataset.grp;
-      if(grp==='space')s.space=key;
-      else if(grp==='kit')s.kitchen=(key==='yes');
-      else if(grp==='freq')s.freq=key;
-      else if(grp==='type')s.type=key;
-      else if(grp==='ext'){
-        s.extras[key]=!s.extras[key];
-        this.classList.toggle('on',!!s.extras[key]);
-        calcLive();return;
-      }
-      document.querySelectorAll('#qc-form .qc-seg-btn[data-grp="'+grp+'"]').forEach(function(b){
-        b.classList.toggle('on',b.dataset.key===key);
-      });
-      calcLive();
-    });
-  });
-
-  document.querySelectorAll('#qc-form .qc-sqm-pick').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      s.sqm=parseInt(this.dataset.sqm,10);
-      var v=document.getElementById('qc-sqm-v');if(v)v.value=s.sqm;
-      syncSqmPicks();calcLive();
-    });
-  });
-
-  var sqmM=document.getElementById('qc-sqm-m');
-  var sqmP=document.getElementById('qc-sqm-p');
-  var sqmV=document.getElementById('qc-sqm-v');
-  if(sqmM)sqmM.addEventListener('click',function(){
-    var v=Math.max(50,(s.sqm||100)-50);s.sqm=v;
-    if(sqmV)sqmV.value=v;syncSqmPicks();calcLive();
-  });
-  if(sqmP)sqmP.addEventListener('click',function(){
-    var v=Math.min(5000,(s.sqm||100)+50);s.sqm=v;
-    if(sqmV)sqmV.value=v;syncSqmPicks();calcLive();
-  });
-  if(sqmV)sqmV.addEventListener('input',function(){
-    var v=parseInt(this.value,10);
-    s.sqm=(isNaN(v)||v<1)?0:Math.min(5000,v);
-    var hint=document.getElementById('qc-sqm-hint');
-    if(hint)hint.classList.toggle('vis',s.sqm>=10&&s.sqm<50);
-    syncSqmPicks();calcLive();
-  });
-
-  var bm=document.getElementById('qc-minus');
-  var bp=document.getElementById('qc-plus');
-  if(bm)bm.addEventListener('click',function(){
-    if(s.baths>0){s.baths--;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;calcLive();}
-  });
-  if(bp)bp.addEventListener('click',function(){
-    if(s.baths<8){s.baths++;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;calcLive();}
-  });
-}
-
-function syncSqmPicks(){
-  document.querySelectorAll('#qc-form .qc-sqm-pick').forEach(function(b){
-    b.classList.toggle('on',parseInt(b.dataset.sqm,10)===s.sqm);
-  });
-}
-
-// ─── PREVIEW PANEL ───────────────────────────────────────────
+// ─── Preview: empty state ─────────────────────────────────────────
 
 function renderPreviewEmpty(){
+  var done={space:!!s.space,sqm:s.sqm>=50,kit:s.kitchen!==null,freq:!!s.freq,type:!!s.type};
+  var all=done.space&&done.sqm&&done.kit&&done.freq&&done.type;
+  if(all)return ''; // shouldn't happen — falls through to renderPreview
   return '<div class="qc-ph">'+
-    '<div class="qc-ph-arrow">&#8592;</div>'+
-    '<div class="qc-ph-lbl">Live estimate</div>'+
-    '<div class="qc-ph-hint">Complete the form to see<br>your quote instantly.</div>'+
+    '<svg class="qc-ph-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 11h5M8 15h3"/></svg>'+
+    '<div class="qc-ph-ttl">Quote preview</div>'+
+    '<div class="qc-ph-sub">Fill in the details to see<br>a live estimate</div>'+
+    '<div class="qc-ph-list">'+
+      '<div class="qc-ph-item'+(done.space?' done':'')+'"><div class="qc-ph-dot"></div>Premises type</div>'+
+      '<div class="qc-ph-item'+(done.sqm?' done':'')+'"><div class="qc-ph-dot"></div>Floor area</div>'+
+      '<div class="qc-ph-item'+(done.kit?' done':'')+'"><div class="qc-ph-dot"></div>Bathrooms &amp; kitchen</div>'+
+      '<div class="qc-ph-item'+(done.freq?' done':'')+'"><div class="qc-ph-dot"></div>Frequency</div>'+
+      '<div class="qc-ph-item'+(done.type?' done':'')+'"><div class="qc-ph-dot"></div>Clean type</div>'+
+    '</div>'+
   '</div>';
 }
+
+// ─── Preview: live quote ──────────────────────────────────────────
 
 function renderPreview(r){
   if(s.saved)return renderSaved();
   if(s.saving)return renderSaveForm(r);
 
   var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
-  var qLab=s.sqm+' sqm';
   var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
-  var ANN_MULT={monthly:12,fortnightly:26,weekly:52};
-  var annVal=ANN_MULT[s.freq]?r.per*ANN_MULT[s.freq]:null;
+  var ANN={monthly:12,fortnightly:26,weekly:52};
+  var annVal=ANN[s.freq]?r.per*ANN[s.freq]:null;
   var weeklyEq=null;
   if(s.freq==='fortnightly')weeklyEq=r.per/2;
   else if(s.freq==='monthly')weeklyEq=r.per*12/52;
 
-  var rows='';
-  rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
-  rows+=brow('Supplies',au(r.sup));
-  if(r.ext>0)rows+=brow('Add-ons',au(r.ext));
-  rows+='<button type="button" class="qc-buf-row'+(s.buffer?' on':'')+'" id="qc-buf">'+
-    '<span>Site allowance <span style="opacity:.45;font-size:11px">(+'+Math.round(QC.bufferPct*100)+'%)</span></span>'+
-    '<span>'+(s.buffer?'+'+au(r.bufferAmt):'tap to add')+'</span>'+
+  updatePrint(r,sLab,fLab,tLab);
+
+  var h='';
+
+  // Navy band: price display
+  h+='<div class="qc-q-band">'+
+    '<div class="qc-q-tags">'+
+      '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
+      '<span class="qc-q-tag">'+s.sqm+' sqm</span>'+
+      '<span class="qc-q-tag">'+esc(fLab)+'</span>'+
+      '<span class="qc-q-tag">'+tLab+'</span>'+
+    '</div>'+
+    '<div class="qc-q-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
+    '<div class="qc-q-meta">'+
+      '<span class="qc-q-lbl">per clean (estimate)</span>'+
+      (r.monthly?'<span class="qc-q-mth">&#8776; '+au(r.monthly)+' / month</span>':'')+
+    '</div>'+
+    (weeklyEq?'<div class="qc-q-wk">&#8776; '+au(weeklyEq)+' per week equivalent</div>':'')+
+  '</div>';
+
+  // Body: breakdown + inclusions
+  h+='<div class="qc-q-body">';
+  h+='<div class="qc-q-sec">Cost breakdown</div>';
+  h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
+  h+=row('Cleaning supplies &amp; consumables',au(r.sup));
+  if(r.ext>0)h+=row('Add-on services',au(r.ext));
+  h+='<button type="button" class="qc-buf-btn'+(s.buffer?' on':'')+'" id="qc-buf">'+
+    '<span>Site allowance <span style="font-size:11px;opacity:.55">(+'+Math.round(QC.bufferPct*100)+'% buffer)</span></span>'+
+    '<span>'+(s.buffer?'+'+au(r.bufferAmt):'+ Add')+'</span>'+
   '</button>';
-  if(r.disc<1.0)rows+=brow('Freq. discount ('+Math.round((1-r.disc)*100)+'% off)','&#8722;'+au(r.subBeforeDisc*(1-r.disc)));
-  rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
-  if(annVal)rows+='<div class="qc-brow ann"><span>Annual contract</span><span>&#8776; '+au(annVal)+'</span></div>';
+  if(r.disc<1.0)h+=row('<span style="color:var(--green)">Recurring discount (&#8722;'+Math.round((1-r.disc)*100)+'%)</span>','<span style="color:var(--green)">&#8722;'+au(r.subBeforeDisc*(1-r.disc))+'</span>');
+  h+=row('Per clean total',au(r.per),'total');
+  if(annVal)h+=row('Annual contract value','&#8776; '+au(annVal),'ann');
 
-  updatePrint(r,sLab,qLab,fLab,tLab);
+  h+='<div class="qc-q-sec">What\'s included</div>';
+  h+='<div class="qc-incl">'+
+    chk('Cleaning supplies &amp; chemicals')+
+    chk('Public liability insurance')+
+    chk('Background-checked, trained staff')+
+    chk('Post-clean quality checklist')+
+  '</div>';
 
-  return '<div class="qc-rtags">'+
-    '<span class="qc-rtag">'+esc(sLab)+'</span>'+
-    '<span class="qc-rtag">'+esc(qLab)+'</span>'+
-    '<span class="qc-rtag">'+esc(fLab)+'</span>'+
-    '<span class="qc-rtag">'+tLab+'</span>'+
-  '</div>'+
-  '<div class="qc-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
-  '<div class="qc-range-row">'+
-    '<span class="qc-range-lbl">per clean (estimate)</span>'+
-    (r.monthly?'<span class="qc-range-mth">&#8776;'+au(r.monthly)+'/month</span>':'')+
-  '</div>'+
-  (weeklyEq?'<div class="qc-per-sub">&#8776; '+au(weeklyEq)+' per week</div>':'')+
-  '<div class="qc-breakdown">'+rows+'</div>'+
-  '<div class="qc-incl">'+
-    '<div class="qc-incl-row">&#10003;&#160; Cleaning supplies &amp; chemicals</div>'+
-    '<div class="qc-incl-row">&#10003;&#160; Public liability insurance</div>'+
-    '<div class="qc-incl-row">&#10003;&#160; Background-checked, trained staff</div>'+
-  '</div>'+
-  '<button type="button" class="qc-save" id="qc-save">Save this quote &#8594;</button>'+
-  '<button type="button" class="qc-dl" id="qc-dl">&#8595; Download estimate</button>'+
-  '<div class="qc-valid">Estimate valid for 30 days</div>';
+  h+='</div>'; // end body
+
+  h+='<div class="qc-valid">Estimate valid for 30 days &middot; GST not included</div>';
+
+  h+='<div class="qc-actions">'+
+    '<button type="button" class="qc-btn-save" id="qc-save">Save quote &amp; create job &#8594;</button>'+
+    '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
+  '</div>';
+
+  return h;
 }
+
+// ─── Preview: save form ───────────────────────────────────────────
 
 function renderSaveForm(r){
   var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
   var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
-  return '<div class="qc-rtags">'+
-    '<span class="qc-rtag">'+esc(sLab)+'</span>'+
-    '<span class="qc-rtag">'+s.sqm+' sqm</span>'+
-    '<span class="qc-rtag">'+esc(fLab)+'</span>'+
-    '<span class="qc-rtag">'+tLab+'</span>'+
+  return '<div class="qc-q-band">'+
+    '<div class="qc-q-tags">'+
+      '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
+      '<span class="qc-q-tag">'+s.sqm+' sqm</span>'+
+      '<span class="qc-q-tag">'+esc(fLab)+'</span>'+
+      '<span class="qc-q-tag">'+tLab+'</span>'+
+    '</div>'+
+    '<div class="qc-q-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
+    '<div class="qc-q-meta"><span class="qc-q-lbl">per clean estimate</span></div>'+
   '</div>'+
-  '<div style="font-size:32px;font-weight:700;color:var(--qc-cream);letter-spacing:-.03em;margin-bottom:22px;font-variant-numeric:tabular-nums">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
-  '<div class="qc-sf-title">Who are we quoting?</div>'+
-  '<div class="qc-sf-wrap">'+
-    '<div class="qc-sf-row"><label>Business name</label><input type="text" id="qs-biz" placeholder="Acme Pty Ltd" autocomplete="organization"></div>'+
-    '<div class="qc-sf-row"><label>Contact name</label><input type="text" id="qs-contact" placeholder="Jane Smith" autocomplete="name"></div>'+
-    '<div class="qc-sf-row"><label>Email</label><input type="email" id="qs-email" placeholder="name@company.com.au" autocomplete="email"></div>'+
-    '<div class="qc-sf-row"><label>Phone</label><input type="tel" id="qs-phone" placeholder="0400 000 000" autocomplete="tel"></div>'+
-    '<div class="qc-sf-row"><label>Site address</label><input type="text" id="qs-site" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
+  '<div class="qc-q-body">'+
+    '<div class="qc-q-sec">Client details</div>'+
+    '<div class="qc-sf-wrap">'+
+      '<div class="qc-sf-row"><label>Business name <span style="color:var(--red)">*</span></label><input type="text" id="qs-biz" placeholder="Acme Pty Ltd" autocomplete="organization"></div>'+
+      '<div class="qc-sf-row"><label>Contact name</label><input type="text" id="qs-contact" placeholder="Jane Smith" autocomplete="name"></div>'+
+      '<div class="qc-sf-row"><label>Email</label><input type="email" id="qs-email" placeholder="jane@acme.com.au" autocomplete="email"></div>'+
+      '<div class="qc-sf-row"><label>Phone</label><input type="tel" id="qs-phone" placeholder="0400 000 000" autocomplete="tel"></div>'+
+      '<div class="qc-sf-row"><label>Site address</label><input type="text" id="qs-site" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
+    '</div>'+
   '</div>'+
-  '<button type="button" class="qc-sf-submit" id="qs-submit">Save &amp; create job</button>'+
-  '<button type="button" class="qc-restart" id="qc-back-res" style="margin-top:4px">&#8592; Back to quote</button>';
+  '<div class="qc-actions">'+
+    '<button type="button" class="qc-sf-submit" id="qs-submit">Save &amp; create job</button>'+
+    '<button type="button" class="qc-btn-back" id="qc-back-res">&#8592; Back to quote</button>'+
+  '</div>';
 }
+
+// ─── Preview: saved ───────────────────────────────────────────────
 
 function renderSaved(){
   return '<div class="qc-ok">'+
     '<div class="qc-ok-tick">&#10003;</div>'+
-    '<div class="qc-ok-title">Done</div>'+
-    '<div class="qc-ok-sub">'+esc(s.savedClientName||'')+' has been added as a client and an upcoming job is ready to schedule.</div>'+
-    '<a href="jobs.html" class="qc-view-jobs">View jobs &#8594;</a>'+
-    '<button type="button" class="qc-restart" id="qc-restart" style="margin-top:4px">&#8592; New quote</button>'+
+    '<div class="qc-ok-title">Saved</div>'+
+    '<div class="qc-ok-sub">'+esc(s.savedClientName||'Client')+' has been added and an upcoming job is ready to schedule.</div>'+
+    '<a href="jobs.html" class="qc-ok-jobs">View jobs &#8594;</a>'+
+    '<button type="button" class="qc-btn-back" id="qc-restart" style="margin-top:8px">&#8592; New quote</button>'+
   '</div>';
 }
 
-// ─── MOBILE BAR ──────────────────────────────────────────────
+// ─── Mobile bar ───────────────────────────────────────────────────
 
 function updateMobBar(r){
   var bar=document.getElementById('qc-mob-bar');
@@ -615,7 +657,7 @@ function updateMobBar(r){
   if(price)price.textContent=au(r.lo)+' – '+au(r.hi);
 }
 
-// ─── LIVE CALC ───────────────────────────────────────────────
+// ─── Live calc ────────────────────────────────────────────────────
 
 function calcLive(){
   var preview=document.getElementById('qc-preview');
@@ -628,7 +670,6 @@ function calcLive(){
     return;
   }
   var r=calc();
-  lastResult=r;
   s.hasResult=true;
   preview.innerHTML=renderPreview(r);
   bindPreview(r);
@@ -642,15 +683,109 @@ function bindPreview(r){
   if(dl)dl.addEventListener('click',function(){var el=document.getElementById('qc-print');if(el&&el.innerHTML)window.print();});
   var sv=document.getElementById('qc-save');
   if(sv)sv.addEventListener('click',function(){s.saving=true;calcLive();});
-  var qss=document.getElementById('qs-submit');
-  if(qss)qss.addEventListener('click',saveQuote);
-  var bkr=document.getElementById('qc-back-res');
-  if(bkr)bkr.addEventListener('click',function(){s.saving=false;calcLive();});
+  var sub=document.getElementById('qs-submit');
+  if(sub)sub.addEventListener('click',saveQuote);
+  var bk=document.getElementById('qc-back-res');
+  if(bk)bk.addEventListener('click',function(){s.saving=false;calcLive();});
   var rs=document.getElementById('qc-restart');
   if(rs)rs.addEventListener('click',function(){resetState();initForm();calcLive();});
 }
 
-// ─── SAVE TO SUPABASE (unchanged) ────────────────────────────
+// ─── Form init & bind ─────────────────────────────────────────────
+
+function initForm(){
+  var fc=document.getElementById('qc-form');
+  if(fc)fc.innerHTML=renderFormCol();
+  bindForm();
+}
+
+function bindForm(){
+  document.querySelectorAll('#qc-form .qc-choice[data-grp]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var key=this.dataset.key,grp=this.dataset.grp;
+      if(grp==='space')s.space=key;
+      else if(grp==='kit')s.kitchen=(key==='yes');
+      else if(grp==='freq')s.freq=key;
+      else if(grp==='type')s.type=key;
+      else if(grp==='ext'){
+        s.extras[key]=!s.extras[key];
+        // Re-render form to update checkmark icons on add-on buttons
+        var fc=document.getElementById('qc-form');
+        if(fc)fc.innerHTML=renderFormCol();
+        bindForm();
+        calcLive();return;
+      }
+      document.querySelectorAll('#qc-form .qc-choice[data-grp="'+grp+'"]').forEach(function(b){
+        b.classList.toggle('on',b.dataset.key===key);
+      });
+      // Re-render form section for type/freq to update discount badges and sub-labels
+      if(grp==='freq'||grp==='type'){
+        var fc=document.getElementById('qc-form');
+        if(fc)fc.innerHTML=renderFormCol();
+        bindForm();
+      }
+      calcLive();
+    });
+  });
+
+  // SQM quick picks
+  document.querySelectorAll('#qc-form .qc-sqm-pick').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      s.sqm=parseInt(this.dataset.sqm,10);
+      var v=document.getElementById('qc-sqm-v');if(v)v.value=s.sqm;
+      syncSqmPicks();calcLive();
+    });
+  });
+
+  // SQM ± buttons
+  var sqmM=document.getElementById('qc-sqm-m');
+  var sqmP=document.getElementById('qc-sqm-p');
+  var sqmV=document.getElementById('qc-sqm-v');
+  var step=50;
+  if(sqmM)sqmM.addEventListener('click',function(){
+    var v=Math.max(50,(s.sqm||100)-step);s.sqm=v;
+    if(sqmV)sqmV.value=v;syncSqmPicks();calcLive();
+  });
+  if(sqmP)sqmP.addEventListener('click',function(){
+    var v=Math.min(5000,(s.sqm||100)+step);s.sqm=v;
+    if(sqmV)sqmV.value=v;syncSqmPicks();calcLive();
+  });
+  if(sqmV)sqmV.addEventListener('input',function(){
+    var v=parseInt(this.value,10);
+    s.sqm=(isNaN(v)||v<1)?0:Math.min(5000,v);
+    var hint=document.getElementById('qc-sqm-hint');
+    if(hint)hint.classList.toggle('vis',s.sqm>=10&&s.sqm<50);
+    syncSqmPicks();calcLive();
+  });
+
+  // Bath stepper
+  var bm=document.getElementById('qc-minus');
+  var bp=document.getElementById('qc-plus');
+  if(bm)bm.addEventListener('click',function(){
+    if(s.baths>0){
+      s.baths--;
+      var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;
+      var sub=document.getElementById('qc-bsub');if(sub)sub.textContent=s.baths===1?'bathroom':'bathrooms';
+      calcLive();
+    }
+  });
+  if(bp)bp.addEventListener('click',function(){
+    if(s.baths<8){
+      s.baths++;
+      var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;
+      var sub=document.getElementById('qc-bsub');if(sub)sub.textContent=s.baths===1?'bathroom':'bathrooms';
+      calcLive();
+    }
+  });
+}
+
+function syncSqmPicks(){
+  document.querySelectorAll('#qc-form .qc-sqm-pick').forEach(function(b){
+    b.classList.toggle('on',parseInt(b.dataset.sqm,10)===s.sqm);
+  });
+}
+
+// ─── Save to Supabase (unchanged) ────────────────────────────────
 
 function saveQuote(){
   var biz=((document.getElementById('qs-biz')||{}).value||'').trim();
@@ -678,8 +813,7 @@ function saveQuote(){
       return sb.from('jobs').insert([jrow]).select('id').single().then(function(jr){
         if(jr.error)throw jr.error;
         s.savedClientName=cname;
-        s.saving=false;
-        s.saved=true;
+        s.saving=false;s.saved=true;
         var preview=document.getElementById('qc-preview');
         if(preview){preview.innerHTML=renderSaved();bindPreview(null);}
         updateMobBar(null);
@@ -691,57 +825,55 @@ function saveQuote(){
     });
 }
 
-// ─── PRINT (unchanged) ───────────────────────────────────────
+// ─── Print template (unchanged) ──────────────────────────────────
 
-function updatePrint(r,sLab,qLab,fLab,tLab){
+function updatePrint(r,sLab,fLab,tLab){
   var el=document.getElementById('qc-print');if(!el)return;
   var date=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
   var extList=EXTRA_KEYS.filter(function(k){return s.extras[k];}).map(function(k){return EXTRA_LABELS[EXTRA_KEYS.indexOf(k)];}).join(', ');
-  var basedOn=[qLab+' '+sLab,fLab+' '+tLab.toLowerCase()+' clean',s.baths+(s.baths===1?' bathroom':' bathrooms')];
-  if(s.kitchen)basedOn.push('Kitchenette');if(extList)basedOn.push(extList);
   function prow(l,v){return '<tr><td style="padding:6px 0;color:#555;border-bottom:1px solid #eee">'+l+'</td><td style="padding:6px 0;text-align:right;font-weight:500;color:#000;border-bottom:1px solid #eee">'+v+'</td></tr>';}
   el.innerHTML=
     '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:16px;margin-bottom:24px">'+
       '<div><div style="font-size:20px;font-weight:700;color:#000">MyQuest</div><div style="font-size:11px;color:#555;margin-top:2px">Pty Ltd</div></div>'+
       '<div style="text-align:right"><div style="font-size:15px;font-weight:600;color:#000">Quote Estimate</div><div style="font-size:11px;color:#555;margin-top:2px">'+date+'</div></div>'+
     '</div>'+
-    '<div style="margin-bottom:24px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:10px">Based on</div>'+
-    '<ul style="list-style:none;padding:0;margin:0">'+basedOn.map(function(item){return '<li style="font-size:14px;font-weight:500;color:#000;padding:4px 0;border-bottom:1px solid #f0f0f0">'+item+'</li>';}).join('')+'</ul></div>'+
-    '<div style="margin-bottom:24px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:10px">Price breakdown</div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:13px">'+
+    '<div style="margin-bottom:20px"><b>'+sLab+' — '+s.sqm+' sqm, '+fLab+' '+tLab.toLowerCase()+'</b><br>'+
+    s.baths+' bathroom'+(s.baths===1?'':'s')+(s.kitchen?', kitchenette':'')+(extList?', '+extList:'')+
+    '</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px">'+
       prow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour))+
       prow('Supplies',au(r.sup))+
-      (r.ext>0?prow(extList||'Add-ons',au(r.ext)):'')+
+      (r.ext>0?prow('Add-ons',au(r.ext)):'')+
       (r.bufferAmt>0?prow('Site allowance (+15%)','+'+au(r.bufferAmt)):'')+
+      (r.disc<1?prow('Recurring discount ('+Math.round((1-r.disc)*100)+'% off)','−'+au(r.subBeforeDisc*(1-r.disc))):'')+
       '<tr><td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;border-top:2px solid #000">Per clean</td>'+
       '<td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;text-align:right;border-top:2px solid #000">'+au(r.per)+'</td></tr>'+
-    '</table></div>'+
-    '<div style="background:#f5f5f5;border-radius:10px;padding:20px 24px;margin-bottom:20px">'+
-      '<div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Estimated price per clean</div>'+
-      '<div style="font-size:30px;font-weight:700;letter-spacing:-.02em;color:#000">'+au(r.lo)+' – '+au(r.hi)+'</div>'+
-      (r.monthly?'<div style="font-size:12px;color:#555;margin-top:4px">Approx. '+au(r.monthly)+' per month</div>':'')+
+    '</table>'+
+    '<div style="background:#f5f5f5;border-radius:8px;padding:18px 22px;margin-bottom:16px">'+
+      '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#666;margin-bottom:4px">Price estimate</div>'+
+      '<div style="font-size:28px;font-weight:700;letter-spacing:-.02em;color:#000">'+au(r.lo)+' – '+au(r.hi)+'</div>'+
+      (r.monthly?'<div style="font-size:12px;color:#555;margin-top:4px">≈ '+au(r.monthly)+' per month</div>':'')+
     '</div>'+
-    '<div style="font-size:11px;color:#555;line-height:1.65;margin-bottom:22px">This is an estimate only. Final pricing will be confirmed in writing before any work begins.</div>'+
-    '<div style="font-size:12px;color:#000;border-top:1px solid #ddd;padding-top:12px">hello@myquest.au  &#183;  0413 154 932  &#183;  myquest.au</div>';
+    '<div style="font-size:11px;color:#777;line-height:1.65;margin-bottom:20px">Estimate valid for 30 days. GST not included. Final pricing confirmed in writing before work begins.</div>'+
+    '<div style="font-size:12px;color:#000;border-top:1px solid #ddd;padding-top:12px">hello@myquest.au  ·  0413 154 932  ·  myquest.au</div>';
 }
 
-// ─── MOBILE NAV ──────────────────────────────────────────────
+// ─── Mobile nav ───────────────────────────────────────────────────
 
 var mob=document.getElementById('mob-menu');
 var mOverlay=document.getElementById('mob-overlay');
 function navClose(){document.body.classList.remove('mob-open');}
 if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
-
 var mobSee=document.getElementById('qc-mob-see');
 if(mobSee)mobSee.addEventListener('click',function(){
   var el=document.getElementById('qc-preview');
   if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
 });
 
-// ─── INIT ────────────────────────────────────────────────────
+// ─── Init ─────────────────────────────────────────────────────────
 
-initToolbar();
+initStats();
 initForm();
 calcLive();
 
