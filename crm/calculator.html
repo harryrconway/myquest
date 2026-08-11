@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Quote Calculator — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260812">
+<link rel="stylesheet" href="style.css?v=20260813">
 <style>
-.calc-wrap{display:flex;justify-content:center;align-items:flex-start;padding:8px 0 40px}
-.qc-card{background:#141c38;width:100%;max-width:420px;min-height:560px;max-height:calc(100dvh - 180px);overflow:hidden;padding:48px 28px 36px;position:relative;display:flex;flex-direction:column;border-radius:26px;box-shadow:0 24px 54px rgba(20,28,56,.35)}
+.calc-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0 40px}
+.calc-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+.calc-chip{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);border:1.5px solid var(--hair-md);border-radius:999px;padding:5px 13px;background:var(--card)}
+.qc-card{background:var(--navy);width:100%;max-width:420px;min-height:560px;max-height:calc(100dvh - 180px);overflow:hidden;padding:48px 28px 36px;position:relative;display:flex;flex-direction:column;border-radius:26px;box-shadow:0 24px 54px rgba(35,44,84,.3)}
 @keyframes qc-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .qc-dots{display:flex;gap:7px;justify-content:center;margin-bottom:44px}
 .qc-dot{width:6px;height:6px;border-radius:50%;background:rgba(243,239,228,.15);transition:background .35s}
@@ -20,7 +22,7 @@
 .qc-pills{display:flex;flex-wrap:wrap;gap:9px}
 .qc-pill{border:1.5px solid rgba(243,239,228,.16);border-radius:999px;padding:9px 19px;color:rgba(243,239,228,.6);font-size:14px;background:none;cursor:pointer;transition:all .18s;font-family:inherit;line-height:1}
 .qc-pill:hover{border-color:rgba(243,239,228,.4);color:#f3efe4}
-.qc-pill.on{background:#f3efe4;color:#141c38;border-color:#f3efe4;font-weight:600}
+.qc-pill.on{background:#f3efe4;color:var(--navy);border-color:#f3efe4;font-weight:600}
 .qc-pills-v{flex-direction:column}.qc-pills-v .qc-pill{text-align:center}
 .qc-stepper{display:inline-flex;align-items:center;border:1.5px solid rgba(243,239,228,.16);border-radius:999px;overflow:hidden}
 .qc-sbtn{background:none;border:none;color:#f3efe4;width:48px;height:48px;font-size:22px;cursor:pointer;transition:background .18s;font-family:inherit;display:flex;align-items:center;justify-content:center}
@@ -28,10 +30,10 @@
 .qc-stepper .qc-sbtn:first-child{border-radius:999px 0 0 999px}
 .qc-stepper .qc-sbtn:last-child{border-radius:0 999px 999px 0}
 .qc-snum{color:#f3efe4;font-size:18px;font-weight:600;min-width:46px;text-align:center}
-.qc-nav{padding-top:20px;padding-bottom:4px;display:flex;align-items:center;gap:12px;flex-shrink:0;background:#141c38}
+.qc-nav{padding-top:20px;padding-bottom:4px;display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--navy)}
 #qc-wrap{flex:1;overflow-y:auto;scrollbar-gutter:stable;}
 .qc-card button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.qc-next{flex:1;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:16px 20px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .18s;font-family:inherit;letter-spacing:-.01em}
+.qc-next{flex:1;background:#f3efe4;color:var(--navy);border:none;border-radius:999px;padding:16px 20px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .18s;font-family:inherit;letter-spacing:-.01em}
 .qc-next:disabled{opacity:.25;cursor:default;transition:none}
 .qc-backbtn{background:none;border:none;color:rgba(243,239,228,.4);font-size:14px;cursor:pointer;padding:4px 10px;transition:color .2s;font-family:inherit;white-space:nowrap}
 .qc-backbtn:hover{color:#f3efe4}
@@ -44,6 +46,11 @@
 .qc-breakdown{margin:20px 0 0;border-top:1px solid rgba(243,239,228,.1)}
 .qc-brow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(243,239,228,.07);color:rgba(243,239,228,.55);font-size:13.5px}
 .qc-brow.tot{color:#f3efe4;font-weight:600;border-bottom:none;padding-top:14px;font-size:14.5px;border-top:1px solid rgba(243,239,228,.15);margin-top:4px}
+.qc-brow.ann{color:#f3efe4;font-weight:700;font-size:14px;border-bottom:none;padding-top:10px;letter-spacing:-.01em}
+.qc-per-sub{font-size:12px;color:rgba(243,239,228,.35);margin-top:4px}
+.qc-incl{border-top:1px solid rgba(243,239,228,.09);margin:16px 0 0;padding-top:14px}
+.qc-incl-row{font-size:12px;color:rgba(243,239,228,.35);padding:3.5px 0;letter-spacing:.01em}
+.qc-valid{font-size:10.5px;color:rgba(243,239,228,.2);text-align:center;margin-top:6px;letter-spacing:.04em}
 .qc-buf-row{width:100%;border:none;border-bottom:1px solid rgba(243,239,228,.07);background:none;font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:13.5px;color:rgba(243,239,228,.3);transition:color .15s;text-align:left}
 .qc-buf-row:hover{color:rgba(243,239,228,.55)}.qc-buf-row.on{color:rgba(243,239,228,.55)}
 .qc-dl{width:100%;background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.15);border-radius:999px;color:#f3efe4;padding:12px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:8px;font-family:inherit;letter-spacing:.01em}
@@ -62,7 +69,7 @@
 .qc-print{display:none}
 @media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
 /* Save flow */
-.qc-save{width:100%;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:15px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:opacity .18s;margin-top:20px}
+.qc-save{width:100%;background:#f3efe4;color:var(--navy);border:none;border-radius:999px;padding:15px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:opacity .18s;margin-top:20px}
 .qc-save:hover{opacity:.88}
 .qc-sf-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
 .qc-sf-row{display:flex;flex-direction:column;gap:5px}
@@ -70,14 +77,14 @@
 .qc-sf-row input{background:rgba(243,239,228,.07);border:1.5px solid rgba(243,239,228,.12);border-radius:10px;padding:12px 14px;font-size:15px;color:#f3efe4;font-family:inherit;outline:none;-webkit-appearance:none;transition:border-color .18s}
 .qc-sf-row input::placeholder{color:rgba(243,239,228,.25)}
 .qc-sf-row input:focus{border-color:rgba(243,239,228,.35)}
-.qc-sf-submit{width:100%;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:15px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:opacity .18s}
+.qc-sf-submit{width:100%;background:#f3efe4;color:var(--navy);border:none;border-radius:999px;padding:15px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:opacity .18s}
 .qc-sf-submit:hover{opacity:.88}
 .qc-sf-submit:disabled{opacity:.35;cursor:not-allowed}
 .qc-ok{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:12px 0}
 .qc-ok-tick{width:50px;height:50px;background:rgba(243,239,228,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:20px;color:#f3efe4}
 .qc-ok-title{font-size:24px;font-weight:700;color:#f3efe4;letter-spacing:-.025em;margin-bottom:8px}
 .qc-ok-sub{font-size:14px;color:rgba(243,239,228,.5);line-height:1.6;margin-bottom:28px}
-.qc-view-jobs{display:block;width:100%;background:#f3efe4;color:#141c38;border:none;border-radius:999px;padding:15px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.01em;text-decoration:none;text-align:center;margin-bottom:4px;box-sizing:border-box}
+.qc-view-jobs{display:block;width:100%;background:#f3efe4;color:var(--navy);border:none;border-radius:999px;padding:15px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.01em;text-decoration:none;text-align:center;margin-bottom:4px;box-sizing:border-box}
 .qc-view-jobs:hover{opacity:.88}
 </style>
 </head>
@@ -136,6 +143,11 @@
     </div>
 
     <div class="calc-wrap pg-2">
+      <div class="calc-chips">
+        <span class="calc-chip">Supplies included</span>
+        <span class="calc-chip">Public liability insured</span>
+        <span class="calc-chip">Background-checked staff</span>
+      </div>
       <div class="qc-card">
         <div id="qc-dots" class="qc-dots"></div>
         <div id="qc-wrap"></div>
@@ -307,6 +319,12 @@ function renderResult(){
   var qLab=s.sqm+' sqm';
   var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)];
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
+  var ANN_MULT={monthly:12,fortnightly:26,weekly:52};
+  var annVal=ANN_MULT[s.freq]?r.per*ANN_MULT[s.freq]:null;
+  var weeklyEq=null;
+  if(s.freq==='weekly')weeklyEq=r.per;
+  else if(s.freq==='fortnightly')weeklyEq=r.per/2;
+  else if(s.freq==='monthly')weeklyEq=r.per*12/52;
   var rows='';
   rows+=brow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.labour));
   rows+=brow('Supplies',au(r.sup));
@@ -316,6 +334,7 @@ function renderResult(){
     '<span>'+(s.buffer?'+'+au(r.bufferAmt):'tap to add')+'</span></button>';
   if(r.disc<1.0)rows+=brow('Frequency discount ('+Math.round((1-r.disc)*100)+'% off)','−'+au(r.subBeforeDisc*(1-r.disc)));
   rows+='<div class="qc-brow tot"><span>Per clean</span><span>'+au(r.per)+'</span></div>';
+  if(annVal)rows+='<div class="qc-brow ann"><span>Annual contract value</span><span>≈ '+au(annVal)+'</span></div>';
   updatePrint(r,sLab,qLab,fLab,tLab);
   return '<div class="qc-step">'+
     '<div class="qc-rtags">'+
@@ -329,10 +348,17 @@ function renderResult(){
       '<span class="qc-per">per clean (estimate)</span>'+
       (r.monthly?'<span class="qc-mth">≈'+au(r.monthly)+'/month</span>':'')+
     '</div>'+
+    (weeklyEq&&s.freq!=='weekly'?'<div class="qc-per-sub">≈ '+au(weeklyEq)+' per week</div>':'')+
     '<div class="qc-breakdown">'+rows+'</div>'+
+    '<div class="qc-incl">'+
+      '<div class="qc-incl-row">&#10003;&#160; Cleaning supplies &amp; chemicals</div>'+
+      '<div class="qc-incl-row">&#10003;&#160; Public liability insurance</div>'+
+      '<div class="qc-incl-row">&#10003;&#160; Background-checked, trained staff</div>'+
+    '</div>'+
     '<button type="button" class="qc-save" id="qc-save">Save this quote &#8594;</button>'+
     '<button type="button" class="qc-dl" id="qc-dl">&#8595; Download estimate</button>'+
     '<button type="button" class="qc-restart" id="qc-restart">&#8592; Start over</button>'+
+    '<div class="qc-valid">Estimate valid for 30 days</div>'+
   '</div>';
 }
 
@@ -379,6 +405,7 @@ function renderSave(){
     '<div class="qc-sf-wrap">'+
       '<div class="qc-sf-row"><label>Business name</label><input type="text" id="qs-biz" placeholder="Acme Pty Ltd" autocomplete="organization"></div>'+
       '<div class="qc-sf-row"><label>Contact name</label><input type="text" id="qs-contact" placeholder="Jane Smith" autocomplete="name"></div>'+
+      '<div class="qc-sf-row"><label>Email</label><input type="email" id="qs-email" placeholder="name@company.com.au" autocomplete="email"></div>'+
       '<div class="qc-sf-row"><label>Phone</label><input type="tel" id="qs-phone" placeholder="0400 000 000" autocomplete="tel"></div>'+
       '<div class="qc-sf-row"><label>Site address</label><input type="text" id="qs-site" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
     '</div>'+
@@ -402,6 +429,7 @@ function renderSaved(){
 function saveQuote(){
   var biz=((document.getElementById('qs-biz')||{}).value||'').trim();
   var contact=((document.getElementById('qs-contact')||{}).value||'').trim();
+  var email=((document.getElementById('qs-email')||{}).value||'').trim();
   var phone=((document.getElementById('qs-phone')||{}).value||'').trim();
   var site=((document.getElementById('qs-site')||{}).value||'').trim();
   if(!biz){var f=document.getElementById('qs-biz');if(f)f.focus();return;}
@@ -409,7 +437,8 @@ function saveQuote(){
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   var sb=MQ.sb;
   var FREQ_TO_REPEAT={monthly:'monthly',fortnightly:'fortnightly',weekly:'weekly'};
-  sb.from('clients').insert([{name:biz,contact:contact||null,phone:phone||null,status:'active'}]).select('id,name').single()
+  var SPACE_TO_INDUSTRY={office:'Commercial office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
+  sb.from('clients').insert([{name:biz,contact:contact||null,email:email||null,phone:phone||null,site_address:site||null,industry:SPACE_TO_INDUSTRY[s.space]||null,status:'active'}]).select('id,name').single()
     .then(function(res){
       if(res.error)throw res.error;
       var cid=res.data.id,cname=res.data.name;
