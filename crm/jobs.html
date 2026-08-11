@@ -284,9 +284,9 @@ function renderExpand(j){
   var actions='';
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
-  actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   if(!j.from_schedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
   actions+='<button class="xp-btn" data-action="scope">Manage scope</button>';
+  actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   var repeatRow='';
   if(j.from_schedule){
     repeatRow='<div><div class="xp-lbl">Repeat</div><div class="xp-val" style="font-size:12px;color:var(--stone)">Auto-generated recurring job</div></div>';

@@ -408,7 +408,7 @@ function renderScopeView(sc){
     return '<div class="sv-area"><div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+tasks+'</div>';
   }).join('');
   var global=sc.global_notes?('<div class="sv-global"><div class="sv-global-lbl">General notes</div>'+esc(sc.global_notes)+'</div>'):'';
-  return areas+global+'<div class="sv-footer"><button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button></div>';
+  return areas+global+'<div class="sv-footer"><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button><button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button></div>';
 }
 function renderSavedList(){
   sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').order('created_at',{ascending:false}).then(function(r){
