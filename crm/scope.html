@@ -408,7 +408,7 @@ function renderScopeView(sc){
     return '<div class="sv-area"><div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+tasks+'</div>';
   }).join('');
   var global=sc.global_notes?('<div class="sv-global"><div class="sv-global-lbl">General notes</div>'+esc(sc.global_notes)+'</div>'):'';
-  return areas+global+'<div class="sv-footer"><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button></div>';
+  return areas+global+'<div class="sv-footer"><button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button></div>';
 }
 function renderSavedList(){
   sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').order('created_at',{ascending:false}).then(function(r){
@@ -425,7 +425,6 @@ function renderSavedList(){
           '<div class="ss-sub">'+esc(sc.client_name||'')+'</div></div>'+
           '<div class="ss-date">'+fmtDate(sc.date)+'</div>'+
           '<div style="display:flex;align-items:center;gap:8px">'+
-            '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete</button>'+
             '<span class="ss-arr">›</span>'+
           '</div>'+
         '</div>'+
@@ -440,8 +439,6 @@ function init(){
   if(!jobId){
     document.getElementById('scope-editor').hidden=true;
     document.getElementById('scope-no-job').hidden=false;
-    renderSavedList();
-    return;
   }
   sb.from('clients').select('id,name,site_address').order('name').then(function(r){
     allClients=r.data||[];
@@ -449,6 +446,7 @@ function init(){
     sel.innerHTML='<option value="">Select client…</option>';
     allClients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
     sel.addEventListener('change',function(){
+      if(sel.disabled)return;
       var found=null;allClients.forEach(function(c){if(c.id===sel.value)found=c;});
       var siteInput=document.getElementById('scope-site');
       if(found&&found.site_address){
@@ -460,22 +458,27 @@ function init(){
         siteInput.value='';
       }
     });
-    sb.from('jobs').select('id,client_id,client_name,site').eq('id',jobId).single().then(function(jr){
-      var job=jr.data;
-      if(job){
-        sel.value=job.client_id||'';
-        sel.disabled=true;
-        if(job.site)document.getElementById('scope-site').value=job.site;
-        if(!document.getElementById('scope-name').value)
-          document.getElementById('scope-name').value=(job.client_name||'')+(job.client_name?' — Scope':'Scope');
-      }
-      sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas').eq('job_id',jobId).maybeSingle().then(function(sr){
-        if(sr.data){loadIntoEditor(sr.data);}
-        else{renderAreas([]);}
+    if(jobId){
+      sb.from('jobs').select('id,client_id,client_name,site').eq('id',jobId).single().then(function(jr){
+        var job=jr.data;
+        if(job){
+          sel.value=job.client_id||'';
+          sel.disabled=true;
+          if(job.site)document.getElementById('scope-site').value=job.site;
+          if(!document.getElementById('scope-name').value)
+            document.getElementById('scope-name').value=(job.client_name||'')+(job.client_name?' — Scope':'Scope');
+        }
+        sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas').eq('job_id',jobId).maybeSingle().then(function(sr){
+          if(sr.data){loadIntoEditor(sr.data);}
+          else{renderAreas([]);}
+        });
       });
-    });
+    } else {
+      renderAreas([]);
+    }
   });
   document.getElementById('scope-date').valueAsDate=new Date();
+  renderSavedList();
 }
 
 document.getElementById('scope-add-area').addEventListener('click',addArea);
@@ -513,7 +516,13 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
   }
   var editBtn=e.target.closest('[data-edit-id]');
   if(editBtn){
-    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){if(r.data)loadIntoEditor(r.data);});
+    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){
+      if(r.data){
+        document.getElementById('scope-editor').hidden=false;
+        document.getElementById('scope-no-job').hidden=true;
+        loadIntoEditor(r.data);
+      }
+    });
     return;
   }
   var row=e.target.closest('.ss-row');
