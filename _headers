@@ -2,7 +2,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://cloudflareinsights.com; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; frame-ancestors 'none'
 
 /*.html
   Cache-Control: no-store, no-cache, must-revalidate
