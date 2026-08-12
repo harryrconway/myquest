@@ -20,6 +20,16 @@
 
 /* ── Choice buttons ── */
 .qc-choices{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ── Add-on grid ── */
+.qc-addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qc-addon-btn{width:100%;justify-content:space-between;align-items:flex-start;text-align:left;padding:12px 14px}
+.qc-addon-left{display:flex;align-items:flex-start;gap:8px}
+.qc-addon-name{font-size:13px;color:inherit;line-height:1.3}
+.qc-addon-sub{font-size:11px;color:var(--stone);margin-top:2px;font-weight:400}
+.qc-addon-btn.on .qc-addon-sub{opacity:.75}
+.qc-addon-rate{font-size:11.5px;font-weight:600;white-space:nowrap;color:inherit;opacity:.6;padding-top:1px;flex-shrink:0;margin-left:10px}
+.qc-addon-btn.on .qc-addon-rate{opacity:.8}
 .qc-choice{
   display:inline-flex;align-items:center;gap:8px;
   padding:10px 16px;
@@ -192,6 +202,7 @@
   #qc-preview{position:static;max-height:none}
   .qc-two{grid-template-columns:1fr;gap:14px}
   .qc-sched-grid{grid-template-columns:1fr;gap:14px}
+  .qc-addon-grid{grid-template-columns:1fr}
   .qc-mob-bar{display:flex}
   .main{padding-bottom:80px}
 }
@@ -299,7 +310,7 @@ var QC={
   spaceMult:{office:1.0,retail:1.0,medical:1.5,industrial:1.0},
   bathMins:22,
   kitchenMins:25,
-  extras:{floor_polish:0.55,carpet:0.25,windows:0.12,rubbish:25},
+  extras:{floor_polish:0.55,carpet:0.25,windows:0.12,ext_windows:0.20,rubbish:25,ext_areas:55,high_dust:45,kitchen_deep:75},
   suppliesCost:20,
   consumablesBase:12,
   consumablesPerBath:7,
@@ -316,8 +327,9 @@ var SPACE_HINTS=['Workstations, meeting rooms, amenities','Shopfront, fitting ro
 var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
 var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
 
-var EXTRA_LABELS=['Hard floor polish','Carpet vacuum & spot clean','Internal window cleaning','Rubbish removal & bins'];
-var EXTRA_KEYS=['floor_polish','carpet','windows','rubbish'];
+var EXTRA_LABELS=['Hard floor polish','Carpet vacuum & spot clean','Internal window cleaning','External window cleaning','Rubbish removal & bins','External areas','High-dusting','Kitchen deep clean'];
+var EXTRA_KEYS=['floor_polish','carpet','windows','ext_windows','rubbish','ext_areas','high_dust','kitchen_deep'];
+var EXTRA_SUB=['Buffed to a shine','Vacuum & spot treatment','Frames, sills & glass','Facade, frames & glass','Bins emptied & relined','Entry, paths & car park','Fittings, vents & beams','Oven, exhaust & fridge'];
 
 // ─── State ───────────────────────────────────────────────────────
 
@@ -351,7 +363,11 @@ function calc(){
   if(s.extras.floor_polish)ext+=sqm*QC.extras.floor_polish;
   if(s.extras.carpet)ext+=sqm*QC.extras.carpet;
   if(s.extras.windows)ext+=sqm*QC.extras.windows;
+  if(s.extras.ext_windows)ext+=sqm*QC.extras.ext_windows;
   if(s.extras.rubbish)ext+=QC.extras.rubbish;
+  if(s.extras.ext_areas)ext+=QC.extras.ext_areas;
+  if(s.extras.high_dust)ext+=QC.extras.high_dust;
+  if(s.extras.kitchen_deep)ext+=QC.extras.kitchen_deep;
   var consumablesAmt=s.consumables?QC.consumablesBase+(s.baths*QC.consumablesPerBath):0;
   var per=labour+sup+ext+consumablesAmt;
   var bufferAmt=s.buffer?per*QC.bufferPct:0;
@@ -490,18 +506,46 @@ function renderFormCol(){
       '<div class="qc-card-lbl">Optional add-ons</div>'+
       '<div class="qc-card-hint">Select any that apply</div>'+
     '</div>'+
-    '<div class="qc-choices">'+
-      EXTRA_KEYS.map(function(k,i){
-        return '<button type="button" class="qc-choice'+(s.extras[k]?' on':'')+'" data-key="'+k+'" data-grp="ext">'+
-          (s.extras[k]?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><circle cx="6" cy="6" r="5" fill="rgba(243,239,228,.3)"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+
-          EXTRA_LABELS[i]+
+    (function(){
+      var sqmCalc=Math.max(50,Math.min(5000,Math.floor(s.sqm||50)));
+      var SVG='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><circle cx="6" cy="6" r="5" fill="rgba(243,239,228,.3)"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      var EXTRA_RATES=[
+        au(sqmCalc*QC.extras.floor_polish)+' /visit',
+        au(sqmCalc*QC.extras.carpet)+' /visit',
+        au(sqmCalc*QC.extras.windows)+' /visit',
+        au(sqmCalc*QC.extras.ext_windows)+' /visit',
+        au(QC.extras.rubbish)+' /visit',
+        au(QC.extras.ext_areas)+' /visit',
+        au(QC.extras.high_dust)+' /visit',
+        au(QC.extras.kitchen_deep)+' /visit'
+      ];
+      var html='<div class="qc-addon-grid">';
+      html+=EXTRA_KEYS.map(function(k,i){
+        var on=s.extras[k];
+        return '<button type="button" class="qc-choice qc-addon-btn'+(on?' on':'')+'" data-key="'+k+'" data-grp="ext">'+
+          '<div class="qc-addon-left">'+(on?SVG:'')+
+            '<div>'+
+              '<div class="qc-addon-name">'+EXTRA_LABELS[i]+'</div>'+
+              '<div class="qc-addon-sub">'+EXTRA_SUB[i]+'</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="qc-addon-rate">'+EXTRA_RATES[i]+'</div>'+
         '</button>';
-      }).join('')+
-      '<button type="button" class="qc-choice'+(s.consumables?' on':'')+'" data-key="supply" data-grp="cons">'+
-        (s.consumables?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><circle cx="6" cy="6" r="5" fill="rgba(243,239,228,.3)"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+
-        'Supply consumables'+
-      '</button>'+
-    '</div>'+
+      }).join('');
+      var consAmt=au(QC.consumablesBase+(s.baths*QC.consumablesPerBath));
+      var consOn=s.consumables;
+      html+='<button type="button" class="qc-choice qc-addon-btn'+(consOn?' on':'')+'" data-key="supply" data-grp="cons">'+
+        '<div class="qc-addon-left">'+(consOn?SVG:'')+
+          '<div>'+
+            '<div class="qc-addon-name">Supply consumables</div>'+
+            '<div class="qc-addon-sub">Toilet paper, soap, bin liners</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="qc-addon-rate">'+consAmt+' /visit</div>'+
+      '</button>';
+      html+='</div>';
+      return html;
+    })()+
   '</div>';
 
   return h;
