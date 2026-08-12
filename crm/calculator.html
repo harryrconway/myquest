@@ -506,7 +506,6 @@ function renderFormCol(){
       var sqmCalc=Math.max(50,Math.min(5000,Math.floor(s.sqm||50)));
       var SVG='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><circle cx="6" cy="6" r="5" fill="rgba(243,239,228,.3)"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       var EXTRA_RATES=[
-        au(sqmCalc*QC.extras.carpet),
         au(sqmCalc*QC.extras.windows),
         au(sqmCalc*QC.extras.ext_windows),
         au(QC.extras.high_dust),
