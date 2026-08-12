@@ -302,13 +302,12 @@ if(localStorage.getItem('mq_v')!=='3'){
 
 var QC={
   rate:65,
-  afterHoursPct:0.20,
   floorMins:12,
   sqmHr:{maintenance:200,deep:85},
   spaceMult:{office:1.0,retail:1.0,medical:1.5,industrial:1.0},
   bathMins:22,
   kitchenMins:25,
-  extras:{carpet:0.40,windows:0.45,ext_windows:0.65,high_dust:75,kitchen_deep:120},
+  extras:{windows:0.45,ext_windows:0.65,high_dust:75,kitchen_deep:120},
   suppliesCost:20,
   consumablesBase:12,
   consumablesPerBath:7,
@@ -325,19 +324,19 @@ var SPACE_HINTS=['Workstations, meeting rooms, amenities','Shopfront, fitting ro
 var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
 var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
 
-var EXTRA_LABELS=['Carpet spot treatment','Internal window cleaning','External window cleaning','High-dusting','Kitchen deep clean'];
-var EXTRA_KEYS=['carpet','windows','ext_windows','high_dust','kitchen_deep'];
+var EXTRA_LABELS=['Internal window cleaning','External window cleaning','High-dusting','Kitchen deep clean'];
+var EXTRA_KEYS=['windows','ext_windows','high_dust','kitchen_deep'];
 
 // ─── State ───────────────────────────────────────────────────────
 
 var s={
   space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,
-  extras:{},buffer:false,floors:1,afterHours:false,consumables:false,
+  extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,
   hasResult:false,saving:false,saved:false,savedClientName:''
 };
 
 function resetState(){
-  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHours:false,consumables:false,hasResult:false,saving:false,saved:false,savedClientName:''};
+  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,hasResult:false,saving:false,saved:false,savedClientName:''};
 }
 
 // ─── Calculation (unchanged) ─────────────────────────────────────
@@ -353,11 +352,10 @@ function calc(){
   else if(s.freq==='once')total=Math.max(total,QC.minHrsDeep);
   else total=Math.max(total,QC.minHrsDeepRecurring);
   var baseLabour=total*QC.rate;
-  var afterHoursAmt=s.afterHours?baseLabour*QC.afterHoursPct:0;
+  var afterHoursAmt=s.afterHoursPct>0?baseLabour*(s.afterHoursPct/100):0;
   var labour=baseLabour+afterHoursAmt;
   var sup=QC.suppliesCost;
   var ext=0;
-  if(s.extras.carpet)ext+=sqm*QC.extras.carpet;
   if(s.extras.windows)ext+=sqm*QC.extras.windows;
   if(s.extras.ext_windows)ext+=sqm*QC.extras.ext_windows;
   if(s.extras.high_dust)ext+=QC.extras.high_dust;
@@ -370,7 +368,7 @@ function calc(){
   return{
     per:per,lo:r5(per*.9),hi:r5(per*1.1),
     monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,
-    hrs:total,baseLabour:baseLabour,afterHoursAmt:afterHoursAmt,
+    hrs:total,baseLabour:baseLabour,afterHoursAmt:afterHoursAmt,afterHoursPct:s.afterHoursPct,
     labour:labour,sup:sup,ext:ext,consumablesAmt:consumablesAmt,bufferAmt:bufferAmt
   };
 }
@@ -485,10 +483,14 @@ function renderFormCol(){
         '</div>'+
       '</div>'+
       '<div>'+
-        '<div class="qc-two-lbl">Access hours <span style="font-size:10px;font-weight:400;opacity:.5">optional</span></div>'+
-        '<div class="qc-choices col">'+
-          '<button type="button" class="qc-choice'+(s.afterHours===false?' on':'')+'" data-key="biz" data-grp="ah">Business hours</button>'+
-          '<button type="button" class="qc-choice'+(s.afterHours===true?' on':'')+'" data-key="after" data-grp="ah">After hours <span style="font-size:11px;opacity:'+(s.afterHours?'.65':'.45')+';font-weight:400">&thinsp;+'+Math.round(QC.afterHoursPct*100)+'%</span></button>'+
+        '<div class="qc-two-lbl">After-hours loading</div>'+
+        '<div class="qc-stepper-row">'+
+          '<button type="button" class="qc-ste-btn" id="qc-ah-minus">&#8722;</button>'+
+          '<div>'+
+            '<div class="qc-ste-val" id="qc-ahnum">'+s.afterHoursPct+'%</div>'+
+            '<div class="qc-ste-sub" id="qc-ahsub">'+(s.afterHoursPct>0?'+'+s.afterHoursPct+'% on labour':'No premium')+'</div>'+
+          '</div>'+
+          '<button type="button" class="qc-ste-btn" id="qc-ah-plus">+</button>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -593,7 +595,7 @@ function renderPreview(r){
   h+='<div class="qc-q-body">';
   h+='<div class="qc-q-sec">Cost breakdown</div>';
   h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour));
-  if(r.afterHoursAmt>0)h+=row('After-hours premium (+'+Math.round(QC.afterHoursPct*100)+'%)',au(r.afterHoursAmt));
+  if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)',au(r.afterHoursAmt));
   h+=row('Cleaning chemicals &amp; equipment',au(r.sup));
   if(r.consumablesAmt>0)h+=row('Consumables provision',au(r.consumablesAmt));
   if(r.ext>0)h+=row('Add-on services',au(r.ext));
@@ -729,7 +731,6 @@ function bindForm(){
       else if(grp==='kit')s.kitchen=(key==='yes');
       else if(grp==='freq')s.freq=key;
       else if(grp==='type')s.type=key;
-      else if(grp==='ah')s.afterHours=(key==='after');
       else if(grp==='ext'){
         s.extras[key]=!s.extras[key];
         var fc=document.getElementById('qc-form');
@@ -747,7 +748,7 @@ function bindForm(){
       document.querySelectorAll('#qc-form .qc-choice[data-grp="'+grp+'"]').forEach(function(b){
         b.classList.toggle('on',b.dataset.key===key);
       });
-      if(grp==='freq'||grp==='type'||grp==='ah'){
+      if(grp==='freq'||grp==='type'){
         var fc=document.getElementById('qc-form');
         if(fc)fc.innerHTML=renderFormCol();
         bindForm();
@@ -802,6 +803,26 @@ function bindForm(){
       s.baths++;
       var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;
       var sub=document.getElementById('qc-bsub');if(sub)sub.textContent=s.baths===1?'bathroom':'bathrooms';
+      calcLive();
+    }
+  });
+
+  // After-hours stepper
+  var ahm=document.getElementById('qc-ah-minus');
+  var ahp=document.getElementById('qc-ah-plus');
+  if(ahm)ahm.addEventListener('click',function(){
+    if(s.afterHoursPct>0){
+      s.afterHoursPct=Math.max(0,s.afterHoursPct-5);
+      var n=document.getElementById('qc-ahnum');if(n)n.textContent=s.afterHoursPct+'%';
+      var sub=document.getElementById('qc-ahsub');if(sub)sub.textContent=s.afterHoursPct>0?'+'+s.afterHoursPct+'% on labour':'No premium';
+      calcLive();
+    }
+  });
+  if(ahp)ahp.addEventListener('click',function(){
+    if(s.afterHoursPct<50){
+      s.afterHoursPct=Math.min(50,s.afterHoursPct+5);
+      var n=document.getElementById('qc-ahnum');if(n)n.textContent=s.afterHoursPct+'%';
+      var sub=document.getElementById('qc-ahsub');if(sub)sub.textContent=s.afterHoursPct>0?'+'+s.afterHoursPct+'% on labour':'No premium';
       calcLive();
     }
   });
@@ -890,7 +911,7 @@ function updatePrint(r,sLab,fLab,tLab){
     '</div>'+
     '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px">'+
       prow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour))+
-      (r.afterHoursAmt>0?prow('After-hours premium (+'+Math.round(QC.afterHoursPct*100)+'%)','+'+au(r.afterHoursAmt)):'')+
+      (r.afterHoursAmt>0?prow('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt)):'')+
       prow('Cleaning chemicals & equipment',au(r.sup))+
       (r.consumablesAmt>0?prow('Consumables provision',au(r.consumablesAmt)):'')+
       (r.ext>0?prow('Add-on services',au(r.ext)):'')+
