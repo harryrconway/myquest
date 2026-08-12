@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260811">
+<link rel="stylesheet" href="style.css?v=20260813">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -41,7 +41,7 @@
 .jl-arr svg{transition:transform .22s}
 .xp-wrap.open .jl-arr svg{transform:rotate(90deg)}
 .xp-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
-.xp-body.open{max-height:600px}
+.xp-body.open{max-height:900px}
 .xp-wrap:last-child .xp-body{border-bottom:none}
 .xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
 .xp-inner{padding:20px 24px 22px;background:var(--field)}
@@ -55,6 +55,16 @@
 .xp-btn.primary:hover{background:var(--navy-deep)}
 .xp-btn.danger{color:#fff;background:var(--red);border-color:var(--red)}
 .xp-btn.danger:hover{background:#8a3126;border-color:#8a3126}
+.xp-quote{border-left:3px solid var(--navy);background:var(--card);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:18px}
+.xp-quote-hd{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--navy);margin-bottom:12px}
+.xp-quote-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.xp-quote-cell{display:flex;flex-direction:column;gap:2px}
+.xp-quote-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
+.xp-quote-val{font-size:13px;color:var(--navy)}
+.xp-quote-price{font-size:20px;font-weight:700;color:var(--navy);letter-spacing:-.02em}
+.xp-quote-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.xp-quote-pill{font-size:11px;font-weight:600;color:var(--navy);background:rgba(35,44,84,.07);border-radius:5px;padding:2px 8px}
+@media(max-width:600px){.xp-quote-grid{grid-template-columns:1fr}}
 
 .search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
 .search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--stone);pointer-events:none}
@@ -303,7 +313,27 @@ function renderExpand(j){
   }).join('');
   var teamRow='<div><div class="xp-lbl">Team member</div>'+
     '<select class="xp-staff-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+staffOpts+'</select></div>';
-  return '<div class="xp-grid">'+
+  var quotePanel='';
+  if(j.quoted_price){
+    var ADDON_MAP={windows:'Internal windows',ext_windows:'External windows',high_dust:'High-dusting',kitchen_deep:'Kitchen deep clean'};
+    var addonArr=Array.isArray(j.extras)&&j.extras.length?j.extras:[];
+    var addonPills=addonArr.length?addonArr.map(function(k){return'<span class="xp-quote-pill">'+esc(ADDON_MAP[k]||k)+'</span>';}).join(''):'<span style="font-size:12px;color:var(--stone)">None</span>';
+    var floorSqm=(j.sqm||'—')+' sqm'+(j.floors>1?' · '+j.floors+' floors':'');
+    var bathKitch=(j.baths||'—')+' bathroom'+(j.baths===1?'':'s')+(j.kitchen?' · Kitchenette':'');
+    quotePanel=
+      '<div class="xp-quote">'+
+        '<div class="xp-quote-hd">Quote details</div>'+
+        '<div class="xp-quote-grid">'+
+          '<div class="xp-quote-cell"><div class="xp-quote-lbl">Per-visit price</div><div class="xp-quote-price">$'+j.quoted_price.toFixed(2)+'</div></div>'+
+          '<div class="xp-quote-cell"><div class="xp-quote-lbl">Est. hours</div><div class="xp-quote-val">'+Number(j.quoted_hrs).toFixed(1)+' hrs</div></div>'+
+          '<div class="xp-quote-cell"><div class="xp-quote-lbl">Floor area</div><div class="xp-quote-val">'+floorSqm+'</div></div>'+
+          '<div class="xp-quote-cell"><div class="xp-quote-lbl">Bathrooms</div><div class="xp-quote-val">'+bathKitch+'</div></div>'+
+          (j.after_hours_pct?'<div class="xp-quote-cell"><div class="xp-quote-lbl">After-hours loading</div><div class="xp-quote-val">+'+j.after_hours_pct+'% on labour</div></div>':'')+(j.buffer?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Site allowance</div><div class="xp-quote-val">+15% applied</div></div>':'')+(j.consumables?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Consumables</div><div class="xp-quote-val">Included</div></div>':'')+
+          '<div class="xp-quote-cell" style="grid-column:1/-1"><div class="xp-quote-lbl">Add-ons</div><div class="xp-quote-pills">'+addonPills+'</div></div>'+
+        '</div>'+
+      '</div>';
+  }
+  return quotePanel+'<div class="xp-grid">'+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val" style="display:flex;align-items:center;gap:10px">'+fmtDateFull(j.date)+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
@@ -356,7 +386,7 @@ function renderAll(){
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
 }
 function reload(cb){
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
 }
 
 var pills=document.querySelectorAll('.f-pill');
@@ -519,10 +549,10 @@ Promise.all([
 ]).then(function(results){
   allClients=results[0].data||[];
   allStaff=results[1].data||[];
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number').then(function(jr){
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(jr){
     allJobs=jr.data||[];
     renderAll();
-    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number').then(function(r2){allJobs=r2.data||[];renderAll();});});
+    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r2){allJobs=r2.data||[];renderAll();});});
     if(getParam('newjob')==='1'){
       openModal();
       var cid=getParam('cid');

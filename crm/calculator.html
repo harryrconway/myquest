@@ -865,6 +865,7 @@ function saveQuote(){
   if(!biz){var f=document.getElementById('qs-biz');if(f)f.focus();return;}
   var btn=document.getElementById('qs-submit');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  var r=calc();
   var sb=MQ.sb;
   var FREQ_TO_REPEAT={monthly:'monthly',fortnightly:'fortnightly',weekly:'weekly'};
   var SPACE_TO_INDUSTRY={office:'Commercial office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
@@ -876,7 +877,15 @@ function saveQuote(){
       if(res.error)throw res.error;
       var cid=res.data.id,cname=res.data.name;
       var today=new Date().toISOString().slice(0,10);
-      var jrow={client_id:cid,client_name:cname,date:today,type:s.type==='deep'?'deep':'maintenance',status:'upcoming'};
+      var jrow={client_id:cid,client_name:cname,date:today,type:s.type==='deep'?'deep':'maintenance',status:'upcoming',
+        sqm:s.sqm,floors:s.floors,baths:s.baths,
+        kitchen:s.kitchen?true:null,
+        after_hours_pct:s.afterHoursPct||null,
+        extras:EXTRA_KEYS.filter(function(k){return s.extras[k];}),
+        consumables:s.consumables?true:null,
+        quoted_price:Math.round(r.per*100)/100,
+        quoted_hrs:r.hrs,
+        buffer:s.buffer?true:null};
       if(site)jrow.site=site;
       if(FREQ_TO_REPEAT[s.freq])jrow.repeat=FREQ_TO_REPEAT[s.freq];
       return sb.from('jobs').insert([jrow]).select('id').single().then(function(jr){
