@@ -38,24 +38,16 @@
 .qc-choice.on .qc-choice-ico{opacity:.7}
 
 /* ── SQM input ── */
-.qc-sqm-wrap{display:flex;align-items:center;gap:12px}
-.qc-sqm-btns{display:flex;flex-direction:column;gap:4px}
-.qc-sqm-pm{
-  background:var(--field);border:1.5px solid var(--hair-md);border-radius:7px;
-  color:var(--stone);font-family:inherit;font-size:16px;width:34px;height:28px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:border-color .13s,color .13s;line-height:1;-webkit-tap-highlight-color:transparent;
-}
-.qc-sqm-pm:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
-.qc-sqm-display{display:flex;align-items:baseline;gap:6px}
+.qc-sqm-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.qc-sqm-mid{display:flex;align-items:baseline;gap:7px}
 #qc-sqm-v{
-  width:110px;font-size:44px;font-weight:700;color:var(--navy);
+  width:100px;font-size:44px;font-weight:700;color:var(--navy);
   background:transparent;border:none;outline:none;text-align:center;
   -moz-appearance:textfield;font-family:inherit;letter-spacing:-.02em;line-height:1;
 }
 #qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
 .qc-sqm-unit{font-size:15px;font-weight:500;color:var(--stone);letter-spacing:.02em}
-.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px}
 .qc-sqm-pick{
   background:none;border:1px solid var(--hair);border-radius:6px;
   font-family:inherit;font-size:12px;color:var(--stone);cursor:pointer;
@@ -80,7 +72,6 @@
 
 /* ── Inner layouts ── */
 .qc-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.qc-area-row{display:grid;grid-template-columns:1fr 180px;gap:24px;align-items:start}
 .qc-sched-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 .qc-two-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
 .qc-card-sep{border-top:1px solid var(--hair);margin:18px 0 16px}
@@ -201,7 +192,6 @@
   #qc-preview{position:static;max-height:none}
   .qc-two{grid-template-columns:1fr;gap:14px}
   .qc-sched-grid{grid-template-columns:1fr;gap:14px}
-  .qc-area-row{grid-template-columns:1fr;gap:14px}
   .qc-mob-bar{display:flex}
   .main{padding-bottom:80px}
 }
@@ -403,7 +393,7 @@ function choice(label,key,on,group,hint){
 function renderFormCol(){
   var h='';
 
-  // ── Card 1: The space ───────────────────────────────────────────────
+  // ── Card 1: Premises type ───────────────────────────────────────────
   h+='<div class="qc-card">'+
     '<div class="qc-card-head"><div class="qc-card-lbl">Premises type</div></div>'+
     '<div class="qc-choices col">'+
@@ -414,53 +404,52 @@ function renderFormCol(){
         '</button>';
       }).join('')+
     '</div>'+
+  '</div>';
+
+  // ── Card 2: Building dimensions ─────────────────────────────────────
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head"><div class="qc-card-lbl">Building dimensions</div></div>'+
+    '<div class="qc-two-lbl" style="margin-bottom:10px">Floor area</div>'+
+    '<div class="qc-sqm-row">'+
+      '<button type="button" class="qc-ste-btn" id="qc-sqm-m">&#8722;</button>'+
+      '<div class="qc-sqm-mid">'+
+        '<input type="number" id="qc-sqm-v" min="50" max="5000" step="1" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="100">'+
+        '<span class="qc-sqm-unit">sqm</span>'+
+      '</div>'+
+      '<button type="button" class="qc-ste-btn" id="qc-sqm-p">+</button>'+
+    '</div>'+
+    '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
+    '<div class="qc-sqm-picks">'+
+      [50,100,200,500,1000,2000].map(function(v){
+        return '<button type="button" class="qc-sqm-pick'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';
+      }).join('')+
+    '</div>'+
     '<div class="qc-card-sep"></div>'+
-    '<div class="qc-card-lbl" style="margin-bottom:14px">Building dimensions</div>'+
-    '<div class="qc-area-row">'+
-      '<div class="qc-sqm-wrap">'+
-        '<div class="qc-sqm-btns">'+
-          '<button type="button" class="qc-sqm-pm" id="qc-sqm-p">+</button>'+
-          '<button type="button" class="qc-sqm-pm" id="qc-sqm-m">&#8722;</button>'+
-        '</div>'+
-        '<div>'+
-          '<div class="qc-sqm-display">'+
-            '<input type="number" id="qc-sqm-v" min="50" max="5000" step="1" value="'+(s.sqm||'')+'" inputmode="numeric" placeholder="100">'+
-            '<span class="qc-sqm-unit">sqm</span>'+
-          '</div>'+
-          '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
-          '<div class="qc-sqm-picks">'+
-            [50,100,200,500,1000,2000].map(function(v){
-              return '<button type="button" class="qc-sqm-pick'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';
-            }).join('')+
-          '</div>'+
+    '<div class="qc-sched-grid">'+
+      '<div>'+
+        '<div class="qc-two-lbl">Floors / levels</div>'+
+        '<div class="qc-stepper-row">'+
+          '<button type="button" class="qc-ste-btn" id="qc-fl-minus">&#8722;</button>'+
+          '<div><div class="qc-ste-val" id="qc-flnum">'+s.floors+'</div><div class="qc-ste-sub" id="qc-flsub">'+(s.floors===1?'level':'levels')+'</div></div>'+
+          '<button type="button" class="qc-ste-btn" id="qc-fl-plus">+</button>'+
         '</div>'+
       '</div>'+
-      '<div style="display:flex;flex-direction:column;gap:16px">'+
-        '<div>'+
-          '<div class="qc-two-lbl">Floors / levels</div>'+
-          '<div class="qc-stepper-row">'+
-            '<button type="button" class="qc-ste-btn" id="qc-fl-minus">&#8722;</button>'+
-            '<div><div class="qc-ste-val" id="qc-flnum">'+s.floors+'</div><div class="qc-ste-sub" id="qc-flsub">'+(s.floors===1?'level':'levels')+'</div></div>'+
-            '<button type="button" class="qc-ste-btn" id="qc-fl-plus">+</button>'+
-          '</div>'+
+      '<div>'+
+        '<div class="qc-two-lbl">Bathrooms / toilets</div>'+
+        '<div class="qc-stepper-row">'+
+          '<button type="button" class="qc-ste-btn" id="qc-minus">&#8722;</button>'+
+          '<div><div class="qc-ste-val" id="qc-bnum">'+s.baths+'</div><div class="qc-ste-sub" id="qc-bsub">'+(s.baths===1?'bathroom':'bathrooms')+'</div></div>'+
+          '<button type="button" class="qc-ste-btn" id="qc-plus">+</button>'+
         '</div>'+
-        '<div>'+
-          '<div class="qc-two-lbl">Bathrooms / toilets</div>'+
-          '<div class="qc-stepper-row">'+
-            '<button type="button" class="qc-ste-btn" id="qc-minus">&#8722;</button>'+
-            '<div><div class="qc-ste-val" id="qc-bnum">'+s.baths+'</div><div class="qc-ste-sub" id="qc-bsub">'+(s.baths===1?'bathroom':'bathrooms')+'</div></div>'+
-            '<button type="button" class="qc-ste-btn" id="qc-plus">+</button>'+
-          '</div>'+
-        '</div>'+
-        '<div>'+
-          '<div class="qc-two-lbl">Kitchenette?</div>'+
-          '<div class="qc-choices">'+choice('Yes','yes',s.kitchen===true,'kit')+choice('No','no',s.kitchen===false,'kit')+'</div>'+
-        '</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="qc-two-lbl">Kitchenette?</div>'+
+        '<div class="qc-choices">'+choice('Yes','yes',s.kitchen===true,'kit')+choice('No','no',s.kitchen===false,'kit')+'</div>'+
       '</div>'+
     '</div>'+
   '</div>';
 
-  // ── Card 2: Service schedule ────────────────────────────────────────
+  // ── Card 3: Service schedule ────────────────────────────────────────
   h+='<div class="qc-card">'+
     '<div class="qc-card-head"><div class="qc-card-lbl">Service schedule</div></div>'+
     '<div class="qc-sched-grid">'+
@@ -495,7 +484,7 @@ function renderFormCol(){
     '</div>'+
   '</div>';
 
-  // ── Card 3: Optional extras ─────────────────────────────────────────
+  // ── Card 4: Optional extras ─────────────────────────────────────────
   h+='<div class="qc-card">'+
     '<div class="qc-card-head">'+
       '<div class="qc-card-lbl">Optional add-ons</div>'+
