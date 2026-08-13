@@ -26,8 +26,10 @@
 /* ── Add-on grid ── */
 .qc-addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .qc-addon-btn{width:100%;justify-content:space-between;align-items:center;text-align:left;padding:11px 14px}
-.qc-addon-left{display:flex;align-items:center;gap:8px}
+.qc-addon-left{display:flex;align-items:flex-start;gap:8px}
 .qc-addon-name{font-size:13px;color:inherit}
+.qc-addon-desc{font-size:11px;color:inherit;opacity:.55;margin-top:2px;line-height:1.3}
+.qc-addon-btn.on .qc-addon-desc{opacity:.7}
 .qc-addon-rate{font-size:11.5px;font-weight:600;white-space:nowrap;color:inherit;opacity:.6;flex-shrink:0;margin-left:10px}
 .qc-addon-btn.on .qc-addon-rate{opacity:.8}
 .qc-choice{
@@ -293,7 +295,7 @@
 <div class="qc-mob-bar" id="qc-mob-bar" style="display:none">
   <div>
     <div class="qc-mob-price" id="qc-mob-price">—</div>
-    <div class="qc-mob-sub">per clean estimate</div>
+    <div class="qc-mob-sub">per clean (estimate)</div>
   </div>
   <button class="qc-mob-see" id="qc-mob-see">See quote ↓</button>
 </div>
@@ -563,12 +565,19 @@ function renderFormCol(){
         au(QC.extras.high_dust),
         au(QC.extras.kitchen_deep)
       ];
+      var EXTRA_DESCS=[
+        'Inside glass, all accessible panes',
+        'Exterior glass, ground & reachable levels',
+        'Ceiling vents, light fittings & high surfaces',
+        'Appliances, benches & behind equipment'
+      ];
       var html='<div class="qc-addon-grid">';
       html+=EXTRA_KEYS.map(function(k,i){
         var on=s.extras[k];
         return '<button type="button" class="qc-choice qc-addon-btn'+(on?' on':'')+'" data-key="'+k+'" data-grp="ext">'+
           '<div class="qc-addon-left">'+(on?SVG:'')+
-            '<span class="qc-addon-name">'+EXTRA_LABELS[i]+'</span>'+
+            '<div><span class="qc-addon-name">'+EXTRA_LABELS[i]+'</span>'+
+            '<div class="qc-addon-desc">'+EXTRA_DESCS[i]+'</div></div>'+
           '</div>'+
           '<div class="qc-addon-rate">'+EXTRA_RATES[i]+' /visit</div>'+
         '</button>';
@@ -576,7 +585,8 @@ function renderFormCol(){
       var consOn=s.consumables;
       html+='<button type="button" class="qc-choice qc-addon-btn'+(consOn?' on':'')+'" data-key="supply" data-grp="cons">'+
         '<div class="qc-addon-left">'+(consOn?SVG:'')+
-          '<span class="qc-addon-name">Supply consumables</span>'+
+          '<div><span class="qc-addon-name">Bathroom consumables</span>'+
+          '<div class="qc-addon-desc">Paper towels, hand soap &amp; bin liners</div></div>'+
         '</div>'+
         '<div class="qc-addon-rate">'+au(QC.consumablesBase+(s.baths*QC.consumablesPerBath))+' /visit</div>'+
       '</button>';
@@ -646,8 +656,8 @@ function renderPreview(r){
   h+='<div class="qc-q-sec">Cost breakdown</div>';
   h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour));
   if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)',au(r.afterHoursAmt));
-  h+=row('Cleaning chemicals &amp; equipment',au(r.sup));
-  if(r.consumablesAmt>0)h+=row('Consumables provision',au(r.consumablesAmt));
+  h+=row('Cleaning products &amp; equipment',au(r.sup));
+  if(r.consumablesAmt>0)h+=row('Bathroom consumables',au(r.consumablesAmt));
   if(r.ext>0)h+=row('Add-on services',au(r.ext));
   h+='<button type="button" class="qc-buf-btn'+(s.buffer?' on':'')+'" id="qc-buf">'+
     '<span>Site allowance <span style="font-size:11px;opacity:.55">(+'+Math.round(QC.bufferPct*100)+'% buffer)</span></span>'+
@@ -658,7 +668,7 @@ function renderPreview(r){
 
   h+='<div class="qc-q-sec" style="margin-top:16px">What\'s included</div>';
   h+='<div class="qc-incl">'+
-    chk('Cleaning supplies &amp; chemicals')+
+    chk('Cleaning products &amp; equipment')+
     chk('Public liability insurance')+
     chk('Background-checked, trained staff')+
     chk('Post-clean quality checklist')+
@@ -989,8 +999,8 @@ function updatePrint(r,sLab,fLab,tLab){
     '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px">'+
       prow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour))+
       (r.afterHoursAmt>0?prow('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt)):'')+
-      prow('Cleaning chemicals & equipment',au(r.sup))+
-      (r.consumablesAmt>0?prow('Consumables provision',au(r.consumablesAmt)):'')+
+      prow('Cleaning products & equipment',au(r.sup))+
+      (r.consumablesAmt>0?prow('Bathroom consumables',au(r.consumablesAmt)):'')+
       (r.ext>0?prow('Add-on services',au(r.ext)):'')+
       (r.bufferAmt>0?prow('Site allowance (+'+Math.round(QC.bufferPct*100)+'%)','+'+au(r.bufferAmt)):'')+
       '<tr><td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;border-top:2px solid #000">Per clean</td>'+
