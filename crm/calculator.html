@@ -398,7 +398,7 @@ function chk(txt){return '<div class="qc-incl-row"><div class="qc-incl-check">&#
 function initStats(){
   var el=document.getElementById('qc-stats');
   if(!el)return;
-  var minCost=QC.rate*QC.minHrsMaint;
+  var minCost=QC.rate*QC.minHrsMaint+QC.suppliesCost;
   var deepCost=QC.rate*QC.minHrsDeep+QC.suppliesCost;
   el.innerHTML=
     '<div class="stat"><div class="stat-lbl">Labour rate</div><div class="stat-val">$'+QC.rate+'<span style="font-size:13px;opacity:.55;font-weight:500"> /hr</span></div></div>'+
