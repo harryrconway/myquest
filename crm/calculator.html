@@ -195,11 +195,6 @@
 .qc-ok-jobs{display:inline-block;background:var(--navy);color:var(--on);border:none;border-radius:var(--r-sm);padding:9px 18px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;transition:background .15s}
 .qc-ok-jobs:hover{background:var(--navy-deep)}
 
-/* Mobile sticky bar */
-.qc-mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--navy);color:var(--on);padding:13px 20px;border-top:1px solid rgba(243,239,228,.1);align-items:center;justify-content:space-between}
-.qc-mob-price{font-size:17px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.qc-mob-sub{font-size:11px;color:var(--on-sub);margin-top:2px}
-.qc-mob-see{background:rgba(243,239,228,.1);border:1px solid rgba(243,239,228,.18);color:var(--on);font-family:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 
 /* Print */
 .qc-print{display:none}
@@ -214,8 +209,6 @@
   .qc-sched-grid{grid-template-columns:1fr;gap:14px}
   .qc-addon-grid{grid-template-columns:1fr}
   .qc-ok{flex-direction:column;align-items:flex-start}
-  .qc-mob-bar{display:flex}
-  .main{padding-bottom:80px}
 }
 @media(max-width:600px){
   .qc-choices{flex-direction:column}
@@ -292,13 +285,6 @@
 
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html" class="mob-on">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 
-<div class="qc-mob-bar" id="qc-mob-bar" style="display:none">
-  <div>
-    <div class="qc-mob-price" id="qc-mob-price">—</div>
-    <div class="qc-mob-sub">per clean (estimate)</div>
-  </div>
-  <button class="qc-mob-see" id="qc-mob-see">See quote ↓</button>
-</div>
 
 <div id="qc-print" class="qc-print"></div>
 
@@ -701,17 +687,6 @@ function renderSaved(){
   '</div>';
 }
 
-// ─── Mobile bar ───────────────────────────────────────────────────
-
-function updateMobBar(r){
-  var bar=document.getElementById('qc-mob-bar');
-  if(!bar)return;
-  if(!r){bar.style.display='none';return;}
-  bar.style.display='flex';
-  var price=document.getElementById('qc-mob-price');
-  if(price)price.textContent=au(r.lo)+' – '+au(r.hi);
-}
-
 // ─── Live calc ────────────────────────────────────────────────────
 
 function calcLive(){
@@ -721,14 +696,12 @@ function calcLive(){
   if(!ready){
     s.hasResult=false;
     if(!s.saved)preview.innerHTML=renderPreviewEmpty();
-    updateMobBar(null);
     return;
   }
   var r=calc();
   s.hasResult=true;
   preview.innerHTML=renderPreview(r);
   bindPreview(r);
-  updateMobBar(s.saved?null:r);
 }
 
 function bindPreview(r){
@@ -972,7 +945,6 @@ function saveQuote(){
         s.saved=true;
         var preview=document.getElementById('qc-preview');
         if(preview){preview.innerHTML=renderSaved();bindPreview(null);}
-        updateMobBar(null);
       });
     })
     .catch(function(err){
@@ -1022,11 +994,6 @@ var mOverlay=document.getElementById('mob-overlay');
 function navClose(){document.body.classList.remove('mob-open');}
 if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
-var mobSee=document.getElementById('qc-mob-see');
-if(mobSee)mobSee.addEventListener('click',function(){
-  var el=document.getElementById('qc-preview');
-  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-});
 
 // ─── Init ─────────────────────────────────────────────────────────
 
