@@ -186,14 +186,10 @@
 .qc-sf-submit:disabled{opacity:.35;cursor:not-allowed}
 
 /* Success */
-.qc-ok{display:flex;align-items:center;gap:22px;padding:22px 26px}
-.qc-ok-tick{width:42px;height:42px;background:rgba(58,107,78,.1);border:1px solid rgba(58,107,78,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--green);font-size:17px}
-.qc-ok-body{flex:1}
-.qc-ok-title{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.02em;margin-bottom:3px}
-.qc-ok-sub{font-size:13px;color:var(--stone);line-height:1.55;margin-bottom:14px}
-.qc-ok-btns{display:flex;gap:8px;flex-wrap:wrap}
-.qc-ok-jobs{display:inline-block;background:var(--navy);color:var(--on);border:none;border-radius:var(--r-sm);padding:9px 18px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;transition:background .15s}
-.qc-ok-jobs:hover{background:var(--navy-deep)}
+.qc-ok-icon{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(243,239,228,.3);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--on);margin-bottom:12px}
+.qc-ok-name{font-size:16px;font-weight:700;color:var(--on);letter-spacing:-.02em;margin-bottom:5px}
+.qc-ok-saved{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,239,228,.55)}
+.qc-ok-msg{padding:18px 22px 0;font-size:13px;color:var(--stone);line-height:1.6}
 
 
 /* Print */
@@ -208,7 +204,6 @@
   .qc-two{grid-template-columns:1fr;gap:14px}
   .qc-sched-grid{grid-template-columns:1fr;gap:14px}
   .qc-addon-grid{grid-template-columns:1fr}
-  .qc-ok{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:600px){
   .qc-choices{flex-direction:column}
@@ -674,16 +669,15 @@ function renderPreview(r){
 // ─── Preview: saved ───────────────────────────────────────────────
 
 function renderSaved(){
-  return '<div class="qc-ok">'+
-    '<div class="qc-ok-tick">&#10003;</div>'+
-    '<div class="qc-ok-body">'+
-      '<div class="qc-ok-title">'+esc(s.savedClientName||'Client')+' — quote saved</div>'+
-      '<div class="qc-ok-sub">Upcoming job created and ready to schedule.</div>'+
-      '<div class="qc-ok-btns">'+
-        '<a href="jobs.html" class="qc-ok-jobs">View jobs &#8594;</a>'+
-        '<button type="button" class="qc-btn-back" id="qc-restart">&#8592; New quote</button>'+
-      '</div>'+
-    '</div>'+
+  return '<div class="qc-q-band">'+
+    '<div class="qc-ok-icon">&#10003;</div>'+
+    '<div class="qc-ok-name">'+esc(s.savedClientName||'Client')+'</div>'+
+    '<div class="qc-ok-saved">Quote saved</div>'+
+  '</div>'+
+  '<div class="qc-ok-msg">Job created and ready to schedule.</div>'+
+  '<div class="qc-actions">'+
+    '<a href="jobs.html" class="qc-btn-save">View jobs &#8594;</a>'+
+    '<button type="button" class="qc-btn-dl" id="qc-restart">&#8592; New quote</button>'+
   '</div>';
 }
 
