@@ -169,6 +169,12 @@
 }
 .qc-sf-row input::placeholder{color:rgba(35,44,84,.25)}
 .qc-sf-row input:focus{border-color:rgba(35,44,84,.4)}
+.qc-date-wrap{display:flex;align-items:center;gap:3px;background:var(--field);border:1.5px solid var(--hair);border-radius:var(--r-sm);padding:9px 13px;transition:border-color .15s}
+.qc-date-wrap:focus-within{border-color:rgba(35,44,84,.4)}
+.qc-date-part{background:none;border:none;outline:none;font-size:13.5px;color:var(--navy);font-family:inherit;text-align:center;width:22px;padding:0;-moz-appearance:textfield}
+.qc-date-part::placeholder{color:rgba(35,44,84,.25)}
+.qc-date-yr{width:36px}
+.qc-date-sep{font-size:13px;color:var(--stone);user-select:none;line-height:1}
 .qc-sf-submit{
   width:100%;background:var(--navy);color:var(--on);border:none;
   border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
@@ -418,8 +424,19 @@ function renderClientCol(){
         '<input type="tel" id="qs-phone" value="'+esc(s.client.phone)+'" placeholder="0400 000 000" autocomplete="tel"></div>'+
       '<div class="qc-sf-row"><label>Site address</label>'+
         '<input type="text" id="qs-site" value="'+esc(s.client.site)+'" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
-      '<div class="qc-sf-row"><label>First clean date</label>'+
-        '<input type="date" id="qs-date" value="'+esc(s.client.date)+'"></div>'+
+      (function(){
+        var dd='',mm='',yyyy='';
+        if(s.client.date&&s.client.date.length===10){var dp=s.client.date.split('-');yyyy=dp[0];mm=dp[1];dd=dp[2];}
+        return '<div class="qc-sf-row"><label>First clean date</label>'+
+          '<div class="qc-date-wrap">'+
+            '<input type="text" id="qs-dd" maxlength="2" inputmode="numeric" placeholder="DD" class="qc-date-part" value="'+esc(dd)+'">'+
+            '<span class="qc-date-sep">/</span>'+
+            '<input type="text" id="qs-mm" maxlength="2" inputmode="numeric" placeholder="MM" class="qc-date-part" value="'+esc(mm)+'">'+
+            '<span class="qc-date-sep">/</span>'+
+            '<input type="text" id="qs-yyyy" maxlength="4" inputmode="numeric" placeholder="YYYY" class="qc-date-part qc-date-yr" value="'+esc(yyyy)+'">'+
+          '</div>'+
+        '</div>';
+      })()+
     '</div>'+
   '</div>';
 }
@@ -729,8 +746,41 @@ function bindClient(){
     var el=document.getElementById(map[key]);
     if(el)el.addEventListener('input',function(){s.client[key]=this.value;calcLive();});
   });
-  var dateEl=document.getElementById('qs-date');
-  if(dateEl)dateEl.addEventListener('change',function(){s.client.date=this.value;});
+  var ddEl=document.getElementById('qs-dd');
+  var mmEl=document.getElementById('qs-mm');
+  var yyyyEl=document.getElementById('qs-yyyy');
+  function syncDate(){
+    var d=(ddEl&&ddEl.value)||'';
+    var m=(mmEl&&mmEl.value)||'';
+    var y=(yyyyEl&&yyyyEl.value)||'';
+    s.client.date=(d.length===2&&m.length===2&&y.length===4)?y+'-'+m+'-'+d:'';
+  }
+  if(ddEl){
+    ddEl.addEventListener('input',function(){
+      this.value=this.value.replace(/\D/g,'').slice(0,2);
+      if(this.value.length===2&&mmEl)mmEl.focus();
+      syncDate();
+    });
+  }
+  if(mmEl){
+    mmEl.addEventListener('input',function(){
+      this.value=this.value.replace(/\D/g,'').slice(0,2);
+      if(this.value.length===2&&yyyyEl)yyyyEl.focus();
+      syncDate();
+    });
+    mmEl.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&this.value===''&&ddEl)ddEl.focus();
+    });
+  }
+  if(yyyyEl){
+    yyyyEl.addEventListener('input',function(){
+      this.value=this.value.replace(/\D/g,'').slice(0,4);
+      syncDate();
+    });
+    yyyyEl.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&this.value===''&&mmEl)mmEl.focus();
+    });
+  }
 }
 
 function initForm(){
