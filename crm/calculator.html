@@ -8,7 +8,10 @@
 <link rel="stylesheet" href="style.css?v=20260814">
 <style>
 /* ── Layout ── */
-.qc-form-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;margin-top:16px}
+.qc-outer-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;margin-top:16px}
+.qc-left-col{display:flex;flex-direction:column;gap:14px}
+.qc-top-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+.qc-top-pair .qc-card{margin-bottom:0}
 
 /* ── Section cards (matches .ac) ── */
 .qc-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 22px;margin-bottom:14px}
@@ -83,37 +86,33 @@
 .qc-two-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
 .qc-card-sep{border-top:1px solid var(--hair);margin:18px 0 16px}
 
-/* ── Full-width preview ── */
-#qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
+/* ── Left-column preview (340px) ── */
+#qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;position:sticky;top:20px}
 
-/* Placeholder — horizontal */
-.qc-ph{display:flex;align-items:center;gap:28px;padding:22px 24px;flex-wrap:wrap}
-.qc-ph-client{font-size:14px;font-weight:700;color:var(--navy);letter-spacing:-.01em;margin-bottom:3px}
+/* Placeholder */
+.qc-ph{padding:20px;display:flex;gap:14px;align-items:flex-start}
+.qc-ph-left{flex:1}
+.qc-ph-client{font-size:13.5px;font-weight:700;color:var(--navy);letter-spacing:-.01em;margin-bottom:4px}
 .qc-ph-ttl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
-.qc-ph-list{display:flex;gap:14px;flex-wrap:wrap}
+.qc-ph-list{display:flex;flex-direction:column;gap:6px}
 .qc-ph-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--stone)}
 .qc-ph-item.done{color:var(--navy)}
 .qc-ph-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--hair-md)}
 .qc-ph-item.done .qc-ph-dot{background:var(--navy)}
 
-/* Quote panel header band — horizontal */
-.qc-q-band{background:var(--navy);padding:20px 24px;border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0}
-.qc-band-inner{display:grid;grid-template-columns:1fr auto auto;gap:16px 32px;align-items:center}
+/* Quote band — vertical */
+.qc-q-band{background:var(--navy);padding:18px 20px 15px;border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0}
 .qc-band-client{font-size:13px;font-weight:700;color:var(--on);letter-spacing:-.01em;margin-bottom:8px}
-.qc-q-tags{display:flex;flex-wrap:wrap;gap:5px}
+.qc-q-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
 .qc-q-tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:rgba(243,239,228,.55);background:rgba(243,239,228,.1);border-radius:5px;padding:3px 8px}
-.qc-band-price{text-align:right}
-.qc-q-range{font-size:36px;font-weight:700;color:var(--on);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
-.qc-q-meta{display:flex;justify-content:flex-end;align-items:baseline;gap:10px;margin-top:5px;flex-wrap:wrap}
-.qc-q-lbl{font-size:11.5px;color:var(--on-sub)}
-.qc-q-mth{font-size:11.5px;color:var(--on-sub)}
-.qc-q-wk{font-size:11px;color:var(--on-sub);margin-top:2px;text-align:right}
-.qc-band-acts{display:flex;flex-direction:column;gap:7px;min-width:210px}
+.qc-q-range{font-size:34px;font-weight:700;color:var(--on);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.qc-q-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:5px;flex-wrap:wrap;gap:4px}
+.qc-q-lbl{font-size:11px;color:var(--on-sub)}
+.qc-q-mth{font-size:11px;color:var(--on-sub)}
+.qc-q-wk{font-size:11px;color:var(--on-sub);margin-top:2px}
 
-/* Quote body — 2-column */
-.qc-q-body-grid{display:grid;grid-template-columns:1fr 220px}
-.qc-bd-col{padding:18px 22px;border-right:1px solid var(--hair)}
-.qc-incl-col{padding:18px 20px}
+/* Quote body — single column */
+.qc-q-body{padding:16px 20px}
 .qc-q-sec{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin:14px 0 8px}
 .qc-q-sec:first-child{margin-top:0}
 
@@ -200,14 +199,9 @@
 
 /* Mobile */
 @media(max-width:900px){
-  .qc-form-grid{grid-template-columns:1fr}
-  .qc-band-inner{grid-template-columns:1fr}
-  .qc-band-price,.qc-band-acts{text-align:left;min-width:0}
-  .qc-q-meta{justify-content:flex-start}
-  .qc-q-wk{text-align:left}
-  .qc-q-body-grid{grid-template-columns:1fr}
-  .qc-bd-col{border-right:none;border-bottom:1px solid var(--hair)}
-  .qc-ph{flex-direction:column;align-items:flex-start;gap:14px}
+  .qc-outer-grid{grid-template-columns:1fr}
+  .qc-top-pair{grid-template-columns:1fr}
+  #qc-preview{position:static}
   .qc-two{grid-template-columns:1fr;gap:14px}
   .qc-sched-grid{grid-template-columns:1fr;gap:14px}
   .qc-addon-grid{grid-template-columns:1fr}
@@ -277,9 +271,11 @@
 
     <div class="stats pg-2" id="qc-stats"></div>
 
-    <div id="qc-preview" class="pg-3"></div>
-    <div class="qc-form-grid pg-3">
-      <div id="qc-client"></div>
+    <div class="qc-outer-grid pg-3">
+      <div class="qc-left-col">
+        <div id="qc-client"></div>
+        <div id="qc-preview"></div>
+      </div>
       <div id="qc-form"></div>
     </div>
 
@@ -435,7 +431,10 @@ function choice(label,key,on,group,hint){
 function renderFormCol(){
   var h='';
 
-  // ── Card 1: Premises type ───────────────────────────────────────────
+  // ── Cards 1+2: Premises type & Building dimensions (side by side) ───
+  h+='<div class="qc-top-pair">';
+
+  // Card 1: Premises type
   h+='<div class="qc-card">'+
     '<div class="qc-card-head"><div class="qc-card-lbl">Premises type</div></div>'+
     '<div class="qc-choices col">'+
@@ -448,7 +447,7 @@ function renderFormCol(){
     '</div>'+
   '</div>';
 
-  // ── Card 2: Building dimensions ─────────────────────────────────────
+  // Card 2: Building dimensions
   h+='<div class="qc-card">'+
     '<div class="qc-card-head"><div class="qc-card-lbl">Building dimensions</div></div>'+
     '<div class="qc-two-lbl" style="margin-bottom:10px">Floor area</div>'+
@@ -467,7 +466,7 @@ function renderFormCol(){
       }).join('')+
     '</div>'+
     '<div class="qc-card-sep"></div>'+
-    '<div class="qc-sched-grid">'+
+    '<div class="qc-two">'+
       '<div>'+
         '<div class="qc-two-lbl">Floors / levels</div>'+
         '<div class="qc-stepper-row">'+
@@ -484,12 +483,14 @@ function renderFormCol(){
           '<button type="button" class="qc-ste-btn" id="qc-plus">+</button>'+
         '</div>'+
       '</div>'+
-      '<div>'+
-        '<div class="qc-two-lbl">Kitchenette?</div>'+
-        '<div class="qc-choices">'+choice('Yes','yes',s.kitchen===true,'kit')+choice('No','no',s.kitchen===false,'kit')+'</div>'+
-      '</div>'+
+    '</div>'+
+    '<div style="margin-top:14px">'+
+      '<div class="qc-two-lbl">Kitchenette?</div>'+
+      '<div class="qc-choices">'+choice('Yes','yes',s.kitchen===true,'kit')+choice('No','no',s.kitchen===false,'kit')+'</div>'+
     '</div>'+
   '</div>';
+
+  h+='</div>'; // end .qc-top-pair
 
   // ── Card 3: Service schedule ────────────────────────────────────────
   h+='<div class="qc-card">'+
@@ -575,13 +576,13 @@ function renderFormCol(){
 function renderPreviewEmpty(){
   var done={space:!!s.space,kit:s.kitchen!==null,freq:!!s.freq,type:!!s.type};
   return '<div class="qc-ph">'+
-    '<div>'+
+    '<div class="qc-ph-left">'+
       (s.client.biz?'<div class="qc-ph-client">'+esc(s.client.biz)+'</div>':'')+
       '<div class="qc-ph-ttl">Quote in progress</div>'+
     '</div>'+
     '<div class="qc-ph-list">'+
-      '<div class="qc-ph-item'+(done.space?' done':'')+'"><div class="qc-ph-dot"></div>Premises type</div>'+
-      '<div class="qc-ph-item'+(done.kit?' done':'')+'"><div class="qc-ph-dot"></div>Kitchenette Y / N</div>'+
+      '<div class="qc-ph-item'+(done.space?' done':'')+'"><div class="qc-ph-dot"></div>Premises</div>'+
+      '<div class="qc-ph-item'+(done.kit?' done':'')+'"><div class="qc-ph-dot"></div>Kitchen</div>'+
       '<div class="qc-ph-item'+(done.freq?' done':'')+'"><div class="qc-ph-dot"></div>Frequency</div>'+
       '<div class="qc-ph-item'+(done.type?' done':'')+'"><div class="qc-ph-dot"></div>Clean type</div>'+
     '</div>'+
@@ -606,37 +607,25 @@ function renderPreview(r){
 
   var h='';
 
-  // Navy band: horizontal layout
+  // Band: vertical
   h+='<div class="qc-q-band">'+
-    '<div class="qc-band-inner">'+
-      '<div>'+
-        (s.client.biz?'<div class="qc-band-client">'+esc(s.client.biz)+'</div>':'')+
-        '<div class="qc-q-tags">'+
-          '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
-          '<span class="qc-q-tag">'+s.sqm+' sqm</span>'+
-          '<span class="qc-q-tag">'+esc(fLab)+'</span>'+
-          '<span class="qc-q-tag">'+tLab+'</span>'+
-        '</div>'+
-      '</div>'+
-      '<div class="qc-band-price">'+
-        '<div class="qc-q-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
-        '<div class="qc-q-meta">'+
-          '<span class="qc-q-lbl">per clean (estimate)</span>'+
-          (r.monthly?'<span class="qc-q-mth">&#8776; '+au(r.monthly)+' / month</span>':'')+
-        '</div>'+
-        (weeklyEq?'<div class="qc-q-wk">&#8776; '+au(weeklyEq)+' per week</div>':'')+
-      '</div>'+
-      '<div class="qc-band-acts">'+
-        '<button type="button" class="qc-btn-save" id="qc-save">Save quote &amp; create job &#8594;</button>'+
-        '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
-      '</div>'+
+    (s.client.biz?'<div class="qc-band-client">'+esc(s.client.biz)+'</div>':'')+
+    '<div class="qc-q-tags">'+
+      '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
+      '<span class="qc-q-tag">'+s.sqm+' sqm</span>'+
+      '<span class="qc-q-tag">'+esc(fLab)+'</span>'+
+      '<span class="qc-q-tag">'+tLab+'</span>'+
     '</div>'+
+    '<div class="qc-q-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
+    '<div class="qc-q-meta">'+
+      '<span class="qc-q-lbl">per clean (estimate)</span>'+
+      (r.monthly?'<span class="qc-q-mth">&#8776; '+au(r.monthly)+' / mo</span>':'')+
+    '</div>'+
+    (weeklyEq?'<div class="qc-q-wk">&#8776; '+au(weeklyEq)+' per week</div>':'')+
   '</div>';
 
-  // Body: 2-column (breakdown | inclusions)
-  h+='<div class="qc-q-body-grid">';
-
-  h+='<div class="qc-bd-col">';
+  // Body: breakdown
+  h+='<div class="qc-q-body">';
   h+='<div class="qc-q-sec">Cost breakdown</div>';
   h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour));
   if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)',au(r.afterHoursAmt));
@@ -649,20 +638,22 @@ function renderPreview(r){
   '</button>';
   h+=row('Per clean total',au(r.per),'total');
   if(annVal)h+=row('Annual contract value','&#8776; '+au(annVal),'ann');
-  h+='</div>';
 
-  h+='<div class="qc-incl-col">';
-  h+='<div class="qc-q-sec">What\'s included</div>';
+  h+='<div class="qc-q-sec" style="margin-top:16px">What\'s included</div>';
   h+='<div class="qc-incl">'+
     chk('Cleaning supplies &amp; chemicals')+
     chk('Public liability insurance')+
     chk('Background-checked, trained staff')+
     chk('Post-clean quality checklist')+
   '</div>';
-  h+='<div style="font-size:11px;color:var(--stone);margin-top:14px;line-height:1.5">Estimate valid 30 days &middot; GST not included</div>';
   h+='</div>';
 
-  h+='</div>';
+  h+='<div class="qc-valid">Estimate valid 30 days &middot; GST not included</div>';
+
+  h+='<div class="qc-actions">'+
+    '<button type="button" class="qc-btn-save" id="qc-save">Save quote &amp; create job &#8594;</button>'+
+    '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
+  '</div>';
 
   return h;
 }
