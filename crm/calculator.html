@@ -332,11 +332,12 @@ var EXTRA_KEYS=['windows','ext_windows','high_dust','kitchen_deep'];
 var s={
   space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,
   extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,
-  hasResult:false,saving:false,saved:false,savedClientName:''
+  hasResult:false,saved:false,savedClientName:'',
+  client:{biz:'',contact:'',email:'',phone:'',site:'',date:''}
 };
 
 function resetState(){
-  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,hasResult:false,saving:false,saved:false,savedClientName:''};
+  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,hasResult:false,saved:false,savedClientName:'',client:{biz:'',contact:'',email:'',phone:'',site:'',date:''}};
 }
 
 // ─── Calculation (unchanged) ─────────────────────────────────────
@@ -400,6 +401,25 @@ function choice(label,key,on,group,hint){
 
 function renderFormCol(){
   var h='';
+
+  // ── Card 0: Client details ──────────────────────────────────────────
+  h+='<div class="qc-card">'+
+    '<div class="qc-card-head"><div class="qc-card-lbl">Client details</div><div class="qc-card-hint">Fill in while on the call</div></div>'+
+    '<div class="qc-sf-wrap">'+
+      '<div class="qc-sf-row"><label>Business name <span style="color:var(--red)">*</span></label>'+
+        '<input type="text" id="qs-biz" value="'+esc(s.client.biz)+'" placeholder="Acme Pty Ltd" autocomplete="organization"></div>'+
+      '<div class="qc-sf-row"><label>Contact name</label>'+
+        '<input type="text" id="qs-contact" value="'+esc(s.client.contact)+'" placeholder="Jane Smith" autocomplete="name"></div>'+
+      '<div class="qc-sf-row"><label>Email</label>'+
+        '<input type="email" id="qs-email" value="'+esc(s.client.email)+'" placeholder="jane@acme.com.au" autocomplete="email"></div>'+
+      '<div class="qc-sf-row"><label>Phone</label>'+
+        '<input type="tel" id="qs-phone" value="'+esc(s.client.phone)+'" placeholder="0400 000 000" autocomplete="tel"></div>'+
+      '<div class="qc-sf-row"><label>Site address</label>'+
+        '<input type="text" id="qs-site" value="'+esc(s.client.site)+'" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
+      '<div class="qc-sf-row"><label>First clean date</label>'+
+        '<input type="date" id="qs-date" value="'+esc(s.client.date)+'"></div>'+
+    '</div>'+
+  '</div>';
 
   // ── Card 1: Premises type ───────────────────────────────────────────
   h+='<div class="qc-card">'+
@@ -559,7 +579,6 @@ function renderPreviewEmpty(){
 
 function renderPreview(r){
   if(s.saved)return renderSaved();
-  if(s.saving)return renderSaveForm(r);
 
   var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
   var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
@@ -625,38 +644,6 @@ function renderPreview(r){
   return h;
 }
 
-// ─── Preview: save form ───────────────────────────────────────────
-
-function renderSaveForm(r){
-  var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
-  var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
-  var tLab=s.type==='deep'?'Deep clean':'Maintenance';
-  return '<div class="qc-q-band">'+
-    '<div class="qc-q-tags">'+
-      '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
-      '<span class="qc-q-tag">'+s.sqm+' sqm</span>'+
-      '<span class="qc-q-tag">'+esc(fLab)+'</span>'+
-      '<span class="qc-q-tag">'+tLab+'</span>'+
-    '</div>'+
-    '<div class="qc-q-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
-    '<div class="qc-q-meta"><span class="qc-q-lbl">per clean estimate</span></div>'+
-  '</div>'+
-  '<div class="qc-q-body">'+
-    '<div class="qc-q-sec">Client details</div>'+
-    '<div class="qc-sf-wrap">'+
-      '<div class="qc-sf-row"><label>Business name <span style="color:var(--red)">*</span></label><input type="text" id="qs-biz" placeholder="Acme Pty Ltd" autocomplete="organization"></div>'+
-      '<div class="qc-sf-row"><label>Contact name</label><input type="text" id="qs-contact" placeholder="Jane Smith" autocomplete="name"></div>'+
-      '<div class="qc-sf-row"><label>Email</label><input type="email" id="qs-email" placeholder="jane@acme.com.au" autocomplete="email"></div>'+
-      '<div class="qc-sf-row"><label>Phone</label><input type="tel" id="qs-phone" placeholder="0400 000 000" autocomplete="tel"></div>'+
-      '<div class="qc-sf-row"><label>Site address</label><input type="text" id="qs-site" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
-    '</div>'+
-  '</div>'+
-  '<div class="qc-actions">'+
-    '<button type="button" class="qc-sf-submit" id="qs-submit">Save &amp; create job</button>'+
-    '<button type="button" class="qc-btn-back" id="qc-back-res">&#8592; Back to quote</button>'+
-  '</div>';
-}
-
 // ─── Preview: saved ───────────────────────────────────────────────
 
 function renderSaved(){
@@ -688,7 +675,7 @@ function calcLive(){
   var ready=s.space&&s.sqm>=50&&s.kitchen!==null&&s.freq&&s.type;
   if(!ready){
     s.hasResult=false;
-    if(!s.saving&&!s.saved)preview.innerHTML=renderPreviewEmpty();
+    if(!s.saved)preview.innerHTML=renderPreviewEmpty();
     updateMobBar(null);
     return;
   }
@@ -705,11 +692,7 @@ function bindPreview(r){
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){var el=document.getElementById('qc-print');if(el&&el.innerHTML)window.print();});
   var sv=document.getElementById('qc-save');
-  if(sv)sv.addEventListener('click',function(){s.saving=true;calcLive();});
-  var sub=document.getElementById('qs-submit');
-  if(sub)sub.addEventListener('click',saveQuote);
-  var bk=document.getElementById('qc-back-res');
-  if(bk)bk.addEventListener('click',function(){s.saving=false;calcLive();});
+  if(sv)sv.addEventListener('click',saveQuote);
   var rs=document.getElementById('qc-restart');
   if(rs)rs.addEventListener('click',function(){resetState();initForm();calcLive();});
 }
@@ -845,6 +828,15 @@ function bindForm(){
       calcLive();
     }
   });
+
+  // Client detail inputs — keep s.client in sync across form re-renders
+  var clientFields={biz:'qs-biz',contact:'qs-contact',email:'qs-email',phone:'qs-phone',site:'qs-site'};
+  Object.keys(clientFields).forEach(function(key){
+    var el=document.getElementById(clientFields[key]);
+    if(el)el.addEventListener('input',function(){s.client[key]=this.value;});
+  });
+  var dateEl=document.getElementById('qs-date');
+  if(dateEl)dateEl.addEventListener('change',function(){s.client.date=this.value;});
 }
 
 function syncSqmPicks(){
@@ -862,7 +854,7 @@ function saveQuote(){
   var phone=((document.getElementById('qs-phone')||{}).value||'').trim();
   var site=((document.getElementById('qs-site')||{}).value||'').trim();
   if(!biz){var f=document.getElementById('qs-biz');if(f)f.focus();return;}
-  var btn=document.getElementById('qs-submit');
+  var btn=document.getElementById('qc-save');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   var r=calc();
   var sb=MQ.sb;
@@ -875,7 +867,7 @@ function saveQuote(){
     .then(function(res){
       if(res.error)throw res.error;
       var cid=res.data.id,cname=res.data.name;
-      var today=new Date().toISOString().slice(0,10);
+      var today=s.client.date||new Date().toISOString().slice(0,10);
       var jrow={client_id:cid,client_name:cname,date:today,type:s.type==='deep'?'deep':'maintenance',status:'upcoming',
         sqm:s.sqm,floors:s.floors,baths:s.baths,
         kitchen:s.kitchen?true:null,
@@ -890,14 +882,14 @@ function saveQuote(){
       return sb.from('jobs').insert([jrow]).select('id').single().then(function(jr){
         if(jr.error)throw jr.error;
         s.savedClientName=cname;
-        s.saving=false;s.saved=true;
+        s.saved=true;
         var preview=document.getElementById('qc-preview');
         if(preview){preview.innerHTML=renderSaved();bindPreview(null);}
         updateMobBar(null);
       });
     })
     .catch(function(err){
-      if(btn){btn.disabled=false;btn.textContent='Save & create job';}
+      if(btn){btn.disabled=false;btn.textContent='Save quote & create job →';}
       alert('Could not save: '+(err.message||String(err)));
     });
 }
