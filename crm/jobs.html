@@ -226,9 +226,15 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
       <button class="modal-close" id="job-modal-close" type="button" aria-label="Close">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="form-row">
-        <label class="form-lbl" for="jf-date">Date</label>
-        <input class="form-input" type="date" id="jf-date" data-datepicker data-placeholder="Select date">
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="jf-date">Date</label>
+          <input class="form-input" type="date" id="jf-date" data-datepicker data-placeholder="Select date">
+        </div>
+        <div>
+          <label class="form-lbl" for="jf-time">Start time</label>
+          <input class="form-input" type="time" id="jf-time">
+        </div>
       </div>
       <div class="form-row">
         <label class="form-lbl" for="jf-client">Client</label>
@@ -289,6 +295,7 @@ var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var REPEAT_OPTS=[['none','Does not repeat'],['weekly','Weekly'],['fortnightly','Fortnightly'],['4-weekly','Every 4 weeks'],['monthly','Monthly']];
 function fmtDate(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
 function fmtDateFull(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
+function fmtTime(t){if(!t)return'';var p=t.split(':');var h=parseInt(p[0]);var m=p[1];var ampm=h>=12?'pm':'am';return(h%12||12)+':'+m+' '+ampm;}
 
 function renderExpand(j){
   var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
@@ -334,7 +341,7 @@ function renderExpand(j){
       '</div>';
   }
   return quotePanel+'<div class="xp-grid">'+
-    '<div style="grid-column:1/-1"><div class="xp-lbl">Date</div><div class="xp-val" style="display:flex;align-items:center;gap:10px">'+fmtDateFull(j.date)+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
+    '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px">'+fmtDateFull(j.date)+'<span style="color:var(--navy);font-weight:600">'+(j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-weight:400;font-size:12px">Time not set</span>')+'</span>'+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
     teamRow+repeatRow+
@@ -386,7 +393,7 @@ function renderAll(){
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
 }
 function reload(cb){
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
+  sb.from('jobs').select('id,client_id,client_name,date,start_time,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
 }
 
 var pills=document.querySelectorAll('.f-pill');
@@ -418,6 +425,7 @@ function openModal(j){
   });
   if(j){
     document.getElementById('jf-date').value=j.date||'';
+    document.getElementById('jf-time').value=j.start_time||'';
     sel.value=j.client_id||'';
     document.getElementById('jf-site').value=j.site||'';
     document.getElementById('jf-type').value=j.type||'maintenance';
@@ -425,6 +433,7 @@ function openModal(j){
     staffSel.value=j.assigned_staff_id||'';
   } else {
     document.getElementById('jf-date').valueAsDate=new Date();
+    document.getElementById('jf-time').value='';
   }
   modal.hidden=false;
   setTimeout(function(){document.getElementById(j?'jf-date':'jf-client').focus();},40);
@@ -433,7 +442,7 @@ function closeModal(){
   modal.hidden=true;editingJobId=null;
   document.querySelector('#job-modal .modal-title').textContent='New job';
   document.getElementById('job-modal-save').textContent='Add job';
-  ['jf-date','jf-site'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['jf-date','jf-time','jf-site'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
 }
 document.getElementById('new-job-btn').addEventListener('click',function(){openModal();});
 document.getElementById('job-modal-close').addEventListener('click',closeModal);
@@ -455,7 +464,8 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   var staffEl=document.getElementById('jf-staff');
   var staffId=staffEl.value||null;
   var staffName=null;if(staffId)allStaff.forEach(function(s){if(s.id===staffId)staffName=s.name;});
-  var row={date:date,client_id:sel.value,client_name:clientName,site:site,
+  var timeVal=document.getElementById('jf-time').value||null;
+  var row={date:date,start_time:timeVal,client_id:sel.value,client_name:clientName,site:site,
     type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,
     assigned_staff_id:staffId,assigned_staff_name:staffName};
   if(editingJobId){
@@ -549,10 +559,10 @@ Promise.all([
 ]).then(function(results){
   allClients=results[0].data||[];
   allStaff=results[1].data||[];
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(jr){
+  sb.from('jobs').select('id,client_id,client_name,date,start_time,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(jr){
     allJobs=jr.data||[];
     renderAll();
-    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r2){allJobs=r2.data||[];renderAll();});});
+    if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,start_time,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r2){allJobs=r2.data||[];renderAll();});});
     if(getParam('newjob')==='1'){
       openModal();
       var cid=getParam('cid');
