@@ -66,7 +66,7 @@ export async function onRequestPost({ request, env }) {
   if (!insertRes.ok) {
     const err = await insertRes.text();
     console.error('Supabase insert error:', err);
-    return json({ error: 'Failed to save inquiry.' }, 500);
+    return json({ error: 'Failed to save inquiry.', detail: err, hasUrl: !!URL_BASE, hasKey: !!SVC_KEY }, 500);
   }
 
   const [inserted] = await insertRes.json();
