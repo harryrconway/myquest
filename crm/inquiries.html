@@ -61,41 +61,56 @@
 .xp-lost-note{font-size:12px;color:var(--stone);background:rgba(155,150,138,.07);border:1px solid rgba(155,150,138,.18);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:14px}
 
 /* Conversion modal */
-.cv-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.cv-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
 .cv-overlay.open{display:flex}
-.cv-card{background:var(--card);border-radius:var(--r);width:100%;max-width:560px;box-shadow:0 24px 64px rgba(0,0,0,.22);overflow:hidden;margin:auto}
-.cv-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--hair);position:sticky;top:0;background:var(--card);z-index:1}
-.cv-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.015em}
-.cv-close{width:28px;height:28px;border-radius:7px;border:none;background:none;color:var(--stone);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s}
-.cv-close:hover{background:rgba(35,44,84,.07);color:var(--navy)}
-.cv-body{padding:20px 24px}
-.cv-section-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:12px;margin-top:20px}
-.cv-section-lbl:first-child{margin-top:0}
-.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
-.cv-field{margin-bottom:10px}
+.cv-card{background:var(--card);border-radius:var(--r);width:100%;max-width:600px;box-shadow:0 32px 80px rgba(0,0,0,.25);overflow:hidden;margin:auto}
+.cv-hd{display:flex;align-items:center;justify-content:space-between;padding:22px 28px 20px;border-bottom:1px solid var(--hair);position:sticky;top:0;background:var(--card);z-index:1}
+.cv-hd-left{display:flex;flex-direction:column;gap:2px}
+.cv-title{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1}
+.cv-subtitle{font-size:12px;color:var(--stone);margin-top:3px}
+.cv-close{width:32px;height:32px;border-radius:8px;border:none;background:none;color:var(--stone);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0}
+.cv-close:hover{background:rgba(35,44,84,.08);color:var(--navy)}
+.cv-body{padding:24px 28px 20px}
+.cv-summary{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px}
+.cv-pill{font-size:11.5px;font-weight:600;color:var(--navy);background:rgba(35,44,84,.08);border-radius:999px;padding:5px 13px;letter-spacing:.01em}
+.cv-notes-line{width:100%;font-size:12px;color:var(--stone);margin-top:4px;font-style:italic;line-height:1.5}
+.cv-divider{display:flex;align-items:center;gap:12px;margin:20px 0 18px}
+.cv-divider-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);white-space:nowrap}
+.cv-divider:before,.cv-divider:after{content:'';flex:1;height:1px;background:var(--hair)}
+.cv-divider:before{display:none}
+.cv-divider-lbl ~ .cv-divider:before{display:block}
+.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cv-field{display:flex;flex-direction:column}
 .cv-field.full{grid-column:1/-1}
-.cv-field label{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--stone);display:block;margin-bottom:5px}
-.cv-field input,.cv-field select{width:100%;padding:9px 11px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);font-size:13px;font-family:var(--font);background:var(--field);color:var(--navy);-webkit-appearance:none}
-.cv-field input:focus,.cv-field select:focus{outline:none;border-color:var(--navy)}
-.cv-hint{font-size:12px;color:var(--stone);background:rgba(35,44,84,.05);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:16px;line-height:1.5}
-.cv-hint strong{color:var(--navy);font-weight:600}
-.cv-job-toggle{display:flex;align-items:center;gap:8px;margin:14px 0 12px;cursor:pointer;font-size:13px;color:var(--navy);font-weight:500;user-select:none}
-.cv-job-toggle input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer}
-.cv-job-section{display:none}
-.cv-job-section.open{display:block}
-.cv-footer{display:flex;gap:10px;padding:14px 24px;border-top:1px solid var(--hair);background:var(--card)}
-.cv-err{font-size:12px;color:#c0392b;margin-top:6px;display:none}
+.cv-field label{font-size:11.5px;font-weight:500;color:var(--stone);margin-bottom:6px}
+.cv-field input,.cv-field select{padding:11px 14px;border:1.5px solid var(--hair-md);border-radius:9px;font-size:14px;font-family:var(--font);background:#fff;color:var(--navy);-webkit-appearance:none;transition:border-color .15s,box-shadow .15s;line-height:1.3}
+.cv-field input:focus,.cv-field select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(35,44,84,.08)}
+.cv-field input::placeholder{color:var(--stone);opacity:.55}
+.cv-job-box{border:1.5px solid var(--hair-md);border-radius:10px;overflow:hidden;margin-top:22px}
+.cv-job-box-hd{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;background:rgba(35,44,84,.03)}
+.cv-job-box-hd:hover{background:rgba(35,44,84,.05)}
+.cv-job-box-hd span{font-size:13px;font-weight:600;color:var(--navy);flex:1}
+.cv-job-box-hd input[type=checkbox]{width:16px;height:16px;accent-color:var(--navy);cursor:pointer;flex-shrink:0;order:-1}
+.cv-job-body{display:none;padding:18px 16px 6px}
+.cv-job-body.open{display:block}
+.cv-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 28px;border-top:1px solid var(--hair);background:var(--card)}
+.cv-btn-primary{padding:11px 22px;border-radius:var(--r-sm);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;background:var(--navy);color:#fff;border:none;transition:background .15s;letter-spacing:.01em;white-space:nowrap}
+.cv-btn-primary:hover{background:var(--navy-deep,#1a2140)}
+.cv-btn-primary:disabled{opacity:.55;cursor:default}
+.cv-btn-ghost{padding:10px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;background:none;color:var(--stone);border:1.5px solid var(--hair-md);transition:all .12s}
+.cv-btn-ghost:hover{border-color:rgba(35,44,84,.2);color:var(--navy)}
+.cv-err{font-size:12px;color:#c0392b;margin-top:10px;display:none}
 .cv-err.show{display:block}
 
 /* Lost modal */
-.lost-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
+.lost-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
 .lost-overlay.open{display:flex}
-.lost-card{background:var(--card);border-radius:var(--r);width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.22);padding:24px}
-.lost-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px}
-.lost-sub{font-size:13px;color:var(--stone);margin-bottom:18px}
-.lost-select{width:100%;padding:9px 11px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);font-size:13px;font-family:var(--font);background:var(--field);color:var(--navy);-webkit-appearance:none;margin-bottom:18px}
-.lost-select:focus{outline:none;border-color:var(--navy)}
-.lost-actions{display:flex;gap:10px}
+.lost-card{background:var(--card);border-radius:var(--r);width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,.25);padding:28px}
+.lost-title{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:5px;letter-spacing:-.02em}
+.lost-sub{font-size:13px;color:var(--stone);margin-bottom:20px;line-height:1.5}
+.lost-select{width:100%;padding:11px 14px;border:1.5px solid var(--hair-md);border-radius:9px;font-size:14px;font-family:var(--font);background:#fff;color:var(--navy);-webkit-appearance:none;margin-bottom:20px;transition:border-color .15s}
+.lost-select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(35,44,84,.08)}
+.lost-actions{display:flex;justify-content:flex-end;gap:10px}
 
 @media(max-width:860px){
   .inq-head{display:none}
@@ -197,32 +212,36 @@
 <div class="cv-overlay" id="cv-overlay">
   <div class="cv-card">
     <div class="cv-hd">
-      <span class="cv-title">Convert to Client &amp; Job</span>
+      <div class="cv-hd-left">
+        <span class="cv-title">Convert to Client &amp; Job</span>
+        <span class="cv-subtitle" id="cv-subtitle"></span>
+      </div>
       <button class="cv-close" id="cv-close" aria-label="Close">&times;</button>
     </div>
     <div class="cv-body">
-      <div class="cv-hint" id="cv-hint"></div>
 
-      <div class="cv-section-lbl">Client details</div>
-      <div class="cv-field full">
-        <label for="cv-biz">Business name *</label>
-        <input type="text" id="cv-biz" autocomplete="off">
-      </div>
+      <div class="cv-summary" id="cv-summary"></div>
+
+      <div class="cv-divider"><span class="cv-divider-lbl">Client details</span></div>
       <div class="cv-grid">
+        <div class="cv-field full">
+          <label for="cv-biz">Business name</label>
+          <input type="text" id="cv-biz" autocomplete="off">
+        </div>
         <div class="cv-field">
-          <label for="cv-contact">Contact name *</label>
+          <label for="cv-contact">Contact name</label>
           <input type="text" id="cv-contact" autocomplete="off">
         </div>
         <div class="cv-field">
-          <label for="cv-phone">Phone *</label>
+          <label for="cv-phone">Phone</label>
           <input type="tel" id="cv-phone">
         </div>
         <div class="cv-field">
-          <label for="cv-email">Email *</label>
+          <label for="cv-email">Email</label>
           <input type="email" id="cv-email">
         </div>
         <div class="cv-field">
-          <label for="cv-industry">Industry *</label>
+          <label for="cv-industry">Industry</label>
           <select id="cv-industry">
             <option value="Commercial office">Commercial office</option>
             <option value="Retail">Retail</option>
@@ -232,36 +251,36 @@
             <option value="Other">Other</option>
           </select>
         </div>
-      </div>
-      <div class="cv-field full">
-        <label for="cv-site">Site address *</label>
-        <input type="text" id="cv-site" placeholder="Full street address" autocomplete="off">
+        <div class="cv-field full">
+          <label for="cv-site">Site address</label>
+          <input type="text" id="cv-site" placeholder="Street address (start with suburb if unsure)" autocomplete="off">
+        </div>
       </div>
 
-      <label class="cv-job-toggle">
-        <input type="checkbox" id="cv-job-check" checked>
-        Create a job now
-      </label>
-
-      <div class="cv-job-section open" id="cv-job-section">
-        <div class="cv-section-lbl">Job details</div>
-        <div class="cv-grid">
-          <div class="cv-field">
-            <label for="cv-job-type">Type *</label>
-            <select id="cv-job-type">
-              <option value="maintenance">Maintenance</option>
-              <option value="deep">Deep clean</option>
-              <option value="window">Window clean</option>
-              <option value="builders">Builders clean</option>
-            </select>
-          </div>
-          <div class="cv-field">
-            <label for="cv-job-date">First date *</label>
-            <input type="date" id="cv-job-date">
-          </div>
-          <div class="cv-field">
-            <label for="cv-job-time">Start time</label>
-            <input type="time" id="cv-job-time">
+      <div class="cv-job-box">
+        <div class="cv-job-box-hd" onclick="var cb=document.getElementById('cv-job-check');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));event.stopPropagation()">
+          <input type="checkbox" id="cv-job-check" checked onclick="event.stopPropagation()">
+          <span>Create a job now</span>
+        </div>
+        <div class="cv-job-body open" id="cv-job-section">
+          <div class="cv-grid">
+            <div class="cv-field">
+              <label for="cv-job-type">Job type</label>
+              <select id="cv-job-type">
+                <option value="maintenance">Maintenance</option>
+                <option value="deep">Deep clean</option>
+                <option value="window">Window clean</option>
+                <option value="builders">Builders clean</option>
+              </select>
+            </div>
+            <div class="cv-field">
+              <label for="cv-job-date">First date</label>
+              <input type="date" id="cv-job-date">
+            </div>
+            <div class="cv-field">
+              <label for="cv-job-time">Start time <span style="opacity:.5;font-weight:400">(optional)</span></label>
+              <input type="time" id="cv-job-time">
+            </div>
           </div>
         </div>
       </div>
@@ -269,8 +288,8 @@
       <div class="cv-err" id="cv-err"></div>
     </div>
     <div class="cv-footer">
-      <button class="btn-cvt" id="cv-submit" style="flex:1">Create Client &amp; Job</button>
-      <button class="btn-lost" id="cv-cancel" style="min-width:80px">Cancel</button>
+      <button class="cv-btn-ghost" id="cv-cancel">Cancel</button>
+      <button class="cv-btn-primary" id="cv-submit">Create Client &amp; Job</button>
     </div>
   </div>
 </div>
@@ -279,9 +298,9 @@
 <div class="lost-overlay" id="lost-overlay">
   <div class="lost-card">
     <div class="lost-title">Mark as lost</div>
-    <div class="lost-sub">What was the reason? (optional)</div>
+    <div class="lost-sub">What was the reason? This helps track where leads are dropping off.</div>
     <select class="lost-select" id="lost-reason">
-      <option value="">No reason selected</option>
+      <option value="">No reason — just close it</option>
       <option value="Too expensive">Too expensive</option>
       <option value="Went with a competitor">Went with a competitor</option>
       <option value="No response">No response</option>
@@ -290,8 +309,8 @@
       <option value="Other">Other</option>
     </select>
     <div class="lost-actions">
-      <button class="btn-cvt" id="lost-confirm" style="flex:1">Confirm</button>
-      <button class="btn-lost" id="lost-cancel" style="min-width:80px">Cancel</button>
+      <button class="cv-btn-ghost" id="lost-cancel">Cancel</button>
+      <button class="cv-btn-primary" id="lost-confirm">Mark as lost</button>
     </div>
   </div>
 </div>
@@ -473,12 +492,17 @@ window._iqConvert=function(id){
   document.getElementById('cv-submit').textContent='Create Client & Job';
   document.getElementById('cv-submit').disabled=false;
 
-  var hintParts=[];
-  if(inq.frequency)hintParts.push('<strong>Frequency:</strong> '+(FREQ_LABELS[inq.frequency]||inq.frequency));
-  if(inq.sqm_range)hintParts.push('<strong>Size:</strong> '+esc(inq.sqm_range));
-  if(inq.notes)hintParts.push('<strong>Notes:</strong> '+esc(inq.notes));
-  document.getElementById('cv-hint').innerHTML=hintParts.length?hintParts.join(' &nbsp;·&nbsp; '):'';
-  document.getElementById('cv-hint').style.display=hintParts.length?'':'none';
+  var subtitleEl=document.getElementById('cv-subtitle');
+  if(subtitleEl)subtitleEl.textContent=esc(inq.biz_name||'');
+
+  var pills=[];
+  if(inq.frequency)pills.push('<span class="cv-pill">'+(FREQ_LABELS[inq.frequency]||esc(inq.frequency))+'</span>');
+  if(inq.sqm_range)pills.push('<span class="cv-pill">'+esc(inq.sqm_range)+'</span>');
+  if(inq.space_type)pills.push('<span class="cv-pill">'+(SPACE_LABELS[inq.space_type]||esc(inq.space_type))+'</span>');
+  if(inq.source)pills.push('<span class="cv-pill">via '+esc(inq.source)+'</span>');
+  var notesLine=inq.notes?'<div class="cv-notes-line">“'+esc(inq.notes)+'”</div>':'';
+  var summaryEl=document.getElementById('cv-summary');
+  if(summaryEl){summaryEl.innerHTML=pills.join('')+notesLine;summaryEl.style.display=(pills.length||inq.notes)?'flex':'none';}
 
   var errEl=document.getElementById('cv-err');
   errEl.textContent='';errEl.classList.remove('show');
@@ -501,7 +525,7 @@ document.getElementById('cv-job-check').addEventListener('change',function(){
   var sec=document.getElementById('cv-job-section');
   var btn=document.getElementById('cv-submit');
   if(this.checked){sec.classList.add('open');btn.textContent='Create Client & Job';}
-  else{sec.classList.remove('open');btn.textContent='Create Client';}
+  else{sec.classList.remove('open');btn.textContent='Create Client Only';}
 });
 
 document.getElementById('cv-submit').addEventListener('click',async function(){
