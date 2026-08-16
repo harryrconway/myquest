@@ -21,10 +21,8 @@
 .sc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--hair)}
 .sc-lbl{font-size:12px;color:var(--stone)}
 .sc-val{font-size:12.5px;font-weight:600;color:var(--navy)}
-.sc-clients{margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
-.sc-clbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:8px}
-.sc-ctag{display:inline-block;font-size:11px;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 9px;border-radius:5px;margin:0 4px 4px 0}
 .sc-tenure{color:var(--stone);font-weight:400}
+.sc-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
@@ -35,6 +33,13 @@
 .search{width:100%;padding:9px 12px 9px 34px;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s}
 .search::placeholder{color:var(--stone)}
 .search:focus{border-color:var(--hair-md)}
+/* Staff modal section headers */
+.sf-sec{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);padding-top:16px;margin:4px 0 14px;border-top:1px solid var(--hair)}
+/* Document upload/view buttons */
+.sf-doc-view,.sf-doc-upload{font-size:11.5px;font-weight:500;color:var(--navy);background:none;border:1.5px solid var(--hair-md);border-radius:7px;padding:4px 10px;cursor:pointer;font-family:var(--font);transition:border-color .12s,color .12s;white-space:nowrap}
+.sf-doc-upload{color:var(--stone)}
+.sf-doc-view:hover,.sf-doc-upload:hover{border-color:rgba(35,44,84,.25);color:var(--navy)}
+.sf-doc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -153,6 +158,16 @@
       </div>
       <div class="form-row-2">
         <div>
+          <label class="form-lbl" for="sf-emp-type">Employment type</label>
+          <select class="form-input" id="sf-emp-type">
+            <option value="">Not set</option>
+            <option value="full-time">Full-time</option>
+            <option value="part-time">Part-time</option>
+            <option value="subcontractor">Subcontractor</option>
+            <option value="casual">Casual</option>
+          </select>
+        </div>
+        <div>
           <label class="form-lbl" for="sf-role">Role</label>
           <select class="form-input" id="sf-role">
             <option value="Lead cleaner">Lead cleaner</option>
@@ -160,6 +175,8 @@
             <option value="Cleaner">Cleaner</option>
           </select>
         </div>
+      </div>
+      <div class="form-row-2">
         <div>
           <label class="form-lbl" for="sf-status">Status</label>
           <select class="form-input" id="sf-status">
@@ -167,6 +184,10 @@
             <option value="on-leave">On leave</option>
             <option value="left">Resigned</option>
           </select>
+        </div>
+        <div>
+          <label class="form-lbl" for="sf-since">Start date</label>
+          <input class="form-input" type="date" id="sf-since" data-datepicker data-placeholder="Start date">
         </div>
       </div>
       <div class="form-row-2">
@@ -179,16 +200,65 @@
           <input class="form-input" type="email" id="sf-email" placeholder="name@email.com">
         </div>
       </div>
-      <div class="form-row">
-        <label class="form-lbl" for="sf-since">Start date</label>
-        <input class="form-input" type="date" id="sf-since" data-datepicker data-placeholder="Start date">
+      <div class="form-row" id="sf-abn-row" hidden>
+        <label class="form-lbl" for="sf-abn">ABN</label>
+        <input class="form-input" type="text" id="sf-abn" placeholder="XX XXX XXX XXX">
+      </div>
+
+      <div class="sf-sec">Emergency contact</div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="sf-ec-name">Contact name</label>
+          <input class="form-input" type="text" id="sf-ec-name" placeholder="Full name">
+        </div>
+        <div>
+          <label class="form-lbl" for="sf-ec-phone">Contact phone</label>
+          <input class="form-input" type="tel" id="sf-ec-phone" placeholder="04xx xxx xxx">
+        </div>
+      </div>
+
+      <div id="sf-compliance" hidden>
+        <div class="sf-sec">Police check</div>
+        <div class="sf-doc-row">
+          <label class="form-lbl" style="margin-bottom:0" for="sf-police-expiry">Expiry date</label>
+          <div style="display:flex;gap:7px;align-items:center">
+            <button type="button" class="sf-doc-view" id="sf-police-view" hidden>View certificate</button>
+            <button type="button" class="sf-doc-upload" id="sf-police-upload-btn">Upload certificate</button>
+            <input type="file" id="sf-police-cert" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+          </div>
+        </div>
+        <div class="form-row">
+          <input class="form-input" type="date" id="sf-police-expiry">
+        </div>
+
+        <div class="sf-sec">Insurance</div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-lbl" for="sf-ins-provider">Provider</label>
+            <input class="form-input" type="text" id="sf-ins-provider" placeholder="e.g. QBE, Allianz">
+          </div>
+          <div>
+            <label class="form-lbl" for="sf-ins-policy">Policy number</label>
+            <input class="form-input" type="text" id="sf-ins-policy" placeholder="POL-XXXXXXX">
+          </div>
+        </div>
+        <div class="sf-doc-row">
+          <label class="form-lbl" style="margin-bottom:0" for="sf-ins-expiry">Insurance expiry</label>
+          <div style="display:flex;gap:7px;align-items:center">
+            <button type="button" class="sf-doc-view" id="sf-ins-view" hidden>View certificate</button>
+            <button type="button" class="sf-doc-upload" id="sf-ins-upload-btn">Upload certificate</button>
+            <input type="file" id="sf-ins-cert" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+          </div>
+        </div>
+        <div class="form-row">
+          <input class="form-input" type="date" id="sf-ins-expiry">
+        </div>
       </div>
     </div>
     <div class="modal-actions">
-      <div style="flex:1"></div>
+      <button type="button" class="delete-btn" id="staff-modal-delete" hidden style="margin-right:auto">Remove staff member</button>
       <button type="button" class="cancel-btn" id="staff-modal-cancel">Cancel</button>
       <button type="button" class="ph-btn" id="staff-modal-save">Add staff</button>
-      <button type="button" class="delete-btn" id="staff-modal-delete" hidden>Remove staff member</button>
     </div>
   </div>
 </div>
@@ -218,18 +288,36 @@ function tenureText(iso){
   return(yrs===1?'1 yr':yrs+' yrs')+(rem?' '+rem+' mo':'');
 }
 
+function complianceBadge(s){
+  var now=new Date();now.setHours(0,0,0,0);
+  var out=[];
+  function chk(ds,lbl){
+    if(!ds)return;
+    var exp=new Date(ds+'T00:00:00');
+    var days=Math.round((exp-now)/86400000);
+    if(days<0)out.push('<span class="badge declined" style="font-size:10px">'+lbl+' expired</span>');
+    else if(days<=60)out.push('<span class="badge onboarding" style="font-size:10px">'+lbl+' due</span>');
+  }
+  chk(s.police_check_expiry,'Police');
+  chk(s.insurance_expiry,'Insurance');
+  return out.join('');
+}
+
 function renderCard(s){
   var badgeCls=s.status==='on-leave'?'onboarding':s.status==='left'?'declined':'active';
   var badgeLbl=s.status==='on-leave'?'On leave':s.status==='left'?'Resigned':'Active';
+  var compBadge=complianceBadge(s);
+  var empLabel={  'full-time':'Full-time','part-time':'Part-time','subcontractor':'Contractor','casual':'Casual'}[s.employment_type]||'';
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
       '<div class="sc-av">'+initials(s.name||'?')+'</div>'+
-      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+esc(s.role||'')+'</div></div>'+
+      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+(empLabel?esc(empLabel)+' · ':'')+esc(s.role||'')+'</div></div>'+
       '<span class="badge '+badgeCls+'" style="margin-left:auto">'+badgeLbl+'</span>'+
     '</div>'+
     (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
     (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
     (s.start_date?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+displayDate(s.start_date)+'<span class="sc-tenure"> · '+tenureText(s.start_date)+'</span></span></div>':'')+
+    (compBadge?'<div class="sc-badges">'+compBadge+'</div>':'')+
   '</div>';
 }
 
@@ -255,7 +343,7 @@ function renderAll(){
 }
 
 function reload(){
-  sb.from('staff').select('id,name,role,phone,email,start_date,status').order('name').then(function(r){allStaff=r.data||[];renderAll();});
+  sb.from('staff').select('id,name,role,phone,email,start_date,status,employment_type,abn,emergency_contact,emergency_phone,police_check_expiry,police_check_path,insurance_provider,insurance_policy_no,insurance_expiry,insurance_cert_path').order('name').then(function(r){allStaff=r.data||[];renderAll();});
 }
 
 var modal=document.getElementById('staff-modal');
@@ -263,13 +351,43 @@ var saveBtn=document.getElementById('staff-modal-save');
 var delBtn=document.getElementById('staff-modal-delete');
 var titleEl=document.getElementById('staff-modal-title');
 
+function updateDocUI(type,path){
+  var viewBtn=document.getElementById('sf-'+type+'-view');
+  var uploadBtn=document.getElementById('sf-'+type+'-upload-btn');
+  if(viewBtn)viewBtn.hidden=!path;
+  if(uploadBtn)uploadBtn.textContent=path?'Replace':'Upload certificate';
+}
+
+function uploadDoc(staffId,docType,file,cb){
+  var path=staffId+'/'+docType;
+  sb.storage.from('staff-documents').upload(path,file,{upsert:true}).then(function(r){
+    if(r.error){alert('Upload failed: '+(r.error.message||'Unknown error'));return;}
+    cb(path);
+  });
+}
+
+function viewDoc(path){
+  sb.storage.from('staff-documents').createSignedUrl(path,3600).then(function(r){
+    if(r.data&&r.data.signedUrl)window.open(r.data.signedUrl,'_blank');
+    else alert('Could not generate view link.');
+  });
+}
+
+function toggleAbn(){
+  var isSubco=document.getElementById('sf-emp-type').value==='subcontractor';
+  document.getElementById('sf-abn-row').hidden=!isSubco;
+}
+
 function openNewModal(){
   editingId=null;
   titleEl.textContent='Add staff member';saveBtn.textContent='Add staff';delBtn.hidden=true;
-  ['sf-name','sf-phone','sf-email'].forEach(function(id){document.getElementById(id).value='';});
+  ['sf-name','sf-phone','sf-email','sf-abn','sf-ec-name','sf-ec-phone'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('sf-emp-type').value='';
   document.getElementById('sf-role').value='Cleaner';
   document.getElementById('sf-status').value='active';
-  document.getElementById('sf-since').valueAsDate=new Date();
+  document.getElementById('sf-since').value='';
+  document.getElementById('sf-abn-row').hidden=true;
+  document.getElementById('sf-compliance').hidden=true;
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
 }
@@ -277,11 +395,23 @@ function openEditModal(s){
   editingId=s.id;
   titleEl.textContent='Edit staff member';saveBtn.textContent='Save changes';delBtn.hidden=false;
   document.getElementById('sf-name').value=s.name||'';
+  document.getElementById('sf-emp-type').value=s.employment_type||'';
   document.getElementById('sf-role').value=s.role||'Cleaner';
   document.getElementById('sf-phone').value=s.phone||'';
   document.getElementById('sf-email').value=s.email||'';
   document.getElementById('sf-since').value=s.start_date||'';
   document.getElementById('sf-status').value=s.status||'active';
+  document.getElementById('sf-abn').value=s.abn||'';
+  document.getElementById('sf-ec-name').value=s.emergency_contact||'';
+  document.getElementById('sf-ec-phone').value=s.emergency_phone||'';
+  document.getElementById('sf-abn-row').hidden=s.employment_type!=='subcontractor';
+  document.getElementById('sf-compliance').hidden=false;
+  document.getElementById('sf-police-expiry').value=s.police_check_expiry||'';
+  document.getElementById('sf-ins-provider').value=s.insurance_provider||'';
+  document.getElementById('sf-ins-policy').value=s.insurance_policy_no||'';
+  document.getElementById('sf-ins-expiry').value=s.insurance_expiry||'';
+  updateDocUI('police',s.police_check_path);
+  updateDocUI('ins',s.insurance_cert_path);
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
 }
@@ -292,6 +422,7 @@ document.getElementById('staff-modal-close').addEventListener('click',closeModal
 document.getElementById('staff-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden)closeModal();});
+document.getElementById('sf-emp-type').addEventListener('change',toggleAbn);
 
 delBtn.addEventListener('click',function(){
   if(!editingId)return;
@@ -302,16 +433,62 @@ delBtn.addEventListener('click',function(){
 saveBtn.addEventListener('click',function(){
   var name=document.getElementById('sf-name').value.trim();
   if(!name){document.getElementById('sf-name').focus();return;}
-  var row={name:name,role:document.getElementById('sf-role').value,
+  var row={
+    name:name,
+    role:document.getElementById('sf-role').value,
+    employment_type:document.getElementById('sf-emp-type').value||null,
+    abn:document.getElementById('sf-abn').value.trim()||null,
     phone:document.getElementById('sf-phone').value.trim(),
     email:document.getElementById('sf-email').value.trim(),
     start_date:document.getElementById('sf-since').value||null,
-    status:document.getElementById('sf-status').value};
+    status:document.getElementById('sf-status').value,
+    emergency_contact:document.getElementById('sf-ec-name').value.trim()||null,
+    emergency_phone:document.getElementById('sf-ec-phone').value.trim()||null
+  };
   if(editingId){
+    row.police_check_expiry=document.getElementById('sf-police-expiry').value||null;
+    row.insurance_provider=document.getElementById('sf-ins-provider').value.trim()||null;
+    row.insurance_policy_no=document.getElementById('sf-ins-policy').value.trim()||null;
+    row.insurance_expiry=document.getElementById('sf-ins-expiry').value||null;
     sb.from('staff').update(row).eq('id',editingId).then(function(){closeModal();reload();});
   } else {
     sb.from('staff').insert(row).then(function(){closeModal();reload();});
   }
+});
+
+// Document upload / view wiring
+document.getElementById('sf-police-upload-btn').addEventListener('click',function(){document.getElementById('sf-police-cert').click();});
+document.getElementById('sf-police-cert').addEventListener('change',function(){
+  var file=this.files[0];
+  if(!file||!editingId)return;
+  var btn=document.getElementById('sf-police-upload-btn');
+  btn.textContent='Uploading…';btn.disabled=true;
+  uploadDoc(editingId,'police-check',file,function(path){
+    sb.from('staff').update({police_check_path:path}).eq('id',editingId).then(function(){
+      btn.disabled=false;updateDocUI('police',path);
+    });
+  });
+});
+document.getElementById('sf-police-view').addEventListener('click',function(){
+  var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
+  if(found&&found.police_check_path)viewDoc(found.police_check_path);
+});
+
+document.getElementById('sf-ins-upload-btn').addEventListener('click',function(){document.getElementById('sf-ins-cert').click();});
+document.getElementById('sf-ins-cert').addEventListener('change',function(){
+  var file=this.files[0];
+  if(!file||!editingId)return;
+  var btn=document.getElementById('sf-ins-upload-btn');
+  btn.textContent='Uploading…';btn.disabled=true;
+  uploadDoc(editingId,'insurance-cert',file,function(path){
+    sb.from('staff').update({insurance_cert_path:path}).eq('id',editingId).then(function(){
+      btn.disabled=false;updateDocUI('ins',path);
+    });
+  });
+});
+document.getElementById('sf-ins-view').addEventListener('click',function(){
+  var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
+  if(found&&found.insurance_cert_path)viewDoc(found.insurance_cert_path);
 });
 
 document.getElementById('staff-grid').addEventListener('click',function(e){

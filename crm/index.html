@@ -82,6 +82,8 @@
 .ci-job-date{font-size:10.5px;color:var(--stone);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.4}
 .ci-job-type{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 5px;border-radius:3px;display:inline-block;margin-bottom:2px}
 .ci-job-site{font-size:12px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.ci-job{display:grid;text-decoration:none}
+a.ci-job:hover{background:rgba(35,44,84,.05);}
 .ci-empty{padding:14px 16px;font-size:12.5px;color:var(--stone);font-style:italic}
 
 /* Contracts inside accordion */
@@ -437,6 +439,7 @@ function renderContractRow(ct){
 
 var allClients=[],allJobs=[],allContracts=[];
 var activeFilter='all',searchTerm='';
+function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 
 function loadAll(cb){
   sb.from('clients').select('id,name,status,contact,contact_title,email,industry,phone,notes,site_address,created_at').order('name').then(function(r1){
@@ -471,8 +474,8 @@ function buildClientDetail(c,jobs,contracts){
     var cls=j.status==='completed'?'done':'next';
     var dateStr='—';
     if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+MONTHS[dd.getMonth()]+'<br>'+DAYS[dd.getDay()];}
-    return '<div class="ci-job '+cls+'"><div class="ci-job-date">'+dateStr+'</div>'+
-      '<div><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div></div>';
+    return '<a href="jobs.html?job='+esc(j.id)+'" class="ci-job '+cls+'"><div class="ci-job-date">'+dateStr+'</div>'+
+      '<div><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div></a>';
   }).join(''):'<div class="ci-empty">No jobs yet.</div>';
   var ctHtml=contracts.length?contracts.map(renderContractRow).join(''):'<div class="ct-empty">No contracts on file.</div>';
   var notesHtml=c.notes?'<div class="ci-notes-txt">'+esc(c.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
@@ -805,7 +808,10 @@ MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new'
   var n=r.count||0;var el=document.getElementById('inq-notif');
   if(el&&n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}
 });
-if(window.mqGenerate)window.mqGenerate();});
+if(window.mqGenerate)window.mqGenerate();
+var clientParam=getParam('client');
+if(clientParam){setTimeout(function(){var w=document.querySelector('.cl-wrap[data-id="'+clientParam+'"]');if(w){w.scrollIntoView({behavior:'smooth',block:'center'});expandWrap(w);}},80);}
+});
 
 }); // end requireAuth
 })();

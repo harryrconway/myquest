@@ -14,10 +14,10 @@
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 
 .job-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-.jl-head{display:grid;grid-template-columns:80px .7fr .8fr 100px 1.2fr auto 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.jl-head{display:grid;grid-template-columns:80px .7fr .8fr 100px 64px 1.2fr auto 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .jl-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .jl-row{
-  display:grid;grid-template-columns:80px .7fr .8fr 100px 1.2fr auto 28px;
+  display:grid;grid-template-columns:80px .7fr .8fr 100px 64px 1.2fr auto 28px;
   gap:12px;padding:13px 20px;align-items:center;
   border-bottom:1px solid var(--hair);
   border-left:3px solid transparent;
@@ -34,6 +34,7 @@
 .jl-type{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;justify-self:center;align-self:center}
 .jl-type.deep{color:var(--navy);background:rgba(35,44,84,.12)}
 .jl-crew{display:flex;gap:4px;min-width:0;overflow:hidden}
+.jl-scope-chip{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--green);background:var(--green-bg);padding:2px 6px;border-radius:4px;white-space:nowrap;align-self:center;justify-self:center}
 .jl-crew-name{font-size:12px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .jl-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
 .jl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
@@ -73,14 +74,14 @@
 .search:focus{border-color:var(--hair-md)}
 
 @media(max-width:1000px){
-  .jl-head,.jl-row{grid-template-columns:80px 1fr 80px 80px}
+  .jl-head,.jl-row{grid-template-columns:80px 1fr 100px 64px 80px}
   .jl-head span:nth-child(3),.jl-row .jl-site,
-  .jl-head span:nth-child(5),.jl-row .jl-crew,
-  .jl-head span:nth-child(7),.jl-row .jl-arr{display:none}
+  .jl-head span:nth-child(6),.jl-row .jl-crew,
+  .jl-head span:nth-child(8),.jl-row .jl-arr{display:none}
 }
 @media(max-width:700px){
   .jl-head,.jl-row{grid-template-columns:72px 1fr auto}
-  .jl-head span:nth-child(4),.jl-row .jl-type{display:none}
+  .jl-head span:nth-child(4),.jl-head span:nth-child(5),.jl-row .jl-type,.jl-row .jl-scope-chip{display:none}
 }
 </style>
 </head>
@@ -189,7 +190,7 @@
       <div class="job-list">
         <div class="jl-head">
           <span>Date</span><span>Client</span><span>Site</span>
-          <span>Type</span><span>Team</span><span>Status</span><span></span>
+          <span>Type</span><span></span><span>Team</span><span>Status</span><span></span>
         </div>
         <div id="jl-body"></div>
       </div>
@@ -269,7 +270,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 var activeFilter='all',searchTerm='',openId=null,editingJobId=null;
-var allJobs=[],allClients=[],allStaff=[];
+var allJobs=[],allClients=[],allStaff=[],jobsWithScope=new Set();
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -284,7 +285,7 @@ function renderExpand(j){
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   if(!j.from_schedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
-  actions+='<button class="xp-btn" data-action="scope">Manage scope</button>';
+  actions+='<button class="xp-btn" data-action="scope">'+(jobsWithScope.has(j.id)?'Edit scope':'Add scope')+'</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   var cur=j.repeat||'none';
   if(j.from_schedule&&j.source_job_id){allJobs.forEach(function(t){if(t.id===j.source_job_id)cur=t.repeat||'none';});}
@@ -339,6 +340,7 @@ function renderRow(j){
       '<div class="jl-client">'+esc(j.client_name||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
       '<span class="jl-type'+(j.type==='deep'?' deep':'')+'">'+typeLbl+'</span>'+
+      '<span class="jl-scope-chip">'+(jobsWithScope.has(j.id)?'Scope':'')+'</span>'+
       '<div class="jl-crew">'+crewHtml+'</div>'+badge+
       '<div class="jl-arr">'+ARR+'</div>'+
     '</div>'+
@@ -539,13 +541,18 @@ Promise.all([
   allStaff=results[1].data||[];
   sb.from('jobs').select('id,client_id,client_name,date,start_time,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(jr){
     allJobs=jr.data||[];
-    renderAll();
-    
+    sb.from('scopes').select('job_id').not('job_id','is',null).then(function(sr){
+      (sr.data||[]).forEach(function(s){if(s.job_id)jobsWithScope.add(s.job_id);});
+      renderAll();
+    });
+
 MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
   var n=r.count||0;var el=document.getElementById('inq-notif');
   if(el&&n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}
 });
 if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,start_time,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r2){allJobs=r2.data||[];renderAll();});});
+    var jobParam=getParam('job');
+    if(jobParam){setTimeout(function(){var w=document.querySelector('.xp-wrap[data-id="'+jobParam+'"]');if(w){w.scrollIntoView({behavior:'smooth',block:'center'});w.classList.add('open');var body=w.querySelector('.xp-body');if(body)body.classList.add('open');openId=jobParam;}},80);}
     if(getParam('newjob')==='1'){
       openModal();
       var cid=getParam('cid');

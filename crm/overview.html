@@ -226,12 +226,14 @@ var nwSunStr=nwSun.toISOString().slice(0,10);
 
 Promise.all([
   sb.from('clients').select('id,status'),
-  sb.from('jobs').select('id,date,start_time,status,type,site,client_name'),
-  sb.from('staff').select('id,status')
+  sb.from('jobs').select('id,date,start_time,status,type,site,client_name,assigned_staff_id'),
+  sb.from('staff').select('id,status'),
+  sb.from('contracts').select('id,end_date').not('end_date','is',null)
 ]).then(function(results){
   var clients=results[0].data||[];
   var jobs=results[1].data||[];
   var staff=results[2].data||[];
+  var contracts=results[3].data||[];
 
   var activeClients=clients.filter(function(c){return c.status==='active';}).length;
   var activeStaff=staff.filter(function(s){return s.status==='active';}).length;
@@ -255,6 +257,15 @@ Promise.all([
     if(onboarding.length)html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
       '<div class="attn-title">'+onboarding.length+' client'+(onboarding.length!==1?'s':'')+' still onboarding</div>'+
       '<div class="attn-sub"><a href="index.html" style="color:inherit">View in Clients →</a></div></div></div>';
+    var in30=new Date(now);in30.setDate(now.getDate()+30);var in30Str=in30.toISOString().slice(0,10);
+    var expiringCts=contracts.filter(function(ct){return ct.end_date>=today&&ct.end_date<=in30Str;});
+    if(expiringCts.length)html+='<div class="attn-item"><div class="attn-dot red"></div><div>'+
+      '<div class="attn-title">'+expiringCts.length+' contract'+(expiringCts.length!==1?'s':'')+' expiring within 30 days</div>'+
+      '<div class="attn-sub"><a href="index.html" style="color:inherit">Review in Clients →</a></div></div></div>';
+    var unstaffed=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today&&!j.assigned_staff_id;});
+    if(unstaffed.length)html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
+      '<div class="attn-title">'+unstaffed.length+' upcoming job'+(unstaffed.length!==1?'s':'')+' with no staff assigned</div>'+
+      '<div class="attn-sub"><a href="jobs.html" style="color:inherit">Assign in Jobs →</a></div></div></div>';
     if(!html)html='<div class="attn-item"><div class="attn-dot" style="background:var(--green)"></div><div>'+
       '<div class="attn-title">All clear</div><div class="attn-sub">No items need attention right now</div></div></div>';
     attnEl.innerHTML=html;

@@ -8,8 +8,7 @@
 <link rel="stylesheet" href="style.css?v=20260816">
 <style>
 /* ── Layout ── */
-.qc-outer-grid{display:grid;grid-template-columns:340px 1fr;grid-template-areas:"client form" "preview form";column-gap:20px;row-gap:14px;align-items:start;margin-top:16px}
-#qc-client{grid-area:client}
+.qc-outer-grid{display:grid;grid-template-columns:1fr 360px;grid-template-areas:"form preview";column-gap:20px;align-items:start;margin-top:16px}
 #qc-form{grid-area:form;align-self:start}
 #qc-preview{grid-area:preview}
 .qc-top-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
@@ -146,52 +145,14 @@
 
 /* Action buttons */
 .qc-actions{padding:16px 22px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:8px}
-.qc-btn-save{
+.qc-btn-dl{
   width:100%;background:var(--navy);color:var(--on);border:none;
-  border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
+  border-radius:var(--r-sm);color:var(--on);padding:13px 20px;font-size:14px;font-weight:600;
   cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:background .15s;
   -webkit-tap-highlight-color:transparent;
 }
-.qc-btn-save:hover{background:var(--navy-deep)}
-.qc-btn-dl{
-  width:100%;background:transparent;border:1.5px solid var(--hair-md);
-  border-radius:var(--r-sm);color:var(--navy);padding:10px;font-size:13px;font-weight:500;
-  cursor:pointer;transition:border-color .15s;font-family:inherit;
-}
-.qc-btn-dl:hover{border-color:rgba(35,44,84,.3)}
-.qc-btn-back{background:none;border:none;color:var(--stone);font-size:12.5px;cursor:pointer;padding:4px;font-family:inherit;transition:color .15s;width:100%;text-align:center}
-.qc-btn-back:hover{color:var(--navy)}
+.qc-btn-dl:hover{background:var(--navy-deep)}
 
-/* Save form */
-.qc-sf-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
-.qc-sf-row{display:flex;flex-direction:column;gap:5px}
-.qc-sf-row label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);font-weight:700}
-.qc-sf-row input:not(.qc-date-part){
-  background:var(--field);border:1.5px solid var(--hair);border-radius:var(--r-sm);
-  padding:10px 13px;font-size:13.5px;color:var(--navy);font-family:inherit;
-  outline:none;-webkit-appearance:none;transition:border-color .15s;
-}
-.qc-sf-row input:not(.qc-date-part)::placeholder{color:rgba(35,44,84,.25)}
-.qc-sf-row input:not(.qc-date-part):focus{border-color:rgba(35,44,84,.4)}
-.qc-date-wrap{display:flex;align-items:center;gap:3px;background:var(--field);border:1.5px solid var(--hair);border-radius:var(--r-sm);padding:9px 13px;transition:border-color .15s}
-.qc-date-wrap:focus-within{border-color:rgba(35,44,84,.4)}
-.qc-date-part{background:none;border:none;outline:none;font-size:13.5px;color:var(--navy);font-family:inherit;text-align:center;width:22px;padding:0;-moz-appearance:textfield}
-.qc-date-part::placeholder{color:rgba(35,44,84,.25)}
-.qc-date-yr{width:36px}
-.qc-date-sep{font-size:13px;color:var(--stone);user-select:none;line-height:1}
-.qc-sf-submit{
-  width:100%;background:var(--navy);color:var(--on);border:none;
-  border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
-  cursor:pointer;font-family:inherit;transition:background .15s;
-}
-.qc-sf-submit:hover{background:var(--navy-deep)}
-.qc-sf-submit:disabled{opacity:.35;cursor:not-allowed}
-
-/* Success */
-.qc-ok-icon{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(243,239,228,.3);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--on);margin-bottom:12px}
-.qc-ok-name{font-size:16px;font-weight:700;color:var(--on);letter-spacing:-.02em;margin-bottom:5px}
-.qc-ok-saved{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,239,228,.55)}
-.qc-ok-msg{padding:18px 22px 0;font-size:13px;color:var(--stone);line-height:1.6}
 
 
 /* Print */
@@ -200,7 +161,7 @@
 
 /* Mobile */
 @media(max-width:900px){
-  .qc-outer-grid{grid-template-columns:1fr;grid-template-areas:"client" "form" "preview"}
+  .qc-outer-grid{grid-template-columns:1fr;grid-template-areas:"form" "preview"}
   .qc-top-pair{grid-template-columns:1fr}
   #qc-preview{position:static}
   .qc-two{grid-template-columns:1fr;gap:14px}
@@ -275,7 +236,6 @@
     <div class="stats pg-2" id="qc-stats"></div>
 
     <div class="qc-outer-grid pg-3">
-      <div id="qc-client"></div>
       <div id="qc-form"></div>
       <div id="qc-preview"></div>
     </div>
@@ -334,12 +294,11 @@ var EXTRA_KEYS=['windows','ext_windows','high_dust','kitchen_deep'];
 var s={
   space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,
   extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,
-  hasResult:false,saved:false,savedClientName:'',
-  client:{biz:'',contact:'',email:'',phone:'',site:'',date:''}
+  hasResult:false
 };
 
 function resetState(){
-  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,hasResult:false,saved:false,savedClientName:'',client:{biz:'',contact:'',email:'',phone:'',site:'',date:''}};
+  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,hasResult:false};
 }
 
 // ─── Calculation (unchanged) ─────────────────────────────────────
@@ -396,38 +355,6 @@ function initStats(){
 }
 
 // ─── Form rendering ───────────────────────────────────────────────
-
-function renderClientCol(){
-  return '<div class="qc-card">'+
-    '<div class="qc-card-head"><div class="qc-card-lbl">Client details</div>'+
-    '<div class="qc-card-hint">Fill in while on the call</div></div>'+
-    '<div class="qc-sf-wrap">'+
-      '<div class="qc-sf-row"><label>Business name <span style="color:var(--red)">*</span></label>'+
-        '<input type="text" id="qs-biz" value="'+esc(s.client.biz)+'" placeholder="Acme Pty Ltd" autocomplete="organization"></div>'+
-      '<div class="qc-sf-row"><label>Contact name</label>'+
-        '<input type="text" id="qs-contact" value="'+esc(s.client.contact)+'" placeholder="Jane Smith" autocomplete="name"></div>'+
-      '<div class="qc-sf-row"><label>Email</label>'+
-        '<input type="email" id="qs-email" value="'+esc(s.client.email)+'" placeholder="jane@acme.com.au" autocomplete="email"></div>'+
-      '<div class="qc-sf-row"><label>Phone</label>'+
-        '<input type="tel" id="qs-phone" value="'+esc(s.client.phone)+'" placeholder="0400 000 000" autocomplete="tel"></div>'+
-      '<div class="qc-sf-row"><label>Site address</label>'+
-        '<input type="text" id="qs-site" value="'+esc(s.client.site)+'" placeholder="123 Main St, Suburb" autocomplete="street-address"></div>'+
-      (function(){
-        var dd='',mm='',yyyy='';
-        if(s.client.date&&s.client.date.length===10){var dp=s.client.date.split('-');yyyy=dp[0];mm=dp[1];dd=dp[2];}
-        return '<div class="qc-sf-row"><label>First clean date</label>'+
-          '<div class="qc-date-wrap">'+
-            '<input type="text" id="qs-dd" maxlength="2" inputmode="numeric" placeholder="DD" class="qc-date-part" value="'+esc(dd)+'">'+
-            '<span class="qc-date-sep">/</span>'+
-            '<input type="text" id="qs-mm" maxlength="2" inputmode="numeric" placeholder="MM" class="qc-date-part" value="'+esc(mm)+'">'+
-            '<span class="qc-date-sep">/</span>'+
-            '<input type="text" id="qs-yyyy" maxlength="4" inputmode="numeric" placeholder="YYYY" class="qc-date-part qc-date-yr" value="'+esc(yyyy)+'">'+
-          '</div>'+
-        '</div>';
-      })()+
-    '</div>'+
-  '</div>';
-}
 
 function choice(label,key,on,group,hint){
   return '<button type="button" class="qc-choice'+(on?' on':'')+'" data-key="'+key+'" data-grp="'+group+'">'+(hint?'<span>'+label+'</span>':label)+'</button>';
@@ -590,7 +517,6 @@ function renderPreviewEmpty(){
   var done={space:!!s.space,kit:s.kitchen!==null,freq:!!s.freq,type:!!s.type};
   return '<div class="qc-ph">'+
     '<div class="qc-ph-left">'+
-      (s.client.biz?'<div class="qc-ph-client">'+esc(s.client.biz)+'</div>':'')+
       '<div class="qc-ph-ttl">Quote in progress</div>'+
     '</div>'+
     '<div class="qc-ph-list">'+
@@ -605,8 +531,6 @@ function renderPreviewEmpty(){
 // ─── Preview: live quote ──────────────────────────────────────────
 
 function renderPreview(r){
-  if(s.saved)return renderSaved();
-
   var sLab={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'}[s.space]||'';
   var fLab=FREQ_LABELS[FREQ_KEYS.indexOf(s.freq)]||'';
   var tLab=s.type==='deep'?'Deep clean':'Maintenance';
@@ -622,7 +546,6 @@ function renderPreview(r){
 
   // Band: vertical
   h+='<div class="qc-q-band">'+
-    (s.client.biz?'<div class="qc-band-client">'+esc(s.client.biz)+'</div>':'')+
     '<div class="qc-q-tags">'+
       '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
       '<span class="qc-q-tag">'+s.sqm+' sqm</span>'+
@@ -664,26 +587,10 @@ function renderPreview(r){
   h+='<div class="qc-valid">Estimate valid 30 days &middot; GST not included</div>';
 
   h+='<div class="qc-actions">'+
-    '<button type="button" class="qc-btn-save" id="qc-save">Save quote &amp; create job &#8594;</button>'+
     '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
   '</div>';
 
   return h;
-}
-
-// ─── Preview: saved ───────────────────────────────────────────────
-
-function renderSaved(){
-  return '<div class="qc-q-band">'+
-    '<div class="qc-ok-icon">&#10003;</div>'+
-    '<div class="qc-ok-name">'+esc(s.savedClientName||'Client')+'</div>'+
-    '<div class="qc-ok-saved">Quote saved</div>'+
-  '</div>'+
-  '<div class="qc-ok-msg">Job created and ready to schedule.</div>'+
-  '<div class="qc-actions">'+
-    '<a href="jobs.html" class="qc-btn-save">View jobs &#8594;</a>'+
-    '<button type="button" class="qc-btn-dl" id="qc-restart">&#8592; New quote</button>'+
-  '</div>';
 }
 
 // ─── Live calc ────────────────────────────────────────────────────
@@ -708,65 +615,11 @@ function bindPreview(r){
   if(buf)buf.addEventListener('click',function(){s.buffer=!s.buffer;calcLive();});
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){var el=document.getElementById('qc-print');if(el&&el.innerHTML)window.print();});
-  var sv=document.getElementById('qc-save');
-  if(sv)sv.addEventListener('click',saveQuote);
-  var rs=document.getElementById('qc-restart');
-  if(rs)rs.addEventListener('click',function(){resetState();initForm();calcLive();});
 }
 
 // ─── Form init & bind ─────────────────────────────────────────────
 
-function initClient(){
-  var cc=document.getElementById('qc-client');
-  if(cc)cc.innerHTML=renderClientCol();
-  bindClient();
-}
-
-function bindClient(){
-  var map={biz:'qs-biz',contact:'qs-contact',email:'qs-email',phone:'qs-phone',site:'qs-site'};
-  Object.keys(map).forEach(function(key){
-    var el=document.getElementById(map[key]);
-    if(el)el.addEventListener('input',function(){s.client[key]=this.value;calcLive();});
-  });
-  var ddEl=document.getElementById('qs-dd');
-  var mmEl=document.getElementById('qs-mm');
-  var yyyyEl=document.getElementById('qs-yyyy');
-  function syncDate(){
-    var d=(ddEl&&ddEl.value)||'';
-    var m=(mmEl&&mmEl.value)||'';
-    var y=(yyyyEl&&yyyyEl.value)||'';
-    s.client.date=(d.length===2&&m.length===2&&y.length===4)?y+'-'+m+'-'+d:'';
-  }
-  if(ddEl){
-    ddEl.addEventListener('input',function(){
-      this.value=this.value.replace(/\D/g,'').slice(0,2);
-      if(this.value.length===2&&mmEl)mmEl.focus();
-      syncDate();
-    });
-  }
-  if(mmEl){
-    mmEl.addEventListener('input',function(){
-      this.value=this.value.replace(/\D/g,'').slice(0,2);
-      if(this.value.length===2&&yyyyEl)yyyyEl.focus();
-      syncDate();
-    });
-    mmEl.addEventListener('keydown',function(e){
-      if(e.key==='Backspace'&&this.value===''&&ddEl)ddEl.focus();
-    });
-  }
-  if(yyyyEl){
-    yyyyEl.addEventListener('input',function(){
-      this.value=this.value.replace(/\D/g,'').slice(0,4);
-      syncDate();
-    });
-    yyyyEl.addEventListener('keydown',function(e){
-      if(e.key==='Backspace'&&this.value===''&&mmEl)mmEl.focus();
-    });
-  }
-}
-
 function initForm(){
-  initClient();
   var fc=document.getElementById('qc-form');
   if(fc)fc.innerHTML=renderFormCol();
   bindForm();
@@ -904,55 +757,7 @@ function syncSqmPicks(){
   });
 }
 
-// ─── Save to Supabase (unchanged) ────────────────────────────────
-
-function saveQuote(){
-  var biz=((document.getElementById('qs-biz')||{}).value||'').trim();
-  var contact=((document.getElementById('qs-contact')||{}).value||'').trim();
-  var email=((document.getElementById('qs-email')||{}).value||'').trim();
-  var phone=((document.getElementById('qs-phone')||{}).value||'').trim();
-  var site=((document.getElementById('qs-site')||{}).value||'').trim();
-  if(!biz){var f=document.getElementById('qs-biz');if(f)f.focus();return;}
-  var btn=document.getElementById('qc-save');
-  if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  var r=calc();
-  var sb=MQ.sb;
-  var FREQ_TO_REPEAT={monthly:'monthly',fortnightly:'fortnightly',weekly:'weekly'};
-  var SPACE_TO_INDUSTRY={office:'Commercial office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
-  sb.from('clients').insert([{
-    name:biz,contact:contact||null,email:email||null,phone:phone||null,
-    site_address:site||null,industry:SPACE_TO_INDUSTRY[s.space]||null,status:'active'
-  }]).select('id,name').single()
-    .then(function(res){
-      if(res.error)throw res.error;
-      var cid=res.data.id,cname=res.data.name;
-      var today=s.client.date||new Date().toISOString().slice(0,10);
-      var jrow={client_id:cid,client_name:cname,date:today,type:s.type==='deep'?'deep':'maintenance',status:'upcoming',
-        sqm:s.sqm,floors:s.floors,baths:s.baths,
-        kitchen:s.kitchen?true:null,
-        after_hours_pct:s.afterHoursPct||null,
-        extras:EXTRA_KEYS.filter(function(k){return s.extras[k];}),
-        consumables:s.consumables?true:null,
-        quoted_price:Math.round(r.per*100)/100,
-        quoted_hrs:r.hrs,
-        buffer:s.buffer?true:null};
-      if(site)jrow.site=site;
-      if(FREQ_TO_REPEAT[s.freq])jrow.repeat=FREQ_TO_REPEAT[s.freq];
-      return sb.from('jobs').insert([jrow]).select('id').single().then(function(jr){
-        if(jr.error)throw jr.error;
-        s.savedClientName=cname;
-        s.saved=true;
-        var preview=document.getElementById('qc-preview');
-        if(preview){preview.innerHTML=renderSaved();bindPreview(null);}
-      });
-    })
-    .catch(function(err){
-      if(btn){btn.disabled=false;btn.textContent='Save quote & create job →';}
-      alert('Could not save: '+(err.message||String(err)));
-    });
-}
-
-// ─── Print template (unchanged) ──────────────────────────────────
+// ─── Print template ──────────────────────────────────────────────
 
 function updatePrint(r,sLab,fLab,tLab){
   var el=document.getElementById('qc-print');if(!el)return;
