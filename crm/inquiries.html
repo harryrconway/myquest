@@ -9,6 +9,7 @@
 <style>
 .pg-head{margin-bottom:28px}
 .ph-sub{font-size:13px;color:var(--stone);margin-top:5px}
+
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
@@ -16,10 +17,10 @@
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 
 .inq-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-.inq-head{display:grid;grid-template-columns:1.2fr .8fr .7fr .7fr 90px auto 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.inq-head{display:grid;grid-template-columns:1.4fr .8fr .7fr .7fr 90px auto 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .inq-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .inq-row{
-  display:grid;grid-template-columns:1.2fr .8fr .7fr .7fr 90px auto 28px;
+  display:grid;grid-template-columns:1.4fr .8fr .7fr .7fr 90px auto 28px;
   gap:12px;padding:13px 20px;align-items:center;
   border-bottom:1px solid var(--hair);
   border-left:3px solid transparent;
@@ -28,6 +29,8 @@
 .xp-wrap:last-child>.inq-row{border-bottom:none}
 .inq-row:hover{background:rgba(35,44,84,.03)}
 .inq-row.new-row{border-left-color:var(--amber)}
+.inq-row.won-row{border-left-color:var(--green)}
+.inq-row.lost-row{border-left-color:var(--stone);opacity:.6}
 .inq-biz{font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inq-sub{font-size:11.5px;color:var(--stone);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inq-cell{font-size:12.5px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -37,24 +40,68 @@
 .inq-arr svg{transition:transform .22s}
 .xp-wrap.open .inq-arr svg{transform:rotate(90deg)}
 
-.xp-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
+.xp-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
 .xp-body.open{max-height:600px}
 .xp-wrap:last-child .xp-body{border-bottom:none}
 .xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
 .xp-inner{padding:20px 24px 22px;background:var(--field)}
-.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:18px}
+.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:16px}
 .xp-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:3px}
 .xp-val{font-size:13px;color:var(--navy)}
-.xp-actions{display:flex;gap:10px;align-items:center}
-.btn-view{padding:8px 18px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;border:1.5px solid var(--hair-md);background:none;color:var(--navy);transition:background .15s,border-color .15s}
-.btn-view:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
-.btn-view.done{color:var(--stone);cursor:default}
-.btn-view.done:hover{background:none;border-color:var(--hair-md)}
+.xp-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn-cvt{padding:9px 18px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;background:var(--navy);color:#fff;border:none;transition:background .15s}
+.btn-cvt:hover{background:var(--navy-deep,#1a2140)}
+.btn-lost{padding:8px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;border:1.5px solid var(--hair-md);background:none;color:var(--stone);transition:background .15s,border-color .15s}
+.btn-lost:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2);color:var(--navy)}
+.btn-reopen{padding:8px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;border:1.5px solid var(--hair-md);background:none;color:var(--stone);transition:background .15s}
+.btn-reopen:hover{background:rgba(35,44,84,.06);color:var(--navy)}
+.xp-won-note{font-size:12px;color:var(--stone);background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:14px}
+.xp-won-note a{color:var(--navy);font-weight:600;text-decoration:none}
+.xp-won-note a:hover{text-decoration:underline}
+.xp-lost-note{font-size:12px;color:var(--stone);background:rgba(155,150,138,.07);border:1px solid rgba(155,150,138,.18);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:14px}
+
+/* Conversion modal */
+.cv-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.cv-overlay.open{display:flex}
+.cv-card{background:var(--card);border-radius:var(--r);width:100%;max-width:560px;box-shadow:0 24px 64px rgba(0,0,0,.22);overflow:hidden;margin:auto}
+.cv-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--hair);position:sticky;top:0;background:var(--card);z-index:1}
+.cv-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.015em}
+.cv-close{width:28px;height:28px;border-radius:7px;border:none;background:none;color:var(--stone);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.cv-close:hover{background:rgba(35,44,84,.07);color:var(--navy)}
+.cv-body{padding:20px 24px}
+.cv-section-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:12px;margin-top:20px}
+.cv-section-lbl:first-child{margin-top:0}
+.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.cv-field{margin-bottom:10px}
+.cv-field.full{grid-column:1/-1}
+.cv-field label{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--stone);display:block;margin-bottom:5px}
+.cv-field input,.cv-field select{width:100%;padding:9px 11px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);font-size:13px;font-family:var(--font);background:var(--field);color:var(--navy);-webkit-appearance:none}
+.cv-field input:focus,.cv-field select:focus{outline:none;border-color:var(--navy)}
+.cv-hint{font-size:12px;color:var(--stone);background:rgba(35,44,84,.05);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:16px;line-height:1.5}
+.cv-hint strong{color:var(--navy);font-weight:600}
+.cv-job-toggle{display:flex;align-items:center;gap:8px;margin:14px 0 12px;cursor:pointer;font-size:13px;color:var(--navy);font-weight:500;user-select:none}
+.cv-job-toggle input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer}
+.cv-job-section{display:none}
+.cv-job-section.open{display:block}
+.cv-footer{display:flex;gap:10px;padding:14px 24px;border-top:1px solid var(--hair);background:var(--card)}
+.cv-err{font-size:12px;color:#c0392b;margin-top:6px;display:none}
+.cv-err.show{display:block}
+
+/* Lost modal */
+.lost-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
+.lost-overlay.open{display:flex}
+.lost-card{background:var(--card);border-radius:var(--r);width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.22);padding:24px}
+.lost-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.lost-sub{font-size:13px;color:var(--stone);margin-bottom:18px}
+.lost-select{width:100%;padding:9px 11px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);font-size:13px;font-family:var(--font);background:var(--field);color:var(--navy);-webkit-appearance:none;margin-bottom:18px}
+.lost-select:focus{outline:none;border-color:var(--navy)}
+.lost-actions{display:flex;gap:10px}
 
 @media(max-width:860px){
   .inq-head{display:none}
   .inq-row{grid-template-columns:1fr auto 28px}
   .inq-row .inq-cell,.inq-row .inq-date{display:none}
+  .cv-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -120,9 +167,12 @@
 
     <div class="toolbar">
       <div class="filters" id="inq-filters">
-        <button class="f-pill on" data-filter="all">All</button>
+        <button class="f-pill on" data-filter="active">Active</button>
         <button class="f-pill" data-filter="new">New</button>
         <button class="f-pill" data-filter="viewed">Viewed</button>
+        <button class="f-pill" data-filter="won">Won</button>
+        <button class="f-pill" data-filter="lost">Lost</button>
+        <button class="f-pill" data-filter="all">All</button>
       </div>
     </div>
 
@@ -143,10 +193,113 @@
   </main>
 </div>
 
+<!-- Conversion modal -->
+<div class="cv-overlay" id="cv-overlay">
+  <div class="cv-card">
+    <div class="cv-hd">
+      <span class="cv-title">Convert to Client &amp; Job</span>
+      <button class="cv-close" id="cv-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="cv-body">
+      <div class="cv-hint" id="cv-hint"></div>
+
+      <div class="cv-section-lbl">Client details</div>
+      <div class="cv-field full">
+        <label for="cv-biz">Business name *</label>
+        <input type="text" id="cv-biz" autocomplete="off">
+      </div>
+      <div class="cv-grid">
+        <div class="cv-field">
+          <label for="cv-contact">Contact name *</label>
+          <input type="text" id="cv-contact" autocomplete="off">
+        </div>
+        <div class="cv-field">
+          <label for="cv-phone">Phone *</label>
+          <input type="tel" id="cv-phone">
+        </div>
+        <div class="cv-field">
+          <label for="cv-email">Email *</label>
+          <input type="email" id="cv-email">
+        </div>
+        <div class="cv-field">
+          <label for="cv-industry">Industry *</label>
+          <select id="cv-industry">
+            <option value="Commercial office">Commercial office</option>
+            <option value="Retail">Retail</option>
+            <option value="Medical">Medical</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Strata">Strata</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="cv-field full">
+        <label for="cv-site">Site address *</label>
+        <input type="text" id="cv-site" placeholder="Full street address" autocomplete="off">
+      </div>
+
+      <label class="cv-job-toggle">
+        <input type="checkbox" id="cv-job-check" checked>
+        Create a job now
+      </label>
+
+      <div class="cv-job-section open" id="cv-job-section">
+        <div class="cv-section-lbl">Job details</div>
+        <div class="cv-grid">
+          <div class="cv-field">
+            <label for="cv-job-type">Type *</label>
+            <select id="cv-job-type">
+              <option value="maintenance">Maintenance</option>
+              <option value="deep">Deep clean</option>
+              <option value="window">Window clean</option>
+              <option value="builders">Builders clean</option>
+            </select>
+          </div>
+          <div class="cv-field">
+            <label for="cv-job-date">First date *</label>
+            <input type="date" id="cv-job-date">
+          </div>
+          <div class="cv-field">
+            <label for="cv-job-time">Start time</label>
+            <input type="time" id="cv-job-time">
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-err" id="cv-err"></div>
+    </div>
+    <div class="cv-footer">
+      <button class="btn-cvt" id="cv-submit" style="flex:1">Create Client &amp; Job</button>
+      <button class="btn-lost" id="cv-cancel" style="min-width:80px">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lost reason modal -->
+<div class="lost-overlay" id="lost-overlay">
+  <div class="lost-card">
+    <div class="lost-title">Mark as lost</div>
+    <div class="lost-sub">What was the reason? (optional)</div>
+    <select class="lost-select" id="lost-reason">
+      <option value="">No reason selected</option>
+      <option value="Too expensive">Too expensive</option>
+      <option value="Went with a competitor">Went with a competitor</option>
+      <option value="No response">No response</option>
+      <option value="Not ready yet">Not ready yet</option>
+      <option value="Not the right fit">Not the right fit</option>
+      <option value="Other">Other</option>
+    </select>
+    <div class="lost-actions">
+      <button class="btn-cvt" id="lost-confirm" style="flex:1">Confirm</button>
+      <button class="btn-lost" id="lost-cancel" style="min-width:80px">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html" class="mob-on">Inquiries</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 
 <script src="supabase.min.js?v=20260806"></script>
-<script src="auth.js?v=20260806"></script>
+<script src="auth.js?v=20260816"></script>
 <script>
 (function(){
 'use strict';
@@ -156,6 +309,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 var SPACE_LABELS={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial',other:'Other'};
 var FREQ_LABELS={weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly','once-off':'Once-off'};
+var INDUSTRY_MAP={office:'Commercial office',retail:'Retail',medical:'Medical',industrial:'Industrial',other:'Other'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 function fmtDate(s){
@@ -165,7 +319,9 @@ function fmtDate(s){
 }
 
 var allInquiries=[];
-var currentFilter='all';
+var currentFilter='active';
+var currentConvertId=null;
+var currentLostId=null;
 
 sb.from('inquiries').select('*').order('created_at',{ascending:false}).then(function(r){
   allInquiries=r.data||[];
@@ -175,51 +331,97 @@ sb.from('inquiries').select('*').order('created_at',{ascending:false}).then(func
 
 function updateCount(){
   var newCount=allInquiries.filter(function(i){return i.status==='new';}).length;
+  var won=allInquiries.filter(function(i){return i.status==='won';}).length;
+  var active=allInquiries.filter(function(i){return i.status==='new'||i.status==='viewed';}).length;
   var countEl=document.getElementById('inq-count');
-  if(countEl)countEl.textContent=allInquiries.length+' total'+(newCount?' · '+newCount+' new':'');
+  if(countEl)countEl.textContent=allInquiries.length+' total · '+won+' converted · '+active+' active';
   var notifEl=document.getElementById('inq-notif');
   if(notifEl&&newCount>0){notifEl.textContent=newCount>9?'9+':String(newCount);notifEl.classList.add('show');}
   else if(notifEl){notifEl.classList.remove('show');}
 }
 
+function filteredRows(){
+  if(currentFilter==='active')return allInquiries.filter(function(i){return i.status==='new'||i.status==='viewed';});
+  if(currentFilter==='all')return allInquiries;
+  return allInquiries.filter(function(i){return i.status===currentFilter;});
+}
+
+function statusBadge(status){
+  if(status==='new')return'<span class="badge onboarding">New</span>';
+  if(status==='won')return'<span class="badge active">Won</span>';
+  if(status==='lost')return'<span class="badge" style="color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)">Lost</span>';
+  return'<span class="badge" style="color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)">Viewed</span>';
+}
+
+function rowClass(status){
+  if(status==='new')return' new-row';
+  if(status==='won')return' won-row';
+  if(status==='lost')return' lost-row';
+  return'';
+}
+
+function expandContent(inq){
+  var isActive=inq.status==='new'||inq.status==='viewed';
+  var isWon=inq.status==='won';
+  var isLost=inq.status==='lost';
+
+  var wonNote='';
+  if(isWon){
+    wonNote='<div class="xp-won-note">Converted '+fmtDate(inq.converted_at)+
+      ' &nbsp;·&nbsp; <a href="index.html">View Clients →</a>'+
+      (inq.job_id?' &nbsp;·&nbsp; <a href="jobs.html">View Jobs →</a>':'')+
+      '</div>';
+  }
+  var lostNote='';
+  if(isLost){
+    lostNote='<div class="xp-lost-note">Lost'+(inq.lost_reason?' — '+esc(inq.lost_reason):'')+
+      ' &nbsp;·&nbsp; <button class="btn-reopen" onclick="window._iqReopen(\''+esc(inq.id)+'\');event.stopPropagation()">Reopen</button>'+
+      '</div>';
+  }
+
+  var sourceHtml=inq.source?'<div><div class="xp-lbl">Source</div><div class="xp-val">'+esc(inq.source)+'</div></div>':'';
+  var notesHtml=inq.notes?'<div style="grid-column:1/-1"><div class="xp-lbl">Notes</div><div class="xp-val">'+esc(inq.notes)+'</div></div>':'';
+
+  var actions='';
+  if(isActive){
+    actions='<button class="btn-cvt" onclick="window._iqConvert(\''+esc(inq.id)+'\');event.stopPropagation()">Convert to Client &amp; Job</button>'+
+      '<button class="btn-lost" onclick="window._iqLost(\''+esc(inq.id)+'\');event.stopPropagation()">Mark as Lost</button>';
+  }
+
+  return '<div class="xp-inner">'+
+    wonNote+lostNote+
+    '<div class="xp-grid">'+
+      '<div><div class="xp-lbl">Contact</div><div class="xp-val">'+esc(inq.contact_name||'—')+'</div></div>'+
+      '<div><div class="xp-lbl">Email</div><div class="xp-val"><a href="mailto:'+esc(inq.email||'')+'" style="color:var(--navy)">'+esc(inq.email||'—')+'</a></div></div>'+
+      '<div><div class="xp-lbl">Mobile</div><div class="xp-val"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></div></div>'+
+      '<div><div class="xp-lbl">Suburb</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
+      sourceHtml+
+      notesHtml+
+    '</div>'+
+    (actions?'<div class="xp-actions">'+actions+'</div>':'')+
+  '</div>';
+}
+
 function renderList(){
-  var rows=currentFilter==='all'?allInquiries:allInquiries.filter(function(i){return i.status===currentFilter;});
+  var rows=filteredRows();
   var rowsEl=document.getElementById('inq-rows');
   if(!rowsEl)return;
   if(!rows.length){
-    rowsEl.innerHTML='<div style="padding:28px 20px;color:var(--stone);font-size:13px">No inquiries'+(currentFilter!=='all'?' matching this filter':'')+'.</div>';
+    rowsEl.innerHTML='<div style="padding:28px 20px;color:var(--stone);font-size:13px">No inquiries'+(currentFilter!=='all'?' in this filter':'')+'.</div>';
     return;
   }
   rowsEl.innerHTML=rows.map(function(inq){
-    var isNew=inq.status==='new';
-    var statusBadge=isNew
-      ?'<span class="badge onboarding">New</span>'
-      :'<span class="badge" style="color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)">Viewed</span>';
-    return '<div class="xp-wrap" data-id="'+esc(inq.id)+'">'+
-      '<div class="inq-row'+(isNew?' new-row':'')+'" onclick="window._iqToggle(\''+esc(inq.id)+'\')">'+
+    return'<div class="xp-wrap" data-id="'+esc(inq.id)+'">'+
+      '<div class="inq-row'+rowClass(inq.status)+'" onclick="window._iqToggle(\''+esc(inq.id)+'\')">'+
         '<div><div class="inq-biz">'+esc(inq.biz_name||'—')+'</div><div class="inq-sub">'+esc(inq.suburb||'—')+'</div></div>'+
         '<div class="inq-cell">'+(SPACE_LABELS[inq.space_type]||esc(inq.space_type||'—'))+'</div>'+
         '<div class="inq-cell">'+esc(inq.sqm_range||'—')+'</div>'+
         '<div class="inq-cell">'+(FREQ_LABELS[inq.frequency]||esc(inq.frequency||'—'))+'</div>'+
         '<div class="inq-date">'+fmtDate(inq.created_at)+'</div>'+
-        statusBadge+
+        statusBadge(inq.status)+
         '<div class="inq-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
       '</div>'+
-      '<div class="xp-body">'+
-        '<div class="xp-inner">'+
-          '<div class="xp-grid">'+
-            '<div><div class="xp-lbl">Contact</div><div class="xp-val">'+esc(inq.contact_name||'—')+'</div></div>'+
-            '<div><div class="xp-lbl">Email</div><div class="xp-val"><a href="mailto:'+esc(inq.email||'')+'" style="color:var(--navy)">'+esc(inq.email||'—')+'</a></div></div>'+
-            '<div><div class="xp-lbl">Mobile</div><div class="xp-val"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></div></div>'+
-            '<div><div class="xp-lbl">Suburb</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
-            (inq.notes?'<div style="grid-column:1/-1"><div class="xp-lbl">Notes</div><div class="xp-val">'+esc(inq.notes)+'</div></div>':'')+
-          '</div>'+
-          '<div class="xp-actions">'+
-            (isNew?'<button class="btn-view" data-id="'+esc(inq.id)+'" onclick="window._iqMarkViewed(\''+esc(inq.id)+'\',this);event.stopPropagation()">Mark as viewed</button>':
-                   '<button class="btn-view done" disabled>Viewed</button>')+
-          '</div>'+
-        '</div>'+
-      '</div>'+
+      '<div class="xp-body">'+expandContent(inq)+'</div>'+
     '</div>';
   }).join('');
 }
@@ -232,21 +434,198 @@ window._iqToggle=function(id){
   document.querySelectorAll('.xp-wrap.open').forEach(function(w){
     if(w!==wrap){w.classList.remove('open');w.querySelector('.xp-body').classList.remove('open');}
   });
-  wrap.classList.toggle('open',!isOpen);
-  body.classList.toggle('open',!isOpen);
+  var opening=!isOpen;
+  wrap.classList.toggle('open',opening);
+  body.classList.toggle('open',opening);
+
+  if(opening){
+    var inq=allInquiries.find(function(i){return i.id===id;});
+    if(inq&&inq.status==='new'){
+      sb.from('inquiries').update({status:'viewed'}).eq('id',id).then(function(r){
+        if(!r.error){
+          inq.status='viewed';
+          updateCount();
+          var row=wrap.querySelector('.inq-row');
+          if(row)row.classList.remove('new-row');
+        }
+      });
+    }
+  }
 };
 
-window._iqMarkViewed=function(id,btn){
-  btn.textContent='Saving…';btn.disabled=true;
-  sb.from('inquiries').update({status:'viewed'}).eq('id',id).then(function(r){
-    if(r.error){btn.textContent='Mark as viewed';btn.disabled=false;return;}
+// --- Convert flow ---
+window._iqConvert=function(id){
+  var inq=allInquiries.find(function(i){return i.id===id;});
+  if(!inq)return;
+  currentConvertId=id;
+
+  document.getElementById('cv-biz').value=inq.biz_name||'';
+  document.getElementById('cv-contact').value=inq.contact_name||'';
+  document.getElementById('cv-phone').value=inq.mobile||'';
+  document.getElementById('cv-email').value=inq.email||'';
+  document.getElementById('cv-industry').value=INDUSTRY_MAP[inq.space_type]||'Commercial office';
+  document.getElementById('cv-site').value=inq.suburb||'';
+  document.getElementById('cv-job-date').value='';
+  document.getElementById('cv-job-time').value='';
+  document.getElementById('cv-job-type').value='maintenance';
+  document.getElementById('cv-job-check').checked=true;
+  document.getElementById('cv-job-section').classList.add('open');
+  document.getElementById('cv-submit').textContent='Create Client & Job';
+  document.getElementById('cv-submit').disabled=false;
+
+  var hintParts=[];
+  if(inq.frequency)hintParts.push('<strong>Frequency:</strong> '+(FREQ_LABELS[inq.frequency]||inq.frequency));
+  if(inq.sqm_range)hintParts.push('<strong>Size:</strong> '+esc(inq.sqm_range));
+  if(inq.notes)hintParts.push('<strong>Notes:</strong> '+esc(inq.notes));
+  document.getElementById('cv-hint').innerHTML=hintParts.length?hintParts.join(' &nbsp;·&nbsp; '):'';
+  document.getElementById('cv-hint').style.display=hintParts.length?'':'none';
+
+  var errEl=document.getElementById('cv-err');
+  errEl.textContent='';errEl.classList.remove('show');
+
+  document.getElementById('cv-overlay').classList.add('open');
+};
+
+function closeCvModal(){
+  document.getElementById('cv-overlay').classList.remove('open');
+  currentConvertId=null;
+}
+
+document.getElementById('cv-close').addEventListener('click',closeCvModal);
+document.getElementById('cv-cancel').addEventListener('click',closeCvModal);
+document.getElementById('cv-overlay').addEventListener('click',function(e){
+  if(e.target===this)closeCvModal();
+});
+
+document.getElementById('cv-job-check').addEventListener('change',function(){
+  var sec=document.getElementById('cv-job-section');
+  var btn=document.getElementById('cv-submit');
+  if(this.checked){sec.classList.add('open');btn.textContent='Create Client & Job';}
+  else{sec.classList.remove('open');btn.textContent='Create Client';}
+});
+
+document.getElementById('cv-submit').addEventListener('click',async function(){
+  if(!currentConvertId)return;
+  var btn=this;
+  var errEl=document.getElementById('cv-err');
+  errEl.classList.remove('show');
+
+  var biz=document.getElementById('cv-biz').value.trim();
+  var contact=document.getElementById('cv-contact').value.trim();
+  var phone=document.getElementById('cv-phone').value.trim();
+  var email=document.getElementById('cv-email').value.trim();
+  var industry=document.getElementById('cv-industry').value;
+  var site=document.getElementById('cv-site').value.trim();
+  var createJob=document.getElementById('cv-job-check').checked;
+  var jobDate=createJob?document.getElementById('cv-job-date').value:'';
+  var jobType=createJob?document.getElementById('cv-job-type').value:'';
+
+  if(!biz||!contact||!phone||!email||!site){
+    errEl.textContent='Please fill in all required client fields.';
+    errEl.classList.add('show');
+    return;
+  }
+  if(createJob&&!jobDate){
+    errEl.textContent='Please enter a date for the job, or uncheck "Create a job now".';
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.textContent='Creating…';btn.disabled=true;
+
+  var clientRes=await sb.from('clients').insert({
+    name:biz,contact:contact,email:email.toLowerCase(),phone:phone,
+    industry:industry,site_address:site,status:'active',notes:''
+  }).select('id').single();
+
+  if(clientRes.error){
+    errEl.textContent='Failed to create client. Please try again.';
+    errEl.classList.add('show');
+    btn.textContent=createJob?'Create Client & Job':'Create Client';
+    btn.disabled=false;
+    return;
+  }
+
+  var clientId=clientRes.data.id;
+  var jobId=null;
+
+  if(createJob&&jobDate&&jobType){
+    var inq=allInquiries.find(function(i){return i.id===currentConvertId;});
+    var jobRes=await sb.from('jobs').insert({
+      client_id:clientId,client_name:biz,
+      date:jobDate,
+      start_time:document.getElementById('cv-job-time').value||null,
+      type:jobType,site:site,status:'upcoming'
+    }).select('id').single();
+    if(!jobRes.error)jobId=jobRes.data.id;
+  }
+
+  var updateRes=await sb.from('inquiries').update({
+    status:'won',client_id:clientId,job_id:jobId,
+    converted_at:new Date().toISOString()
+  }).eq('id',currentConvertId);
+
+  if(updateRes.error){
+    errEl.textContent='Client created but inquiry update failed. Refresh and check.';
+    errEl.classList.add('show');
+    btn.disabled=false;
+    return;
+  }
+
+  var local=allInquiries.find(function(i){return i.id===currentConvertId;});
+  if(local){local.status='won';local.client_id=clientId;local.job_id=jobId;local.converted_at=new Date().toISOString();}
+  closeCvModal();
+  updateCount();
+  renderList();
+});
+
+// --- Lost flow ---
+window._iqLost=function(id){
+  currentLostId=id;
+  document.getElementById('lost-reason').value='';
+  document.getElementById('lost-overlay').classList.add('open');
+};
+
+function closeLostModal(){
+  document.getElementById('lost-overlay').classList.remove('open');
+  currentLostId=null;
+}
+
+document.getElementById('lost-cancel').addEventListener('click',closeLostModal);
+document.getElementById('lost-overlay').addEventListener('click',function(e){
+  if(e.target===this)closeLostModal();
+});
+
+document.getElementById('lost-confirm').addEventListener('click',function(){
+  if(!currentLostId)return;
+  var reason=document.getElementById('lost-reason').value||null;
+  var btn=this;btn.textContent='Saving…';btn.disabled=true;
+  sb.from('inquiries').update({status:'lost',lost_reason:reason}).eq('id',currentLostId).then(function(r){
+    btn.textContent='Confirm';btn.disabled=false;
+    if(r.error)return;
+    var inq=allInquiries.find(function(i){return i.id===currentLostId;});
+    if(inq){inq.status='lost';inq.lost_reason=reason;}
+    closeLostModal();
+    updateCount();
+    renderList();
+  });
+});
+
+// --- Reopen flow ---
+window._iqReopen=function(id){
+  sb.from('inquiries').update({status:'viewed',lost_reason:null}).eq('id',id).then(function(r){
+    if(r.error)return;
     var inq=allInquiries.find(function(i){return i.id===id;});
-    if(inq)inq.status='viewed';
+    if(inq){inq.status='viewed';inq.lost_reason=null;}
+    document.querySelectorAll('.xp-wrap.open').forEach(function(w){
+      w.classList.remove('open');w.querySelector('.xp-body').classList.remove('open');
+    });
     updateCount();
     renderList();
   });
 };
 
+// --- Filters ---
 document.getElementById('inq-filters').addEventListener('click',function(e){
   var pill=e.target.closest('.f-pill');
   if(!pill)return;
@@ -255,6 +634,12 @@ document.getElementById('inq-filters').addEventListener('click',function(e){
   currentFilter=pill.dataset.filter;
   renderList();
 });
+
+// --- Mobile menu ---
+var mobBtn=document.getElementById('mob-menu');
+var mobOverlay=document.getElementById('mob-overlay');
+if(mobBtn)mobBtn.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
+if(mobOverlay)mobOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')document.body.classList.remove('mob-open');});
 
 });
 })();

@@ -117,6 +117,14 @@
     <div class="sh pg-4"><span class="sh-lbl">Year to date summary</span></div>
     <div class="ac pg-4" id="rep-summary"></div>
 
+    <div class="sh" style="margin-top:32px"><span class="sh-lbl">Inquiries &amp; leads</span></div>
+    <div class="stats" id="inq-stats" style="margin-bottom:18px"></div>
+    <div class="rep-grid" style="margin-bottom:18px">
+      <div class="rep-card" id="inq-source-card"></div>
+      <div class="rep-card" id="inq-lost-card"></div>
+    </div>
+    <div class="ac" id="inq-summary"></div>
+
   </main>
 </div>
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html">Inquiries</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html" class="mob-on">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
@@ -144,11 +152,13 @@ var sunStr=sun.toISOString().slice(0,10);
 Promise.all([
   sb.from('jobs').select('id,status,date,client_name'),
   sb.from('clients').select('id,status'),
-  sb.from('staff').select('id,status,role')
+  sb.from('staff').select('id,status,role'),
+  sb.from('inquiries').select('id,status,source,lost_reason,created_at,converted_at')
 ]).then(function(results){
   var jobs=results[0].data||[];
   var clients=results[1].data||[];
   var staff=results[2].data||[];
+  var inquiries=results[3].data||[];
 
   var jobsDoneYTD=jobs.filter(function(j){return j.status==='completed'&&j.date&&j.date.slice(0,4)===String(yr);});
   var jobsDoneTotal=jobs.filter(function(j){return j.status==='completed';}).length;
@@ -230,6 +240,77 @@ Promise.all([
     (resignedStaff?srow('Resigned',String(resignedStaff)):'')+
     srow('Jobs this week',String(jobsThisWeek))+
     srow('Total jobs completed',String(jobsDoneTotal));
+
+  // Inquiries analytics
+  var inqTotal=inquiries.length;
+  var inqNew=inquiries.filter(function(i){return i.status==='new';}).length;
+  var inqActive=inquiries.filter(function(i){return i.status==='new'||i.status==='viewed';}).length;
+  var inqWon=inquiries.filter(function(i){return i.status==='won';}).length;
+  var inqLost=inquiries.filter(function(i){return i.status==='lost';}).length;
+  var convRate=inqTotal>0?Math.round(inqWon/inqTotal*100):0;
+
+  var avgDays='—';
+  var converted=inquiries.filter(function(i){return i.status==='won'&&i.converted_at&&i.created_at;});
+  if(converted.length){
+    var totalMs=converted.reduce(function(acc,i){return acc+(new Date(i.converted_at)-new Date(i.created_at));},0);
+    avgDays=Math.round(totalMs/converted.length/86400000)+' days';
+  }
+
+  var inqStatsEl=document.getElementById('inq-stats');
+  if(inqStatsEl)inqStatsEl.innerHTML=
+    '<div class="stat"><div class="stat-lbl">Total inquiries</div><div class="stat-val">'+inqTotal+'</div><div class="stat-hint">All time</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+inqActive+'</div><div class="stat-hint">'+inqNew+' unread</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Converted</div><div class="stat-val">'+inqWon+'</div><div class="stat-hint">'+convRate+'% conversion rate</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Avg. time to convert</div><div class="stat-val">'+avgDays+'</div><div class="stat-hint">From inquiry to client</div></div>';
+
+  // Source breakdown
+  var bySource={};
+  inquiries.forEach(function(i){var s=i.source||'Not specified';bySource[s]=(bySource[s]||0)+1;});
+  var srcSorted=Object.keys(bySource).map(function(s){return{source:s,n:bySource[s]};}).sort(function(a,b){return b.n-a.n;});
+  var srcCard=document.getElementById('inq-source-card');
+  if(srcCard){
+    if(!srcSorted.length){
+      srcCard.innerHTML='<div class="rep-title">Inquiries by source</div><div style="padding:12px 0;color:var(--stone);font-size:13px">No inquiries yet.</div>';
+    } else {
+      var maxSrc=srcSorted[0].n||1;
+      srcCard.innerHTML='<div class="rep-title">Inquiries by source</div>'+srcSorted.map(function(s){
+        return'<div class="cl-bar-row">'+
+          '<span class="cl-bar-name">'+esc(s.source)+'</span>'+
+          '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(s.n/maxSrc*100)+'%"></div></div>'+
+          '<span class="cl-bar-val">'+s.n+(s.n===1?' lead':' leads')+'</span></div>';
+      }).join('');
+    }
+  }
+
+  // Lost reason breakdown
+  var byLost={};
+  inquiries.filter(function(i){return i.status==='lost';}).forEach(function(i){
+    var r=i.lost_reason||'No reason given';byLost[r]=(byLost[r]||0)+1;
+  });
+  var lostSorted=Object.keys(byLost).map(function(r){return{reason:r,n:byLost[r]};}).sort(function(a,b){return b.n-a.n;});
+  var lostCard=document.getElementById('inq-lost-card');
+  if(lostCard){
+    if(!lostSorted.length){
+      lostCard.innerHTML='<div class="rep-title">Lost reasons</div><div style="padding:12px 0;color:var(--stone);font-size:13px">'+(inqLost?'No reasons recorded.':'No lost inquiries.')+'</div>';
+    } else {
+      var maxLost=lostSorted[0].n||1;
+      lostCard.innerHTML='<div class="rep-title">Lost reasons</div>'+lostSorted.map(function(r){
+        return'<div class="cl-bar-row">'+
+          '<span class="cl-bar-name">'+esc(r.reason)+'</span>'+
+          '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(r.n/maxLost*100)+'%;opacity:.5"></div></div>'+
+          '<span class="cl-bar-val">'+r.n+'</span></div>';
+      }).join('');
+    }
+  }
+
+  var inqSumEl=document.getElementById('inq-summary');
+  if(inqSumEl)inqSumEl.innerHTML=
+    srow('Total inquiries',String(inqTotal))+
+    srow('Active (unactioned)',String(inqActive))+
+    srow('Converted to clients',String(inqWon))+
+    srow('Lost',String(inqLost))+
+    srow('Conversion rate',convRate+'%')+
+    srow('Avg. days to convert',avgDays);
 MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
   var n=r.count||0;var el=document.getElementById('inq-notif');
   if(el&&n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}

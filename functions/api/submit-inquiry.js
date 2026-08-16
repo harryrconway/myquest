@@ -49,6 +49,7 @@ export async function onRequestPost({ request, env }) {
     sqm_range:    String(body.sqm_range).trim(),
     frequency:    String(body.frequency).trim(),
     notes:        body.notes ? String(body.notes).trim() : null,
+    source:       body.source ? String(body.source).trim() : null,
     status:       'new',
   };
 
