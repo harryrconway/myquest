@@ -265,3 +265,6 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .dp-cell.dp-selected{background:var(--navy);color:var(--on);font-weight:600}
 .dp-cell.dp-selected:hover{background:var(--navy-deep)}
 .dp-cell.dp-selected.dp-today{background:var(--green)}
+
+.sb-notif{margin-left:auto;min-width:16px;height:16px;border-radius:999px;background:var(--red);color:#fff;font-size:9px;font-weight:700;letter-spacing:0;display:none;align-items:center;justify-content:center;padding:0 4px;flex-shrink:0}
+.sb-notif.show{display:flex}

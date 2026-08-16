@@ -167,6 +167,11 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Jobs
       </a>
+      <a class="sb-item" href="inquiries.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        Inquiries
+        <span class="sb-notif" id="inq-notif"></span>
+      </a>
       <a class="sb-item" href="scope.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
         Scope
@@ -233,7 +238,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 
   </main>
 </div>
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html" class="mob-on">Clients</a><a href="jobs.html">Jobs</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html" class="mob-on">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html">Inquiries</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 
 <!-- New client modal -->
 <div class="modal-overlay" id="modal-overlay" hidden>
@@ -820,7 +825,12 @@ function navClose(){document.body.classList.remove('mob-open');}
 if(mob)mob.addEventListener('click',function(){document.body.classList.toggle('mob-open');});
 if(mOverlay)mOverlay.addEventListener('click',function(e){if(!e.target.closest('.mob-nav-links')||e.target.tagName==='A')navClose();});
 
-loadAll(function(){renderAll();if(window.mqGenerate)window.mqGenerate();});
+loadAll(function(){renderAll();
+MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
+  var n=r.count||0;var el=document.getElementById('inq-notif');
+  if(el&&n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}
+});
+if(window.mqGenerate)window.mqGenerate();});
 
 }); // end requireAuth
 })();

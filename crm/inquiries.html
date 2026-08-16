@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Inquiries — MyQuest CRM</title>
+<link rel="stylesheet" href="style.css?v=20260816">
+<style>
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
+.f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+
+.inq-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
+.inq-head{display:grid;grid-template-columns:1.2fr .8fr .7fr .7fr 90px auto 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.inq-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
+.inq-row{
+  display:grid;grid-template-columns:1.2fr .8fr .7fr .7fr 90px auto 28px;
+  gap:12px;padding:13px 20px;align-items:center;
+  border-bottom:1px solid var(--hair);
+  border-left:3px solid transparent;
+  transition:background .1s;cursor:pointer;
+}
+.xp-wrap:last-child>.inq-row{border-bottom:none}
+.inq-row:hover{background:rgba(35,44,84,.03)}
+.inq-row.new-row{border-left-color:var(--amber)}
+.inq-biz{font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inq-sub{font-size:11.5px;color:var(--stone);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inq-cell{font-size:12.5px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inq-date{font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums}
+.inq-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
+.inq-row:hover .inq-arr{color:var(--navy)}
+.inq-arr svg{transition:transform .22s}
+.xp-wrap.open .inq-arr svg{transform:rotate(90deg)}
+
+.xp-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);border-bottom:1px solid var(--hair)}
+.xp-body.open{max-height:600px}
+.xp-wrap:last-child .xp-body{border-bottom:none}
+.xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
+.xp-inner{padding:20px 24px 22px;background:var(--field)}
+.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:18px}
+.xp-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:3px}
+.xp-val{font-size:13px;color:var(--navy)}
+.xp-actions{display:flex;gap:10px;align-items:center}
+.btn-view{padding:8px 18px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;border:1.5px solid var(--hair-md);background:none;color:var(--navy);transition:background .15s,border-color .15s}
+.btn-view:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
+.btn-view.done{color:var(--stone);cursor:default}
+.btn-view.done:hover{background:none;border-color:var(--hair-md)}
+
+@media(max-width:860px){
+  .inq-head{display:none}
+  .inq-row{grid-template-columns:1fr auto 28px}
+  .inq-row .inq-cell,.inq-row .inq-date{display:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="sb-logo" href="https://myquest.au">
+      <div class="sb-mark">MQ</div>
+      <span class="sb-name">MyQuest</span>
+    </a>
+    <nav class="sb-nav">
+      <a class="sb-item" href="overview.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="sb-item" href="index.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a class="sb-item" href="jobs.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Jobs
+      </a>
+      <a class="sb-item on" href="inquiries.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        Inquiries
+        <span class="sb-notif" id="inq-notif"></span>
+      </a>
+      <a class="sb-item" href="scope.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+        Scope
+      </a>
+      <hr class="sb-div">
+      <a class="sb-item" href="calculator.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+        Calculator
+      </a>
+      <a class="sb-item" href="reports.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </a>
+      <a class="sb-item" href="staff.html">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Staff
+      </a>
+    </nav>
+    <div class="sb-bottom">
+      <button class="sb-item" onclick="MQ&&MQ.signOut()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="pg-head">
+      <div>
+        <div class="ph-title">Inquiries</div>
+        <div class="ph-sub" id="inq-count">—</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="filters" id="inq-filters">
+        <button class="f-pill on" data-filter="all">All</button>
+        <button class="f-pill" data-filter="new">New</button>
+        <button class="f-pill" data-filter="viewed">Viewed</button>
+      </div>
+    </div>
+
+    <div class="inq-list" id="inq-list">
+      <div class="inq-head">
+        <span>Business</span>
+        <span>Space</span>
+        <span>Size</span>
+        <span>Frequency</span>
+        <span>Received</span>
+        <span>Status</span>
+        <span></span>
+      </div>
+      <div id="inq-rows">
+        <div style="padding:28px 20px;color:var(--stone);font-size:13px">Loading…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html" class="mob-on">Inquiries</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
+
+<script src="supabase.min.js?v=20260806"></script>
+<script src="auth.js?v=20260806"></script>
+<script>
+(function(){
+'use strict';
+window.MQ.requireAuth(function(){
+var sb=MQ.sb;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+var SPACE_LABELS={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial',other:'Other'};
+var FREQ_LABELS={weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly','once-off':'Once-off'};
+var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function fmtDate(s){
+  if(!s)return'—';
+  var d=new Date(s);
+  return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();
+}
+
+var allInquiries=[];
+var currentFilter='all';
+
+sb.from('inquiries').select('*').order('created_at',{ascending:false}).then(function(r){
+  allInquiries=r.data||[];
+  updateCount();
+  renderList();
+});
+
+function updateCount(){
+  var newCount=allInquiries.filter(function(i){return i.status==='new';}).length;
+  var countEl=document.getElementById('inq-count');
+  if(countEl)countEl.textContent=allInquiries.length+' total'+(newCount?' · '+newCount+' new':'');
+  var notifEl=document.getElementById('inq-notif');
+  if(notifEl&&newCount>0){notifEl.textContent=newCount>9?'9+':String(newCount);notifEl.classList.add('show');}
+  else if(notifEl){notifEl.classList.remove('show');}
+}
+
+function renderList(){
+  var rows=currentFilter==='all'?allInquiries:allInquiries.filter(function(i){return i.status===currentFilter;});
+  var rowsEl=document.getElementById('inq-rows');
+  if(!rowsEl)return;
+  if(!rows.length){
+    rowsEl.innerHTML='<div style="padding:28px 20px;color:var(--stone);font-size:13px">No inquiries'+(currentFilter!=='all'?' matching this filter':'')+'.</div>';
+    return;
+  }
+  rowsEl.innerHTML=rows.map(function(inq){
+    var isNew=inq.status==='new';
+    var statusBadge=isNew
+      ?'<span class="badge onboarding">New</span>'
+      :'<span class="badge" style="color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)">Viewed</span>';
+    return '<div class="xp-wrap" data-id="'+esc(inq.id)+'">'+
+      '<div class="inq-row'+(isNew?' new-row':'')+'" onclick="window._iqToggle(\''+esc(inq.id)+'\')">'+
+        '<div><div class="inq-biz">'+esc(inq.biz_name||'—')+'</div><div class="inq-sub">'+esc(inq.suburb||'—')+'</div></div>'+
+        '<div class="inq-cell">'+(SPACE_LABELS[inq.space_type]||esc(inq.space_type||'—'))+'</div>'+
+        '<div class="inq-cell">'+esc(inq.sqm_range||'—')+'</div>'+
+        '<div class="inq-cell">'+(FREQ_LABELS[inq.frequency]||esc(inq.frequency||'—'))+'</div>'+
+        '<div class="inq-date">'+fmtDate(inq.created_at)+'</div>'+
+        statusBadge+
+        '<div class="inq-arr"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+      '</div>'+
+      '<div class="xp-body">'+
+        '<div class="xp-inner">'+
+          '<div class="xp-grid">'+
+            '<div><div class="xp-lbl">Contact</div><div class="xp-val">'+esc(inq.contact_name||'—')+'</div></div>'+
+            '<div><div class="xp-lbl">Email</div><div class="xp-val"><a href="mailto:'+esc(inq.email||'')+'" style="color:var(--navy)">'+esc(inq.email||'—')+'</a></div></div>'+
+            '<div><div class="xp-lbl">Mobile</div><div class="xp-val"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></div></div>'+
+            '<div><div class="xp-lbl">Suburb</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
+            (inq.notes?'<div style="grid-column:1/-1"><div class="xp-lbl">Notes</div><div class="xp-val">'+esc(inq.notes)+'</div></div>':'')+
+          '</div>'+
+          '<div class="xp-actions">'+
+            (isNew?'<button class="btn-view" data-id="'+esc(inq.id)+'" onclick="window._iqMarkViewed(\''+esc(inq.id)+'\',this);event.stopPropagation()">Mark as viewed</button>':
+                   '<button class="btn-view done" disabled>Viewed</button>')+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+window._iqToggle=function(id){
+  var wrap=document.querySelector('.xp-wrap[data-id="'+id+'"]');
+  if(!wrap)return;
+  var body=wrap.querySelector('.xp-body');
+  var isOpen=wrap.classList.contains('open');
+  document.querySelectorAll('.xp-wrap.open').forEach(function(w){
+    if(w!==wrap){w.classList.remove('open');w.querySelector('.xp-body').classList.remove('open');}
+  });
+  wrap.classList.toggle('open',!isOpen);
+  body.classList.toggle('open',!isOpen);
+};
+
+window._iqMarkViewed=function(id,btn){
+  btn.textContent='Saving…';btn.disabled=true;
+  sb.from('inquiries').update({status:'viewed'}).eq('id',id).then(function(r){
+    if(r.error){btn.textContent='Mark as viewed';btn.disabled=false;return;}
+    var inq=allInquiries.find(function(i){return i.id===id;});
+    if(inq)inq.status='viewed';
+    updateCount();
+    renderList();
+  });
+};
+
+document.getElementById('inq-filters').addEventListener('click',function(e){
+  var pill=e.target.closest('.f-pill');
+  if(!pill)return;
+  document.querySelectorAll('.f-pill').forEach(function(p){p.classList.remove('on');});
+  pill.classList.add('on');
+  currentFilter=pill.dataset.filter;
+  renderList();
+});
+
+});
+})();
+</script>
+</body>
+</html>
