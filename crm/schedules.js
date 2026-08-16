@@ -2,20 +2,23 @@
 'use strict';
 
 var IDAYS={'weekly':7,'fortnightly':14,'4-weekly':28};
-var WEEKS=12;
+var WEEKS=52;
 
 function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 
 function makeJob(src,ds){
   return{client_id:src.client_id,client_name:src.client_name,date:ds,
+    start_time:src.start_time||null,
     type:src.type,status:'upcoming',site:src.site||'',
+    assigned_staff_id:src.assigned_staff_id||null,
+    assigned_staff_name:src.assigned_staff_name||null,
     source_job_id:src.id,from_schedule:true};
 }
 
 window.mqGenerate=function(){
   var sb=window.MQ&&window.MQ.sb;
   if(!sb)return Promise.resolve();
-  return sb.from('jobs').select('id,client_id,client_name,date,type,site,repeat')
+  return sb.from('jobs').select('id,client_id,client_name,date,start_time,type,site,repeat,assigned_staff_id,assigned_staff_name')
     .not('repeat','is',null).neq('repeat','none').eq('from_schedule',false)
     .then(function(r1){
       var templates=r1.data||[];

@@ -189,7 +189,7 @@
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html" class="mob-on">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html">Inquiries</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260806"></script>
-<script src="schedules.js?v=20260807"></script>
+<script src="schedules.js?v=20260816"></script>
 <script>
 (function(){
 'use strict';
@@ -273,13 +273,16 @@ Promise.all([
 
   var schedEl=document.getElementById('ov-sched');
   if(schedEl){
-    var todayJobs=jobs.filter(function(j){return j.date===today;});
+    var todayJobs=jobs.filter(function(j){return j.date===today;}).sort(function(a,b){
+      var au=a.status==='upcoming',bu=b.status==='upcoming';if(au&&!bu)return -1;if(!au&&bu)return 1;
+      var at=a.start_time||'99',bt=b.start_time||'99';return at<bt?-1:at>bt?1:0;
+    });
     if(!todayJobs.length){
       schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for today</div></div></div>';
     } else {
       schedEl.innerHTML=todayJobs.map(function(j){
         var bCls=j.status==='completed'?'completed':'upcoming';
-        var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">Time not set</span>';
+        var timeStr=j.start_time?fmtTime(j.start_time):(j.status==='upcoming'?'<span style="color:var(--stone);font-size:12px">Time not set</span>':'<span style="color:var(--stone);font-size:12px">—</span>');
         return '<div class="sched-item" style="grid-template-columns:70px 1fr auto">'+
           '<div class="si-time">'+timeStr+'</div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+

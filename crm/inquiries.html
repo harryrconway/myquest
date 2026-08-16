@@ -281,6 +281,20 @@
               <label for="cv-job-time">Start time <span style="opacity:.5;font-weight:400">(optional)</span></label>
               <input type="time" id="cv-job-time">
             </div>
+            <div class="cv-field">
+              <label for="cv-job-staff">Team member <span style="opacity:.5;font-weight:400">(optional)</span></label>
+              <select id="cv-job-staff"><option value="">No team member</option></select>
+            </div>
+            <div class="cv-field full">
+              <label for="cv-job-repeat">Recurring</label>
+              <select id="cv-job-repeat">
+                <option value="none">Does not repeat</option>
+                <option value="weekly">Weekly</option>
+                <option value="fortnightly">Fortnightly</option>
+                <option value="4-weekly">Every 4 weeks</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -338,12 +352,17 @@ function fmtDate(s){
 }
 
 var allInquiries=[];
+var allStaff=[];
 var currentFilter='active';
 var currentConvertId=null;
 var currentLostId=null;
 
-sb.from('inquiries').select('*').order('created_at',{ascending:false}).then(function(r){
-  allInquiries=r.data||[];
+Promise.all([
+  sb.from('inquiries').select('*').order('created_at',{ascending:false}),
+  sb.from('staff').select('id,name,status').order('name')
+]).then(function(results){
+  allInquiries=results[0].data||[];
+  allStaff=results[1].data||[];
   updateCount();
   renderList();
 });
@@ -487,6 +506,10 @@ window._iqConvert=function(id){
   document.getElementById('cv-job-date').value='';
   document.getElementById('cv-job-time').value='';
   document.getElementById('cv-job-type').value='maintenance';
+  document.getElementById('cv-job-repeat').value='none';
+  var staffSel=document.getElementById('cv-job-staff');
+  staffSel.innerHTML='<option value="">No team member</option>';
+  allStaff.forEach(function(s){staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';});
   document.getElementById('cv-job-check').checked=true;
   document.getElementById('cv-job-section').classList.add('open');
   document.getElementById('cv-submit').textContent='Create Client & Job';
@@ -574,14 +597,19 @@ document.getElementById('cv-submit').addEventListener('click',async function(){
   var jobId=null;
 
   if(createJob&&jobDate&&jobType){
-    var inq=allInquiries.find(function(i){return i.id===currentConvertId;});
+    var staffSelEl=document.getElementById('cv-job-staff');
+    var staffId=staffSelEl.value||null;
+    var staffName=null;if(staffId)allStaff.forEach(function(s){if(s.id===staffId)staffName=s.name;});
+    var repeatVal=document.getElementById('cv-job-repeat').value;
     var jobRes=await sb.from('jobs').insert({
       client_id:clientId,client_name:biz,
       date:jobDate,
       start_time:document.getElementById('cv-job-time').value||null,
-      type:jobType,site:site,status:'upcoming'
+      type:jobType,site:site,status:'upcoming',
+      assigned_staff_id:staffId,assigned_staff_name:staffName,
+      repeat:repeatVal!=='none'?repeatVal:null
     }).select('id').single();
-    if(!jobRes.error)jobId=jobRes.data.id;
+    if(!jobRes.error){jobId=jobRes.data.id;if(repeatVal!=='none'&&window.mqGenerate)window.mqGenerate();}
   }
 
   var updateRes=await sb.from('inquiries').update({
