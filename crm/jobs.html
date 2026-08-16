@@ -319,7 +319,7 @@ function renderExpand(j){
       '</div>';
   }
   return quotePanel+'<div class="xp-grid">'+
-    '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px">'+fmtDateFull(j.date)+'<span style="color:var(--navy);font-weight:600">'+(j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-weight:400;font-size:12px">Time not set</span>')+'</span>'+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
+    '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+fmtDateFull(j.date)+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'<input type="time" class="xp-time-input form-input" value="'+(j.start_time||'')+'" style="font-size:12px;padding:5px 8px;height:auto;width:120px;margin-left:2px" title="Set start time"></div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
     teamRow+repeatRow+
@@ -481,6 +481,11 @@ function updateJobStaff(id,staffId,staffName){
     renderAll();
   });
 }
+function updateJobTime(id,val){
+  sb.from('jobs').update({start_time:val||null}).eq('id',id).then(function(r){
+    if(!r.error)allJobs.forEach(function(j){if(j.id===id)j.start_time=val||null;});
+  });
+}
 function updateJobRepeat(id,newRepeat){
   var templateId=id;
   allJobs.forEach(function(j){if(j.id===id&&j.from_schedule&&j.source_job_id)templateId=j.source_job_id;});
@@ -514,6 +519,8 @@ document.getElementById('jl-body').addEventListener('click',function(e){
   }
 });
 document.getElementById('jl-body').addEventListener('change',function(e){
+  var timeInput=e.target.closest('.xp-time-input');
+  if(timeInput){updateJobTime(timeInput.closest('.xp-wrap').dataset.id,timeInput.value||null);return;}
   var repeatSel=e.target.closest('.xp-repeat-sel');
   if(repeatSel){updateJobRepeat(repeatSel.closest('.xp-wrap').dataset.id,repeatSel.value);return;}
   var staffSel=e.target.closest('.xp-staff-sel');
