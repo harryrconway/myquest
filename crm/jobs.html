@@ -497,6 +497,7 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
           reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
         });
       } else {
+        if(row.repeat){var td2=iso(new Date());sb.from('jobs').update({start_time:row.start_time,type:row.type,site:row.site,assigned_staff_id:row.assigned_staff_id,assigned_staff_name:row.assigned_staff_name}).eq('source_job_id',editingJobId).gt('date',td2);}
         reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
       }
     });
