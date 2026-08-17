@@ -206,6 +206,7 @@ var DSHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 function fmtTime(t){if(!t)return'';var p=t.split(':');var h=parseInt(p[0]);var m=p[1];return(h%12||12)+':'+m+(h>=12?'pm':'am');}
+function isoLocal(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 
 var now=new Date();
 var hour=now.getHours();
@@ -214,18 +215,18 @@ if(titleEl)titleEl.textContent=hour<12?'Good morning':hour<17?'Good afternoon':'
 var subEl=document.querySelector('.date-sub');
 if(subEl)subEl.textContent=DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
 
-var today=now.toISOString().slice(0,10);
+var today=isoLocal(now);
 var dow=now.getDay()||7;
 var mon=new Date(now);mon.setDate(mon.getDate()-(dow-1));
 var sun=new Date(mon);sun.setDate(mon.getDate()+6);
-var monStr=mon.toISOString().slice(0,10);
-var sunStr=sun.toISOString().slice(0,10);
+var monStr=isoLocal(mon);
+var sunStr=isoLocal(sun);
 var tomorrow=new Date(now);tomorrow.setDate(now.getDate()+1);
-var tomorrowStr=tomorrow.toISOString().slice(0,10);
+var tomorrowStr=isoLocal(tomorrow);
 var nwMon=new Date(now);nwMon.setDate(now.getDate()+(8-(now.getDay()||7)));
 var nwSun=new Date(nwMon);nwSun.setDate(nwMon.getDate()+6);
-var nwMonStr=nwMon.toISOString().slice(0,10);
-var nwSunStr=nwSun.toISOString().slice(0,10);
+var nwMonStr=isoLocal(nwMon);
+var nwSunStr=isoLocal(nwSun);
 
 Promise.all([
   sb.from('clients').select('id,status'),
@@ -269,6 +270,10 @@ Promise.all([
     if(unstaffed.length)html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
       '<div class="attn-title">'+unstaffed.length+' upcoming job'+(unstaffed.length!==1?'s':'')+' with no staff assigned</div>'+
       '<div class="attn-sub"><a href="jobs.html" style="color:inherit">Assign in Jobs →</a></div></div></div>';
+    var overdue=jobs.filter(function(j){return j.date<today&&j.status!=='completed';});
+    if(overdue.length)html+='<div class="attn-item"><div class="attn-dot red"></div><div>'+
+      '<div class="attn-title">'+overdue.length+' job'+(overdue.length!==1?'s':'')+' from past dates not yet marked complete</div>'+
+      '<div class="attn-sub"><a href="jobs.html" style="color:inherit">Review in Jobs →</a></div></div></div>';
     if(!html)html='<div class="attn-item"><div class="attn-dot" style="background:var(--green)"></div><div>'+
       '<div class="attn-title">All clear</div><div class="attn-sub">No items need attention right now</div></div></div>';
     attnEl.innerHTML=html;
