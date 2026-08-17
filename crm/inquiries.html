@@ -521,7 +521,7 @@ window._iqConvert=function(id){
   var staffSel=document.getElementById('cv-job-staff');
   function populateStaff(staff){
     staffSel.innerHTML='<option value="">No team member</option>';
-    staff.filter(function(s){return s.status!=='exited';}).forEach(function(s){staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';});
+    staff.filter(function(s){return s.status==='active';}).forEach(function(s){staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';});
   }
   if(allStaff.length){
     populateStaff(allStaff);
