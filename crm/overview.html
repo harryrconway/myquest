@@ -146,7 +146,7 @@
     <div class="ov-grid pg-3">
 
       <div>
-        <div class="sh"><span class="sh-lbl">Today's schedule</span><a href="jobs.html" class="sh-btn">View all jobs</a></div>
+        <div class="sh"><span class="sh-lbl">This week's schedule</span><a href="jobs.html" class="sh-btn">View all jobs</a></div>
         <div class="sched-list" id="ov-sched" style="margin-bottom:20px"></div>
         <div class="sh"><span class="sh-lbl">Next week</span></div>
         <div class="sched-list" id="ov-next-week"></div>
@@ -295,12 +295,11 @@ Promise.all([
 
   var schedEl=document.getElementById('ov-sched');
   if(schedEl){
-    var todayJobs=jobs.filter(function(j){return j.date===today;}).sort(function(a,b){
-      var au=a.status==='upcoming',bu=b.status==='upcoming';if(au&&!bu)return -1;if(!au&&bu)return 1;
-      var at=a.start_time||'99',bt=b.start_time||'99';return at<bt?-1:at>bt?1:0;
+    var todayJobs=jobs.filter(function(j){return j.date>=today&&j.date<=sunStr;}).sort(function(a,b){
+      return a.date<b.date?-1:a.date>b.date?1:((a.start_time||'99')<(b.start_time||'99')?-1:1);
     });
     if(!todayJobs.length){
-      schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for today</div></div></div>';
+      schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled this week</div></div></div>';
     } else {
       schedEl.innerHTML=todayJobs.map(function(j){
         var bCls=j.status==='completed'?'completed':'upcoming';
