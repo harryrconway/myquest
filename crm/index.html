@@ -617,9 +617,20 @@ document.getElementById('cl-body').addEventListener('click',function(e){
   }
   var delBtn=e.target.closest('[data-delete-id]');
   if(delBtn){
-    var name4='';allClients.forEach(function(x){if(x.id===delBtn.dataset.deleteId)name4=x.name;});
-    if(!confirm('Delete '+name4+'? Jobs, contracts and scopes will also be deleted.'))return;
-    sb.from('clients').delete().eq('id',delBtn.dataset.deleteId).then(function(){reload();});
+    var did=delBtn.dataset.deleteId;
+    var name4='';allClients.forEach(function(x){if(x.id===did)name4=x.name;});
+    if(!confirm('Delete '+name4+'? Their jobs, contracts and scopes will also be deleted.'))return;
+    delBtn.textContent='Deleting…';delBtn.disabled=true;
+    sb.from('scopes').delete().eq('client_id',did).then(function(){
+      return sb.from('jobs').delete().eq('client_id',did);
+    }).then(function(){
+      return sb.from('contracts').delete().eq('client_id',did);
+    }).then(function(){
+      return sb.from('clients').delete().eq('id',did);
+    }).then(function(r){
+      if(r&&r.error){alert('Delete failed: '+r.error.message);delBtn.textContent='Delete client';delBtn.disabled=false;return;}
+      reload();
+    });
     return;
   }
   var row=e.target.closest('.cl-row');
