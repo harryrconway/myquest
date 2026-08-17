@@ -180,6 +180,7 @@
       </div>
       <div class="filters">
         <button class="f-pill on" data-filter="all">All</button>
+        <button class="f-pill" data-filter="overdue">Overdue</button>
         <button class="f-pill" data-filter="upcoming">Upcoming</button>
         <button class="f-pill" data-filter="completed">Completed</button>
         <button class="f-pill" data-filter="deep">Deep clean</button>
@@ -280,6 +281,8 @@ var ARR='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-wi
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
+var todayStr=iso(new Date());
+function isOverdue(j){return j.status==='upcoming'&&j.date<todayStr;}
 var activeFilter='all',searchTerm='',openId=null,editingJobId=null;
 var allJobs=[],allClients=[],allStaff=[],jobsWithScope=new Set();
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
@@ -338,7 +341,7 @@ function renderExpand(j){
 function renderRow(j){
   var isOpen=openId===j.id;
   var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
-  var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':'<span class="badge upcoming">Upcoming</span>';
+  var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':isOverdue(j)?'<span class="badge overdue">Overdue</span>':'<span class="badge upcoming">Upcoming</span>';
   var crewHtml='';
   if(j.assigned_staff_name){
     crewHtml='<span class="jl-crew-name">'+esc(j.assigned_staff_name)+'</span>';
@@ -359,22 +362,29 @@ function renderRow(j){
 
 function renderAll(){
   var jobs=allJobs.slice();
-  jobs.sort(function(a,b){var au=a.status==='upcoming',bu=b.status==='upcoming';if(au&&!bu)return -1;if(!au&&bu)return 1;return au?(a.date<b.date?-1:1):(a.date>b.date?-1:1);});
-  var upcoming=jobs.filter(function(j){return j.status==='upcoming';});
+  jobs.sort(function(a,b){
+    var ao=isOverdue(a),bo=isOverdue(b);
+    var au=a.status==='upcoming'&&!ao,bu=b.status==='upcoming'&&!bo;
+    if(ao&&!bo)return -1;if(!ao&&bo)return 1;
+    if(ao&&bo)return a.date<b.date?-1:a.date>b.date?1:0;
+    if(au&&!bu)return -1;if(!au&&bu)return 1;
+    if(au&&bu)return a.date<b.date?-1:a.date>b.date?1:0;
+    return a.date>b.date?-1:a.date<b.date?1:0;
+  });
+  var overdue=jobs.filter(function(j){return isOverdue(j);});
+  var trueUpcoming=jobs.filter(function(j){return j.status==='upcoming'&&!isOverdue(j);});
   var completed=jobs.filter(function(j){return j.status==='completed';});
-  var now=new Date();var mo=now.getMonth(),yr=now.getFullYear();
-  var doneThisMo=completed.filter(function(j){var d=new Date(j.date+'T00:00:00');return d.getMonth()===mo&&d.getFullYear()===yr;}).length;
-  var nxt7=new Date();nxt7.setDate(nxt7.getDate()+7);
-  var soon=upcoming.filter(function(j){return new Date(j.date+'T00:00:00')<=nxt7;}).length;
+  var nxt7=iso(new Date(Date.now()+7*86400000));
+  var thisWeek=trueUpcoming.filter(function(j){return j.date<=nxt7;}).length;
   var statsEl=document.querySelector('.stats');
   if(statsEl)statsEl.innerHTML=
-    '<div class="stat"><div class="stat-lbl">This month</div><div class="stat-val">'+doneThisMo+'</div><div class="stat-hint">Jobs completed</div></div>'+
-    '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+upcoming.length+'</div><div class="stat-hint">Next 7 days: '+soon+'</div></div>'+
+    '<div class="stat'+(overdue.length>0?' stat-warn':'')+'"><div class="stat-lbl">Overdue</div><div class="stat-val">'+overdue.length+'</div><div class="stat-hint">'+(overdue.length===1?'Needs attention':'Need attention')+'</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Upcoming</div><div class="stat-val">'+trueUpcoming.length+'</div><div class="stat-hint">This week: '+thisWeek+'</div></div>'+
     '<div class="stat"><div class="stat-lbl">Completed</div><div class="stat-val">'+completed.length+'</div><div class="stat-hint">All time</div></div>'+
     '<div class="stat"><div class="stat-lbl">Total jobs</div><div class="stat-val">'+jobs.length+'</div><div class="stat-hint">All time</div></div>';
   var html='';
   jobs.forEach(function(j){
-    var mf=activeFilter==='all'||activeFilter===j.type||activeFilter===j.status;
+    var mf=activeFilter==='all'||(activeFilter==='overdue'&&isOverdue(j))||(activeFilter==='upcoming'&&j.status==='upcoming'&&!isOverdue(j))||(activeFilter==='completed'&&j.status==='completed')||activeFilter===j.type;
     var ms=!searchTerm||(j.client_name+' '+(j.site||'')).toLowerCase().indexOf(searchTerm)!==-1;
     if(mf&&ms)html+=renderRow(j);
   });

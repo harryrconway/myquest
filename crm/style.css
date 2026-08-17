@@ -106,6 +106,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .stat-lbl{font-size:9px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--on-sub);margin-bottom:9px}
 .stat-val{font-size:20px;font-weight:700;letter-spacing:-.025em;color:var(--on);font-variant-numeric:tabular-nums;line-height:1}
 .stat-hint{font-size:11px;color:var(--on-sub);margin-top:4px}
+.stat-warn .stat-val{color:var(--red)}.stat-warn .stat-lbl{color:var(--red)}
 
 /* Section heading */
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}

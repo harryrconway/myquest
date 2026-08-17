@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Overview — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260816">
+<link rel="stylesheet" href="style.css?v=20260817">
 <style>.sched-badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);background:rgba(155,150,138,.1);border:1px solid var(--hair);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle}</style>
 <style>
 .date-sub{font-size:13px;color:var(--stone);margin-top:4px}
@@ -29,6 +29,9 @@
 .si-detail{font-size:11.5px;color:var(--stone);margin-top:2px}
 .si-crew{display:flex;gap:5px;margin-top:6px}
 .si-av{width:20px;height:20px;border-radius:50%;background:rgba(35,44,84,.1);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--navy)}
+.sched-item--link{color:inherit;text-decoration:none;transition:background .12s}
+.sched-item--link:hover{background:rgba(35,44,84,.03)}
+.sched-day-sep{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);padding:7px 16px 4px;background:rgba(35,44,84,.03);border-bottom:1px solid var(--hair)}
 
 /* Attention + quick aside */
 .attn-item{
@@ -226,7 +229,7 @@ var nwSunStr=nwSun.toISOString().slice(0,10);
 
 Promise.all([
   sb.from('clients').select('id,status'),
-  sb.from('jobs').select('id,date,start_time,status,type,site,client_name,assigned_staff_id'),
+  sb.from('jobs').select('id,date,start_time,status,type,site,client_name,assigned_staff_id,assigned_staff_name'),
   sb.from('staff').select('id,status'),
   sb.from('contracts').select('id,end_date').not('end_date','is',null)
 ]).then(function(results){
@@ -293,12 +296,16 @@ Promise.all([
     } else {
       schedEl.innerHTML=todayJobs.map(function(j){
         var bCls=j.status==='completed'?'completed':'upcoming';
-        var timeStr=j.start_time?fmtTime(j.start_time):(j.status==='upcoming'?'<span style="color:var(--stone);font-size:12px">Time not set</span>':'<span style="color:var(--stone);font-size:12px">—</span>');
-        return '<div class="sched-item" style="grid-template-columns:70px 1fr auto">'+
+        var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">Time not set</span>';
+        var teamHtml=j.assigned_staff_name
+          ?'<div class="si-crew"><div class="si-av">'+esc(j.assigned_staff_name.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2))+'</div><span style="font-size:11.5px;color:var(--stone)">'+esc(j.assigned_staff_name)+'</span></div>'
+          :'<div style="font-size:11.5px;color:var(--red);margin-top:5px;font-weight:600">No team assigned</div>';
+        return '<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:70px 1fr auto">'+
           '<div class="si-time">'+timeStr+'</div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
-          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div></div>'+
-          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></div>';
+          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
+          teamHtml+'</div>'+
+          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></a>';
       }).join('');
     }
   }
@@ -306,22 +313,30 @@ Promise.all([
   var nextWeekEl=document.getElementById('ov-next-week');
   if(nextWeekEl){
     var nwJobs=jobs.filter(function(j){return j.date>=nwMonStr&&j.date<=nwSunStr;})
-      .sort(function(a,b){return a.date<b.date?-1:1;});
+      .sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:((a.start_time||'99')<(b.start_time||'99')?-1:1);});
     if(!nwJobs.length){
       nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
     } else {
-      nextWeekEl.innerHTML=nwJobs.map(function(j){
-        var jd=new Date(j.date+'T00:00:00');
-        var dateStr=DSHORT[jd.getDay()]+' '+jd.getDate()+' '+MSHORT[jd.getMonth()];
+      var nwHtml='';var lastDate='';
+      nwJobs.forEach(function(j){
+        if(j.date!==lastDate){
+          var jd=new Date(j.date+'T00:00:00');
+          nwHtml+='<div class="sched-day-sep">'+DSHORT[jd.getDay()]+' '+jd.getDate()+' '+MSHORT[jd.getMonth()]+'</div>';
+          lastDate=j.date;
+        }
         var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">—</span>';
         var bCls=j.status==='completed'?'completed':'upcoming';
-        return '<div class="sched-item" style="grid-template-columns:70px 50px 1fr auto">'+
-          '<div class="si-time">'+dateStr+'</div>'+
+        var teamHtml=j.assigned_staff_name
+          ?'<div class="si-crew"><div class="si-av">'+esc(j.assigned_staff_name.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2))+'</div><span style="font-size:11.5px;color:var(--stone)">'+esc(j.assigned_staff_name)+'</span></div>'
+          :'<div style="font-size:11.5px;color:var(--red);margin-top:5px;font-weight:600">No team assigned</div>';
+        nwHtml+='<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:70px 1fr auto">'+
           '<div class="si-time">'+timeStr+'</div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
-          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div></div>'+
-          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></div>';
-      }).join('');
+          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
+          teamHtml+'</div>'+
+          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></a>';
+      });
+      nextWeekEl.innerHTML=nwHtml;
     }
   }
 
