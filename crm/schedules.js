@@ -32,6 +32,7 @@ window.mqGenerate=function(){
           var ts=iso(today),ws=iso(winEnd);
           var added=[];
           templates.forEach(function(src){
+            covered[src.id+'|'+src.date]=1;
             if(src.repeat==='monthly'){
               var bd=new Date(src.date+'T00:00:00').getDate();
               for(var i=0;i<14;i++){
