@@ -18,42 +18,58 @@ function makeJob(src,ds){
 window.mqGenerate=function(){
   var sb=window.MQ&&window.MQ.sb;
   if(!sb)return Promise.resolve();
-  return sb.from('jobs').select('id,client_id,client_name,date,start_time,type,site,repeat,assigned_staff_id,assigned_staff_name')
-    .not('repeat','is',null).neq('repeat','none').eq('from_schedule',false)
-    .then(function(r1){
-      var templates=r1.data||[];
-      if(!templates.length)return;
-      return sb.from('jobs').select('source_job_id,date').not('source_job_id','is',null)
-        .then(function(r2){
-          var covered={};
-          (r2.data||[]).forEach(function(j){covered[j.source_job_id+'|'+j.date]=1;});
-          var today=new Date();today.setHours(0,0,0,0);
-          var winEnd=new Date(today);winEnd.setDate(winEnd.getDate()+WEEKS*7);
-          var ts=iso(today),ws=iso(winEnd);
-          var added=[];
-          templates.forEach(function(src){
-            covered[src.id+'|'+src.date]=1;
-            if(src.repeat==='monthly'){
-              var bd=new Date(src.date+'T00:00:00').getDate();
-              for(var i=0;i<14;i++){
-                var c=new Date(today.getFullYear(),today.getMonth()+i,bd);
-                var cs=iso(c);
-                if(cs>ws)break;
-                if(cs>ts&&!covered[src.id+'|'+cs]){added.push(makeJob(src,cs));covered[src.id+'|'+cs]=1;}
-              }
-            }else{
-              var iv=IDAYS[src.repeat]||7;
-              var base=new Date(src.date+'T00:00:00');
-              if(base<today){var diff=Math.floor((today-base)/86400000);base=new Date(base.getTime()+Math.ceil(diff/iv)*iv*86400000);}
-              var cur=base;
-              while(iso(cur)<=ws){
-                var cs2=iso(cur);
-                if(cs2>ts&&!covered[src.id+'|'+cs2]){added.push(makeJob(src,cs2));covered[src.id+'|'+cs2]=1;}
-                cur=new Date(cur.getTime()+iv*86400000);
-              }
-            }
-          });
-          if(added.length)return sb.from('jobs').insert(added);
+  var today=new Date();today.setHours(0,0,0,0);
+  var ts=iso(today);
+
+  // Pass 1: delete future instances whose source template no longer repeats
+  return sb.from('jobs').select('id,repeat').eq('from_schedule',false)
+    .then(function(tr){
+      var orphanIds=(tr.data||[])
+        .filter(function(t){return!t.repeat||t.repeat==='none';})
+        .map(function(t){return t.id;});
+      if(!orphanIds.length)return Promise.resolve();
+      return Promise.all(orphanIds.map(function(id){
+        return sb.from('jobs').delete().eq('source_job_id',id).gt('date',ts);
+      }));
+    })
+    // Pass 2: generate missing instances for active repeating templates
+    .then(function(){
+      return sb.from('jobs').select('id,client_id,client_name,date,start_time,type,site,repeat,assigned_staff_id,assigned_staff_name')
+        .not('repeat','is',null).neq('repeat','none').eq('from_schedule',false)
+        .then(function(r1){
+          var templates=r1.data||[];
+          if(!templates.length)return;
+          return sb.from('jobs').select('source_job_id,date').not('source_job_id','is',null)
+            .then(function(r2){
+              var covered={};
+              (r2.data||[]).forEach(function(j){covered[j.source_job_id+'|'+j.date]=1;});
+              var winEnd=new Date(today);winEnd.setDate(winEnd.getDate()+WEEKS*7);
+              var ws=iso(winEnd);
+              var added=[];
+              templates.forEach(function(src){
+                covered[src.id+'|'+src.date]=1;
+                if(src.repeat==='monthly'){
+                  var bd=new Date(src.date+'T00:00:00').getDate();
+                  for(var i=0;i<14;i++){
+                    var c=new Date(today.getFullYear(),today.getMonth()+i,bd);
+                    var cs=iso(c);
+                    if(cs>ws)break;
+                    if(cs>ts&&!covered[src.id+'|'+cs]){added.push(makeJob(src,cs));covered[src.id+'|'+cs]=1;}
+                  }
+                }else{
+                  var iv=IDAYS[src.repeat]||7;
+                  var base=new Date(src.date+'T00:00:00');
+                  if(base<today){var diff=Math.floor((today-base)/86400000);base=new Date(base.getTime()+Math.ceil(diff/iv)*iv*86400000);}
+                  var cur=base;
+                  while(iso(cur)<=ws){
+                    var cs2=iso(cur);
+                    if(cs2>ts&&!covered[src.id+'|'+cs2]){added.push(makeJob(src,cs2));covered[src.id+'|'+cs2]=1;}
+                    cur=new Date(cur.getTime()+iv*86400000);
+                  }
+                }
+              });
+              if(added.length)return sb.from('jobs').insert(added);
+            });
         });
     });
 };

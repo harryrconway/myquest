@@ -273,7 +273,7 @@
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260806"></script>
 <script src="datepicker.js?v=20260807"></script>
-<script src="schedules.js?v=20260817"></script>
+<script src="schedules.js?v=20260818"></script>
 <script>
 (function(){
 'use strict';
@@ -492,7 +492,8 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
       closeModal();
       if(repeatChanged){
         var td=iso(new Date());
-        sb.from('jobs').delete().eq('source_job_id',editingJobId).eq('status','upcoming').gt('date',td).then(function(){
+        sb.from('jobs').delete().eq('source_job_id',editingJobId).gt('date',td).then(function(dr){
+          if(dr&&dr.error){alert('Could not clear old instances: '+dr.error.message);return;}
           reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
         });
       } else {
