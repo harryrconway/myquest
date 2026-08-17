@@ -107,6 +107,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .stat-val{font-size:20px;font-weight:700;letter-spacing:-.025em;color:var(--on);font-variant-numeric:tabular-nums;line-height:1}
 .stat-hint{font-size:11px;color:var(--on-sub);margin-top:4px}
 .stat-warn .stat-val{color:var(--red)}.stat-warn .stat-lbl{color:var(--red)}
+.stat-today .stat-val{color:var(--amber)}.stat-today .stat-lbl{color:var(--amber)}
 
 /* Section heading */
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -132,6 +133,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .badge.draft{color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)}
 .badge.declined{color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.2)}
 .badge.upcoming{color:var(--navy);background:rgba(35,44,84,.09);border:1px solid rgba(35,44,84,.15)}
+.badge.today{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
 .badge.completed{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
 
 /* Aside card */
