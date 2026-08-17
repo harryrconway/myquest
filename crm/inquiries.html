@@ -174,9 +174,10 @@
   </aside>
 
   <main class="main">
-    <div class="pg-head">
+    <div class="ph pg-1">
+      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <div>
-        <div class="ph-title">Inquiries</div>
+        <h1 class="ph-title">Inquiries</h1>
         <div class="ph-sub" id="inq-count">—</div>
       </div>
     </div>
@@ -334,7 +335,7 @@
   </div>
 </div>
 
-<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html" class="mob-on">Inquiries</a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
+<div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html" class="mob-on">Inquiries<span class="sb-notif" id="mob-inq-notif"></span></a><a href="scope.html">Scope</a><a href="calculator.html">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
 
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260816"></script>
@@ -378,9 +379,11 @@ function updateCount(){
   var active=allInquiries.filter(function(i){return i.status==='new'||i.status==='viewed';}).length;
   var countEl=document.getElementById('inq-count');
   if(countEl)countEl.textContent=allInquiries.length+' total · '+won+' converted · '+active+' active';
-  var notifEl=document.getElementById('inq-notif');
-  if(notifEl&&newCount>0){notifEl.textContent=newCount>9?'9+':String(newCount);notifEl.classList.add('show');}
-  else if(notifEl){notifEl.classList.remove('show');}
+  ['inq-notif','mob-inq-notif'].forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    if(newCount>0){el.textContent=newCount>9?'9+':String(newCount);el.classList.add('show');}
+    else el.classList.remove('show');
+  });
 }
 
 function filteredRows(){

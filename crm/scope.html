@@ -254,7 +254,7 @@
       <a href="overview.html">Overview</a>
       <a href="index.html">Clients</a>
       <a href="jobs.html">Jobs</a>
-      <a href="inquiries.html">Inquiries</a>
+      <a href="inquiries.html">Inquiries<span class="sb-notif" id="mob-inq-notif"></span></a>
       <a href="scope.html" class="mob-on">Scope</a>
       <a href="calculator.html">Calculator</a>
       <a href="reports.html">Reports</a>
@@ -553,8 +553,7 @@ if(overlay)overlay.addEventListener('click',function(e){if(!e.target.closest('.m
 init();
 
 MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
-  var n=r.count||0;var el=document.getElementById('inq-notif');
-  if(el&&n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}
+  var n=r.count||0;['inq-notif','mob-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
 });
 }); // end requireAuth
 })();
