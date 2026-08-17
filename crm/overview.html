@@ -23,17 +23,16 @@
   border-left:3px solid var(--navy);
 }
 .sched-item:last-child{border-bottom:none}
-.si-time{font-size:13px;color:var(--stone);font-variant-numeric:tabular-nums;line-height:1.4}
+.si-time{font-size:16px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.3}
 .si-info{min-width:0}
 .si-client{font-size:14px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .si-detail{font-size:12.5px;color:var(--stone);margin-top:2px}
-.si-crew{display:flex;gap:5px;margin-top:6px}
-.si-av{width:20px;height:20px;border-radius:50%;background:rgba(35,44,84,.1);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--navy)}
+.si-cleaner{font-size:12px;color:var(--stone);margin-top:5px}
 .sched-item--link{color:inherit;text-decoration:none;transition:background .12s}
 .sched-item--link:hover{background:rgba(35,44,84,.03)}
 .sched-day-sep{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);padding:7px 16px 4px;background:rgba(35,44,84,.03);border-bottom:1px solid var(--hair)}
-.si-date-lbl{font-size:10.5px;color:var(--stone);margin-top:2px;white-space:nowrap}
-.si-tz-lbl{font-size:10px;font-weight:700;color:var(--stone);margin-top:1px;letter-spacing:.04em}
+.si-date-lbl{font-size:12px;font-weight:500;color:rgba(35,44,84,.55);margin-top:3px;white-space:nowrap}
+.si-tz-lbl{font-size:11px;font-weight:700;color:var(--stone);margin-top:2px;letter-spacing:.03em}
 
 /* Attention + quick aside */
 .attn-item{
@@ -306,9 +305,9 @@ Promise.all([
         var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">Time not set</span>';
         var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var teamHtml=j.assigned_staff_name
-          ?'<div class="si-crew"><div class="si-av">'+esc(j.assigned_staff_name.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2))+'</div><span style="font-size:11.5px;color:var(--stone)">'+esc(j.assigned_staff_name)+'</span></div>'
-          :'<div style="font-size:11.5px;color:var(--red);margin-top:5px;font-weight:600">No team assigned</div>';
-        return '<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:70px 1fr auto">'+
+          ?'<div class="si-cleaner">Cleaner: '+esc(j.assigned_staff_name)+'</div>'
+          :'<div class="si-cleaner" style="color:var(--red);font-weight:600">No team assigned</div>';
+        return '<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:90px 1fr auto">'+
           '<div class="si-time">'+timeStr+tzHtml+'<div class="si-date-lbl">'+fmtDateCard(j.date)+'</div></div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
           '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
@@ -331,9 +330,9 @@ Promise.all([
         var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var bCls=j.status==='completed'?'completed':'upcoming';
         var teamHtml=j.assigned_staff_name
-          ?'<div class="si-crew"><div class="si-av">'+esc(j.assigned_staff_name.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2))+'</div><span style="font-size:11.5px;color:var(--stone)">'+esc(j.assigned_staff_name)+'</span></div>'
-          :'<div style="font-size:11.5px;color:var(--red);margin-top:5px;font-weight:600">No team assigned</div>';
-        nwHtml+='<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:70px 1fr auto">'+
+          ?'<div class="si-cleaner">Cleaner: '+esc(j.assigned_staff_name)+'</div>'
+          :'<div class="si-cleaner" style="color:var(--red);font-weight:600">No team assigned</div>';
+        nwHtml+='<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:90px 1fr auto">'+
           '<div class="si-time">'+timeStr+tzHtml+'<div class="si-date-lbl">'+fmtDateCard(j.date)+'</div></div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
           '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
