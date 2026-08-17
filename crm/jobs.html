@@ -286,7 +286,7 @@ function renderExpand(j){
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   if(!j.from_schedule)actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
-  actions+='<button class="xp-btn" data-action="scope">'+(jobsWithScope.has(j.id)?'Edit scope':'Add scope')+'</button>';
+  actions+='<button class="xp-btn" data-action="scope">'+(jobsWithScope.has(j.id)?'View scope':'Add scope')+'</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   var cur=j.repeat||'none';
   if(j.from_schedule&&j.source_job_id){allJobs.forEach(function(t){if(t.id===j.source_job_id)cur=t.repeat||'none';});}
