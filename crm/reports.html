@@ -244,7 +244,7 @@ Promise.all([
   doneYTD.forEach(function(j){moData[new Date(j.date+'T00:00:00').getMonth()]++;});
   var byType={};
   doneAll.forEach(function(j){var t=j.type||'other';byType[t]=(byType[t]||0)+1;});
-  var TYPE_LBL={maintenance:'Maint.',deep:'Deep',window:'Window',builders:'Builders'};
+  var TYPE_LBL={maintenance:'Maint.',deep:'Deep'};
   var typeTot=doneAll.length||1;
   var typeBars=Object.keys(byType).sort(function(a,b){return byType[b]-byType[a];}).map(function(t){
     return vbar(TYPE_LBL[t]||t,byType[t],typeTot);

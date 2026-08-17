@@ -9,6 +9,7 @@ function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(
 function makeJob(src,ds){
   return{client_id:src.client_id,client_name:src.client_name,date:ds,
     start_time:src.start_time||null,
+    start_tz:src.start_tz||null,
     type:src.type,status:'upcoming',site:src.site||'',
     assigned_staff_id:src.assigned_staff_id||null,
     assigned_staff_name:src.assigned_staff_name||null,
@@ -34,7 +35,7 @@ window.mqGenerate=function(){
     })
     // Pass 2: generate missing instances for active repeating templates
     .then(function(){
-      return sb.from('jobs').select('id,client_id,client_name,date,start_time,type,site,repeat,assigned_staff_id,assigned_staff_name')
+      return sb.from('jobs').select('id,client_id,client_name,date,start_time,start_tz,type,site,repeat,assigned_staff_id,assigned_staff_name')
         .not('repeat','is',null).neq('repeat','none').eq('from_schedule',false)
         .then(function(r1){
           var templates=r1.data||[];

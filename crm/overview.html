@@ -32,6 +32,8 @@
 .sched-item--link{color:inherit;text-decoration:none;transition:background .12s}
 .sched-item--link:hover{background:rgba(35,44,84,.03)}
 .sched-day-sep{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);padding:7px 16px 4px;background:rgba(35,44,84,.03);border-bottom:1px solid var(--hair)}
+.si-date-lbl{font-size:10.5px;color:var(--stone);margin-top:2px;white-space:nowrap}
+.si-tz-lbl{font-size:10px;font-weight:700;color:var(--stone);margin-top:1px;letter-spacing:.04em}
 
 /* Attention + quick aside */
 .attn-item{
@@ -204,8 +206,9 @@ var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
 var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 var DSHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean'};
 function fmtTime(t){if(!t)return'';var p=t.split(':');var h=parseInt(p[0]);var m=p[1];return(h%12||12)+':'+m+(h>=12?'pm':'am');}
+function fmtDateCard(ds){var d=new Date(ds+'T00:00:00');return DSHORT[d.getDay()]+' '+d.getDate()+' '+MSHORT[d.getMonth()];}
 function isoLocal(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 
 var now=new Date();
@@ -230,7 +233,7 @@ var nwSunStr=isoLocal(nwSun);
 
 Promise.all([
   sb.from('clients').select('id,status'),
-  sb.from('jobs').select('id,date,start_time,status,type,site,client_name,assigned_staff_id,assigned_staff_name'),
+  sb.from('jobs').select('id,date,start_time,start_tz,status,type,site,client_name,assigned_staff_id,assigned_staff_name'),
   sb.from('staff').select('id,status'),
   sb.from('contracts').select('id,end_date').not('end_date','is',null)
 ]).then(function(results){
@@ -302,11 +305,12 @@ Promise.all([
       schedEl.innerHTML=todayJobs.map(function(j){
         var bCls=j.status==='completed'?'completed':'upcoming';
         var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">Time not set</span>';
+        var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var teamHtml=j.assigned_staff_name
           ?'<div class="si-crew"><div class="si-av">'+esc(j.assigned_staff_name.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2))+'</div><span style="font-size:11.5px;color:var(--stone)">'+esc(j.assigned_staff_name)+'</span></div>'
           :'<div style="font-size:11.5px;color:var(--red);margin-top:5px;font-weight:600">No team assigned</div>';
         return '<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:70px 1fr auto">'+
-          '<div class="si-time">'+timeStr+'</div>'+
+          '<div class="si-time">'+timeStr+tzHtml+'<div class="si-date-lbl">'+fmtDateCard(j.date)+'</div></div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
           '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
           teamHtml+'</div>'+
@@ -322,20 +326,16 @@ Promise.all([
     if(!nwJobs.length){
       nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
     } else {
-      var nwHtml='';var lastDate='';
+      var nwHtml='';
       nwJobs.forEach(function(j){
-        if(j.date!==lastDate){
-          var jd=new Date(j.date+'T00:00:00');
-          nwHtml+='<div class="sched-day-sep">'+DSHORT[jd.getDay()]+' '+jd.getDate()+' '+MSHORT[jd.getMonth()]+'</div>';
-          lastDate=j.date;
-        }
         var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">—</span>';
+        var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var bCls=j.status==='completed'?'completed':'upcoming';
         var teamHtml=j.assigned_staff_name
           ?'<div class="si-crew"><div class="si-av">'+esc(j.assigned_staff_name.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2))+'</div><span style="font-size:11.5px;color:var(--stone)">'+esc(j.assigned_staff_name)+'</span></div>'
           :'<div style="font-size:11.5px;color:var(--red);margin-top:5px;font-weight:600">No team assigned</div>';
         nwHtml+='<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:70px 1fr auto">'+
-          '<div class="si-time">'+timeStr+'</div>'+
+          '<div class="si-time">'+timeStr+tzHtml+'<div class="si-date-lbl">'+fmtDateCard(j.date)+'</div></div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
           '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
           teamHtml+'</div>'+
