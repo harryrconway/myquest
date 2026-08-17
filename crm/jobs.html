@@ -479,18 +479,30 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   var repeatChanged=editingJobRepeat!==null&&newRepeat!==editingJobRepeat;
   var row={date:date,start_time:timeVal,client_id:sel.value,client_name:clientName,site:site,
     type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,
-    assigned_staff_id:staffId,assigned_staff_name:staffName};
-  if(!repeatChanged)row.repeat=newRepeat!=='none'?newRepeat:null;
+    assigned_staff_id:staffId,assigned_staff_name:staffName,
+    repeat:newRepeat!=='none'?newRepeat:null};
+  var savBtn=document.getElementById('job-modal-save');
+  savBtn.disabled=true;savBtn.textContent='Saving…';
   if(editingJobId){
-    sb.from('jobs').update(row).eq('id',editingJobId).then(function(){
+    sb.from('jobs').update(row).eq('id',editingJobId).then(function(r){
+      savBtn.disabled=false;savBtn.textContent='Save changes';
+      if(r&&r.error){alert('Save failed: '+r.error.message);return;}
       if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
         if(found)sb.from('clients').update({site_address:site}).eq('id',found.id);}
       closeModal();
-      if(repeatChanged){updateJobRepeat(editingJobId,newRepeat);}else{reload();}
+      if(repeatChanged){
+        var td=iso(new Date());
+        sb.from('jobs').delete().eq('source_job_id',editingJobId).eq('status','upcoming').gt('date',td).then(function(){
+          reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
+        });
+      } else {
+        reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
+      }
     });
   } else {
-    row.repeat=newRepeat!=='none'?newRepeat:null;
-    sb.from('jobs').insert(row).then(function(){
+    sb.from('jobs').insert(row).then(function(r){
+      savBtn.disabled=false;savBtn.textContent='Add job';
+      if(r&&r.error){alert('Save failed: '+r.error.message);return;}
       if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
         if(found)sb.from('clients').update({site_address:site}).eq('id',found.id);}
       closeModal();
@@ -509,16 +521,6 @@ function deleteJob(id){
   // Also delete generated instances (source_job_id match)
   sb.from('jobs').delete().eq('source_job_id',id).then(function(){
     sb.from('jobs').delete().eq('id',id).then(function(){openId=null;reload();});
-  });
-}
-function updateJobRepeat(id,newRepeat){
-  var templateId=id;
-  allJobs.forEach(function(j){if(j.id===id&&j.from_schedule&&j.source_job_id)templateId=j.source_job_id;});
-  var today=iso(new Date());
-  sb.from('jobs').delete().eq('source_job_id',templateId).eq('status','upcoming').gt('date',today).then(function(){
-    sb.from('jobs').update({repeat:newRepeat}).eq('id',templateId).then(function(){
-      reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
-    });
   });
 }
 
