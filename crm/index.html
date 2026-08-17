@@ -626,6 +626,8 @@ document.getElementById('cl-body').addEventListener('click',function(e){
     }).then(function(){
       return sb.from('contracts').delete().eq('client_id',did);
     }).then(function(){
+      return sb.from('inquiries').update({client_id:null,job_id:null}).eq('client_id',did);
+    }).then(function(){
       return sb.from('clients').delete().eq('id',did);
     }).then(function(r){
       if(r&&r.error){alert('Delete failed: '+r.error.message);delBtn.textContent='Delete client';delBtn.disabled=false;return;}
