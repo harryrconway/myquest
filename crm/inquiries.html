@@ -84,6 +84,7 @@
 .cv-field.full{grid-column:1/-1}
 .cv-field label{font-size:11.5px;font-weight:500;color:var(--stone);margin-bottom:6px}
 .cv-field input,.cv-field select,.cv-field textarea{padding:11px 14px;border:1.5px solid var(--hair-md);border-radius:9px;font-size:14px;font-family:var(--font);background:#fff;color:var(--navy);-webkit-appearance:none;transition:border-color .15s,box-shadow .15s;line-height:1.3}
+.cv-field select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
 .cv-field textarea{resize:vertical;min-height:64px}
 .cv-field input:focus,.cv-field select:focus,.cv-field textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(35,44,84,.08)}
 .cv-field input::placeholder{color:var(--stone);opacity:.55}
@@ -518,8 +519,19 @@ window._iqConvert=function(id){
   var freqMap={weekly:'weekly',fortnightly:'fortnightly',monthly:'monthly','once-off':'none'};
   document.getElementById('cv-job-repeat').value=freqMap[inq.frequency]||'none';
   var staffSel=document.getElementById('cv-job-staff');
-  staffSel.innerHTML='<option value="">No team member</option>';
-  allStaff.forEach(function(s){staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';});
+  function populateStaff(staff){
+    staffSel.innerHTML='<option value="">No team member</option>';
+    staff.filter(function(s){return s.status!=='exited';}).forEach(function(s){staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';});
+  }
+  if(allStaff.length){
+    populateStaff(allStaff);
+  } else {
+    staffSel.innerHTML='<option value="">Loading…</option>';
+    sb.from('staff').select('id,name,status').order('name').then(function(r){
+      allStaff=r.data||[];
+      populateStaff(allStaff);
+    });
+  }
   document.getElementById('cv-job-check').checked=true;
   document.getElementById('cv-job-section').classList.add('open');
   document.getElementById('cv-submit').textContent='Create Client & Job';
