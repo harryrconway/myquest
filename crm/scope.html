@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260816">
+<link rel="stylesheet" href="style.css?v=20260817">
 <style>
 .scope-info{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px;margin-bottom:20px}
-.scope-info-grid{display:grid;grid-template-columns:1fr 1fr 160px;gap:14px;align-items:end}
+.scope-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 160px;gap:14px;align-items:end}
 .scope-name-row{margin-bottom:18px}
 .scope-name-input{width:100%;font-size:19px;font-weight:700;color:var(--navy);border:none;background:none;outline:none;font-family:var(--font);letter-spacing:-.025em;padding:0}
 .scope-name-input::placeholder{color:rgba(35,44,84,.25)}
@@ -93,6 +93,7 @@
 .empty-areas{padding:36px 24px;text-align:center;color:var(--stone);font-size:13px;border:1.5px dashed rgba(35,44,84,.12);border-radius:var(--r);margin-bottom:14px}
 .empty-areas p{margin-bottom:12px}
 .scope-info-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 10px;border-radius:5px;margin-bottom:16px}
+.scope-job-field{display:block}
 
 @media print{
   .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-new-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge{display:none!important}
@@ -101,6 +102,7 @@
   body{background:#fff!important}
   .scope-info{border:none;padding:0;margin-bottom:16px;background:none}
   .scope-info-grid{grid-template-columns:1fr 1fr 1fr;gap:8px;border-top:1px solid #ddd;padding-top:10px;margin-top:4px}
+  .scope-job-field{display:none}
   .scope-name-input{font-size:20px;color:#000}
   .sa-name{color:#000}
   .scope-area{border:1px solid #ddd;margin-bottom:10px;break-inside:avoid;background:#fff}
@@ -112,6 +114,9 @@
   .form-lbl,.scope-global label{color:#666}
   .form-input{border:1px solid #ddd;background:#fff;color:#000}
   select.form-input{background-image:none;padding-right:12px}
+}
+@media(max-width:1100px){
+  .scope-info-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:900px){
   .scope-info-grid{grid-template-columns:1fr 1fr}
@@ -203,6 +208,10 @@
           <input class="scope-name-input" id="scope-name" type="text" placeholder="Scope name — e.g. Aria Property Group · Weekly" autocomplete="off">
         </div>
         <div class="scope-info-grid">
+          <div class="scope-job-field">
+            <label class="form-lbl" for="scope-job-link">Link to job</label>
+            <select class="form-input" id="scope-job-link"><option value="">No job linked</option></select>
+          </div>
           <div>
             <label class="form-lbl" for="scope-client">Client</label>
             <select class="form-input" id="scope-client"><option value="">Select client…</option></select>
@@ -274,6 +283,7 @@ window.MQ.requireAuth(function(){
 var sb=MQ.sb;
 var editingId=null;
 var allClients=[];
+var allJobs=[];
 var jobId=null;
 
 function uid(){return '_'+Math.random().toString(36).slice(2,9);}
@@ -377,11 +387,15 @@ function saveScope(){
 }
 function resetEditor(){
   editingId=null;
+  jobId=null;
   document.getElementById('scope-name').value='';
+  document.getElementById('scope-job-link').value='';
   document.getElementById('scope-client').value='';
   document.getElementById('scope-site').value='';
   document.getElementById('scope-date').valueAsDate=new Date();
   document.getElementById('scope-global-notes').value='';
+  var ref=document.getElementById('scope-job-ref');
+  if(ref)ref.hidden=true;
   renderAreas([]);
   document.getElementById('scope-name').focus();
 }
@@ -392,6 +406,18 @@ function loadIntoEditor(sc){
   document.getElementById('scope-site').value=sc.site||'';
   document.getElementById('scope-date').value=sc.date||'';
   document.getElementById('scope-global-notes').value=sc.global_notes||'';
+  if(sc.job_id){
+    var jobSel=document.getElementById('scope-job-link');
+    jobSel.value=sc.job_id;
+    jobId=sc.job_id;
+    var ref=document.getElementById('scope-job-ref');
+    var found=null;allJobs.forEach(function(j){if(j.id===sc.job_id)found=j;});
+    if(found&&ref){
+      var num=found.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(found.job_number).padStart(3,'0')+'</span>':'';
+      ref.innerHTML=num+' '+esc(found.client_name||'');
+      ref.hidden=false;
+    }
+  }
   renderAreas(sc.areas||[]);
   document.getElementById('scope-name').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -413,7 +439,7 @@ function renderScopeView(sc){
   return areas+global+'<div class="sv-footer"><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button><button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button></div>';
 }
 function renderSavedList(){
-  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').order('created_at',{ascending:false}).then(function(r){
+  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').order('created_at',{ascending:false}).then(function(r){
     var scopes=r.data||[];
     var sec=document.getElementById('saved-scopes-section');
     var list=document.getElementById('saved-scopes-list');
@@ -436,59 +462,75 @@ function renderSavedList(){
   });
 }
 
-function init(){
-  jobId=getParam('job_id');
-  if(!jobId){
-    document.getElementById('scope-editor').hidden=true;
-    document.getElementById('scope-no-job').hidden=false;
+function fmtJobLabel(j){
+  var num=j.job_number?'#'+String(j.job_number).padStart(3,'0'):'';
+  var dt='';
+  if(j.date){var d=new Date(j.date+'T00:00:00');dt=d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];}
+  return [num,j.client_name,dt].filter(Boolean).join(' — ');
+}
+
+function onJobSelect(val){
+  jobId=val||null;
+  var ref=document.getElementById('scope-job-ref');
+  if(!val){if(ref)ref.hidden=true;return;}
+  var found=null;allJobs.forEach(function(j){if(j.id===val)found=j;});
+  if(!found){if(ref)ref.hidden=true;return;}
+  var clientSel=document.getElementById('scope-client');
+  if(found.client_id)clientSel.value=found.client_id;
+  if(found.site&&!document.getElementById('scope-site').value)document.getElementById('scope-site').value=found.site;
+  var nameIn=document.getElementById('scope-name');
+  if(!nameIn.value)nameIn.value=(found.client_name||'')+(found.client_name?' — Scope':'Scope');
+  if(ref){
+    var num=found.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(found.job_number).padStart(3,'0')+'</span>':'';
+    ref.innerHTML=num+' '+esc(found.client_name||'');
+    ref.hidden=false;
   }
+  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id').eq('job_id',val).maybeSingle().then(function(sr){
+    if(sr.data&&!editingId)loadIntoEditor(sr.data);
+  });
+}
+
+function init(){
+  document.getElementById('scope-no-job').hidden=true;
+  document.getElementById('scope-editor').hidden=false;
+
+  var jobParam=getParam('job_id');
+
+  sb.from('jobs').select('id,job_number,client_id,client_name,site,date,status').order('date',{ascending:false}).limit(200).then(function(jr){
+    allJobs=jr.data||[];
+    var jobSel=document.getElementById('scope-job-link');
+    jobSel.innerHTML='<option value="">No job linked</option>';
+    allJobs.forEach(function(j){
+      var opt=document.createElement('option');
+      opt.value=j.id;
+      opt.textContent=fmtJobLabel(j);
+      jobSel.appendChild(opt);
+    });
+    if(jobParam){jobSel.value=jobParam;onJobSelect(jobParam);}
+  });
+
   sb.from('clients').select('id,name,site_address').order('name').then(function(r){
     allClients=r.data||[];
     var sel=document.getElementById('scope-client');
     sel.innerHTML='<option value="">Select client…</option>';
     allClients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
     sel.addEventListener('change',function(){
-      if(sel.disabled)return;
       var found=null;allClients.forEach(function(c){if(c.id===sel.value)found=c;});
       var siteInput=document.getElementById('scope-site');
-      if(found&&found.site_address){
-        siteInput.value=found.site_address;
-      } else if(found){
+      if(found&&found.site_address){siteInput.value=found.site_address;}
+      else if(found){
         sb.from('jobs').select('site').eq('client_id',found.id).not('site','is',null).order('date',{ascending:false}).limit(1)
           .then(function(jr){siteInput.value=(jr.data&&jr.data[0])?jr.data[0].site:'';});
-      } else {
-        siteInput.value='';
-      }
+      } else {siteInput.value='';}
     });
-    if(jobId){
-      sb.from('jobs').select('id,client_id,client_name,site,job_number').eq('id',jobId).single().then(function(jr){
-        var job=jr.data;
-        if(job){
-          sel.value=job.client_id||'';
-          sel.disabled=true;
-          if(job.site)document.getElementById('scope-site').value=job.site;
-          if(!document.getElementById('scope-name').value)
-            document.getElementById('scope-name').value=(job.client_name||'')+(job.client_name?' — Scope':'Scope');
-          var ref=document.getElementById('scope-job-ref');
-          if(ref){
-            var num=job.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(job.job_number).padStart(3,'0')+'</span>':'';
-            ref.innerHTML=num+' '+esc(job.client_name||'');
-            ref.hidden=false;
-          }
-        }
-        sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas').eq('job_id',jobId).maybeSingle().then(function(sr){
-          if(sr.data){loadIntoEditor(sr.data);}
-          else{renderAreas([]);}
-        });
-      });
-    } else {
-      renderAreas([]);
-    }
   });
+
   document.getElementById('scope-date').valueAsDate=new Date();
+  renderAreas([]);
   renderSavedList();
 }
 
+document.getElementById('scope-job-link').addEventListener('change',function(){onJobSelect(this.value);});
 document.getElementById('scope-add-area').addEventListener('click',addArea);
 document.getElementById('scope-save-btn').addEventListener('click',saveScope);
 document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
@@ -524,7 +566,7 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
   }
   var editBtn=e.target.closest('[data-edit-id]');
   if(editBtn){
-    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){
+    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){
       if(r.data){
         document.getElementById('scope-editor').hidden=false;
         document.getElementById('scope-no-job').hidden=true;
