@@ -280,6 +280,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .form-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(35,44,84,.08)}
 .form-input::placeholder{color:var(--stone)}
 select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+input[type="time"].form-input{-webkit-appearance:auto;appearance:auto}
 .form-input.pfx{padding-left:22px}
 .input-pfx{position:relative}
 .input-pfx-sym{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--stone);pointer-events:none}
