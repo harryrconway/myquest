@@ -199,7 +199,8 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   }
   .mob-nav-links{display:flex;flex-direction:column;align-items:stretch;width:min(400px,100%);margin-top:auto}
   .mob-nav-links a{
-    display:block;color:var(--on);text-align:right;
+    display:flex;justify-content:flex-end;align-items:center;gap:10px;
+    color:var(--on);
     font-size:clamp(28px,7vw,44px);font-weight:300;
     letter-spacing:-.02em;line-height:1.15;text-decoration:none;
     padding:clamp(10px,2vh,16px) 6px;border-bottom:1px solid rgba(243,239,228,.12);
@@ -268,7 +269,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 
 .sb-notif{margin-left:auto;min-width:16px;height:16px;border-radius:999px;background:var(--red);color:#fff;font-size:9px;font-weight:700;letter-spacing:0;display:none;align-items:center;justify-content:center;padding:0 4px;flex-shrink:0}
 .sb-notif.show{display:flex}
-.mob-nav-links .sb-notif.show{display:inline-flex;vertical-align:middle;margin-left:8px;margin-bottom:2px}
+.mob-nav-links .sb-notif.show{display:flex;margin-left:0;flex-shrink:0}
 
 /* Shared form + modal tokens */
 .form-lbl{display:block;font-size:11.5px;font-weight:500;color:var(--stone);margin-bottom:6px}
