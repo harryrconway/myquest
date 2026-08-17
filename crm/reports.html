@@ -56,6 +56,9 @@
 .rep-pill.stone{background:rgba(35,44,84,.06)}.rep-pill.stone .rep-pill-n,.rep-pill.stone .rep-pill-lbl{color:var(--stone)}
 @media(max-width:900px){.rep-grid{grid-template-columns:1fr}.rep-stats{flex-wrap:wrap}.rep-stat{flex:0 0 calc(50% - 0px);border-right:none;border-bottom:1px solid var(--hair)}.rep-stat:nth-child(odd){border-right:1px solid var(--hair)}.rep-stat:nth-last-child(-n+2):last-child,.rep-stat:nth-last-child(-n+2):nth-last-child(2){border-bottom:none}}
 @media(max-width:600px){.rep-stats{flex-direction:column}.rep-stat{border-right:none!important;border-bottom:1px solid var(--hair)}.rep-stat:last-child{border-bottom:none}.cl-bar-name{width:80px}.rep-funnel-n{font-size:20px}.rep-stat-val{font-size:18px}}
+.rep-reset-row{display:flex;justify-content:flex-end;padding:40px 0 20px}
+.rep-reset-btn{padding:9px 18px;border-radius:var(--r-sm);border:1.5px solid rgba(166,61,47,.25);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--red);cursor:pointer;transition:background .12s,border-color .12s}
+.rep-reset-btn:hover{background:rgba(166,61,47,.06);border-color:rgba(166,61,47,.4)}
 </style>
 </head>
 <body>
@@ -133,6 +136,10 @@
       <div id="panel-clients" class="rep-panel"></div>
       <div id="panel-inquiries" class="rep-panel"></div>
       <div id="panel-team" class="rep-panel"></div>
+
+      <div class="rep-reset-row">
+        <button class="rep-reset-btn" id="rep-reset-btn">Reset all CRM data</button>
+      </div>
     </div>
 
   </main>
@@ -381,6 +388,23 @@ Promise.all([
         (roleSorted.length?roleSorted.map(function(r){return hbar(r.name,r.n,maxRole);}).join(''):'<div style="color:var(--stone);font-size:13px">No staff yet.</div>')+
       '</div>'+
     '</div>';
+});
+
+document.getElementById('rep-reset-btn').addEventListener('click',function(){
+  if(!confirm('Reset all CRM data?\n\nThis permanently deletes all clients, jobs, contracts, inquiries and scopes. Staff records are not affected.\n\nThis cannot be undone.'))return;
+  var btn=this;btn.textContent='Resetting…';btn.disabled=true;
+  sb.from('scopes').delete().neq('id','00000000-0000-0000-0000-000000000000').then(function(){
+    return sb.from('jobs').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  }).then(function(){
+    return sb.from('contracts').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  }).then(function(){
+    return sb.from('inquiries').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  }).then(function(){
+    return sb.from('clients').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  }).then(function(){
+    btn.textContent='Reset all CRM data';btn.disabled=false;
+    window.location.reload();
+  });
 });
 
 var mob=document.getElementById('mob-menu');
