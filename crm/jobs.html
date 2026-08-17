@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260816">
+<link rel="stylesheet" href="style.css?v=20260817">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -35,7 +35,8 @@
 .jl-type{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;justify-self:center;align-self:center}
 .jl-type.deep{color:var(--navy);background:rgba(35,44,84,.12)}
 .jl-crew{display:flex;gap:4px;min-width:0;overflow:hidden}
-.jl-scope-chip{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--green);background:var(--green-bg);padding:2px 6px;border-radius:4px;white-space:nowrap;align-self:center;justify-self:center}
+.jl-scope-chip{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:4px;white-space:nowrap;align-self:center;justify-self:center;color:var(--green);background:var(--green-bg)}
+.jl-scope-chip.no-scope{color:var(--stone);background:rgba(35,44,84,.06);font-weight:600}
 .jl-crew-name{font-size:12px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .jl-price{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
 .jl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
@@ -249,6 +250,15 @@
         <label class="form-lbl" for="jf-staff">Team member</label>
         <select class="form-input" id="jf-staff"><option value="">No team member</option></select>
       </div>
+      <div class="form-row" id="jf-repeat-row">
+        <label class="form-lbl" for="jf-repeat">Recurring</label>
+        <select class="form-input" id="jf-repeat">
+          <option value="none">Does not repeat</option>
+          <option value="weekly">Weekly</option>
+          <option value="fortnightly">Fortnightly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
     </div>
     <div class="modal-actions">
       <button type="button" class="cancel-btn" id="job-modal-cancel">Cancel</button>
@@ -275,10 +285,13 @@ var allJobs=[],allClients=[],allStaff=[],jobsWithScope=new Set();
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-var REPEAT_OPTS=[['none','Does not repeat'],['weekly','Weekly'],['fortnightly','Fortnightly'],['4-weekly','Every 4 weeks'],['monthly','Monthly']];
+var REPEAT_OPTS=[['none','Does not repeat'],['weekly','Weekly'],['fortnightly','Fortnightly'],['monthly','Monthly']];
+var editingJobRepeat=null;
 function fmtDate(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+'<br>'+DAYS[d.getDay()];}
 function fmtDateFull(s){if(!s)return'—';var d=new Date(s+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+' · '+DAYS[d.getDay()];}
 function fmtTime(t){if(!t)return'';var p=t.split(':');var h=parseInt(p[0]);var m=p[1];var ampm=h>=12?'pm':'am';return(h%12||12)+':'+m+' '+ampm;}
+
+function hasScope(j){return jobsWithScope.has(j.id)||(j.source_job_id&&jobsWithScope.has(j.source_job_id));}
 
 function renderExpand(j){
   var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
@@ -286,19 +299,14 @@ function renderExpand(j){
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
-  actions+='<button class="xp-btn" data-action="scope">'+(jobsWithScope.has(j.id)?'View scope':'Add scope')+'</button>';
+  var scopeJobId=(j.from_schedule&&j.source_job_id)?j.source_job_id:j.id;
+  actions+='<button class="xp-btn" data-action="scope" data-scope-job="'+esc(scopeJobId)+'">'+(hasScope(j)?'View scope':'Add scope')+'</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   var cur=j.repeat||'none';
   if(j.from_schedule&&j.source_job_id){allJobs.forEach(function(t){if(t.id===j.source_job_id)cur=t.repeat||'none';});}
-  var opts=REPEAT_OPTS.map(function(o){return'<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('');
-  var repeatRow='<div><div class="xp-lbl">Repeat</div>'+
-    '<select class="xp-repeat-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+opts+'</select></div>';
-  var STAFF_STATUS={active:'Active','on-leave':'On leave',left:'Resigned'};
-  var staffOpts='<option value="">No team member</option>'+allStaff.map(function(s){
-    return '<option value="'+esc(s.id)+'"'+(j.assigned_staff_id===s.id?' selected':'')+'>'+esc(s.name)+' — '+(STAFF_STATUS[s.status]||s.status)+'</option>';
-  }).join('');
-  var teamRow='<div><div class="xp-lbl">Team member</div>'+
-    '<select class="xp-staff-sel form-input" style="font-size:12px;padding:5px 28px 5px 8px;height:auto;margin-top:2px">'+staffOpts+'</select></div>';
+  var repeatLbl=(REPEAT_OPTS.find(function(o){return o[0]===cur;})||['none','—'])[1];
+  var repeatRow='<div><div class="xp-lbl">Repeat</div><div class="xp-val">'+esc(repeatLbl)+'</div></div>';
+  var teamRow='<div><div class="xp-lbl">Team member</div><div class="xp-val">'+esc(j.assigned_staff_name||'—')+'</div></div>';
   var quotePanel='';
   if(j.quoted_price){
     var ADDON_MAP={windows:'Internal windows',ext_windows:'External windows',high_dust:'High-dusting',kitchen_deep:'Kitchen deep clean'};
@@ -320,7 +328,7 @@ function renderExpand(j){
       '</div>';
   }
   return quotePanel+'<div class="xp-grid">'+
-    '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+fmtDateFull(j.date)+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'<input type="time" class="xp-time-input form-input" value="'+(j.start_time||'')+'" style="font-size:12px;padding:5px 8px;height:auto;width:120px;margin-left:2px" title="Set start time"></div></div>'+
+    '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+fmtDateFull(j.date)+(j.start_time?' · '+fmtTime(j.start_time):'')+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
     teamRow+repeatRow+
@@ -341,7 +349,7 @@ function renderRow(j){
       '<div class="jl-client">'+esc(j.client_name||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
       '<span class="jl-type'+(j.type==='deep'?' deep':'')+'">'+typeLbl+'</span>'+
-      '<span class="jl-scope-chip">'+(jobsWithScope.has(j.id)?'Scope':'')+'</span>'+
+      '<span class="jl-scope-chip'+(hasScope(j)?'':' no-scope')+'">'+(hasScope(j)?'Scope':'No scope')+'</span>'+
       '<div class="jl-crew">'+crewHtml+'</div>'+badge+
       '<div class="jl-arr">'+ARR+'</div>'+
     '</div>'+
@@ -403,6 +411,8 @@ function openModal(j){
   allStaff.forEach(function(s){
     staffSel.innerHTML+='<option value="'+esc(s.id)+'">'+esc(s.name)+' — '+(MODAL_STAFF_STATUS[s.status]||s.status)+'</option>';
   });
+  var repeatRow=document.getElementById('jf-repeat-row');
+  var repeatSel=document.getElementById('jf-repeat');
   if(j){
     document.getElementById('jf-date').value=j.date||'';
     document.getElementById('jf-time').value=j.start_time||'';
@@ -411,9 +421,15 @@ function openModal(j){
     document.getElementById('jf-type').value=j.type||'maintenance';
     document.getElementById('jf-status').value=j.status||'upcoming';
     staffSel.value=j.assigned_staff_id||'';
+    if(j.from_schedule){
+      repeatRow.hidden=true;editingJobRepeat=null;
+    } else {
+      repeatRow.hidden=false;repeatSel.value=j.repeat||'none';editingJobRepeat=j.repeat||'none';
+    }
   } else {
     document.getElementById('jf-date').valueAsDate=new Date();
     document.getElementById('jf-time').value='';
+    repeatRow.hidden=false;repeatSel.value='none';editingJobRepeat=null;
   }
   modal.hidden=false;
   setTimeout(function(){document.getElementById(j?'jf-date':'jf-client').focus();},40);
@@ -445,21 +461,26 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   var staffId=staffEl.value||null;
   var staffName=null;if(staffId)allStaff.forEach(function(s){if(s.id===staffId)staffName=s.name;});
   var timeVal=document.getElementById('jf-time').value||null;
+  var newRepeat=document.getElementById('jf-repeat').value||'none';
+  var repeatChanged=editingJobRepeat!==null&&newRepeat!==editingJobRepeat;
   var row={date:date,start_time:timeVal,client_id:sel.value,client_name:clientName,site:site,
     type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,
     assigned_staff_id:staffId,assigned_staff_name:staffName};
+  if(!repeatChanged)row.repeat=newRepeat!=='none'?newRepeat:null;
   if(editingJobId){
     sb.from('jobs').update(row).eq('id',editingJobId).then(function(){
-      // Backfill client site_address if blank
       if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
         if(found)sb.from('clients').update({site_address:site}).eq('id',found.id);}
-      closeModal();reload();
+      closeModal();
+      if(repeatChanged){updateJobRepeat(editingJobId,newRepeat);}else{reload();}
     });
   } else {
+    row.repeat=newRepeat!=='none'?newRepeat:null;
     sb.from('jobs').insert(row).then(function(){
       if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
         if(found)sb.from('clients').update({site_address:site}).eq('id',found.id);}
-      closeModal();reload();
+      closeModal();
+      reload(function(){if(newRepeat&&newRepeat!=='none'&&window.mqGenerate)window.mqGenerate().then(reload);});
     });
   }
 });
@@ -474,17 +495,6 @@ function deleteJob(id){
   // Also delete generated instances (source_job_id match)
   sb.from('jobs').delete().eq('source_job_id',id).then(function(){
     sb.from('jobs').delete().eq('id',id).then(function(){openId=null;reload();});
-  });
-}
-function updateJobStaff(id,staffId,staffName){
-  sb.from('jobs').update({assigned_staff_id:staffId||null,assigned_staff_name:staffName||null}).eq('id',id).then(function(){
-    allJobs.forEach(function(j){if(j.id===id){j.assigned_staff_id=staffId||null;j.assigned_staff_name=staffName||null;}});
-    renderAll();
-  });
-}
-function updateJobTime(id,val){
-  sb.from('jobs').update({start_time:val||null}).eq('id',id).then(function(r){
-    if(!r.error)allJobs.forEach(function(j){if(j.id===id)j.start_time=val||null;});
   });
 }
 function updateJobRepeat(id,newRepeat){
@@ -505,7 +515,7 @@ document.getElementById('jl-body').addEventListener('click',function(e){
     var act=actionEl.dataset.action;
     if(act==='delete')deleteJob(wid);
     else if(act==='edit'){var found=null;allJobs.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
-    else if(act==='scope'){window.location.href='scope.html?job_id='+encodeURIComponent(wid);}
+    else if(act==='scope'){window.location.href='scope.html?job_id='+encodeURIComponent(actionEl.dataset.scopeJob||wid);}
     else updateJobStatus(wid,act);
     return;
   }
@@ -517,18 +527,6 @@ document.getElementById('jl-body').addEventListener('click',function(e){
   else{
     if(openId){var prev=document.querySelector('.xp-wrap[data-id="'+openId+'"]');if(prev){prev.classList.remove('open');prev.querySelector('.xp-body').classList.remove('open');}}
     wrap.classList.add('open');wrap.querySelector('.xp-body').classList.add('open');openId=id;
-  }
-});
-document.getElementById('jl-body').addEventListener('change',function(e){
-  var timeInput=e.target.closest('.xp-time-input');
-  if(timeInput){updateJobTime(timeInput.closest('.xp-wrap').dataset.id,timeInput.value||null);return;}
-  var repeatSel=e.target.closest('.xp-repeat-sel');
-  if(repeatSel){updateJobRepeat(repeatSel.closest('.xp-wrap').dataset.id,repeatSel.value);return;}
-  var staffSel=e.target.closest('.xp-staff-sel');
-  if(staffSel){
-    var sid=staffSel.value;
-    var sname='';if(sid)allStaff.forEach(function(s){if(s.id===sid)sname=s.name;});
-    updateJobStaff(staffSel.closest('.xp-wrap').dataset.id,sid,sname);
   }
 });
 
