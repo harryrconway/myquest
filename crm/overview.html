@@ -301,7 +301,11 @@ Promise.all([
       schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled this week</div></div></div>';
     } else {
       schedEl.innerHTML=todayJobs.map(function(j){
-        var bCls=j.status==='completed'?'completed':'upcoming';
+        var bCls,bTxt;
+        if(j.status==='completed'){bCls='completed';bTxt='Completed';}
+        else if(j.date===today){bCls='today';bTxt='Today';}
+        else if(j.date===tomorrowStr){bCls='today';bTxt='Tomorrow';}
+        else{bCls='upcoming';bTxt=DAYS[new Date(j.date+'T00:00:00').getDay()];}
         var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">Time not set</span>';
         var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var teamHtml=j.assigned_staff_name
@@ -312,7 +316,7 @@ Promise.all([
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
           '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
           teamHtml+'</div>'+
-          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></a>';
+          '<span class="badge '+bCls+'">'+bTxt+'</span></a>';
       }).join('');
     }
   }
@@ -329,6 +333,7 @@ Promise.all([
         var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">—</span>';
         var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var bCls=j.status==='completed'?'completed':'upcoming';
+        var bTxt=j.status==='completed'?'Completed':DAYS[new Date(j.date+'T00:00:00').getDay()];
         var teamHtml=j.assigned_staff_name
           ?'<div class="si-cleaner">Cleaner: '+esc(j.assigned_staff_name)+'</div>'
           :'<div class="si-cleaner" style="color:var(--red);font-weight:600">No team assigned</div>';
@@ -337,7 +342,7 @@ Promise.all([
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
           '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
           teamHtml+'</div>'+
-          '<span class="badge '+bCls+'">'+(j.status==='completed'?'Completed':'Upcoming')+'</span></a>';
+          '<span class="badge '+bCls+'">'+bTxt+'</span></a>';
       });
       nextWeekEl.innerHTML=nwHtml;
     }
