@@ -79,7 +79,7 @@ animated thank-you; falls back to a pre-addressed email if the network fails */
       fEl.classList.add('iq-hidden');fEl.classList.remove('iq-exit');
       tEl.classList.remove('iq-hidden');tEl.classList.add('iq-enter');
       requestAnimationFrame(function(){requestAnimationFrame(function(){tEl.classList.remove('iq-enter');});});
-      var _c=document.getElementById('iqCard');window.scrollTo({top:_c.getBoundingClientRect().top+window.pageYOffset-16,behavior:reduce?'auto':'smooth'});
+      if(window.innerWidth<=740){var _c=document.getElementById('iqCard');window.scrollTo({top:_c.getBoundingClientRect().top+window.pageYOffset-88,behavior:reduce?'auto':'smooth'});}
     },280);
   }
   function clearErr(id){var el=document.getElementById(id);if(el){el.classList.remove('iq-field-err','iq-radio-err');}}
