@@ -286,19 +286,16 @@ var SPACE_HINTS=['Workstations, meeting rooms, amenities','Shopfront, fitting ro
 var FREQ_LABELS=['One-off','Monthly','Fortnightly','Weekly'];
 var FREQ_KEYS=['once','monthly','fortnightly','weekly'];
 
-var EXTRA_LABELS=['Internal window cleaning','External window cleaning','High-dusting','Kitchen deep clean'];
-var EXTRA_KEYS=['windows','ext_windows','high_dust','kitchen_deep'];
-
 // ─── State ───────────────────────────────────────────────────────
 
 var s={
   space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,
-  extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,
+  buffer:false,floors:1,afterHoursPct:0,
   hasResult:false
 };
 
 function resetState(){
-  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,extras:{},buffer:false,floors:1,afterHoursPct:0,consumables:false,hasResult:false};
+  s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,buffer:false,floors:1,afterHoursPct:0,hasResult:false};
 }
 
 // ─── Calculation (unchanged) ─────────────────────────────────────
@@ -317,13 +314,7 @@ function calc(){
   var afterHoursAmt=s.afterHoursPct>0?baseLabour*(s.afterHoursPct/100):0;
   var labour=baseLabour+afterHoursAmt;
   var sup=QC.suppliesCost;
-  var ext=0;
-  if(s.extras.windows)ext+=sqm*QC.extras.windows;
-  if(s.extras.ext_windows)ext+=sqm*QC.extras.ext_windows;
-  if(s.extras.high_dust)ext+=QC.extras.high_dust;
-  if(s.extras.kitchen_deep)ext+=QC.extras.kitchen_deep;
-  var consumablesAmt=s.consumables?QC.consumablesBase+(s.baths*QC.consumablesPerBath):0;
-  var per=labour+sup+ext+consumablesAmt;
+  var per=labour+sup;
   var bufferAmt=s.buffer?per*QC.bufferPct:0;
   per+=bufferAmt;
   var mthMult={once:null,monthly:1,fortnightly:2.17,weekly:4.33};
@@ -331,7 +322,7 @@ function calc(){
     per:per,lo:r5(per*.9),hi:r5(per*1.1),
     monthly:mthMult[s.freq]?per*mthMult[s.freq]:null,
     hrs:total,baseLabour:baseLabour,afterHoursAmt:afterHoursAmt,afterHoursPct:s.afterHoursPct,
-    labour:labour,sup:sup,ext:ext,consumablesAmt:consumablesAmt,bufferAmt:bufferAmt
+    labour:labour,sup:sup,bufferAmt:bufferAmt
   };
 }
 function r5(n){return Math.round(n/5)*5;}
@@ -463,51 +454,6 @@ function renderFormCol(){
     '</div>'+
   '</div>';
 
-  // ── Card 4: Optional extras ─────────────────────────────────────────
-  h+='<div class="qc-card">'+
-    '<div class="qc-card-head">'+
-      '<div class="qc-card-lbl">Optional add-ons</div>'+
-      '<div class="qc-card-hint">Select any that apply</div>'+
-    '</div>'+
-    (function(){
-      var sqmCalc=Math.max(50,Math.min(5000,Math.floor(s.sqm||50)));
-      var SVG='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><circle cx="6" cy="6" r="5" fill="rgba(243,239,228,.3)"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      var EXTRA_RATES=[
-        au(sqmCalc*QC.extras.windows),
-        au(sqmCalc*QC.extras.ext_windows),
-        au(QC.extras.high_dust),
-        au(QC.extras.kitchen_deep)
-      ];
-      var EXTRA_DESCS=[
-        'Inside glass, all accessible panes',
-        'Exterior glass, ground & reachable levels',
-        'Ceiling vents, light fittings & high surfaces',
-        'Appliances, benches & behind equipment'
-      ];
-      var html='<div class="qc-addon-grid">';
-      html+=EXTRA_KEYS.map(function(k,i){
-        var on=s.extras[k];
-        return '<button type="button" class="qc-choice qc-addon-btn'+(on?' on':'')+'" data-key="'+k+'" data-grp="ext">'+
-          '<div class="qc-addon-left">'+(on?SVG:'')+
-            '<div><span class="qc-addon-name">'+EXTRA_LABELS[i]+'</span>'+
-            '<div class="qc-addon-desc">'+EXTRA_DESCS[i]+'</div></div>'+
-          '</div>'+
-          '<div class="qc-addon-rate">'+EXTRA_RATES[i]+' /visit</div>'+
-        '</button>';
-      }).join('');
-      var consOn=s.consumables;
-      html+='<button type="button" class="qc-choice qc-addon-btn'+(consOn?' on':'')+'" data-key="supply" data-grp="cons">'+
-        '<div class="qc-addon-left">'+(consOn?SVG:'')+
-          '<div><span class="qc-addon-name">Bathroom consumables</span>'+
-          '<div class="qc-addon-desc">Paper towels, hand soap &amp; bin liners</div></div>'+
-        '</div>'+
-        '<div class="qc-addon-rate">'+au(QC.consumablesBase+(s.baths*QC.consumablesPerBath))+' /visit</div>'+
-      '</button>';
-      html+='</div>';
-      return html;
-    })()+
-  '</div>';
-
   return h;
 }
 
@@ -566,8 +512,6 @@ function renderPreview(r){
   h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour));
   if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)',au(r.afterHoursAmt));
   h+=row('Cleaning products &amp; equipment',au(r.sup));
-  if(r.consumablesAmt>0)h+=row('Bathroom consumables',au(r.consumablesAmt));
-  if(r.ext>0)h+=row('Add-on services',au(r.ext));
   h+='<button type="button" class="qc-buf-btn'+(s.buffer?' on':'')+'" id="qc-buf">'+
     '<span>Site allowance <span style="font-size:11px;opacity:.55">(+'+Math.round(QC.bufferPct*100)+'% buffer)</span></span>'+
     '<span>'+(s.buffer?'+'+au(r.bufferAmt):'+ Add')+'</span>'+
@@ -633,20 +577,6 @@ function bindForm(){
       else if(grp==='kit')s.kitchen=(key==='yes');
       else if(grp==='freq')s.freq=key;
       else if(grp==='type')s.type=key;
-      else if(grp==='ext'){
-        s.extras[key]=!s.extras[key];
-        var fc=document.getElementById('qc-form');
-        if(fc)fc.innerHTML=renderFormCol();
-        bindForm();
-        calcLive();return;
-      }
-      else if(grp==='cons'){
-        s.consumables=!s.consumables;
-        var fc=document.getElementById('qc-form');
-        if(fc)fc.innerHTML=renderFormCol();
-        bindForm();
-        calcLive();return;
-      }
       document.querySelectorAll('#qc-form .qc-choice[data-grp="'+grp+'"]').forEach(function(b){
         b.classList.toggle('on',b.dataset.key===key);
       });
@@ -762,7 +692,6 @@ function syncSqmPicks(){
 function updatePrint(r,sLab,fLab,tLab){
   var el=document.getElementById('qc-print');if(!el)return;
   var date=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
-  var extList=EXTRA_KEYS.filter(function(k){return s.extras[k];}).map(function(k){return EXTRA_LABELS[EXTRA_KEYS.indexOf(k)];}).join(', ');
   function prow(l,v){return '<tr><td style="padding:6px 0;color:#555;border-bottom:1px solid #eee">'+l+'</td><td style="padding:6px 0;text-align:right;font-weight:500;color:#000;border-bottom:1px solid #eee">'+v+'</td></tr>';}
   el.innerHTML=
     '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:16px;margin-bottom:24px">'+
@@ -770,14 +699,12 @@ function updatePrint(r,sLab,fLab,tLab){
       '<div style="text-align:right"><div style="font-size:15px;font-weight:600;color:#000">Quote Estimate</div><div style="font-size:11px;color:#555;margin-top:2px">'+date+'</div></div>'+
     '</div>'+
     '<div style="margin-bottom:20px"><b>'+sLab+' — '+s.sqm+' sqm, '+fLab+' '+tLab.toLowerCase()+'</b><br>'+
-    s.baths+' bathroom'+(s.baths===1?'':'s')+(s.kitchen?', kitchenette':'')+(extList?', '+extList:'')+
+    s.baths+' bathroom'+(s.baths===1?'':'s')+(s.kitchen?', kitchenette':'')+
     '</div>'+
     '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px">'+
       prow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour))+
       (r.afterHoursAmt>0?prow('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt)):'')+
       prow('Cleaning products & equipment',au(r.sup))+
-      (r.consumablesAmt>0?prow('Bathroom consumables',au(r.consumablesAmt)):'')+
-      (r.ext>0?prow('Add-on services',au(r.ext)):'')+
       (r.bufferAmt>0?prow('Site allowance (+'+Math.round(QC.bufferPct*100)+'%)','+'+au(r.bufferAmt)):'')+
       '<tr><td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;border-top:2px solid #000">Per clean</td>'+
       '<td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;text-align:right;border-top:2px solid #000">'+au(r.per)+'</td></tr>'+
