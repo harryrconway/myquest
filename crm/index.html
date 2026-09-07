@@ -125,7 +125,16 @@ a.ci-job:hover{background:rgba(35,44,84,.05);}
 .ci-qc-chip.hi{color:var(--navy);background:rgba(35,44,84,.1)}
 .ci-qc-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--hair);padding-top:8px;margin-top:2px}
 .ci-qc-date{font-size:10.5px;color:var(--stone);opacity:.55;letter-spacing:.02em}
-.ci-qc-valid{font-size:10.5px;color:var(--stone);opacity:.45;font-style:italic}
+.ci-qc-latest{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);opacity:1}
+.ci-qhist{margin:4px 8px 8px}
+.ci-qhist-sum{font-size:11.5px;font-weight:600;color:var(--stone);cursor:pointer;list-style:none;padding:8px 6px;border-radius:7px;transition:background .12s;display:flex;align-items:center;gap:6px}
+.ci-qhist-sum::-webkit-details-marker{display:none}
+.ci-qhist-sum::before{content:'▸';font-size:9px;color:var(--stone);opacity:.5;transition:transform .15s;display:inline-block}
+details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
+.ci-qhist-sum:hover{background:var(--hair);color:var(--navy)}
+.ci-qhist-body{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.ci-qhist-body .ci-quote-card{margin:0;opacity:.75}
+.ci-qhist-body .ci-quote-card:hover{opacity:1}
 
 .ct-upload-btn,.ct-pdf-view,.ct-pdf-replace{padding:6px 12px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s}
 .ct-upload-btn:hover,.ct-pdf-view:hover,.ct-pdf-replace:hover{color:var(--navy)}
@@ -493,9 +502,10 @@ function buildClientDetail(c,jobs,contracts,quotes){
   var FREQ_MAP={once:'One-off',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly'};
   var SPACE_MAP={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
   var quotesArr=quotes||[];
-  var quotesHtml=quotesArr.length?quotesArr.map(function(q,qi){
+  function renderQuoteCard(q,isLatest,cid){
     var d=new Date(q.created_at);
-    var dStr=d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();
+    var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dStr=d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();
     var spaceLbl=q.space?(SPACE_MAP[q.space]||q.space):null;
     var freqLbl=q.freq?(FREQ_MAP[q.freq]||q.freq):null;
     var typeStr=q.type==='deep'?'Deep clean':'Maintenance';
@@ -508,7 +518,6 @@ function buildClientDetail(c,jobs,contracts,quotes){
     if(q.hrs)chips.push({t:q.hrs+' hrs',hi:false});
     if(q.after_hours_pct>0)chips.push({t:'After-hours +'+q.after_hours_pct+'%',hi:false});
     if(q.buffer)chips.push({t:'Site allowance +15%',hi:false});
-    var isLatest=qi===0;
     return '<div class="ci-quote-card">'+
       '<div class="ci-qc-top">'+
         '<div style="flex:1;min-width:0">'+
@@ -516,20 +525,32 @@ function buildClientDetail(c,jobs,contracts,quotes){
           '<div class="ci-qc-chips">'+chips.map(function(ch){return'<span class="ci-qc-chip'+(ch.hi?' hi':'')+'">'+ch.t+'</span>';}).join('')+'</div>'+
         '</div>'+
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">'+
-          '<div class="ci-qc-prices">'+
-            '<div class="ci-qc-price">'+priceLbl+'</div>'+
-            (monthlyLbl?'<div class="ci-qc-monthly">'+monthlyLbl+'</div>':'')+
-          '</div>'+
+          '<div class="ci-qc-price">'+priceLbl+'</div>'+
+          (monthlyLbl?'<div class="ci-qc-monthly">'+monthlyLbl+'</div>':'')+
         '</div>'+
       '</div>'+
       '<div class="ci-qc-footer">'+
-        '<span class="ci-qc-date">'+(isLatest?'Latest &middot; ':'')+'Saved '+dStr+'</span>'+
-        '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(c.id)+'" title="Remove quote">'+
-          '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Remove'+
+        '<span class="ci-qc-date">'+(isLatest?'<span class="ci-qc-latest">Latest</span> &middot; ':'')+'Saved '+dStr+'</span>'+
+        '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'" title="Remove">'+
+          '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Remove'+
         '</button>'+
       '</div>'+
     '</div>';
-  }).join(''):'<div class="ci-notes-empty">No quotes saved yet.</div>';
+  }
+  var quotesHtml;
+  if(!quotesArr.length){
+    quotesHtml='<div class="ci-notes-empty">No quotes saved yet.</div>';
+  } else {
+    var latest=quotesArr[0];
+    var older=quotesArr.slice(1);
+    quotesHtml=renderQuoteCard(latest,true,c.id);
+    if(older.length){
+      quotesHtml+='<details class="ci-qhist">'+
+        '<summary class="ci-qhist-sum">Quote history ('+older.length+')</summary>'+
+        '<div class="ci-qhist-body">'+older.map(function(q){return renderQuoteCard(q,false,c.id);}).join('')+'</div>'+
+      '</details>';
+    }
+  }
   var left='<div class="ci-sh">Jobs</div><div class="ci-panel">'+jobsHtml+'</div>';
   var right='<div class="ci-sh"><span>Notes</span><button class="ci-add-btn" data-notes-edit="'+esc(c.id)+'">Edit</button></div>'+
     '<div class="ci-panel ci-notes-panel">'+notesHtml+'</div>'+
