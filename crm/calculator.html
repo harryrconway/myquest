@@ -184,7 +184,8 @@
   -webkit-tap-highlight-color:transparent;white-space:nowrap;
 }
 .qc-btn-dl:hover{background:var(--navy-deep)}
-#qc-save-panel{padding:14px 24px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--hair);margin-top:8px}
+#qc-save-panel{padding:14px 24px 16px;flex-direction:column;gap:8px;border-top:1px solid var(--hair);margin-top:8px}
+#qc-save-panel:not([hidden]){display:flex}
 .qc-save-sel,.qc-save-input{
   width:100%;padding:10px 12px;background:var(--field);
   border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
