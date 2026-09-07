@@ -530,10 +530,10 @@ function openRoster(staffId,staffName){
         Object.keys(byDay).sort().forEach(function(dateKey){
           var jj=byDay[dateKey];
           var hdr=fmtHdr(dateKey);
-          dayRows+='<div style="margin-bottom:44px">';
-          dayRows+='<div style="font-size:20px;font-weight:700;letter-spacing:.12em;color:#9b968a;margin-bottom:20px;padding-bottom:14px;border-bottom:1.5px solid #232c5420">'+hdr+'</div>';
+          dayRows+='<div class="day-block">';
+          dayRows+='<div class="day-hd">'+hdr+'</div>';
           if(!jj.length){
-            dayRows+='<div style="font-size:25px;color:#c0bbb3;padding:8px 0">No jobs scheduled</div>';
+            dayRows+='<div class="no-jobs">No jobs scheduled</div>';
           } else {
             jj.forEach(function(j){
               var done=j.status==='completed';
@@ -543,13 +543,17 @@ function openRoster(staffId,staffName){
               var typeCol=j.type==='deep'?'#3a6b4e':'#232c54';
               var addr=addrMap[j.client_id]||j.site||'';
               dayRows+=
-                '<div style="display:grid;grid-template-columns:220px 1fr auto auto;gap:20px;align-items:center;padding:18px 0;border-bottom:1px solid #232c540f;opacity:'+(done?'.45':'1')+'">' +
-                '<span style="font-size:26px;font-weight:700;color:#232c54;white-space:nowrap">'+esc2(timeStr)+'</span>'+
-                '<div><div style="font-size:26px;font-weight:600;color:#232c54;line-height:1.3">'+esc2(j.client_name||'—')+'</div>'+(addr?'<div style="font-size:22px;color:#9b968a;margin-top:2px">'+esc2(addr)+'</div>':'')+
-                (done?'<span style="font-size:20px;color:#3a6b4e;font-weight:700;letter-spacing:.06em">✓ COMPLETED</span>':'')+
+                '<div class="job-row'+(done?' done':'')+'" style="background:'+typeBg.replace('rgba','rgba').replace(')',' )')+'0">'+
+                '<div class="job-time">'+esc2(timeStr)+'</div>'+
+                '<div class="job-info">'+
+                  '<div class="job-name">'+esc2(j.client_name||'—')+'</div>'+
+                  (addr?'<div class="job-addr">'+esc2(addr)+'</div>':'')+
+                  (done?'<div class="job-done">✓ Completed</div>':'')+
                 '</div>'+
-                '<span style="font-size:20px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:6px 16px;border-radius:8px;white-space:nowrap;background:'+typeBg+';color:'+typeCol+'">'+esc2(typeStr)+'</span>'+
-                (j.job_number?'<span style="font-size:20px;color:#c0bbb3;white-space:nowrap">#'+esc2(j.job_number)+'</span>':'<span></span>')+
+                '<div class="job-right">'+
+                  '<span class="job-type" style="background:'+typeBg+';color:'+typeCol+'">'+esc2(typeStr)+'</span>'+
+                  (j.job_number?'<span class="job-num">#'+esc2(j.job_number)+'</span>':'')+
+                '</div>'+
                 '</div>';
             });
           }
@@ -564,22 +568,52 @@ function openRoster(staffId,staffName){
           '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+
           'html,body{background:#f3efe4;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased}'+
           '@page{size:A4;margin:16mm 18mm;background:#f3efe4}'+
-          '.page{max-width:720px;margin:0 auto;padding:64px 0}'+
-          '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 40px;border-bottom:2px solid #232c54;margin-bottom:52px}'+
-          '.hd-left{display:flex;align-items:center;gap:24px}'+
-          '.hd-mark{width:68px;height:68px;background:#232c54;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
-          '.hd-brand{font-size:32px;font-weight:700;color:#232c54;letter-spacing:-.015em}'+
-          '.hd-right{text-align:right}'+
-          '.hd-doc{font-size:22px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9b968a}'+
-          '.staff-name{font-size:52px;font-weight:700;letter-spacing:-.025em;color:#232c54;margin-bottom:10px;line-height:1.1}'+
-          '.week-label{font-size:26px;color:#9b968a;margin-bottom:12px}'+
-          '.job-count{font-size:24px;font-weight:600;color:#3a6b4e;background:rgba(58,107,78,.1);display:inline-block;padding:6px 20px;border-radius:999px;margin-bottom:56px}'+
-          '.ft{border-top:1px solid #232c5424;padding-top:28px;margin-top:8px;font-size:22px;color:#9b968a;display:flex;justify-content:space-between}'+
+          '.page{max-width:680px;margin:0 auto;padding:48px 24px}'+
+          '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 24px;border-bottom:2px solid #232c54;margin-bottom:36px}'+
+          '.hd-left{display:flex;align-items:center;gap:14px}'+
+          '.hd-mark{width:44px;height:44px;background:#232c54;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
+          '.hd-brand{font-size:20px;font-weight:700;color:#232c54;letter-spacing:-.015em}'+
+          '.hd-doc{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9b968a}'+
+          '.staff-name{font-size:36px;font-weight:700;letter-spacing:-.025em;color:#232c54;margin-bottom:6px;line-height:1.1}'+
+          '.week-label{font-size:16px;color:#9b968a;margin-bottom:8px}'+
+          '.job-count{font-size:14px;font-weight:600;color:#3a6b4e;background:rgba(58,107,78,.1);display:inline-block;padding:4px 12px;border-radius:999px;margin-bottom:36px}'+
+          '.day-block{margin-bottom:32px}'+
+          '.day-hd{font-size:11px;font-weight:700;letter-spacing:.12em;color:#9b968a;margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px solid #232c5420}'+
+          '.no-jobs{font-size:14px;color:#c0bbb3;padding:6px 0}'+
+          '.job-row{display:grid;grid-template-columns:140px 1fr auto;gap:14px;align-items:start;padding:14px 0;border-bottom:1px solid #232c540f}'+
+          '.job-row.done{opacity:.45}'+
+          '.job-time{font-size:15px;font-weight:700;color:#232c54;white-space:nowrap;line-height:1.4}'+
+          '.job-name{font-size:15px;font-weight:600;color:#232c54;line-height:1.3}'+
+          '.job-addr{font-size:13px;color:#9b968a;margin-top:2px;line-height:1.4}'+
+          '.job-done{font-size:11px;color:#3a6b4e;font-weight:700;letter-spacing:.06em;margin-top:3px}'+
+          '.job-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}'+
+          '.job-type{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:5px;white-space:nowrap}'+
+          '.job-num{font-size:11px;color:#c0bbb3;white-space:nowrap}'+
+          '.ft{border-top:1px solid #232c5424;padding-top:16px;margin-top:4px;font-size:12px;color:#9b968a;display:flex;justify-content:space-between}'+
+          '@media(max-width:600px){'+
+            '.page{padding:28px 18px}'+
+            '.hd{padding:0 0 18px;margin-bottom:24px}'+
+            '.hd-mark{width:34px;height:34px;font-size:11px;border-radius:8px}'+
+            '.hd-brand{font-size:16px}'+
+            '.hd-doc{font-size:11px}'+
+            '.staff-name{font-size:26px}'+
+            '.week-label{font-size:13px}'+
+            '.job-count{font-size:12px;margin-bottom:24px}'+
+            '.day-block{margin-bottom:24px}'+
+            '.day-hd{font-size:10px}'+
+            '.no-jobs{font-size:12px}'+
+            '.job-row{grid-template-columns:1fr auto;gap:8px;padding:10px 0}'+
+            '.job-time{grid-column:1/-1;font-size:13px}'+
+            '.job-name{font-size:13px}'+
+            '.job-addr{font-size:11px}'+
+            '.job-num{display:none}'+
+            '.ft{font-size:11px}'+
+          '}'+
           '</style></head><body>'+
           '<div class="page">'+
           '<div class="hd">'+
             '<div class="hd-left"><div class="hd-mark">MQ</div><span class="hd-brand">MyQuest</span></div>'+
-            '<div class="hd-right"><div class="hd-doc">Weekly Roster</div></div>'+
+            '<div class="hd-doc">Weekly Roster</div>'+
           '</div>'+
           '<div class="staff-name">'+esc2(staffName)+'</div>'+
           '<div class="week-label">'+esc2(weekLabel)+'</div>'+
