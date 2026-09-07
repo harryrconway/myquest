@@ -357,7 +357,7 @@ function renderRow(j){
       '<div class="jl-client">'+esc(j.client_name||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
       '<span class="jl-type'+(j.type==='deep'?' deep':'')+'">'+typeLbl+'</span>'+
-      '<span class="jl-scope-chip'+(hasScope(j)?'':' no-scope')+'">'+(hasScope(j)?'Scope':'No scope')+'</span>'+
+      (hasScope(j)?'<span class="jl-scope-chip">Scope</span>':'')+
       '<div class="jl-crew">'+crewHtml+'</div>'+badge+
       '<div class="jl-arr">'+ARR+'</div>'+
     '</div>'+
