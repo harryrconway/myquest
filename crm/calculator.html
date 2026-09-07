@@ -428,6 +428,16 @@ function renderFormCol(){
       '</div>'+
       '<button type="button" class="qc-ste-btn" id="qc-ah-plus">+</button>'+
     '</div>'+
+    '<div class="qc-sep" style="margin-top:18px"></div>'+
+    '<div class="qc-inner-lbl" style="opacity:.65">Site allowance <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.9;font-size:11px">(optional)</span></div>'+
+    '<button type="button" class="qc-allow'+(s.buffer?' on':'')+'" id="qc-allow">'+
+      '<div class="qc-allow-box"><span class="qc-allow-tick">&#10003;</span></div>'+
+      '<div class="qc-allow-text">'+
+        '<span class="qc-allow-label">Add site allowance (+'+Math.round(QC.bufferPct*100)+'%)</span>'+
+        '<span class="qc-allow-sub">For travel time or site complexity</span>'+
+      '</div>'+
+      '<span class="qc-allow-amt">+'+Math.round(QC.bufferPct*100)+'%</span>'+
+    '</button>'+
   '</div>';
 
   // ── Card 03: How long do you estimate? ──
@@ -496,8 +506,6 @@ function renderPreview(r){
 
   updatePrint(r,sLab,fLab,tLab);
 
-  var allowDisplayAmt=s.buffer?au(r.bufferAmt):au(r5(r.per*QC.bufferPct));
-
   var h='';
 
   h+='<div class="qc-card-top">'+
@@ -528,16 +536,7 @@ function renderPreview(r){
   h+=row(r.hrs+' hrs &times; $'+QC.rate+'/hr',au(r.baseLabour));
   if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt));
   h+=row('Cleaning supplies &amp; equipment',au(r.sup));
-
-  h+='<button type="button" class="qc-allow'+(s.buffer?' on':'')+'" id="qc-allow">'+
-    '<div class="qc-allow-box"><span class="qc-allow-tick">&#10003;</span></div>'+
-    '<div class="qc-allow-text">'+
-      '<span class="qc-allow-label">Add site allowance (+'+Math.round(QC.bufferPct*100)+'%)</span>'+
-      '<span class="qc-allow-sub">For travel time or site complexity</span>'+
-    '</div>'+
-    '<span class="qc-allow-amt">+'+allowDisplayAmt+'</span>'+
-  '</button>';
-
+  if(r.bufferAmt>0)h+=row('Site allowance (+'+Math.round(QC.bufferPct*100)+'%)','+'+au(r.bufferAmt));
   h+=row('Per clean total',au(r.per),'total');
   if(annVal)h+=row('Annual contract value','&#8776; '+au(annVal),'ann');
 
@@ -590,8 +589,6 @@ function calcLive(){
 }
 
 function bindPreview(){
-  var allow=document.getElementById('qc-allow');
-  if(allow)allow.addEventListener('click',function(){s.buffer=!s.buffer;calcLive();});
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){var el=document.getElementById('qc-print');if(el&&el.innerHTML)window.print();});
 }
@@ -680,6 +677,14 @@ function bindForm(){
       var sub=document.getElementById('qc-ahsub');if(sub)sub.textContent=s.afterHoursPct>0?'+'+s.afterHoursPct+'% on labour':'No premium';
       calcLive();
     }
+  });
+
+  // Site allowance toggle
+  var allow=document.getElementById('qc-allow');
+  if(allow)allow.addEventListener('click',function(){
+    s.buffer=!s.buffer;
+    this.classList.toggle('on',s.buffer);
+    calcLive();
   });
 }
 
