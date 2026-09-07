@@ -330,6 +330,7 @@ var QC={
   bufferPct:0.15,
   staffPct:0.35,
   minHrsMaint:3,
+  minHrsMaintRecurring:2,
   minHrsDeepRecurring:3,
   minHrsDeep:5
 };
@@ -362,7 +363,10 @@ function calc(){
   var kHrs=s.kitchen?QC.kitchenMins/60:0;
   var floorHrs=s.floors>1?(s.floors-1)*QC.floorMins/60:0;
   var total=Math.ceil((hrs+bHrs+kHrs+floorHrs)*2)/2;
-  if(s.type==='maintenance')total=Math.max(total,QC.minHrsMaint);
+  if(s.type==='maintenance'){
+    var mMin=(s.freq==='weekly'||s.freq==='fortnightly')?QC.minHrsMaintRecurring:QC.minHrsMaint;
+    total=Math.max(total,mMin);
+  }
   else if(s.freq==='once')total=Math.max(total,QC.minHrsDeep);
   else total=Math.max(total,QC.minHrsDeepRecurring);
   var baseLabour=total*QC.rate;
