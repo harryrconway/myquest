@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260909">
+<link rel="stylesheet" href="style.css?v=20260908">
 <style>
 .scope-info{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px;margin-bottom:20px}
 .scope-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 160px;gap:14px;align-items:end}
@@ -62,7 +62,7 @@
 .ss-wrap:last-child{border-bottom:none}
 .ss-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:12px 20px;align-items:center;cursor:pointer;transition:background .1s}
 .ss-row:hover{background:rgba(35,44,84,.03)}
-.ss-name{font-size:13px;font-weight:600;color:var(--navy)}
+.ss-name{font-size:13px;font-weight:600;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ss-sub{font-size:11.5px;color:var(--stone);margin-top:2px}
 .ss-date{font-size:11.5px;color:var(--stone);white-space:nowrap}
 .ss-del{background:var(--red);border:1.5px solid var(--red);color:#fff;cursor:pointer;padding:7px 14px;border-radius:var(--r-sm);transition:background .12s,border-color .12s;font-size:12.5px;font-family:var(--font);font-weight:600}
@@ -118,13 +118,13 @@
 @media(max-width:1100px){
   .scope-info-grid{grid-template-columns:1fr 1fr}
 }
-@media(max-width:900px){
-  .scope-info-grid{grid-template-columns:1fr 1fr}
-}
 @media(max-width:600px){
   .scope-info-grid{grid-template-columns:1fr}
   .sa-task{grid-template-columns:16px 1fr auto}
   .sa-freq{display:none}
+  .scope-bottom{flex-wrap:wrap}
+  .scope-bottom button{flex:1 1 auto}
+  .sa-notes{width:100%}
 }
 </style>
 </head>
@@ -181,20 +181,12 @@
   </aside>
 
   <main class="main">
-    <button type="button" class="mob-menu-btn" id="mob-menu-btn" aria-label="Menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
-
-    <div class="bc pg-1"><a href="overview.html">MyQuest</a><span class="bc-sep">›</span>Scope of Works</div>
-
-    <div class="ph pg-2">
+    <div class="ph pg-1">
+      <button type="button" class="mob-menu-btn" id="mob-menu-btn" aria-label="Menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Scope of Works</h1>
-      <div style="display:flex;gap:8px">
-        <button class="scope-print-btn" id="scope-print-btn">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Print / Share
-        </button>
-        <button class="ph-btn" id="scope-save-btn">Save scope</button>
-      </div>
     </div>
+
+    <div class="bc pg-2"><a href="overview.html">MyQuest</a><span class="bc-sep">›</span>Scope of Works</div>
 
     <div class="pg-3">
 
@@ -366,10 +358,8 @@ function readScope(){
   };
 }
 function flashSaved(){
-  ['scope-save-btn','scope-save-btn-2'].forEach(function(id){
-    var b=document.getElementById(id);var orig=b.textContent;
-    b.textContent='Saved ✓';setTimeout(function(){b.textContent=orig;},1800);
-  });
+  var b=document.getElementById('scope-save-btn-2');if(!b)return;
+  var orig=b.textContent;b.textContent='Saved ✓';setTimeout(function(){b.textContent=orig;},1800);
 }
 function saveScope(){
   var sc=readScope();
@@ -425,18 +415,55 @@ function fmtDate(s){
   if(!s)return'';var d=new Date(s+'T00:00:00');
   return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();
 }
+function printScope(sc){
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(sc.name||'Scope')+'</title>'+
+    '<style>body{font-family:system-ui,sans-serif;color:#222;padding:32px;max-width:700px;margin:0 auto}'+
+    'h1{font-size:20px;font-weight:700;margin-bottom:4px}.meta{font-size:12px;color:#666;margin-bottom:24px}'+
+    '.area-name{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin:20px 0 8px}'+
+    '.task{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:13px}'+
+    '.check{width:12px;height:12px;border:1.5px solid #888;border-radius:2px;flex-shrink:0;margin-top:2px}'+
+    '.freq{font-size:9px;font-weight:700;text-transform:uppercase;color:#888;background:#eee;padding:1px 5px;border-radius:3px;margin-left:auto;white-space:nowrap}'+
+    '.notes{font-size:11px;color:#888;padding-left:20px;font-style:italic;margin-top:2px}'+
+    '.global{margin-top:20px;padding-top:16px;border-top:1px solid #ddd;font-size:12px;color:#666;line-height:1.7}'+
+    '.global-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:4px}'+
+    '</style></head><body>'+
+    '<h1>'+esc(sc.name||'Scope of Works')+'</h1>'+
+    '<div class="meta">'+(sc.client_name?esc(sc.client_name)+' · ':'')+esc(sc.site||'')+(sc.date?' · '+fmtDate(sc.date):'')+'</div>';
+  (sc.areas||[]).forEach(function(a){
+    html+='<div class="area-name">'+esc(a.name||'Area')+'</div>';
+    (a.tasks||[]).forEach(function(t){
+      html+='<div class="task"><div class="check"></div><span>'+esc(t.text||'')+'</span>'+
+        '<span class="freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span></div>';
+    });
+    if(a.notes)html+='<div class="notes">'+esc(a.notes)+'</div>';
+  });
+  if(sc.global_notes)html+='<div class="global"><div class="global-lbl">General notes</div>'+esc(sc.global_notes)+'</div>';
+  html+='</body></html>';
+  var w=window.open('','_blank','width=800,height=600');
+  if(w){w.document.write(html);w.document.close();w.focus();w.print();}
+}
 function renderScopeView(sc){
   var areas=(sc.areas||[]).map(function(a){
     var tasks=(a.tasks||[]).map(function(t){
       return '<div class="sv-task"><div class="sv-check'+(t.done?' done':'')+'"></div>'+
         '<span class="sv-task-text'+(t.done?' done':'')+'">'+esc(t.text||'')+'</span>'+
-        '<span class="sv-freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span></div>'+
-        (a.notes?'<div class="sv-notes">'+esc(a.notes)+'</div>':'');
+        '<span class="sv-freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span></div>';
     }).join('');
-    return '<div class="sv-area"><div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+tasks+'</div>';
+    var notes=a.notes?'<div class="sv-notes">'+esc(a.notes)+'</div>':'';
+    return '<div class="sv-area"><div class="sv-area-name">'+esc(a.name||'Area')+'</div>'+tasks+notes+'</div>';
   }).join('');
   var global=sc.global_notes?('<div class="sv-global"><div class="sv-global-lbl">General notes</div>'+esc(sc.global_notes)+'</div>'):'';
-  return areas+global+'<div class="sv-footer"><button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button><button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button></div>';
+  return areas+global+
+    '<div class="sv-footer">'+
+      '<div style="display:flex;gap:8px">'+
+        '<button class="sv-edit-btn" data-edit-id="'+esc(sc.id)+'">Edit this scope</button>'+
+        '<button class="scope-print-btn" data-print-id="'+esc(sc.id)+'">'+
+          '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>'+
+          'Print / Share'+
+        '</button>'+
+      '</div>'+
+      '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button>'+
+    '</div>';
 }
 function renderSavedList(){
   sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').order('created_at',{ascending:false}).then(function(r){
@@ -490,23 +517,34 @@ function onJobSelect(val){
   });
 }
 
+function populateJobDropdown(clientId){
+  var jobSel=document.getElementById('scope-job-link');
+  var prev=jobSel.value;
+  jobSel.innerHTML='<option value="">No job linked</option>';
+  var filtered=clientId?allJobs.filter(function(j){return j.client_id===clientId;}):allJobs;
+  if(!clientId){
+    var groups={};
+    filtered.forEach(function(j){var k=j.client_name||'';if(!groups[k])groups[k]=[];groups[k].push(j);});
+    Object.keys(groups).sort().forEach(function(k){
+      var grp=document.createElement('optgroup');grp.label=k||'—';
+      groups[k].forEach(function(j){var o=document.createElement('option');o.value=j.id;o.textContent=fmtJobLabel(j);grp.appendChild(o);});
+      jobSel.appendChild(grp);
+    });
+  } else {
+    filtered.forEach(function(j){var o=document.createElement('option');o.value=j.id;o.textContent=fmtJobLabel(j);jobSel.appendChild(o);});
+  }
+  if(prev)jobSel.value=prev;
+}
 function init(){
   document.getElementById('scope-no-job').hidden=true;
   document.getElementById('scope-editor').hidden=false;
 
   var jobParam=getParam('job_id');
 
-  sb.from('jobs').select('id,job_number,client_id,client_name,site,date,status').order('date',{ascending:false}).limit(200).then(function(jr){
+  sb.from('jobs').select('id,job_number,client_id,client_name,site,date,status').eq('status','upcoming').order('date',{ascending:false}).limit(200).then(function(jr){
     allJobs=jr.data||[];
-    var jobSel=document.getElementById('scope-job-link');
-    jobSel.innerHTML='<option value="">No job linked</option>';
-    allJobs.forEach(function(j){
-      var opt=document.createElement('option');
-      opt.value=j.id;
-      opt.textContent=fmtJobLabel(j);
-      jobSel.appendChild(opt);
-    });
-    if(jobParam){jobSel.value=jobParam;onJobSelect(jobParam);}
+    populateJobDropdown('');
+    if(jobParam){document.getElementById('scope-job-link').value=jobParam;onJobSelect(jobParam);}
   });
 
   sb.from('clients').select('id,name,site_address').order('name').then(function(r){
@@ -522,6 +560,7 @@ function init(){
         sb.from('jobs').select('site').eq('client_id',found.id).not('site','is',null).order('date',{ascending:false}).limit(1)
           .then(function(jr){siteInput.value=(jr.data&&jr.data[0])?jr.data[0].site:'';});
       } else {siteInput.value='';}
+      populateJobDropdown(sel.value);
     });
   });
 
@@ -532,9 +571,7 @@ function init(){
 
 document.getElementById('scope-job-link').addEventListener('change',function(){onJobSelect(this.value);});
 document.getElementById('scope-add-area').addEventListener('click',addArea);
-document.getElementById('scope-save-btn').addEventListener('click',saveScope);
 document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
-document.getElementById('scope-print-btn').addEventListener('click',function(){window.print();});
 document.getElementById('scope-new-btn').addEventListener('click',resetEditor);
 
 document.getElementById('scope-areas').addEventListener('click',function(e){
@@ -554,6 +591,14 @@ document.getElementById('scope-areas').addEventListener('click',function(e){
 });
 
 document.getElementById('saved-scopes-list').addEventListener('click',function(e){
+  var printBtn=e.target.closest('[data-print-id]');
+  if(printBtn){
+    var id=printBtn.dataset.printId;
+    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas').eq('id',id).single().then(function(r){
+      if(r.data)printScope(r.data);
+    });
+    return;
+  }
   var delBtn=e.target.closest('[data-del-id]');
   if(delBtn){
     if(!confirm('Delete this scope?'))return;

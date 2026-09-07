@@ -161,6 +161,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
   .main{padding:28px 20px}
+  .ph{position:sticky;top:0;z-index:210;background:var(--field);border-bottom:1px solid var(--hair);padding:12px 20px;margin:0 -20px 28px;padding-bottom:12px}
   .stats{grid-template-columns:repeat(2,1fr)}
   .stat:nth-child(2){border-right:none}
   .stat:nth-child(3){border-top:1px solid var(--on-hair)}
@@ -297,8 +298,8 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .modal-actions{display:flex;align-items:center;gap:10px;padding:16px 26px;border-top:1px solid var(--hair);position:sticky;bottom:0;background:var(--card);z-index:1}
 .cancel-btn{padding:10px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:500;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
 .cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
-.delete-btn{padding:9px 0;border:none;background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;transition:opacity .12s}
-.delete-btn:hover{opacity:.7}
+.delete-btn{padding:9px 18px;border:none;background:var(--red);color:#fff;border-radius:var(--r-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s}
+.delete-btn:hover{opacity:.8}
 
 /* Reports tab navigation */
 .rep-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--hair);margin-bottom:28px}

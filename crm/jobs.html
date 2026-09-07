@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260909">
+<link rel="stylesheet" href="style.css?v=20260908">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -307,8 +307,6 @@ function renderExpand(j){
   if(j.status==='upcoming')actions='<button class="xp-btn primary" data-action="completed">Mark as completed</button>';
   else actions='<button class="xp-btn" data-action="upcoming">Mark as upcoming</button>';
   actions='<button class="xp-btn" data-action="edit">Edit job</button>'+actions;
-  var scopeJobId=(j.from_schedule&&j.source_job_id)?j.source_job_id:j.id;
-  actions+='<button class="xp-btn" data-action="scope" data-scope-job="'+esc(scopeJobId)+'">'+(hasScope(j)?'View scope':'Add scope')+'</button>';
   actions+='<button class="xp-btn danger" data-action="delete">Delete job</button>';
   var cur=j.repeat||'none';
   if(j.from_schedule&&j.source_job_id){allJobs.forEach(function(t){if(t.id===j.source_job_id)cur=t.repeat||'none';});}
@@ -523,10 +521,19 @@ function updateJobStatus(id,newStatus){
   });
 }
 function deleteJob(id){
-  if(!confirm('Delete this job? This cannot be undone.'))return;
-  // Also delete generated instances (source_job_id match)
-  sb.from('jobs').delete().eq('source_job_id',id).then(function(){
-    sb.from('jobs').delete().eq('id',id).then(function(){openId=null;reload();});
+  if(!confirm('Delete this job and any linked scope? This cannot be undone.'))return;
+  var childIds=[];
+  allJobs.forEach(function(j){if(j.source_job_id===id)childIds.push(j.id);});
+  var allIds=childIds.concat([id]);
+  sb.from('scopes').delete().in('job_id',allIds).then(function(r1){
+    if(r1&&r1.error){alert('Could not delete scope: '+r1.error.message);return;}
+    sb.from('jobs').delete().eq('source_job_id',id).then(function(r2){
+      if(r2&&r2.error){alert('Could not delete job instances: '+r2.error.message);return;}
+      sb.from('jobs').delete().eq('id',id).then(function(r3){
+        if(r3&&r3.error){alert('Could not delete job: '+r3.error.message);return;}
+        openId=null;reload();
+      });
+    });
   });
 }
 
@@ -537,7 +544,6 @@ document.getElementById('jl-body').addEventListener('click',function(e){
     var act=actionEl.dataset.action;
     if(act==='delete')deleteJob(wid);
     else if(act==='edit'){var found=null;allJobs.forEach(function(x){if(x.id===wid)found=x;});if(found)openModal(found);}
-    else if(act==='scope'){window.location.href='scope.html?job_id='+encodeURIComponent(actionEl.dataset.scopeJob||wid);}
     else updateJobStatus(wid,act);
     return;
   }

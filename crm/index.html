@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260909">
+<link rel="stylesheet" href="style.css?v=20260908">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -75,15 +75,20 @@
 .ci-panel{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;margin-bottom:18px}
 
 /* Jobs inside accordion */
-.ci-job{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--hair);border-left:3px solid transparent}
+.ci-job{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--hair);border-left:3px solid transparent;transition:background .1s}
 .ci-job:last-child{border-bottom:none}
 .ci-job.done{border-left-color:var(--green)}
 .ci-job.next{border-left-color:var(--navy)}
+.ci-job:hover{background:rgba(35,44,84,.03)}
 .ci-job-date{font-size:10.5px;color:var(--stone);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.4}
 .ci-job-type{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 5px;border-radius:3px;display:inline-block;margin-bottom:2px}
 .ci-job-site{font-size:13px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-a.ci-job{display:grid;text-decoration:none}
-a.ci-job:hover{background:rgba(35,44,84,.05);}
+.ci-job-info{min-width:0;flex:1}
+.ci-job-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.ci-job-link{font-size:11px;font-weight:600;color:var(--stone);background:none;border:1px solid var(--hair-md);border-radius:5px;padding:3px 8px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:color .12s}
+.ci-job-link:hover{color:var(--navy)}
+.ci-job-del{background:none;border:none;cursor:pointer;padding:4px;color:var(--stone);opacity:.3;line-height:0;transition:opacity .12s,color .12s;flex-shrink:0}
+.ci-job-del:hover{opacity:1;color:var(--red)}
 .ci-empty{padding:14px 16px;font-size:13.5px;color:var(--stone);font-style:italic}
 
 /* Contracts inside accordion */
@@ -371,10 +376,43 @@ details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
         <input class="form-input" type="text" id="ef-site-address" autocomplete="off">
       </div>
     </div>
-    <div class="modal-actions">
+    <div class="modal-actions" style="flex-wrap:wrap;gap:8px">
       <button type="button" class="delete-btn" id="edit-modal-delete" style="margin-right:auto">Delete client</button>
+      <button type="button" style="padding:9px 14px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s" id="edit-modal-del-jobs">Delete all jobs</button>
       <button type="button" class="cancel-btn" id="edit-modal-cancel">Cancel</button>
       <button type="button" class="ph-btn" id="edit-modal-save">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Job quick-edit modal -->
+<div class="modal-overlay" id="job-edit-modal" hidden>
+  <div class="modal-card" style="max-width:340px">
+    <div class="modal-hd">
+      <span class="modal-title">Edit job</span>
+      <button class="modal-close" id="job-edit-modal-close" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-lbl" for="jej-freq">Frequency</label>
+        <select class="form-input" id="jej-freq">
+          <option value="none">Does not repeat</option>
+          <option value="weekly">Weekly</option>
+          <option value="fortnightly">Fortnightly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-lbl" for="jej-type">Type</label>
+        <select class="form-input" id="jej-type">
+          <option value="maintenance">Maintenance</option>
+          <option value="deep">Deep clean</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel-btn" id="job-edit-modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="job-edit-modal-save">Save</button>
     </div>
   </div>
 </div>
@@ -607,8 +645,17 @@ function buildClientDetail(c,jobs,contracts,quotes){
     var cls=j.status==='completed'?'done':'next';
     var dateStr='—';
     if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+MONTHS[dd.getMonth()]+'<br>'+DAYS[dd.getDay()];}
-    return '<a href="jobs.html?job='+esc(j.id)+'" class="ci-job '+cls+'"><div class="ci-job-date">'+dateStr+'</div>'+
-      '<div><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div></a>';
+    return '<div class="ci-job '+cls+'">'+
+      '<div class="ci-job-date">'+dateStr+'</div>'+
+      '<div class="ci-job-info"><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div>'+
+      '<div class="ci-job-actions">'+
+        '<button class="ci-job-link" data-action="view-job" data-jid="'+esc(j.id)+'">Open</button>'+
+        '<button class="ci-job-link" data-action="edit-job" data-jid="'+esc(j.id)+'" data-jtype="'+esc(j.type||'maintenance')+'" data-jfreq="'+esc(j.repeat||'none')+'" data-jcid="'+esc(c.id)+'">Edit</button>'+
+        '<button class="ci-job-del" data-action="del-job" data-jid="'+esc(j.id)+'" data-jcid="'+esc(c.id)+'" title="Delete job">'+
+          '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'+
+        '</button>'+
+      '</div>'+
+    '</div>';
   }).join(''):'<div class="ci-empty">No jobs yet.</div>';
   var ctHtml=contracts.length?contracts.map(renderContractRow).join(''):'<div class="ct-empty">No contracts on file.</div>';
   var notesHtml=c.notes?'<div class="ci-notes-txt">'+esc(c.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
@@ -805,16 +852,35 @@ document.getElementById('cl-body').addEventListener('click',function(e){
   }
   var actBtn=e.target.closest('[data-action]');
   if(actBtn){
-    if(actBtn.dataset.action==='job')window.location.href='jobs.html?newjob=1&cid='+encodeURIComponent(actBtn.dataset.cid)+'&cname='+encodeURIComponent(actBtn.dataset.cname);
-    else if(actBtn.dataset.action==='view-quote'){
+    var act=actBtn.dataset.action;
+    if(act==='job')window.location.href='jobs.html?newjob=1&cid='+encodeURIComponent(actBtn.dataset.cid)+'&cname='+encodeURIComponent(actBtn.dataset.cname);
+    else if(act==='view-quote'){
       var qid=actBtn.dataset.qid;
       var qobj=_quoteStore[qid];
       if(qobj)openQuoteDetail(qobj);
       return;
     }
-    else if(actBtn.dataset.action==='del-quote'){
+    else if(act==='del-quote'){
       if(!confirm('Remove this quote?'))return;
       sb.from('quotes').delete().eq('id',actBtn.dataset.qid).then(function(r){if(!r.error)reExpandClient(actBtn.dataset.qcid);});
+    }
+    else if(act==='view-job'){window.location.href='jobs.html?job='+encodeURIComponent(actBtn.dataset.jid);return;}
+    else if(act==='edit-job'){
+      openJobEditModal(actBtn.dataset.jid,actBtn.dataset.jtype,actBtn.dataset.jfreq,actBtn.dataset.jcid);
+      return;
+    }
+    else if(act==='del-job'){
+      if(!confirm('Delete this job and its scope?'))return;
+      var jid=actBtn.dataset.jid;
+      var cid=actBtn.dataset.jcid;
+      sb.from('scopes').delete().eq('job_id',jid).then(function(){
+        sb.from('jobs').delete().eq('id',jid).then(function(r){
+          if(r&&r.error){alert('Could not delete job: '+r.error.message);return;}
+          allJobs=allJobs.filter(function(j){return j.id!==jid;});
+          reExpandClient(cid);
+        });
+      });
+      return;
     }
     return;
   }
@@ -875,9 +941,9 @@ function openEditModal(cid){
   document.getElementById('ef-phone').value=c.phone||'';
   document.getElementById('ef-email').value=c.email||'';
   document.getElementById('ef-site-address').value=c.site_address||'';
-  editModal.hidden=false;setTimeout(function(){document.getElementById('ef-name').focus();},40);
+  editModal.hidden=false;document.body.style.overflow='hidden';setTimeout(function(){document.getElementById('ef-name').focus();},40);
 }
-function closeEditModal(){editModal.hidden=true;editingClientId=null;}
+function closeEditModal(){editModal.hidden=true;editingClientId=null;document.body.style.overflow='';}
 document.getElementById('edit-modal-close').addEventListener('click',closeEditModal);
 document.getElementById('edit-modal-cancel').addEventListener('click',closeEditModal);
 editModal.addEventListener('click',function(e){if(e.target===editModal)closeEditModal();});
@@ -896,8 +962,40 @@ document.getElementById('edit-modal-save').addEventListener('click',function(){
 document.getElementById('edit-modal-delete').addEventListener('click',function(){
   if(!editingClientId)return;
   var name='';allClients.forEach(function(c){if(c.id===editingClientId)name=c.name;});
-  if(!confirm('Delete '+name+'? This cannot be undone.'))return;
-  sb.from('clients').delete().eq('id',editingClientId).then(function(){closeEditModal();reload();});
+  if(!confirm('Delete '+name+' and all their jobs, contracts and quotes? This cannot be undone.'))return;
+  var cid=editingClientId;
+  var jobIds=allJobs.filter(function(j){return j.client_id===cid;}).map(function(j){return j.id;});
+  function doDeleteClient(){
+    sb.from('contracts').delete().eq('client_id',cid).then(function(r1){
+      if(r1&&r1.error){alert('Could not delete contracts: '+r1.error.message);return;}
+      sb.from('clients').delete().eq('id',cid).then(function(r2){
+        if(r2&&r2.error){alert('Could not delete client: '+r2.error.message);return;}
+        closeEditModal();reload();
+      });
+    });
+  }
+  if(jobIds.length){
+    sb.from('scopes').delete().in('job_id',jobIds).then(function(){
+      sb.from('jobs').delete().eq('client_id',cid).then(function(r){
+        if(r&&r.error){alert('Could not delete jobs: '+r.error.message);return;}
+        doDeleteClient();
+      });
+    });
+  } else {doDeleteClient();}
+});
+document.getElementById('edit-modal-del-jobs').addEventListener('click',function(){
+  if(!editingClientId)return;
+  var name='';allClients.forEach(function(c){if(c.id===editingClientId)name=c.name;});
+  if(!confirm('Delete all jobs for '+name+'? This cannot be undone.'))return;
+  var cid=editingClientId;
+  var jobIds=allJobs.filter(function(j){return j.client_id===cid;}).map(function(j){return j.id;});
+  if(!jobIds.length){alert('No jobs to delete.');return;}
+  sb.from('scopes').delete().in('job_id',jobIds).then(function(){
+    sb.from('jobs').delete().eq('client_id',cid).then(function(r){
+      if(r&&r.error){alert('Could not delete jobs: '+r.error.message);return;}
+      reload(function(){reExpandClient(cid);});
+    });
+  });
 });
 
 // Contract modal
@@ -986,8 +1084,34 @@ document.getElementById('ct-modal-delete').addEventListener('click',function(){
   if(existingPdfPath){sb.storage.from('contract-pdfs').remove([existingPdfPath]).then(doDelete);}else{doDelete();}
 });
 
+// Job quick-edit modal (freq/type from client detail)
+var jobEditModal=document.getElementById('job-edit-modal');
+var editingJobQId=null,editingJobQCid=null;
+function openJobEditModal(jid,jtype,jfreq,jcid){
+  editingJobQId=jid;editingJobQCid=jcid;
+  document.getElementById('jej-type').value=jtype||'maintenance';
+  document.getElementById('jej-freq').value=jfreq||'none';
+  jobEditModal.hidden=false;document.body.style.overflow='hidden';
+}
+function closeJobEditModal(){jobEditModal.hidden=true;editingJobQId=null;editingJobQCid=null;document.body.style.overflow='';}
+document.getElementById('job-edit-modal-close').addEventListener('click',closeJobEditModal);
+document.getElementById('job-edit-modal-cancel').addEventListener('click',closeJobEditModal);
+jobEditModal.addEventListener('click',function(e){if(e.target===jobEditModal)closeJobEditModal();});
+document.getElementById('job-edit-modal-save').addEventListener('click',function(){
+  if(!editingJobQId)return;
+  var freq=document.getElementById('jej-freq').value;
+  var type=document.getElementById('jej-type').value;
+  var cid=editingJobQCid;
+  sb.from('jobs').update({type:type,repeat:freq!=='none'?freq:null}).eq('id',editingJobQId).then(function(r){
+    if(r&&r.error){alert('Save failed: '+r.error.message);return;}
+    allJobs.forEach(function(j){if(j.id===editingJobQId){j.type=type;j.repeat=freq!=='none'?freq:null;}});
+    closeJobEditModal();reExpandClient(cid);
+  });
+});
+
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
+  if(!jobEditModal.hidden){closeJobEditModal();return;}
   if(!ctModal.hidden){closeCtModal();return;}
   if(!editModal.hidden){closeEditModal();return;}
   if(!overlay.hidden)closeModal();
