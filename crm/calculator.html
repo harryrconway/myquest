@@ -188,11 +188,9 @@
 /* ── Print ── */
 .qc-print{display:none}
 @media print{
-  *{visibility:hidden!important}
-  #qc-print,#qc-print *{visibility:visible!important}
+  body>*{display:none!important}
   #qc-print{
     display:block!important;
-    position:absolute;top:0;left:0;width:100%;
     padding:18mm 20mm;box-sizing:border-box;
     background:#fff;color:#232c54;
     font-family:system-ui,sans-serif;font-size:13px;line-height:1.6;
