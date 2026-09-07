@@ -530,10 +530,10 @@ function openRoster(staffId,staffName){
         Object.keys(byDay).sort().forEach(function(dateKey){
           var jj=byDay[dateKey];
           var hdr=fmtHdr(dateKey);
-          dayRows+='<div style="margin-bottom:22px">';
-          dayRows+='<div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:#9b968a;margin-bottom:10px;padding-bottom:7px;border-bottom:1.5px solid #232c5420">'+hdr+'</div>';
+          dayRows+='<div style="margin-bottom:44px">';
+          dayRows+='<div style="font-size:20px;font-weight:700;letter-spacing:.12em;color:#9b968a;margin-bottom:20px;padding-bottom:14px;border-bottom:1.5px solid #232c5420">'+hdr+'</div>';
           if(!jj.length){
-            dayRows+='<div style="font-size:12.5px;color:#c0bbb3;padding:4px 0">No jobs scheduled</div>';
+            dayRows+='<div style="font-size:25px;color:#c0bbb3;padding:8px 0">No jobs scheduled</div>';
           } else {
             jj.forEach(function(j){
               var done=j.status==='completed';
@@ -543,13 +543,13 @@ function openRoster(staffId,staffName){
               var typeCol=j.type==='deep'?'#3a6b4e':'#232c54';
               var addr=addrMap[j.client_id]||j.site||'';
               dayRows+=
-                '<div style="display:grid;grid-template-columns:110px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #232c540f;opacity:'+(done?'.45':'1')+'">' +
-                '<span style="font-size:13px;font-weight:700;color:#232c54;white-space:nowrap">'+esc2(timeStr)+'</span>'+
-                '<div><div style="font-size:13px;font-weight:600;color:#232c54;line-height:1.3">'+esc2(j.client_name||'—')+'</div>'+(addr?'<div style="font-size:11px;color:#9b968a;margin-top:1px">'+esc2(addr)+'</div>':'')+
-                (done?'<span style="font-size:10px;color:#3a6b4e;font-weight:700;letter-spacing:.06em">✓ COMPLETED</span>':'')+
+                '<div style="display:grid;grid-template-columns:220px 1fr auto auto;gap:20px;align-items:center;padding:18px 0;border-bottom:1px solid #232c540f;opacity:'+(done?'.45':'1')+'">' +
+                '<span style="font-size:26px;font-weight:700;color:#232c54;white-space:nowrap">'+esc2(timeStr)+'</span>'+
+                '<div><div style="font-size:26px;font-weight:600;color:#232c54;line-height:1.3">'+esc2(j.client_name||'—')+'</div>'+(addr?'<div style="font-size:22px;color:#9b968a;margin-top:2px">'+esc2(addr)+'</div>':'')+
+                (done?'<span style="font-size:20px;color:#3a6b4e;font-weight:700;letter-spacing:.06em">✓ COMPLETED</span>':'')+
                 '</div>'+
-                '<span style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap;background:'+typeBg+';color:'+typeCol+'">'+esc2(typeStr)+'</span>'+
-                (j.job_number?'<span style="font-size:10px;color:#c0bbb3;white-space:nowrap">#'+esc2(j.job_number)+'</span>':'<span></span>')+
+                '<span style="font-size:20px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:6px 16px;border-radius:8px;white-space:nowrap;background:'+typeBg+';color:'+typeCol+'">'+esc2(typeStr)+'</span>'+
+                (j.job_number?'<span style="font-size:20px;color:#c0bbb3;white-space:nowrap">#'+esc2(j.job_number)+'</span>':'<span></span>')+
                 '</div>';
             });
           }
@@ -562,19 +562,19 @@ function openRoster(staffId,staffName){
 
         var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roster – '+esc2(staffName)+'</title><style>'+
           '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+
-          'html,body{background:#fff;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased}'+
-          '@page{size:A4;margin:16mm 18mm}'+
-          '.page{max-width:720px;margin:0 auto;padding:32px 0}'+
-          '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 20px;border-bottom:2px solid #232c54;margin-bottom:26px}'+
-          '.hd-left{display:flex;align-items:center;gap:12px}'+
-          '.hd-mark{width:34px;height:34px;background:#232c54;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
-          '.hd-brand{font-size:16px;font-weight:700;color:#232c54;letter-spacing:-.015em}'+
+          'html,body{background:#f3efe4;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased}'+
+          '@page{size:A4;margin:16mm 18mm;background:#f3efe4}'+
+          '.page{max-width:720px;margin:0 auto;padding:64px 0}'+
+          '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 40px;border-bottom:2px solid #232c54;margin-bottom:52px}'+
+          '.hd-left{display:flex;align-items:center;gap:24px}'+
+          '.hd-mark{width:68px;height:68px;background:#232c54;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
+          '.hd-brand{font-size:32px;font-weight:700;color:#232c54;letter-spacing:-.015em}'+
           '.hd-right{text-align:right}'+
-          '.hd-doc{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9b968a}'+
-          '.staff-name{font-size:26px;font-weight:700;letter-spacing:-.025em;color:#232c54;margin-bottom:5px;line-height:1.1}'+
-          '.week-label{font-size:13px;color:#9b968a;margin-bottom:6px}'+
-          '.job-count{font-size:12px;font-weight:600;color:#3a6b4e;background:rgba(58,107,78,.1);display:inline-block;padding:3px 10px;border-radius:999px;margin-bottom:28px}'+
-          '.ft{border-top:1px solid #232c5424;padding-top:14px;margin-top:4px;font-size:11px;color:#9b968a;display:flex;justify-content:space-between}'+
+          '.hd-doc{font-size:22px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9b968a}'+
+          '.staff-name{font-size:52px;font-weight:700;letter-spacing:-.025em;color:#232c54;margin-bottom:10px;line-height:1.1}'+
+          '.week-label{font-size:26px;color:#9b968a;margin-bottom:12px}'+
+          '.job-count{font-size:24px;font-weight:600;color:#3a6b4e;background:rgba(58,107,78,.1);display:inline-block;padding:6px 20px;border-radius:999px;margin-bottom:56px}'+
+          '.ft{border-top:1px solid #232c5424;padding-top:28px;margin-top:8px;font-size:22px;color:#9b968a;display:flex;justify-content:space-between}'+
           '</style></head><body>'+
           '<div class="page">'+
           '<div class="hd">'+
