@@ -54,8 +54,8 @@
 .scope-bottom{display:flex;align-items:center;gap:10px;padding-bottom:40px}
 .scope-print-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;display:inline-flex;align-items:center;gap:6px}
 .scope-print-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
-.scope-new-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;margin-left:auto}
-.scope-new-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.scope-cancel-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;margin-left:auto}
+.scope-cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
 
 .saved-scopes{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;margin-bottom:40px}
 .ss-wrap{border-bottom:1px solid var(--hair)}
@@ -96,7 +96,7 @@
 .scope-job-field{display:block}
 
 @media print{
-  .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-new-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge{display:none!important}
+  .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-cancel-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge,.scope-empty-state{display:none!important}
   .layout{display:block!important}
   .main{padding:20px!important;min-width:0}
   body{background:#fff!important}
@@ -184,18 +184,28 @@
     <div class="ph pg-1">
       <button type="button" class="mob-menu-btn" id="mob-menu-btn" aria-label="Menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Scope of Works</h1>
+      <button type="button" class="ph-btn" id="scope-new-btn-ph">+ New scope</button>
     </div>
 
     <div class="bc pg-2"><a href="overview.html">MyQuest</a><span class="bc-sep">›</span>Scope of Works</div>
 
     <div class="pg-3">
 
-      <div class="scope-info-badge" id="scope-job-ref" hidden style="font-size:12px;font-weight:600;color:var(--stone);padding-bottom:14px;display:flex;align-items:center;gap:8px"></div>
+      <!-- Saved scopes — primary view -->
+      <div id="saved-scopes-section">
+        <div class="sh pg-3">
+          <span class="sh-lbl">Saved scopes</span>
+        </div>
+        <div class="saved-scopes" id="saved-scopes-list"></div>
+      </div>
 
-      <div id="scope-no-job" hidden style="padding:48px 0 24px;text-align:center;color:var(--stone);font-size:13px;line-height:1.6">Open a job and click <strong style="color:var(--navy)">Manage scope</strong> to create or edit a scope.</div>
-
+      <!-- Scope editor — below the list -->
       <div id="scope-editor">
+      <div class="sh" id="scope-editor-hd" style="margin-top:32px">
+        <span class="sh-lbl" id="scope-editor-lbl">New scope</span>
+      </div>
       <div class="scope-info">
+        <div class="scope-info-badge" id="scope-job-ref" hidden style="font-size:12px;font-weight:600;color:var(--stone);padding-bottom:14px;align-items:center;gap:8px"></div>
         <div class="scope-name-row">
           <input class="scope-name-input" id="scope-name" type="text" placeholder="Scope name — e.g. Aria Property Group · Weekly" autocomplete="off">
         </div>
@@ -230,16 +240,9 @@
 
       <div class="scope-bottom">
         <button class="ph-btn" id="scope-save-btn-2">Save scope</button>
-        <button class="scope-new-btn" id="scope-new-btn">+ New scope</button>
+        <button class="scope-cancel-btn" id="scope-cancel-btn">Cancel</button>
       </div>
       </div><!-- end #scope-editor -->
-
-      <div id="saved-scopes-section" hidden>
-        <div class="sh pg-4">
-          <span class="sh-lbl">Saved scopes</span>
-        </div>
-        <div class="saved-scopes" id="saved-scopes-list"></div>
-      </div>
 
     </div>
   </main>
@@ -363,11 +366,11 @@ function saveScope(){
   if(!sc.name)sc.name=sc.client_name||'Untitled scope';
   if(jobId)sc.job_id=jobId;
   if(editingId){
-    sb.from('scopes').update(sc).eq('id',editingId).then(function(){flashSaved();renderSavedList();});
+    sb.from('scopes').update(sc).eq('id',editingId).then(function(){flashSaved();renderSavedList();scrollToTop();});
   } else {
     sb.from('scopes').insert(sc).select('id').single().then(function(r){
       if(r.data)editingId=r.data.id;
-      flashSaved();renderSavedList();
+      flashSaved();renderSavedList();scrollToTop();
     });
   }
 }
@@ -461,13 +464,17 @@ function renderScopeView(sc){
       '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button>'+
     '</div>';
 }
+function scrollToEditor(){document.getElementById('scope-editor').scrollIntoView({behavior:'smooth',block:'start'});}
+function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
+
 function renderSavedList(){
   sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').order('created_at',{ascending:false}).then(function(r){
     var scopes=r.data||[];
-    var sec=document.getElementById('saved-scopes-section');
     var list=document.getElementById('saved-scopes-list');
-    if(!scopes.length){sec.hidden=true;return;}
-    sec.hidden=false;
+    if(!scopes.length){
+      list.innerHTML='<div class="scope-empty-state" style="padding:48px 24px;text-align:center;color:var(--stone);font-size:13px;line-height:1.7">No saved scopes yet.<br>Use the editor below to create your first scope.</div>';
+      return;
+    }
     list.innerHTML=scopes.map(function(sc){
       return '<div class="ss-wrap" data-scope-id="'+esc(sc.id)+'">'+
         '<div class="ss-row"><div>'+
@@ -568,7 +575,11 @@ function init(){
 document.getElementById('scope-job-link').addEventListener('change',function(){onJobSelect(this.value);});
 document.getElementById('scope-add-area').addEventListener('click',addArea);
 document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
-document.getElementById('scope-new-btn').addEventListener('click',resetEditor);
+document.getElementById('scope-new-btn-ph').addEventListener('click',function(){
+  var lbl=document.getElementById('scope-editor-lbl');if(lbl)lbl.textContent='New scope';
+  resetEditor();scrollToEditor();
+});
+document.getElementById('scope-cancel-btn').addEventListener('click',function(){resetEditor();scrollToTop();});
 
 document.getElementById('scope-areas').addEventListener('click',function(e){
   var chk=e.target.closest('[data-check]');
@@ -607,12 +618,9 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
   }
   var editBtn=e.target.closest('[data-edit-id]');
   if(editBtn){
+    var lbl=document.getElementById('scope-editor-lbl');if(lbl)lbl.textContent='Edit scope';
     sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){
-      if(r.data){
-        document.getElementById('scope-editor').hidden=false;
-        document.getElementById('scope-no-job').hidden=true;
-        loadIntoEditor(r.data);
-      }
+      if(r.data){loadIntoEditor(r.data);scrollToEditor();}
     });
     return;
   }

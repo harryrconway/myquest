@@ -40,7 +40,9 @@
 .sf-doc-upload{color:var(--stone)}
 .sf-doc-view:hover,.sf-doc-upload:hover{border-color:rgba(35,44,84,.25);color:var(--navy)}
 .sf-doc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.sc-roster-btn{margin-top:10px;padding:9px 0 0;border-top:1px solid var(--hair);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s;letter-spacing:.01em;text-align:center}
+.sc-roster-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--hair)}
+.sc-roster-period{flex:1;font-family:var(--font);font-size:12px;color:var(--stone);border:1px solid var(--hair-md);border-radius:6px;padding:6px 8px;background:var(--field);cursor:pointer}
+.sc-roster-btn{font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s;letter-spacing:.01em;background:none;border:none;font-family:var(--font);white-space:nowrap;padding:0}
 .sc-roster-btn:hover{color:var(--navy)}
 </style>
 </head>
@@ -327,7 +329,14 @@ function renderCard(s){
     (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
     (s.start_date?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+displayDate(s.start_date)+'<span class="sc-tenure"> · '+tenureText(s.start_date)+'</span></span></div>':'')+
     (compBadge?'<div class="sc-badges">'+compBadge+'</div>':'')+
-    '<div class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">View this week\'s jobs →</div>'+
+    '<div class="sc-roster-row">'+
+    '<select class="sc-roster-period">'+
+      '<option value="week">This week</option>'+
+      '<option value="fortnight">This fortnight</option>'+
+      '<option value="month">This month</option>'+
+    '</select>'+
+    '<button class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">View roster →</button>'+
+    '</div>'+
   '</div>';
 }
 
@@ -501,13 +510,29 @@ document.getElementById('sf-ins-view').addEventListener('click',function(){
   if(found&&found.insurance_cert_path)viewDoc(found.insurance_cert_path);
 });
 
-function openRoster(staffId,staffName){
+function openRoster(staffId,staffName,period){
   var today=new Date();
   var dow=(today.getDay()+6)%7;
   var mon=new Date(today);mon.setDate(today.getDate()-dow);
-  var sun=new Date(mon);sun.setDate(mon.getDate()+6);
   function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-  var monISO=iso(mon),sunISO=iso(sun);
+  var startDate,endDate,rosterTitle,periodLabel;
+  if(period==='month'){
+    startDate=new Date(today.getFullYear(),today.getMonth(),1);
+    endDate=new Date(today.getFullYear(),today.getMonth()+1,0);
+    rosterTitle='Monthly Roster';
+    periodLabel='Month of '+['January','February','March','April','May','June','July','August','September','October','November','December'][today.getMonth()]+' '+today.getFullYear();
+  } else if(period==='fortnight'){
+    startDate=new Date(mon);
+    endDate=new Date(mon);endDate.setDate(mon.getDate()+13);
+    rosterTitle='Fortnightly Roster';
+    periodLabel='Fortnight: Mon '+startDate.getDate()+' – Sun '+endDate.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][endDate.getMonth()]+' '+endDate.getFullYear();
+  } else {
+    startDate=new Date(mon);
+    endDate=new Date(mon);endDate.setDate(mon.getDate()+6);
+    rosterTitle='Weekly Roster';
+    periodLabel='Week of Mon '+startDate.getDate()+' – Sun '+endDate.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][endDate.getMonth()]+' '+endDate.getFullYear();
+  }
+  var monISO=iso(startDate),sunISO=iso(endDate);
   var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function fmtDay(iso){var d=new Date(iso+'T00:00:00');return DAYS[((d.getDay()+6)%7)]+' '+d.getDate()+' '+MONTHS[d.getMonth()];}
@@ -530,7 +555,8 @@ function openRoster(staffId,staffName){
 
       function buildRoster(addrMap){
         var byDay={};
-        for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);byDay[iso(d)]=[];}
+        var totalDays=Math.round((endDate-startDate)/(86400000))+1;
+        for(var i=0;i<totalDays;i++){var d=new Date(startDate);d.setDate(startDate.getDate()+i);byDay[iso(d)]=[];}
         jobs.forEach(function(j){if(byDay[j.date])byDay[j.date].push(j);});
 
         var dayRows='';
@@ -567,9 +593,10 @@ function openRoster(staffId,staffName){
           dayRows+='</div>';
         });
 
-        var weekLabel='Week of '+fmtDay(monISO)+' – '+fmtDay(sunISO)+' '+mon.getFullYear();
+        var weekLabel=periodLabel;
         var genDate='Generated '+fmtDate(iso(today));
         var totalJobs=jobs.length;
+        var jobCountLabel=totalJobs+(totalJobs===1?' job':' jobs')+(period==='month'?' this month':period==='fortnight'?' this fortnight':' this week');
 
         var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roster – '+esc2(staffName)+'</title><style>'+
           '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+
@@ -601,11 +628,11 @@ function openRoster(staffId,staffName){
           '<div class="page">'+
           '<div class="hd">'+
             '<div class="hd-left"><div class="hd-mark">MQ</div><span class="hd-brand">MyQuest</span></div>'+
-            '<div class="hd-doc">Weekly Roster</div>'+
+            '<div class="hd-doc">'+esc2(rosterTitle)+'</div>'+
           '</div>'+
           '<div class="staff-name">'+esc2(staffName)+'</div>'+
           '<div class="week-label">'+esc2(weekLabel)+'</div>'+
-          '<div class="job-count">'+totalJobs+(totalJobs===1?' job':' jobs')+' this week</div>'+
+          '<div class="job-count">'+esc2(jobCountLabel)+'</div>'+
           dayRows+
           '<div class="ft"><span>'+esc2(genDate)+'</span><span>myquest.au</span></div>'+
           '</div></body></html>';
@@ -631,7 +658,11 @@ function openRoster(staffId,staffName){
 
 document.getElementById('staff-grid').addEventListener('click',function(e){
   var rBtn=e.target.closest('.sc-roster-btn');
-  if(rBtn){openRoster(rBtn.dataset.rosterId,rBtn.dataset.rosterName);return;}
+  if(rBtn){
+    var periodSel=rBtn.closest('.sc-roster-row').querySelector('.sc-roster-period');
+    openRoster(rBtn.dataset.rosterId,rBtn.dataset.rosterName,periodSel?periodSel.value:'week');
+    return;
+  }
   var card=e.target.closest('.staff-card');
   if(!card)return;
   var sid=card.dataset.id;

@@ -99,6 +99,7 @@ h1{
   border:1.5px solid var(--line);
   border-radius:10px;
   color:var(--txt);
+  -webkit-text-fill-color:var(--txt);
   font-size:16px;
   font-weight:400;
   font-family:inherit;
@@ -109,14 +110,24 @@ h1{
   appearance:none;
 }
 .f-input:focus{border-color:var(--txt);background:rgba(35,44,84,.03)}
-.f-input::placeholder{color:var(--stone);opacity:.6}
+.f-input::placeholder{color:var(--stone);-webkit-text-fill-color:var(--stone);opacity:.6}
 .f-input:-webkit-autofill,
 .f-input:-webkit-autofill:hover,
 .f-input:-webkit-autofill:focus{
   -webkit-box-shadow:0 0 0 1000px #ede9e0 inset;
-  -webkit-text-fill-color:var(--txt);
+  -webkit-text-fill-color:#232c54;
   border-color:var(--txt);
   transition:background-color 5000s ease-in-out 0s;
+}
+@media(prefers-color-scheme:dark){
+  .f-input:-webkit-autofill,.f-input:-webkit-autofill:hover,.f-input:-webkit-autofill:focus{
+    -webkit-box-shadow:0 0 0 1000px #1a2140 inset;
+    -webkit-text-fill-color:#ede8dd;
+  }
+}
+:root[data-theme=dark] .f-input:-webkit-autofill,:root[data-theme=dark] .f-input:-webkit-autofill:hover,:root[data-theme=dark] .f-input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px #1a2140 inset;
+  -webkit-text-fill-color:#ede8dd;
 }
 
 .btn{
