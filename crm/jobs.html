@@ -525,13 +525,15 @@ function deleteJob(id){
   var childIds=[];
   allJobs.forEach(function(j){if(j.source_job_id===id)childIds.push(j.id);});
   var allIds=childIds.concat([id]);
-  sb.from('scopes').delete().in('job_id',allIds).then(function(r1){
-    if(r1&&r1.error){alert('Could not delete scope: '+r1.error.message);return;}
-    sb.from('jobs').delete().eq('source_job_id',id).then(function(r2){
-      if(r2&&r2.error){alert('Could not delete job instances: '+r2.error.message);return;}
-      sb.from('jobs').delete().eq('id',id).then(function(r3){
-        if(r3&&r3.error){alert('Could not delete job: '+r3.error.message);return;}
-        openId=null;reload();
+  sb.from('inquiries').update({job_id:null}).in('job_id',allIds).then(function(){
+    sb.from('scopes').delete().in('job_id',allIds).then(function(r1){
+      if(r1&&r1.error){alert('Could not delete scope: '+r1.error.message);return;}
+      sb.from('jobs').delete().eq('source_job_id',id).then(function(r2){
+        if(r2&&r2.error){alert('Could not delete job instances: '+r2.error.message);return;}
+        sb.from('jobs').delete().eq('id',id).then(function(r3){
+          if(r3&&r3.error){alert('Could not delete job: '+r3.error.message);return;}
+          openId=null;reload();
+        });
       });
     });
   });

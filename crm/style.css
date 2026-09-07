@@ -146,6 +146,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   background:none;border:none;padding:8px 6px;
   cursor:pointer;flex-shrink:0;border-radius:8px;
   position:relative;z-index:210;
+  -webkit-tap-highlight-color:transparent;
 }
 .mob-bar{
   width:26px;height:2px;background:var(--navy);border-radius:2px;
@@ -174,7 +175,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   .sidebar{display:none!important}
 
   /* Bars animate to X when open */
-  body.mob-open .mob-bar{background:var(--on);transition:transform .52s cubic-bezier(.77,0,.18,1),opacity .2s,background .35s .1s}
+  body.mob-open .mob-bar{transition:transform .52s cubic-bezier(.77,0,.18,1),opacity .2s}
   body.mob-open .mob-menu-btn .mob-bar:first-child{transform:translateY(8px) rotate(45deg)}
   body.mob-open .mob-menu-btn .mob-bar:nth-child(2){opacity:0}
   body.mob-open .mob-menu-btn .mob-bar:last-child{transform:translateY(-8px) rotate(-45deg)}
@@ -247,7 +248,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 }
 
 @media(max-width:600px){
-  .ph{padding:12px 0 16px;gap:8px}
+  .ph{padding:12px 16px 16px;gap:8px}
   .ph-title{font-size:22px}
 }
 
@@ -300,6 +301,15 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
 .delete-btn{padding:9px 18px;border:none;background:var(--red);color:#fff;border-radius:var(--r-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s}
 .delete-btn:hover{opacity:.8}
+.danger-ghost-btn{padding:9px 16px;border:1.5px solid var(--red);background:none;color:var(--red);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s;white-space:nowrap}
+.danger-ghost-btn:hover{opacity:.7}
+.edit-client-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.eca-danger,.eca-ok{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:520px){
+  .edit-client-actions{flex-direction:column-reverse;align-items:stretch}
+  .eca-danger{flex-direction:row}
+  .eca-ok{justify-content:flex-end}
+}
 
 /* Reports tab navigation */
 .rep-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--hair);margin-bottom:28px}

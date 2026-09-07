@@ -376,11 +376,15 @@ details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
         <input class="form-input" type="text" id="ef-site-address" autocomplete="off">
       </div>
     </div>
-    <div class="modal-actions" style="flex-wrap:wrap;gap:8px">
-      <button type="button" class="delete-btn" id="edit-modal-delete" style="margin-right:auto">Delete client</button>
-      <button type="button" style="padding:9px 14px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s" id="edit-modal-del-jobs">Delete all jobs</button>
-      <button type="button" class="cancel-btn" id="edit-modal-cancel">Cancel</button>
-      <button type="button" class="ph-btn" id="edit-modal-save">Save changes</button>
+    <div class="modal-actions edit-client-actions">
+      <div class="eca-danger">
+        <button type="button" class="delete-btn" id="edit-modal-delete">Delete client</button>
+        <button type="button" class="danger-ghost-btn" id="edit-modal-del-jobs">Delete all jobs</button>
+      </div>
+      <div class="eca-ok">
+        <button type="button" class="cancel-btn" id="edit-modal-cancel">Cancel</button>
+        <button type="button" class="ph-btn" id="edit-modal-save">Save changes</button>
+      </div>
     </div>
   </div>
 </div>
@@ -974,14 +978,15 @@ document.getElementById('edit-modal-delete').addEventListener('click',function()
       });
     });
   }
-  if(jobIds.length){
+  sb.from('inquiries').delete().eq('client_id',cid).then(function(){
+    if(!jobIds.length){doDeleteClient();return;}
     sb.from('scopes').delete().in('job_id',jobIds).then(function(){
       sb.from('jobs').delete().eq('client_id',cid).then(function(r){
         if(r&&r.error){alert('Could not delete jobs: '+r.error.message);return;}
         doDeleteClient();
       });
     });
-  } else {doDeleteClient();}
+  });
 });
 document.getElementById('edit-modal-del-jobs').addEventListener('click',function(){
   if(!editingClientId)return;
@@ -990,10 +995,12 @@ document.getElementById('edit-modal-del-jobs').addEventListener('click',function
   var cid=editingClientId;
   var jobIds=allJobs.filter(function(j){return j.client_id===cid;}).map(function(j){return j.id;});
   if(!jobIds.length){alert('No jobs to delete.');return;}
-  sb.from('scopes').delete().in('job_id',jobIds).then(function(){
-    sb.from('jobs').delete().eq('client_id',cid).then(function(r){
-      if(r&&r.error){alert('Could not delete jobs: '+r.error.message);return;}
-      reload(function(){reExpandClient(cid);});
+  sb.from('inquiries').update({job_id:null}).in('job_id',jobIds).then(function(){
+    sb.from('scopes').delete().in('job_id',jobIds).then(function(){
+      sb.from('jobs').delete().eq('client_id',cid).then(function(r){
+        if(r&&r.error){alert('Could not delete jobs: '+r.error.message);return;}
+        reload(function(){reExpandClient(cid);});
+      });
     });
   });
 });
