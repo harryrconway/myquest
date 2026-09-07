@@ -176,7 +176,7 @@
 
 /* ── Footer / actions ── */
 .qc-valid{font-size:11px;color:var(--stone);text-align:center;padding:12px 22px;border-top:1px solid var(--hair);background:var(--field);opacity:.7;letter-spacing:.02em}
-.qc-actions{padding:16px 24px;border-top:1px solid var(--hair)}
+.qc-actions{padding:16px 24px 0;display:flex;flex-direction:column;gap:8px}
 .qc-btn-dl{
   width:100%;background:var(--navy);color:var(--on);border:none;
   border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
@@ -184,6 +184,17 @@
   -webkit-tap-highlight-color:transparent;
 }
 .qc-btn-dl:hover{background:var(--navy-deep)}
+#qc-save-panel{padding:14px 24px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--hair);margin-top:8px}
+.qc-save-sel,.qc-save-input{
+  width:100%;padding:10px 12px;background:var(--field);
+  border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
+  font-family:inherit;font-size:13.5px;color:var(--navy);outline:none;
+  box-sizing:border-box;-webkit-appearance:none;appearance:none;
+}
+.qc-save-sel:focus,.qc-save-input:focus{border-color:rgba(35,44,84,.35)}
+.qc-save-input::placeholder{color:var(--stone);opacity:.6}
+.qc-save-ok{font-size:13px;font-weight:600;color:var(--green);padding:4px 0}
+.qc-save-err{font-size:12px;color:#c0392b;padding:4px 0}
 
 /* ── Print ── */
 .qc-print{display:none}
@@ -574,6 +585,12 @@ function renderPreview(r){
   h+='<div class="qc-valid">Estimate valid 30 days &middot; GST not included</div>';
   h+='<div class="qc-actions">'+
     '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
+    '<button type="button" class="qc-btn-dl" id="qc-save">Save to client</button>'+
+  '</div>'+
+  '<div id="qc-save-panel" hidden>'+
+    '<select id="qc-cl-sel" class="qc-save-sel"><option value="">Loading clients…</option></select>'+
+    '<input type="text" id="qc-save-lbl" class="qc-save-input" placeholder="Label (optional) — e.g. Weekly maintenance">'+
+    '<button type="button" class="qc-btn-dl" id="qc-save-confirm">Save quote</button>'+
   '</div>';
 
   return h;
@@ -581,24 +598,68 @@ function renderPreview(r){
 
 // ─── Live calc ────────────────────────────────────────────────────
 
+var lastR=null;
 function calcLive(){
   var preview=document.getElementById('qc-preview');
   if(!preview)return;
   var ready=s.freq&&s.type&&s.hrs>0;
   if(!ready){
-    s.hasResult=false;
+    s.hasResult=false;lastR=null;
     preview.innerHTML=renderPreviewEmpty();
     return;
   }
   var r=calc();
-  s.hasResult=true;
+  s.hasResult=true;lastR=r;
   preview.innerHTML=renderPreview(r);
   bindPreview();
 }
 
+var _clCache=null;
 function bindPreview(){
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){var el=document.getElementById('qc-print');if(el&&el.innerHTML)window.print();});
+
+  var saveBtn=document.getElementById('qc-save');
+  if(saveBtn)saveBtn.addEventListener('click',function(){
+    var panel=document.getElementById('qc-save-panel');
+    if(!panel)return;
+    panel.hidden=!panel.hidden;
+    if(!panel.hidden&&!_clCache){
+      MQ.sb.from('clients').select('id,name').eq('status','active').order('name').then(function(r){
+        _clCache=r.data||[];
+        var sel=document.getElementById('qc-cl-sel');
+        if(!sel)return;
+        sel.innerHTML='<option value="">— Select a client —</option>'+
+          _clCache.map(function(c){return'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';}).join('');
+      });
+    }
+  });
+
+  var confirmBtn=document.getElementById('qc-save-confirm');
+  if(confirmBtn)confirmBtn.addEventListener('click',function(){
+    var sel=document.getElementById('qc-cl-sel');
+    var lbl=document.getElementById('qc-save-lbl');
+    if(!sel||!sel.value){alert('Please select a client.');return;}
+    if(!lastR){return;}
+    var clientName=sel.options[sel.selectedIndex].text;
+    var btn=this;btn.disabled=true;btn.textContent='Saving…';
+    MQ.sb.from('quotes').insert({
+      client_id:sel.value,
+      space:s.space,freq:s.freq,type:s.type,
+      hrs:s.hrs,after_hours_pct:s.afterHoursPct,
+      buffer:s.buffer,per:lastR.per,
+      monthly:lastR.monthly||null,
+      label:(lbl&&lbl.value.trim())||null
+    }).then(function(r){
+      var panel=document.getElementById('qc-save-panel');
+      if(r.error){
+        btn.disabled=false;btn.textContent='Save quote';
+        if(panel)panel.insertAdjacentHTML('afterbegin','<div class="qc-save-err">Error: '+esc(r.error.message)+'</div>');
+      } else {
+        if(panel)panel.innerHTML='<div class="qc-save-ok">&#10003; Saved to '+esc(clientName)+'</div>';
+      }
+    });
+  });
 }
 
 // ─── Form init & bind ─────────────────────────────────────────────

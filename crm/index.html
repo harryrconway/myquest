@@ -112,6 +112,14 @@ a.ci-job:hover{background:rgba(35,44,84,.05);}
 .ci-act-btn svg{color:var(--stone);flex-shrink:0}
 .ci-add-btn{font-size:11.5px;font-weight:600;color:var(--stone);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;line-height:1}
 .ci-add-btn:hover{color:var(--navy)}
+.ci-quote-row{display:grid;grid-template-columns:44px 1fr auto auto 24px;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--stone)}
+.ci-quote-row:last-child{border-bottom:none}
+.ci-q-date{font-size:11px;color:var(--stone);opacity:.7;white-space:nowrap}
+.ci-q-desc{color:var(--navy);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-q-hrs{font-size:11.5px;white-space:nowrap;text-align:right}
+.ci-q-price{font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ci-q-del{background:none;border:none;cursor:pointer;padding:3px;color:var(--stone);opacity:.4;line-height:0;transition:opacity .12s}
+.ci-q-del:hover{opacity:.9;color:#c0392b}
 
 .ct-upload-btn,.ct-pdf-view,.ct-pdf-replace{padding:6px 12px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s}
 .ct-upload-btn:hover,.ct-pdf-view:hover,.ct-pdf-replace:hover{color:var(--navy)}
@@ -451,7 +459,7 @@ function loadAll(cb){
   });
 }
 
-function buildClientDetail(c,jobs,contracts){
+function buildClientDetail(c,jobs,contracts,quotes){
   var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
   var bl=(c.status||'active');bl=bl.charAt(0).toUpperCase()+bl.slice(1);
   var hdr='<div class="ci-hd">'+
@@ -476,18 +484,40 @@ function buildClientDetail(c,jobs,contracts){
   }).join(''):'<div class="ci-empty">No jobs yet.</div>';
   var ctHtml=contracts.length?contracts.map(renderContractRow).join(''):'<div class="ct-empty">No contracts on file.</div>';
   var notesHtml=c.notes?'<div class="ci-notes-txt">'+esc(c.notes)+'</div>':'<div class="ci-notes-empty">No notes yet.</div>';
-  var left='<div class="ci-sh">Jobs</div><div class="ci-panel">'+jobsHtml+'</div>'+
-    '<div class="ci-sh" style="margin-top:18px"><span>Contracts</span><button class="ci-add-btn" data-add-contract="'+esc(c.id)+'">+ Add</button></div>'+
-    '<div class="ci-panel ci-contracts">'+ctHtml+'</div>';
+  var FREQ_MAP={once:'One-off',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly'};
+  var SPACE_MAP={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
+  var quotesArr=quotes||[];
+  var quotesHtml=quotesArr.length?quotesArr.map(function(q){
+    var d=new Date(q.created_at);
+    var dStr=d.getDate()+' '+(MONTHS||['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'])[d.getMonth()];
+    var spaceLbl=q.space?(SPACE_MAP[q.space]||q.space):'—';
+    var freqLbl=q.freq?(FREQ_MAP[q.freq]||q.freq):'—';
+    var typeStr=q.type==='deep'?'Deep':'Maintenance';
+    var priceLbl=q.per?'$'+Math.round(q.per).toLocaleString('en-AU'):'—';
+    var hrsLbl=q.hrs?q.hrs+'h':'—';
+    return '<div class="ci-quote-row">'+
+      '<span class="ci-q-date">'+dStr+'</span>'+
+      '<span class="ci-q-desc">'+(q.label?esc(q.label):spaceLbl+' &middot; '+freqLbl+' &middot; '+typeStr)+'</span>'+
+      '<span class="ci-q-hrs">'+hrsLbl+'</span>'+
+      '<span class="ci-q-price">'+priceLbl+'</span>'+
+      '<button class="ci-q-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(c.id)+'" title="Remove quote">'+
+        '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'+
+      '</button>'+
+    '</div>';
+  }).join(''):'<div class="ci-notes-empty">No quotes saved yet.</div>';
+  var left='<div class="ci-sh">Jobs</div><div class="ci-panel">'+jobsHtml+'</div>';
   var right='<div class="ci-sh"><span>Notes</span><button class="ci-add-btn" data-notes-edit="'+esc(c.id)+'">Edit</button></div>'+
     '<div class="ci-panel ci-notes-panel">'+notesHtml+'</div>'+
+    '<div class="ci-sh" style="margin-top:18px"><span>Contracts</span><button class="ci-add-btn" data-add-contract="'+esc(c.id)+'">+ Add</button></div>'+
+    '<div class="ci-panel ci-contracts">'+ctHtml+'</div>'+
+    '<div class="ci-sh" style="margin-top:18px">Quotes</div>'+
+    '<div class="ci-panel ci-quotes-panel">'+quotesHtml+'</div>'+
     '<div class="ci-sh" style="margin-top:18px">Actions</div>'+
     '<div class="ci-panel">'+
       '<button class="ci-act-btn" data-action="job" data-cid="'+esc(c.id)+'" data-cname="'+esc(c.name)+'">'+
         '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>'+
         'Schedule a clean</button>'+
-    '</div>'+
-    '';
+    '</div>';
   return hdr+'<div class="ci-grid"><div>'+left+'</div><div>'+right+'</div></div>';
 }
 
@@ -500,7 +530,9 @@ function expandWrap(wrap){
   wrap.classList.add('open');body.classList.add('open');
   sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule').eq('client_id',cid).order('date',{ascending:false}).then(function(jr){
     sb.from('contracts').select('id,client_id,type,value,start_date,end_date,renewal_date,signed_date,notes,pdf_path').eq('client_id',cid).order('created_at',{ascending:false}).then(function(cr){
-      body.innerHTML='<div class="cl-inner">'+buildClientDetail(c,jr.data||[],cr.data||[])+'</div>';
+      sb.from('quotes').select('id,space,freq,type,hrs,per,monthly,label,created_at,after_hours_pct,buffer').eq('client_id',cid).order('created_at',{ascending:false}).then(function(qr){
+        body.innerHTML='<div class="cl-inner">'+buildClientDetail(c,jr.data||[],cr.data||[],qr.data||[])+'</div>';
+      });
     });
   });
 }
@@ -610,6 +642,10 @@ document.getElementById('cl-body').addEventListener('click',function(e){
   var actBtn=e.target.closest('[data-action]');
   if(actBtn){
     if(actBtn.dataset.action==='job')window.location.href='jobs.html?newjob=1&cid='+encodeURIComponent(actBtn.dataset.cid)+'&cname='+encodeURIComponent(actBtn.dataset.cname);
+    if(actBtn.dataset.action==='del-quote'){
+      if(!confirm('Remove this quote?'))return;
+      sb.from('quotes').delete().eq('id',actBtn.dataset.qid).then(function(r){if(!r.error)reExpandClient(actBtn.dataset.qcid);});
+    }
     return;
   }
   var row=e.target.closest('.cl-row');
