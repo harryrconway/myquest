@@ -294,7 +294,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .modal-close{width:28px;height:28px;border-radius:7px;border:none;background:none;color:var(--stone);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
 .modal-close:hover{background:rgba(35,44,84,.07);color:var(--navy)}
 .modal-body{padding:22px 26px 24px}
-.modal-actions{display:flex;align-items:center;gap:10px;padding:16px 26px;border-top:1px solid var(--hair)}
+.modal-actions{display:flex;align-items:center;gap:10px;padding:16px 26px;border-top:1px solid var(--hair);position:sticky;bottom:0;background:var(--card);z-index:1}
 .cancel-btn{padding:10px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:500;color:var(--stone);cursor:pointer;transition:color .12s,border-color .12s}
 .cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
 .delete-btn{padding:9px 0;border:none;background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;transition:opacity .12s}
@@ -307,3 +307,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .rep-tab.active{border-bottom-color:var(--navy)}
 .rep-panel{display:none}
 .rep-panel.active{display:block}
+@media(max-width:600px){
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-card{border-radius:var(--r) var(--r) 0 0;max-height:92vh;max-width:100%}
+}
