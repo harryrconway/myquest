@@ -384,33 +384,34 @@ function renderFormCol(){
   '</div>';
 
   // ── Card 02: How often and what kind of clean? ──
+  var FREQ_ORDER=[
+    {k:'once', l:'One-off'},
+    {k:'weekly', l:'Weekly'},
+    {k:'fortnightly', l:'Fortnightly'},
+    {k:'monthly', l:'Monthly'}
+  ];
   h+='<div class="qc-card">'+
     '<div class="qc-step-hd">'+
       '<span class="qc-step-num">02</span>'+
       '<div><div class="qc-step-title">How often, and what kind of clean?</div><div class="qc-step-sub">Frequency affects the monthly and annual figures</div></div>'+
     '</div>'+
-    '<div class="qc-2col">'+
-      '<div>'+
-        '<div class="qc-inner-lbl">How often?</div>'+
-        '<div class="qc-choices col">'+
-          FREQ_KEYS.map(function(k,i){
-            return '<button type="button" class="qc-choice'+(s.freq===k?' on':'')+'" data-key="'+k+'" data-grp="freq">'+FREQ_LABELS[i]+'</button>';
-          }).join('')+
-        '</div>'+
-      '</div>'+
-      '<div>'+
-        '<div class="qc-inner-lbl">What kind of clean?</div>'+
-        '<div class="qc-choices col">'+
-          '<button type="button" class="qc-choice'+(s.type==='maintenance'?' on':'')+'" data-key="maintenance" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
-            '<span>Maintenance</span>'+
-            '<span style="font-size:11px;opacity:'+(s.type==='maintenance'?'.65':'.55')+';font-weight:400">Regular upkeep clean</span>'+
-          '</button>'+
-          '<button type="button" class="qc-choice'+(s.type==='deep'?' on':'')+'" data-key="deep" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
-            '<span>Deep clean</span>'+
-            '<span style="font-size:11px;opacity:'+(s.type==='deep'?'.65':'.55')+';font-weight:400">Thorough top-to-bottom</span>'+
-          '</button>'+
-        '</div>'+
-      '</div>'+
+    '<div class="qc-inner-lbl">How often?</div>'+
+    '<div class="qc-choices">'+
+      FREQ_ORDER.map(function(f){
+        return '<button type="button" class="qc-choice'+(s.freq===f.k?' on':'')+'" data-key="'+f.k+'" data-grp="freq">'+f.l+'</button>';
+      }).join('')+
+    '</div>'+
+    '<div class="qc-sep"></div>'+
+    '<div class="qc-inner-lbl">What kind of clean?</div>'+
+    '<div class="qc-choices">'+
+      '<button type="button" class="qc-choice'+(s.type==='maintenance'?' on':'')+'" data-key="maintenance" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
+        '<span>Maintenance</span>'+
+        '<span style="font-size:11px;opacity:'+(s.type==='maintenance'?'.65':'.55')+';font-weight:400">Regular upkeep clean</span>'+
+      '</button>'+
+      '<button type="button" class="qc-choice'+(s.type==='deep'?' on':'')+'" data-key="deep" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
+        '<span>Deep clean</span>'+
+        '<span style="font-size:11px;opacity:'+(s.type==='deep'?'.65':'.55')+';font-weight:400">Thorough top-to-bottom</span>'+
+      '</button>'+
     '</div>'+
     '<div class="qc-sep"></div>'+
     '<div class="qc-inner-lbl" style="opacity:.65">After-hours loading <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.9;font-size:11px">(optional)</span></div>'+
