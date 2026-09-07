@@ -112,15 +112,20 @@ a.ci-job:hover{background:rgba(35,44,84,.05);}
 .ci-act-btn svg{color:var(--stone);flex-shrink:0}
 .ci-add-btn{font-size:11.5px;font-weight:600;color:var(--stone);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;line-height:1}
 .ci-add-btn:hover{color:var(--navy)}
-.ci-quote-card{padding:12px 14px;border-bottom:1px solid var(--hair)}
-.ci-quote-card:last-child{border-bottom:none}
-.ci-qc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}
-.ci-qc-price{font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
-.ci-qc-del{background:none;border:none;cursor:pointer;padding:2px;color:var(--stone);opacity:.35;line-height:0;transition:opacity .12s;flex-shrink:0;margin-top:2px}
+.ci-quote-card{padding:14px;margin:8px;border-radius:10px;background:var(--field);border:1px solid var(--hair)}
+.ci-qc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.ci-qc-prices{line-height:1}
+.ci-qc-price{font-size:20px;font-weight:700;color:var(--navy);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ci-qc-monthly{font-size:11.5px;color:var(--stone);margin-top:4px;font-variant-numeric:tabular-nums}
+.ci-qc-del{background:none;border:none;cursor:pointer;padding:3px;color:var(--stone);opacity:.3;line-height:0;transition:opacity .12s;flex-shrink:0}
 .ci-qc-del:hover{opacity:1;color:#c0392b}
-.ci-qc-label{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px;line-height:1.3}
-.ci-qc-meta{font-size:11.5px;color:var(--stone);display:flex;flex-wrap:wrap;gap:4px 10px;line-height:1.4}
-.ci-qc-date{font-size:10.5px;color:var(--stone);opacity:.6;margin-top:6px;letter-spacing:.02em}
+.ci-qc-label{font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:6px;letter-spacing:-.01em}
+.ci-qc-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.ci-qc-chip{font-size:11px;font-weight:500;color:var(--stone);background:rgba(35,44,84,.06);border-radius:5px;padding:3px 8px;white-space:nowrap}
+.ci-qc-chip.hi{color:var(--navy);background:rgba(35,44,84,.1)}
+.ci-qc-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--hair);padding-top:8px;margin-top:2px}
+.ci-qc-date{font-size:10.5px;color:var(--stone);opacity:.55;letter-spacing:.02em}
+.ci-qc-valid{font-size:10.5px;color:var(--stone);opacity:.45;font-style:italic}
 
 .ct-upload-btn,.ct-pdf-view,.ct-pdf-replace{padding:6px 12px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s}
 .ct-upload-btn:hover,.ct-pdf-view:hover,.ct-pdf-replace:hover{color:var(--navy)}
@@ -488,34 +493,41 @@ function buildClientDetail(c,jobs,contracts,quotes){
   var FREQ_MAP={once:'One-off',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly'};
   var SPACE_MAP={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
   var quotesArr=quotes||[];
-  var quotesHtml=quotesArr.length?quotesArr.map(function(q){
+  var quotesHtml=quotesArr.length?quotesArr.map(function(q,qi){
     var d=new Date(q.created_at);
     var dStr=d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();
     var spaceLbl=q.space?(SPACE_MAP[q.space]||q.space):null;
     var freqLbl=q.freq?(FREQ_MAP[q.freq]||q.freq):null;
     var typeStr=q.type==='deep'?'Deep clean':'Maintenance';
     var priceLbl=q.per?'$'+Math.round(q.per).toLocaleString('en-AU'):'—';
-    var metaParts=[];
-    if(spaceLbl)metaParts.push(spaceLbl);
-    if(freqLbl)metaParts.push(freqLbl);
-    metaParts.push(typeStr);
-    if(q.hrs)metaParts.push(q.hrs+' hrs');
-    if(q.after_hours_pct>0)metaParts.push('After-hours +'+q.after_hours_pct+'%');
-    if(q.buffer)metaParts.push('Site allowance');
+    var monthlyLbl=q.monthly?'~$'+Math.round(q.monthly).toLocaleString('en-AU')+' / mo':null;
+    var chips=[];
+    if(spaceLbl)chips.push({t:spaceLbl,hi:true});
+    if(freqLbl)chips.push({t:freqLbl,hi:true});
+    chips.push({t:typeStr,hi:false});
+    if(q.hrs)chips.push({t:q.hrs+' hrs',hi:false});
+    if(q.after_hours_pct>0)chips.push({t:'After-hours +'+q.after_hours_pct+'%',hi:false});
+    if(q.buffer)chips.push({t:'Site allowance +15%',hi:false});
+    var isLatest=qi===0;
     return '<div class="ci-quote-card">'+
       '<div class="ci-qc-top">'+
-        '<div>'+
-          (q.label?'<div class="ci-qc-label">'+esc(q.label)+'</div>':'')+
-          '<div class="ci-qc-meta">'+metaParts.map(function(p){return'<span>'+p+'</span>';}).join('')+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          (q.label?'<div class="ci-qc-label">'+esc(q.label)+'</div>':'<div class="ci-qc-label" style="opacity:.45;font-weight:500">Quote estimate</div>')+
+          '<div class="ci-qc-chips">'+chips.map(function(ch){return'<span class="ci-qc-chip'+(ch.hi?' hi':'')+'">'+ch.t+'</span>';}).join('')+'</div>'+
         '</div>'+
-        '<div style="display:flex;align-items:flex-start;gap:10px;flex-shrink:0">'+
-          '<span class="ci-qc-price">'+priceLbl+'</span>'+
-          '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(c.id)+'" title="Remove">'+
-            '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'+
-          '</button>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">'+
+          '<div class="ci-qc-prices">'+
+            '<div class="ci-qc-price">'+priceLbl+'</div>'+
+            (monthlyLbl?'<div class="ci-qc-monthly">'+monthlyLbl+'</div>':'')+
+          '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="ci-qc-date">Saved '+dStr+'</div>'+
+      '<div class="ci-qc-footer">'+
+        '<span class="ci-qc-date">'+(isLatest?'Latest &middot; ':'')+'Saved '+dStr+'</span>'+
+        '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(c.id)+'" title="Remove quote">'+
+          '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Remove'+
+        '</button>'+
+      '</div>'+
     '</div>';
   }).join(''):'<div class="ci-notes-empty">No quotes saved yet.</div>';
   var left='<div class="ci-sh">Jobs</div><div class="ci-panel">'+jobsHtml+'</div>';
