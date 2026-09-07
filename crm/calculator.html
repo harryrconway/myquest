@@ -187,7 +187,17 @@
 
 /* ── Print ── */
 .qc-print{display:none}
-@media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
+@media print{
+  *{visibility:hidden!important}
+  #qc-print,#qc-print *{visibility:visible!important}
+  #qc-print{
+    display:block!important;
+    position:absolute;top:0;left:0;width:100%;
+    padding:18mm 20mm;box-sizing:border-box;
+    background:#fff;color:#232c54;
+    font-family:system-ui,sans-serif;font-size:13px;line-height:1.6;
+  }
+}
 
 /* ── Responsive ── */
 @media(max-width:900px){.qc-2col{grid-template-columns:1fr}}
