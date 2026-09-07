@@ -566,10 +566,9 @@ function openRoster(staffId,staffName){
 
         var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roster – '+esc2(staffName)+'</title><style>'+
           '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+
-          'html{height:100%}'+
-          'body{background:#f3efe4;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}'+
+          'html,body{background:#f3efe4;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased}'+
           '@page{size:A4;margin:16mm 18mm;background:#f3efe4}'+
-          '.page{width:680px;flex-shrink:0;padding:28px 40px}'+
+          '.page{max-width:680px;margin:0 auto;padding:36px 24px}'+
           '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 24px;border-bottom:2px solid #232c54;margin-bottom:36px}'+
           '.hd-left{display:flex;align-items:center;gap:14px}'+
           '.hd-mark{width:44px;height:44px;background:#232c54;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
@@ -592,7 +591,7 @@ function openRoster(staffId,staffName){
           '.job-num{font-size:10px;color:#c0bbb3;white-space:nowrap}'+
           '.ft{border-top:1px solid #232c5424;padding-top:14px;margin-top:4px;font-size:11px;color:#9b968a;display:flex;justify-content:space-between}'+
           '</style></head><body>'+
-          '<div class="page" id="page">'+
+          '<div class="page">'+
           '<div class="hd">'+
             '<div class="hd-left"><div class="hd-mark">MQ</div><span class="hd-brand">MyQuest</span></div>'+
             '<div class="hd-doc">Weekly Roster</div>'+
@@ -602,16 +601,7 @@ function openRoster(staffId,staffName){
           '<div class="job-count">'+totalJobs+(totalJobs===1?' job':' jobs')+' this week</div>'+
           dayRows+
           '<div class="ft"><span>'+esc2(genDate)+'</span><span>myquest.au</span></div>'+
-          '</div>'+
-          '<script>'+
-          'window.addEventListener("load",function(){'+
-            'var p=document.getElementById("page");'+
-            'if(!p)return;'+
-            'var scale=Math.min(window.innerWidth/p.offsetWidth,window.innerHeight/p.offsetHeight);'+
-            'if(scale<1)p.style.zoom=scale;'+
-          '});'+
-          '<\/script>'+
-          '</body></html>';
+          '</div></body></html>';
 
         var w=window.open('','_blank');
         if(!w){alert('Allow pop-ups to view the roster.');return;}
