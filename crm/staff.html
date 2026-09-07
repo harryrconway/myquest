@@ -543,7 +543,7 @@ function openRoster(staffId,staffName){
               var typeCol=j.type==='deep'?'#3a6b4e':'#232c54';
               var addr=addrMap[j.client_id]||j.site||'';
               dayRows+=
-                '<div class="job-row'+(done?' done':'')+'" style="background:'+typeBg.replace('rgba','rgba').replace(')',' )')+'0">'+
+                '<div class="job-row'+(done?' done':'')+'">'+
                 '<div class="job-time">'+esc2(timeStr)+'</div>'+
                 '<div class="job-info">'+
                   '<div class="job-name">'+esc2(j.client_name||'—')+'</div>'+
