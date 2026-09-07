@@ -569,7 +569,7 @@ function openRoster(staffId,staffName){
           'html{height:100%}'+
           'body{background:#f3efe4;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}'+
           '@page{size:A4;margin:16mm 18mm;background:#f3efe4}'+
-          '.page{width:680px;flex-shrink:0;padding:48px 40px;transform-origin:center center}'+
+          '.page{width:680px;flex-shrink:0;padding:28px 40px}'+
           '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 24px;border-bottom:2px solid #232c54;margin-bottom:36px}'+
           '.hd-left{display:flex;align-items:center;gap:14px}'+
           '.hd-mark{width:44px;height:44px;background:#232c54;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
@@ -608,7 +608,7 @@ function openRoster(staffId,staffName){
             'var p=document.getElementById("page");'+
             'if(!p)return;'+
             'var scale=Math.min(window.innerWidth/p.offsetWidth,window.innerHeight/p.offsetHeight);'+
-            'if(scale<1)p.style.transform="scale("+scale+")";'+
+            'if(scale<1)p.style.zoom=scale;'+
           '});'+
           '<\/script>'+
           '</body></html>';
