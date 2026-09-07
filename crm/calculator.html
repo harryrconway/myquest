@@ -69,16 +69,16 @@
 .qc-choice.on{background:var(--navy);border-color:var(--navy);color:var(--on);font-weight:600}
 
 /* ── SQM input ── */
-.qc-sqm-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px}
+.qc-sqm-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
 .qc-sqm-mid{display:flex;align-items:baseline;gap:7px}
 #qc-sqm-v{
-  width:100px;font-size:44px;font-weight:700;color:var(--navy);
+  width:86px;font-size:38px;font-weight:700;color:var(--navy);
   background:transparent;border:none;outline:none;text-align:center;
   -moz-appearance:textfield;font-family:inherit;letter-spacing:-.02em;line-height:1;
 }
 #qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
-.qc-sqm-unit{font-size:15px;font-weight:500;color:var(--stone);letter-spacing:.02em}
-.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.qc-sqm-unit{font-size:14px;font-weight:500;color:var(--stone);letter-spacing:.02em}
+.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px}
 .qc-sqm-pick{
   background:none;border:1px solid var(--hair);border-radius:6px;
   font-family:inherit;font-size:12px;color:var(--stone);cursor:pointer;
@@ -86,10 +86,10 @@
 }
 .qc-sqm-pick:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
 .qc-sqm-pick.on{background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.25);color:var(--navy);font-weight:600}
-.qc-sqm-hint{font-size:11.5px;color:var(--amber);margin-top:8px;display:none;text-align:center}
+.qc-sqm-hint{font-size:11.5px;color:var(--amber);margin-top:8px;display:none}
 .qc-sqm-hint.vis{display:block}
 
-/* ── Stepper ── */
+/* ── Stepper (after-hours only) ── */
 .qc-stepper-row{display:flex;align-items:center;gap:16px}
 .qc-ste-btn{
   background:var(--field);border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
@@ -100,6 +100,30 @@
 .qc-ste-btn:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
 .qc-ste-val{font-size:26px;font-weight:700;color:var(--navy);min-width:32px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
 .qc-ste-sub{font-size:11.5px;color:var(--stone);margin-top:2px}
+
+/* ── Compact attr rows (floors / bathrooms / kitchenette) ── */
+.qc-attr-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--hair)}
+.qc-attr-row:last-child{border-bottom:none}
+.qc-attr-lbl{font-size:13.5px;color:var(--navy);font-weight:500}
+.qc-attr-sub{font-size:11px;color:var(--stone);margin-top:2px}
+.qc-attr-ctl{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.qc-mini-btn{
+  background:var(--field);border:1.5px solid var(--hair-md);border-radius:8px;
+  color:var(--stone);font-family:inherit;font-size:15px;width:32px;height:32px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .13s,color .13s;-webkit-tap-highlight-color:transparent;
+}
+.qc-mini-btn:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-mini-val{font-size:15px;font-weight:700;color:var(--navy);min-width:28px;text-align:center;font-variant-numeric:tabular-nums}
+.qc-kit-btns{display:flex;gap:6px}
+.qc-kit-btn{
+  padding:6px 14px;background:var(--field);border:1.5px solid var(--hair-md);
+  border-radius:8px;font-family:inherit;font-size:13px;color:var(--stone);
+  cursor:pointer;transition:border-color .13s,color .13s,background .13s;
+  -webkit-tap-highlight-color:transparent;
+}
+.qc-kit-btn:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-kit-btn.on{background:var(--navy);border-color:var(--navy);color:var(--on);font-weight:600}
 
 /* ── Quote card wrapper ── */
 #qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
@@ -295,7 +319,7 @@ var QC={
   consumablesBase:12,
   consumablesPerBath:7,
   bufferPct:0.15,
-  minHrsMaint:2,
+  minHrsMaint:3,
   minHrsDeepRecurring:3,
   minHrsDeep:5
 };
@@ -424,29 +448,27 @@ function renderFormCol(){
     '</div>'+
     '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
     '<div class="qc-sep"></div>'+
-    '<div class="qc-3col">'+
-      '<div>'+
-        '<div class="qc-inner-lbl">Floors / levels</div>'+
-        '<div class="qc-stepper-row">'+
-          '<button type="button" class="qc-ste-btn" id="qc-fl-minus">&#8722;</button>'+
-          '<div><div class="qc-ste-val" id="qc-flnum">'+s.floors+'</div><div class="qc-ste-sub" id="qc-flsub">'+(s.floors===1?'level':'levels')+'</div></div>'+
-          '<button type="button" class="qc-ste-btn" id="qc-fl-plus">+</button>'+
-        '</div>'+
+    '<div class="qc-attr-row">'+
+      '<div class="qc-attr-lbl">Floors / levels</div>'+
+      '<div class="qc-attr-ctl">'+
+        '<button type="button" class="qc-mini-btn" id="qc-fl-minus">&#8722;</button>'+
+        '<span class="qc-mini-val" id="qc-flnum">'+s.floors+'</span>'+
+        '<button type="button" class="qc-mini-btn" id="qc-fl-plus">+</button>'+
       '</div>'+
-      '<div>'+
-        '<div class="qc-inner-lbl">Bathrooms / toilets</div>'+
-        '<div class="qc-stepper-row">'+
-          '<button type="button" class="qc-ste-btn" id="qc-minus">&#8722;</button>'+
-          '<div><div class="qc-ste-val" id="qc-bnum">'+s.baths+'</div><div class="qc-ste-sub" id="qc-bsub">'+(s.baths===1?'bathroom':'bathrooms')+'</div></div>'+
-          '<button type="button" class="qc-ste-btn" id="qc-plus">+</button>'+
-        '</div>'+
+    '</div>'+
+    '<div class="qc-attr-row">'+
+      '<div class="qc-attr-lbl">Bathrooms / toilets</div>'+
+      '<div class="qc-attr-ctl">'+
+        '<button type="button" class="qc-mini-btn" id="qc-minus">&#8722;</button>'+
+        '<span class="qc-mini-val" id="qc-bnum">'+s.baths+'</span>'+
+        '<button type="button" class="qc-mini-btn" id="qc-plus">+</button>'+
       '</div>'+
-      '<div>'+
-        '<div class="qc-inner-lbl">Kitchenette?</div>'+
-        '<div class="qc-choices col" style="gap:6px">'+
-          '<button type="button" class="qc-choice'+(s.kitchen===true?' on':'')+'" data-key="yes" data-grp="kit">Yes</button>'+
-          '<button type="button" class="qc-choice'+(s.kitchen===false?' on':'')+'" data-key="no" data-grp="kit">No</button>'+
-        '</div>'+
+    '</div>'+
+    '<div class="qc-attr-row">'+
+      '<div class="qc-attr-lbl">Kitchenette?</div>'+
+      '<div class="qc-kit-btns">'+
+        '<button type="button" class="qc-kit-btn'+(s.kitchen===true?' on':'')+'" data-key="yes" data-grp="kit">Yes</button>'+
+        '<button type="button" class="qc-kit-btn'+(s.kitchen===false?' on':'')+'" data-key="no" data-grp="kit">No</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -574,7 +596,7 @@ function renderPreview(r){
 
   h+='<div class="qc-q-body">';
   h+='<div class="qc-q-sec">Cost breakdown</div>';
-  h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour));
+  h+=row('Labour &mdash; '+r.hrs.toFixed(1)+' hrs &times; $'+QC.rate+'/hr',au(r.baseLabour));
   if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt));
   h+=row('Cleaning supplies &amp; equipment',au(r.sup));
 
@@ -654,8 +676,7 @@ function bindForm(){
   document.querySelectorAll('#qc-form .qc-choice[data-grp]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var key=this.dataset.key,grp=this.dataset.grp;
-      if(grp==='kit')s.kitchen=(key==='yes');
-      else if(grp==='freq')s.freq=key;
+      if(grp==='freq')s.freq=key;
       else if(grp==='type')s.type=key;
       document.querySelectorAll('#qc-form .qc-choice[data-grp="'+grp+'"]').forEach(function(b){
         b.classList.toggle('on',b.dataset.key===key);
@@ -665,6 +686,17 @@ function bindForm(){
         if(fc)fc.innerHTML=renderFormCol();
         bindForm();
       }
+      calcLive();
+    });
+  });
+
+  document.querySelectorAll('#qc-form .qc-kit-btn[data-grp]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var key=this.dataset.key;
+      s.kitchen=(key==='yes');
+      document.querySelectorAll('#qc-form .qc-kit-btn[data-grp="kit"]').forEach(function(b){
+        b.classList.toggle('on',b.dataset.key===key);
+      });
       calcLive();
     });
   });
@@ -703,20 +735,10 @@ function bindForm(){
   var bm=document.getElementById('qc-minus');
   var bp=document.getElementById('qc-plus');
   if(bm)bm.addEventListener('click',function(){
-    if(s.baths>0){
-      s.baths--;
-      var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;
-      var sub=document.getElementById('qc-bsub');if(sub)sub.textContent=s.baths===1?'bathroom':'bathrooms';
-      calcLive();
-    }
+    if(s.baths>0){s.baths--;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;calcLive();}
   });
   if(bp)bp.addEventListener('click',function(){
-    if(s.baths<8){
-      s.baths++;
-      var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;
-      var sub=document.getElementById('qc-bsub');if(sub)sub.textContent=s.baths===1?'bathroom':'bathrooms';
-      calcLive();
-    }
+    if(s.baths<8){s.baths++;var n=document.getElementById('qc-bnum');if(n)n.textContent=s.baths;calcLive();}
   });
 
   // After-hours stepper
@@ -743,20 +765,10 @@ function bindForm(){
   var flm=document.getElementById('qc-fl-minus');
   var flp=document.getElementById('qc-fl-plus');
   if(flm)flm.addEventListener('click',function(){
-    if(s.floors>1){
-      s.floors--;
-      var n=document.getElementById('qc-flnum');if(n)n.textContent=s.floors;
-      var sub=document.getElementById('qc-flsub');if(sub)sub.textContent=s.floors===1?'level':'levels';
-      calcLive();
-    }
+    if(s.floors>1){s.floors--;var n=document.getElementById('qc-flnum');if(n)n.textContent=s.floors;calcLive();}
   });
   if(flp)flp.addEventListener('click',function(){
-    if(s.floors<20){
-      s.floors++;
-      var n=document.getElementById('qc-flnum');if(n)n.textContent=s.floors;
-      var sub=document.getElementById('qc-flsub');if(sub)sub.textContent=s.floors===1?'level':'levels';
-      calcLive();
-    }
+    if(s.floors<20){s.floors++;var n=document.getElementById('qc-flnum');if(n)n.textContent=s.floors;calcLive();}
   });
 }
 
