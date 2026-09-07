@@ -126,6 +126,28 @@ a.ci-job:hover{background:rgba(35,44,84,.05);}
 .ci-qc-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--hair);padding-top:8px;margin-top:2px}
 .ci-qc-date{font-size:10.5px;color:var(--stone);opacity:.55;letter-spacing:.02em}
 .ci-qc-latest{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);opacity:1}
+.ci-qc-view{background:none;border:1px solid var(--hair-md);border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;color:var(--stone);cursor:pointer;padding:4px 10px;transition:border-color .12s,color .12s}
+.ci-qc-view:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+/* Quote detail modal body */
+.qd-band{background:var(--navy);padding:20px 26px 18px}
+.qd-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.qd-tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:rgba(243,239,228,.55);background:rgba(243,239,228,.1);border-radius:5px;padding:3px 8px}
+.qd-price-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(243,239,228,.5);margin-bottom:5px}
+.qd-price{font-size:38px;font-weight:700;color:var(--on);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.qd-sub{font-size:12px;color:rgba(243,239,228,.55);margin-top:6px}
+.qd-body{padding:20px 26px 24px}
+.qd-sec{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin:18px 0 10px}
+.qd-sec:first-child{margin-top:0}
+.qd-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--hair);color:var(--stone);font-size:13px;font-variant-numeric:tabular-nums}
+.qd-row:last-child{border-bottom:none}
+.qd-row.total{color:var(--navy);font-weight:700;font-size:14px;border-top:1px solid var(--hair-md);border-bottom:none;padding-top:10px;margin-top:4px}
+.qd-int{background:var(--field);border-radius:10px;padding:14px 16px;margin-top:16px}
+.qd-int-hd{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);opacity:.6;margin-bottom:10px}
+.qd-int-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;font-variant-numeric:tabular-nums}
+.qd-int-row+.qd-int-row{border-top:1px solid var(--hair);margin-top:4px;padding-top:8px}
+.qd-int-lbl{color:var(--stone)}
+.qd-int-val{font-weight:600;color:var(--navy)}
+.qd-int-val.green{color:var(--green)}
 .ci-qhist{margin:4px 8px 8px}
 .ci-qhist-sum{font-size:11.5px;font-weight:600;color:var(--stone);cursor:pointer;list-style:none;padding:8px 6px;border-radius:7px;transition:background .12s;display:flex;align-items:center;gap:6px}
 .ci-qhist-sum::-webkit-details-marker{display:none}
@@ -419,6 +441,17 @@ details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
   </div>
 </div>
 
+<!-- Quote detail modal -->
+<div class="modal-overlay" id="qd-modal" hidden>
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-hd">
+      <span class="modal-title" id="qd-title">Quote</span>
+      <button class="modal-close" id="qd-close" type="button">&times;</button>
+    </div>
+    <div id="qd-body"></div>
+  </div>
+</div>
+
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260806"></script>
 <script src="datepicker.js?v=20260807"></script>
@@ -473,6 +506,75 @@ function loadAll(cb){
     });
   });
 }
+
+var _quoteStore={};
+
+function openQuoteDetail(q){
+  var RATE=70,SUP=20,BUF_PCT=0.15,STAFF_PCT=0.35;
+  var SPACE_MAP={office:'Office',retail:'Retail',medical:'Medical',industrial:'Industrial'};
+  var FREQ_MAP={once:'One-off',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly'};
+  var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var ANN_MULT={monthly:12,fortnightly:26,weekly:52};
+  var d=new Date(q.created_at);
+  var dStr=d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();
+  var spaceLbl=q.space?(SPACE_MAP[q.space]||q.space):null;
+  var freqLbl=q.freq?(FREQ_MAP[q.freq]||q.freq):null;
+  var typeStr=q.type==='deep'?'Deep clean':'Maintenance';
+  var hrs=parseFloat(q.hrs)||0;
+  var baseLabour=hrs*RATE;
+  var ahAmt=q.after_hours_pct>0?baseLabour*(q.after_hours_pct/100):0;
+  var labour=baseLabour+ahAmt;
+  var preBuf=labour+SUP;
+  var bufAmt=q.buffer?preBuf*BUF_PCT:0;
+  var per=preBuf+bufAmt;
+  var staffCost=Math.round(per*STAFF_PCT);
+  var margin=Math.round(per*(1-STAFF_PCT));
+  var annVal=ANN_MULT[q.freq]?Math.round(per*ANN_MULT[q.freq]):null;
+  function au(n){return'$'+Math.round(n).toLocaleString('en-AU');}
+  function qrow(l,v,cls){return'<div class="qd-row'+(cls?' '+cls:'')+'"><span>'+l+'</span><span>'+v+'</span></div>';}
+  var tags='';
+  if(spaceLbl)tags+='<span class="qd-tag">'+esc(spaceLbl)+'</span>';
+  tags+='<span class="qd-tag">'+hrs+' hrs</span>';
+  if(freqLbl)tags+='<span class="qd-tag">'+esc(freqLbl)+'</span>';
+  tags+='<span class="qd-tag">'+typeStr+'</span>';
+  var subParts=[];
+  if(q.monthly)subParts.push('~'+au(q.monthly)+' / mo');
+  if(annVal)subParts.push('~'+au(annVal)+' / yr');
+  var h='<div class="qd-band">'+
+    '<div class="qd-tags">'+tags+'</div>'+
+    '<div class="qd-price-lbl">Per clean</div>'+
+    '<div class="qd-price">'+au(per)+'</div>'+
+    (subParts.length?'<div class="qd-sub">'+subParts.join(' &middot; ')+'</div>':'')+
+  '</div>'+
+  '<div class="qd-body">'+
+    '<div class="qd-sec">Cost breakdown</div>'+
+    qrow(hrs+' hrs &times; $'+RATE+'/hr',au(baseLabour))+
+    (ahAmt>0?qrow('After-hours loading (+'+q.after_hours_pct+'%)','+'+au(ahAmt)):'')+
+    qrow('Cleaning supplies &amp; equipment',au(SUP))+
+    (bufAmt>0?qrow('Site allowance (+'+Math.round(BUF_PCT*100)+'%)','+'+au(bufAmt)):'')+
+    qrow('Total per clean',au(per),'total')+
+    '<div class="qd-sec">Internal — not on client quote</div>'+
+    '<div class="qd-int">'+
+      '<div class="qd-int-hd">Margin split</div>'+
+      '<div class="qd-int-row"><span class="qd-int-lbl">Staff cost ('+Math.round(STAFF_PCT*100)+'%)</span><span class="qd-int-val">~'+au(staffCost)+'</span></div>'+
+      '<div class="qd-int-row"><span class="qd-int-lbl">Your margin ('+(100-Math.round(STAFF_PCT*100))+'%)</span><span class="qd-int-val green">~'+au(margin)+'</span></div>'+
+    '</div>'+
+    '<div class="qd-sec" style="margin-top:18px">Details</div>'+
+    qrow('Saved',dStr)+
+    (q.label?qrow('Label',esc(q.label)):'')+
+    qrow('Clean type',typeStr)+
+    (freqLbl?qrow('Frequency',freqLbl):'')+
+    (q.after_hours_pct>0?qrow('After-hours loading',q.after_hours_pct+'%'):'')+
+    qrow('Site allowance',q.buffer?'Included':'Not included')+
+  '</div>';
+  var title=q.label||((spaceLbl?spaceLbl+' — ':'')+typeStr);
+  document.getElementById('qd-title').textContent=title;
+  document.getElementById('qd-body').innerHTML=h;
+  document.getElementById('qd-modal').hidden=false;
+}
+
+document.getElementById('qd-close').addEventListener('click',function(){document.getElementById('qd-modal').hidden=true;});
+document.getElementById('qd-modal').addEventListener('click',function(e){if(e.target===this)this.hidden=true;});
 
 function buildClientDetail(c,jobs,contracts,quotes){
   var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
@@ -531,12 +633,16 @@ function buildClientDetail(c,jobs,contracts,quotes){
       '</div>'+
       '<div class="ci-qc-footer">'+
         '<span class="ci-qc-date">'+(isLatest?'<span class="ci-qc-latest">Latest</span> &middot; ':'')+'Saved '+dStr+'</span>'+
-        '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'" title="Remove">'+
-          '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Remove'+
-        '</button>'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<button class="ci-qc-view" data-action="view-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'">View full quote</button>'+
+          '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'" title="Remove">'+
+            '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Remove'+
+          '</button>'+
+        '</div>'+
       '</div>'+
     '</div>';
   }
+  quotesArr.forEach(function(q){_quoteStore[q.id]=q;});
   var quotesHtml;
   if(!quotesArr.length){
     quotesHtml='<div class="ci-notes-empty">No quotes saved yet.</div>';
@@ -688,6 +794,12 @@ document.getElementById('cl-body').addEventListener('click',function(e){
   var actBtn=e.target.closest('[data-action]');
   if(actBtn){
     if(actBtn.dataset.action==='job')window.location.href='jobs.html?newjob=1&cid='+encodeURIComponent(actBtn.dataset.cid)+'&cname='+encodeURIComponent(actBtn.dataset.cname);
+    else if(actBtn.dataset.action==='view-quote'){
+      var qid=actBtn.dataset.qid;
+      var qobj=_quoteStore[qid];
+      if(qobj)openQuoteDetail(qobj);
+      return;
+    }
     else if(actBtn.dataset.action==='del-quote'){
       if(!confirm('Remove this quote?'))return;
       sb.from('quotes').delete().eq('id',actBtn.dataset.qid).then(function(r){if(!r.error)reExpandClient(actBtn.dataset.qcid);});
