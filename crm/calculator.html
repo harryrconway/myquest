@@ -8,9 +8,7 @@
 <link rel="stylesheet" href="style.css?v=20260909">
 <style>
 /* ── Layout ── */
-.qc-outer-grid{display:grid;grid-template-columns:1fr 360px;grid-template-areas:"form preview";column-gap:20px;align-items:start;margin-top:16px}
-#qc-form{grid-area:form;align-self:start}
-#qc-preview{grid-area:preview}
+.qc-outer-grid{display:flex;flex-direction:column;gap:20px;margin-top:16px}
 .qc-top-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
 .qc-top-pair .qc-card{margin-bottom:0}
 
@@ -90,7 +88,7 @@
 .qc-card-sep{border-top:1px solid var(--hair);margin:18px 0 16px}
 
 /* ── Preview panel ── */
-#qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;position:sticky;top:20px;align-self:start}
+#qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
 
 /* Placeholder */
 .qc-ph{padding:20px;display:flex;gap:14px;align-items:flex-start}
@@ -161,9 +159,7 @@
 
 /* Mobile */
 @media(max-width:900px){
-  .qc-outer-grid{grid-template-columns:1fr;grid-template-areas:"form" "preview"}
   .qc-top-pair{grid-template-columns:1fr}
-  #qc-preview{position:static}
   .qc-two{grid-template-columns:1fr;gap:14px}
   .qc-sched-grid{grid-template-columns:1fr;gap:14px}
   .qc-addon-grid{grid-template-columns:1fr}
@@ -263,7 +259,7 @@ if(localStorage.getItem('mq_v')!=='3'){
 // ─── Config ──────────────────────────────────────────────────────
 
 var QC={
-  rate:80,
+  rate:70,
   floorMins:12,
   sqmHr:{maintenance:150,deep:85},
   spaceMult:{office:1.0,retail:1.0,medical:1.5,industrial:1.0},
