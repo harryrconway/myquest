@@ -571,10 +571,17 @@ function openQuoteDetail(q){
   document.getElementById('qd-title').textContent=title;
   document.getElementById('qd-body').innerHTML=h;
   document.getElementById('qd-modal').hidden=false;
+  document.body.style.overflow='hidden';
 }
 
-document.getElementById('qd-close').addEventListener('click',function(){document.getElementById('qd-modal').hidden=true;});
-document.getElementById('qd-modal').addEventListener('click',function(e){if(e.target===this)this.hidden=true;});
+function closeQuoteDetail(){
+  document.getElementById('qd-modal').hidden=true;
+  document.body.style.overflow='';
+}
+
+document.getElementById('qd-close').addEventListener('click',closeQuoteDetail);
+document.getElementById('qd-modal').addEventListener('click',function(e){if(e.target===this)closeQuoteDetail();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.getElementById('qd-modal').hidden)closeQuoteDetail();});
 
 function buildClientDetail(c,jobs,contracts,quotes){
   var bc=c.status==='active'?'active':c.status==='onboarding'?'onboarding':'exited';
