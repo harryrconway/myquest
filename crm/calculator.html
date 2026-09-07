@@ -65,6 +65,11 @@
 .qc-choice:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
 .qc-choice.on{background:var(--navy);border-color:var(--navy);color:var(--on);font-weight:600}
 
+/* ── After-hours info ── */
+.qc-ah-info{display:flex;flex-direction:column;gap:6px;margin:8px 0 4px;padding:12px 14px;background:rgba(35,44,84,.04);border-radius:8px}
+.qc-ah-info-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--stone);line-height:1.5}
+.qc-ah-dot{width:4px;height:4px;border-radius:50%;background:var(--stone);opacity:.4;flex-shrink:0;margin-top:6px}
+
 /* ── After-hours stepper ── */
 .qc-stepper-row{display:flex;align-items:center;gap:16px}
 .qc-ste-btn{
@@ -408,8 +413,13 @@ function renderFormCol(){
       '</div>'+
     '</div>'+
     '<div class="qc-sep"></div>'+
-    '<div class="qc-inner-lbl" style="opacity:.65">After-hours loading <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.9;font-size:11px">(optional — leave at 0% if standard hours)</span></div>'+
-    '<div class="qc-stepper-row">'+
+    '<div class="qc-inner-lbl" style="opacity:.65">After-hours loading <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.9;font-size:11px">(optional)</span></div>'+
+    '<div class="qc-ah-info">'+
+      '<div class="qc-ah-info-row"><span class="qc-ah-dot"></span><span>Cleans outside business hours (before 7am or after 6pm, weekends)</span></div>'+
+      '<div class="qc-ah-info-row"><span class="qc-ah-dot"></span><span>Typical loading: <b>10–20%</b> for evenings, <b>25–50%</b> for weekends or public holidays</span></div>'+
+      '<div class="qc-ah-info-row"><span class="qc-ah-dot"></span><span>Added on top of the labour component only — leave at 0% if the client is flexible on timing</span></div>'+
+    '</div>'+
+    '<div class="qc-stepper-row" style="margin-top:12px">'+
       '<button type="button" class="qc-ste-btn" id="qc-ah-minus">&#8722;</button>'+
       '<div>'+
         '<div class="qc-ste-val" id="qc-ahnum">'+s.afterHoursPct+'%</div>'+
