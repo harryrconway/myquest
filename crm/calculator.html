@@ -188,6 +188,15 @@
 .qc-incl-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone)}
 .qc-incl-check{width:14px;height:14px;border-radius:50%;background:rgba(58,107,78,.12);border:1px solid rgba(58,107,78,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;color:var(--green)}
 
+/* ── Internal margin section ── */
+.qc-int{background:var(--field);border-radius:10px;padding:14px 16px;margin:16px 0 2px}
+.qc-int-hd{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);opacity:.6;margin-bottom:10px}
+.qc-int-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;font-variant-numeric:tabular-nums}
+.qc-int-row+.qc-int-row{border-top:1px solid var(--hair);margin-top:4px;padding-top:8px}
+.qc-int-lbl{color:var(--stone)}
+.qc-int-val{font-weight:600;color:var(--navy)}
+.qc-int-val.green{color:var(--green)}
+
 /* ── Footer / actions ── */
 .qc-valid{font-size:11px;color:var(--stone);text-align:center;padding:12px 22px;border-top:1px solid var(--hair);background:var(--field);opacity:.7;letter-spacing:.02em}
 .qc-actions{padding:16px 24px;border-top:1px solid var(--hair)}
@@ -319,6 +328,7 @@ var QC={
   consumablesBase:12,
   consumablesPerBath:7,
   bufferPct:0.15,
+  staffPct:0.35,
   minHrsMaint:3,
   minHrsDeepRecurring:3,
   minHrsDeep:5
@@ -611,6 +621,21 @@ function renderPreview(r){
 
   h+=row('Per clean total',au(r.per),'total');
   if(annVal)h+=row('Annual contract value','&#8776; '+au(annVal),'ann');
+
+  var staffCost=Math.round(r.per*QC.staffPct);
+  var margin=Math.round(r.per*(1-QC.staffPct));
+  var staffPctDisplay=Math.round(QC.staffPct*100);
+  h+='<div class="qc-int">'+
+    '<div class="qc-int-hd">Internal &mdash; not on client quote</div>'+
+    '<div class="qc-int-row">'+
+      '<span class="qc-int-lbl">Staff cost ('+staffPctDisplay+'%)</span>'+
+      '<span class="qc-int-val">&#126;'+au(staffCost)+'</span>'+
+    '</div>'+
+    '<div class="qc-int-row">'+
+      '<span class="qc-int-lbl">Your margin ('+(100-staffPctDisplay)+'%)</span>'+
+      '<span class="qc-int-val green">&#126;'+au(margin)+'</span>'+
+    '</div>'+
+  '</div>';
 
   h+='<div class="qc-q-sec" style="margin-top:18px">What\'s included</div>';
   h+='<div class="qc-incl">'+
