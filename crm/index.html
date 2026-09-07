@@ -112,22 +112,26 @@ a.ci-job:hover{background:rgba(35,44,84,.05);}
 .ci-act-btn svg{color:var(--stone);flex-shrink:0}
 .ci-add-btn{font-size:11.5px;font-weight:600;color:var(--stone);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;line-height:1}
 .ci-add-btn:hover{color:var(--navy)}
-.ci-quote-card{padding:14px;margin:8px;border-radius:10px;background:var(--field);border:1px solid var(--hair)}
-.ci-qc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
-.ci-qc-prices{line-height:1}
-.ci-qc-price{font-size:20px;font-weight:700;color:var(--navy);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.ci-qc-monthly{font-size:11.5px;color:var(--stone);margin-top:4px;font-variant-numeric:tabular-nums}
-.ci-qc-del{background:none;border:none;cursor:pointer;padding:3px;color:var(--stone);opacity:.3;line-height:0;transition:opacity .12s;flex-shrink:0}
-.ci-qc-del:hover{opacity:1;color:#c0392b}
-.ci-qc-label{font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:6px;letter-spacing:-.01em}
-.ci-qc-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.ci-qc-chip{font-size:11px;font-weight:500;color:var(--stone);background:rgba(35,44,84,.06);border-radius:5px;padding:3px 8px;white-space:nowrap}
-.ci-qc-chip.hi{color:var(--navy);background:rgba(35,44,84,.1)}
-.ci-qc-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--hair);padding-top:8px;margin-top:2px}
-.ci-qc-date{font-size:10.5px;color:var(--stone);opacity:.55;letter-spacing:.02em}
-.ci-qc-latest{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);opacity:1}
-.ci-qc-view{background:none;border:1px solid var(--hair-md);border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;color:var(--stone);cursor:pointer;padding:4px 10px;transition:border-color .12s,color .12s}
+.ci-quotes-panel{padding:2px 0}
+.ci-quote-card{padding:14px 16px;border-bottom:1px solid var(--hair)}
+.ci-quote-card:last-child{border-bottom:none}
+.ci-qc-main{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ci-qc-left{flex:1;min-width:0}
+.ci-qc-label{font-size:13px;font-weight:700;color:var(--navy);letter-spacing:-.01em;line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-qc-label.unnamed{color:var(--stone);font-weight:500;font-style:italic}
+.ci-qc-meta{font-size:12px;color:var(--stone);margin-bottom:8px;line-height:1.4}
+.ci-qc-pills{display:flex;flex-wrap:wrap;gap:4px}
+.ci-qc-pill{font-size:10.5px;font-weight:500;color:var(--stone);background:rgba(35,44,84,.06);border-radius:4px;padding:2px 7px;white-space:nowrap;line-height:1.6}
+.ci-qc-right{text-align:right;flex-shrink:0}
+.ci-qc-price{font-size:19px;font-weight:700;color:var(--navy);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.ci-qc-monthly{font-size:11px;color:var(--stone);margin-top:3px;font-variant-numeric:tabular-nums}
+.ci-qc-footer{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid var(--hair)}
+.ci-qc-latest{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:rgba(58,107,78,.1);border-radius:4px;padding:2px 6px;flex-shrink:0}
+.ci-qc-date{font-size:11px;color:var(--stone);opacity:.5;flex:1}
+.ci-qc-view{background:none;border:1px solid var(--hair-md);border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;color:var(--stone);cursor:pointer;padding:4px 10px;transition:border-color .12s,color .12s;white-space:nowrap;flex-shrink:0}
 .ci-qc-view:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.ci-qc-del{background:none;border:none;cursor:pointer;padding:4px;color:var(--stone);opacity:.3;line-height:0;transition:opacity .12s,color .12s;flex-shrink:0}
+.ci-qc-del:hover{opacity:1;color:#c0392b}
 /* Quote detail modal body */
 .qd-band{background:var(--navy);padding:20px 26px 18px}
 .qd-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
@@ -619,33 +623,34 @@ function buildClientDetail(c,jobs,contracts,quotes){
     var freqLbl=q.freq?(FREQ_MAP[q.freq]||q.freq):null;
     var typeStr=q.type==='deep'?'Deep clean':'Maintenance';
     var priceLbl=q.per?'$'+Math.round(q.per).toLocaleString('en-AU'):'—';
-    var monthlyLbl=q.monthly?'~$'+Math.round(q.monthly).toLocaleString('en-AU')+' / mo':null;
-    var chips=[];
-    if(spaceLbl)chips.push({t:spaceLbl,hi:true});
-    if(freqLbl)chips.push({t:freqLbl,hi:true});
-    chips.push({t:typeStr,hi:false});
-    if(q.hrs)chips.push({t:q.hrs+' hrs',hi:false});
-    if(q.after_hours_pct>0)chips.push({t:'After-hours +'+q.after_hours_pct+'%',hi:false});
-    if(q.buffer)chips.push({t:'Site allowance +15%',hi:false});
+    var monthlyLbl=q.monthly?'~$'+Math.round(q.monthly).toLocaleString('en-AU')+'/mo':null;
+    var metaParts=[];
+    if(spaceLbl)metaParts.push(spaceLbl);
+    if(freqLbl)metaParts.push(freqLbl);
+    metaParts.push(typeStr);
+    var pills=[];
+    if(q.hrs)pills.push(q.hrs+' hrs');
+    if(q.after_hours_pct>0)pills.push('After-hours +'+q.after_hours_pct+'%');
+    if(q.buffer)pills.push('Site allowance');
     return '<div class="ci-quote-card">'+
-      '<div class="ci-qc-top">'+
-        '<div style="flex:1;min-width:0">'+
-          (q.label?'<div class="ci-qc-label">'+esc(q.label)+'</div>':'<div class="ci-qc-label" style="opacity:.45;font-weight:500">Quote estimate</div>')+
-          '<div class="ci-qc-chips">'+chips.map(function(ch){return'<span class="ci-qc-chip'+(ch.hi?' hi':'')+'">'+ch.t+'</span>';}).join('')+'</div>'+
+      '<div class="ci-qc-main">'+
+        '<div class="ci-qc-left">'+
+          '<div class="ci-qc-label'+(q.label?'':' unnamed')+'">'+(q.label?esc(q.label):'Untitled quote')+'</div>'+
+          '<div class="ci-qc-meta">'+metaParts.join(' &middot; ')+'</div>'+
+          (pills.length?'<div class="ci-qc-pills">'+pills.map(function(p){return'<span class="ci-qc-pill">'+p+'</span>';}).join('')+'</div>':'')+
         '</div>'+
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">'+
+        '<div class="ci-qc-right">'+
           '<div class="ci-qc-price">'+priceLbl+'</div>'+
           (monthlyLbl?'<div class="ci-qc-monthly">'+monthlyLbl+'</div>':'')+
         '</div>'+
       '</div>'+
       '<div class="ci-qc-footer">'+
-        '<span class="ci-qc-date">'+(isLatest?'<span class="ci-qc-latest">Latest</span> &middot; ':'')+'Saved '+dStr+'</span>'+
-        '<div style="display:flex;align-items:center;gap:10px">'+
-          '<button class="ci-qc-view" data-action="view-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'">View full quote</button>'+
-          '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'" title="Remove">'+
-            '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Remove'+
-          '</button>'+
-        '</div>'+
+        (isLatest?'<span class="ci-qc-latest">Latest</span>':'')+
+        '<span class="ci-qc-date">'+dStr+'</span>'+
+        '<button class="ci-qc-view" data-action="view-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'">View</button>'+
+        '<button class="ci-qc-del" data-action="del-quote" data-qid="'+esc(q.id)+'" data-qcid="'+esc(cid)+'" title="Remove">'+
+          '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'+
+        '</button>'+
       '</div>'+
     '</div>';
   }
