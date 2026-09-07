@@ -110,8 +110,12 @@
 .lost-card{background:var(--card);border-radius:var(--r);width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,.25);padding:28px}
 .lost-title{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:5px;letter-spacing:-.02em}
 .lost-sub{font-size:13px;color:var(--stone);margin-bottom:20px;line-height:1.5}
-.lost-select{width:100%;padding:11px 14px;border:1.5px solid var(--hair-md);border-radius:9px;font-size:14px;font-family:var(--font);background:#fff;color:var(--navy);-webkit-appearance:none;margin-bottom:20px;transition:border-color .15s}
-.lost-select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(35,44,84,.08)}
+.lost-opts{margin-bottom:20px;display:flex;flex-direction:column;gap:6px}
+.lost-opt{display:flex;align-items:center;gap:10px;padding:9px 14px;border:1.5px solid var(--hair-md);border-radius:9px;cursor:pointer;font-size:13.5px;color:var(--navy);transition:border-color .15s,background .15s;user-select:none}
+.lost-opt input{position:absolute;opacity:0;pointer-events:none}
+.lost-opt-mk{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--stone);flex:none;transition:all .15s}
+.lost-opt.sel{border-color:var(--navy);background:rgba(35,44,84,.05)}
+.lost-opt.sel .lost-opt-mk{border-color:var(--navy);background:var(--navy);box-shadow:inset 0 0 0 3px #fff}
 .lost-actions{display:flex;justify-content:flex-end;gap:10px}
 
 @media(max-width:860px){
@@ -322,15 +326,15 @@
   <div class="lost-card">
     <div class="lost-title">Mark as lost</div>
     <div class="lost-sub">What was the reason? This helps track where leads are dropping off.</div>
-    <select class="lost-select" id="lost-reason">
-      <option value="">No reason — just close it</option>
-      <option value="Too expensive">Too expensive</option>
-      <option value="Went with a competitor">Went with a competitor</option>
-      <option value="No response">No response</option>
-      <option value="Not ready yet">Not ready yet</option>
-      <option value="Not the right fit">Not the right fit</option>
-      <option value="Other">Other</option>
-    </select>
+    <div class="lost-opts" id="lost-opts">
+      <label class="lost-opt"><input type="radio" name="lostReason" value=""><span class="lost-opt-mk"></span>No reason — just close it</label>
+      <label class="lost-opt"><input type="radio" name="lostReason" value="Too expensive"><span class="lost-opt-mk"></span>Too expensive</label>
+      <label class="lost-opt"><input type="radio" name="lostReason" value="Went with a competitor"><span class="lost-opt-mk"></span>Went with a competitor</label>
+      <label class="lost-opt"><input type="radio" name="lostReason" value="No response"><span class="lost-opt-mk"></span>No response</label>
+      <label class="lost-opt"><input type="radio" name="lostReason" value="Not ready yet"><span class="lost-opt-mk"></span>Not ready yet</label>
+      <label class="lost-opt"><input type="radio" name="lostReason" value="Not the right fit"><span class="lost-opt-mk"></span>Not the right fit</label>
+      <label class="lost-opt"><input type="radio" name="lostReason" value="Other"><span class="lost-opt-mk"></span>Other</label>
+    </div>
     <div class="lost-actions">
       <button class="cv-btn-ghost" id="lost-cancel">Cancel</button>
       <button class="cv-btn-primary" id="lost-confirm">Mark as lost</button>
@@ -661,7 +665,8 @@ document.getElementById('cv-submit').addEventListener('click',async function(){
 // --- Lost flow ---
 window._iqLost=function(id){
   currentLostId=id;
-  document.getElementById('lost-reason').value='';
+  document.querySelectorAll('#lost-opts .lost-opt').forEach(function(o){o.classList.remove('sel');});
+  document.querySelectorAll('input[name=lostReason]').forEach(function(r){r.checked=false;});
   document.getElementById('lost-overlay').classList.add('open');
 };
 
@@ -670,6 +675,12 @@ function closeLostModal(){
   currentLostId=null;
 }
 
+document.getElementById('lost-opts').addEventListener('click',function(e){
+  var opt=e.target.closest('.lost-opt');
+  if(!opt)return;
+  document.querySelectorAll('#lost-opts .lost-opt').forEach(function(o){o.classList.remove('sel');});
+  opt.classList.add('sel');
+});
 document.getElementById('lost-cancel').addEventListener('click',closeLostModal);
 document.getElementById('lost-overlay').addEventListener('click',function(e){
   if(e.target===this)closeLostModal();
@@ -677,7 +688,8 @@ document.getElementById('lost-overlay').addEventListener('click',function(e){
 
 document.getElementById('lost-confirm').addEventListener('click',function(){
   if(!currentLostId)return;
-  var reason=document.getElementById('lost-reason').value||null;
+  var r=document.querySelector('input[name=lostReason]:checked');
+  var reason=r&&r.value?r.value:null;
   var btn=this;btn.textContent='Saving…';btn.disabled=true;
   sb.from('inquiries').update({status:'lost',lost_reason:reason}).eq('id',currentLostId).then(function(r){
     btn.textContent='Confirm';btn.disabled=false;
