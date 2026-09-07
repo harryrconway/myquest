@@ -511,83 +511,99 @@ function openRoster(staffId,staffName){
   function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   sb.from('jobs')
-    .select('id,job_number,client_name,site,date,start_time,start_tz,type,status')
+    .select('id,job_number,client_id,client_name,site,date,start_time,start_tz,type,status')
     .eq('assigned_staff_id',staffId)
     .gte('date',monISO).lte('date',sunISO)
     .neq('status','cancelled')
     .order('date').order('start_time')
     .then(function(r){
       var jobs=r.data||[];
-      var byDay={};
-      for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);byDay[iso(d)]=[];}
-      jobs.forEach(function(j){if(byDay[j.date])byDay[j.date].push(j);});
+      var clientIds=[];
+      jobs.forEach(function(j){if(j.client_id&&clientIds.indexOf(j.client_id)===-1)clientIds.push(j.client_id);});
 
-      var dayRows='';
-      Object.keys(byDay).sort().forEach(function(dateKey){
-        var jj=byDay[dateKey];
-        var hdr=fmtHdr(dateKey);
-        dayRows+='<div style="margin-bottom:22px">';
-        dayRows+='<div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:#9b968a;margin-bottom:10px;padding-bottom:7px;border-bottom:1.5px solid #232c5420">'+hdr+'</div>';
-        if(!jj.length){
-          dayRows+='<div style="font-size:12.5px;color:#c0bbb3;padding:4px 0">No jobs scheduled</div>';
-        } else {
-          jj.forEach(function(j){
-            var done=j.status==='completed';
-            var timeStr=fmtTime(j.start_time)+(j.start_tz?' · '+j.start_tz:'');
-            var typeStr=typeLbl(j.type);
-            var typeBg=j.type==='deep'?'rgba(58,107,78,.1)':'rgba(35,44,84,.07)';
-            var typeCol=j.type==='deep'?'#3a6b4e':'#232c54';
-            dayRows+=
-              '<div style="display:grid;grid-template-columns:110px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #232c540f;opacity:'+(done?'.45':'1')+'">' +
-              '<span style="font-size:13px;font-weight:700;color:#232c54;white-space:nowrap">'+esc2(timeStr)+'</span>'+
-              '<div><div style="font-size:13px;font-weight:600;color:#232c54;line-height:1.3">'+esc2(j.client_name||'—')+'</div>'+(j.site?'<div style="font-size:11px;color:#9b968a;margin-top:1px">'+esc2(j.site)+'</div>':'')+
-              (done?'<span style="font-size:10px;color:#3a6b4e;font-weight:700;letter-spacing:.06em">✓ COMPLETED</span>':'')+
-              '</div>'+
-              '<span style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap;background:'+typeBg+';color:'+typeCol+'">'+esc2(typeStr)+'</span>'+
-              (j.job_number?'<span style="font-size:10px;color:#c0bbb3;white-space:nowrap">#'+esc2(j.job_number)+'</span>':'<span></span>')+
-              '</div>';
-          });
-        }
-        dayRows+='</div>';
-      });
+      function buildRoster(addrMap){
+        var byDay={};
+        for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);byDay[iso(d)]=[];}
+        jobs.forEach(function(j){if(byDay[j.date])byDay[j.date].push(j);});
 
-      var weekLabel='Week of '+fmtDay(monISO)+' – '+fmtDay(sunISO)+' '+mon.getFullYear();
-      var genDate='Generated '+fmtDate(iso(today));
-      var totalJobs=jobs.length;
+        var dayRows='';
+        Object.keys(byDay).sort().forEach(function(dateKey){
+          var jj=byDay[dateKey];
+          var hdr=fmtHdr(dateKey);
+          dayRows+='<div style="margin-bottom:22px">';
+          dayRows+='<div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:#9b968a;margin-bottom:10px;padding-bottom:7px;border-bottom:1.5px solid #232c5420">'+hdr+'</div>';
+          if(!jj.length){
+            dayRows+='<div style="font-size:12.5px;color:#c0bbb3;padding:4px 0">No jobs scheduled</div>';
+          } else {
+            jj.forEach(function(j){
+              var done=j.status==='completed';
+              var timeStr=fmtTime(j.start_time)+(j.start_tz?' · '+j.start_tz:'');
+              var typeStr=typeLbl(j.type);
+              var typeBg=j.type==='deep'?'rgba(58,107,78,.1)':'rgba(35,44,84,.07)';
+              var typeCol=j.type==='deep'?'#3a6b4e':'#232c54';
+              var addr=addrMap[j.client_id]||j.site||'';
+              dayRows+=
+                '<div style="display:grid;grid-template-columns:110px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #232c540f;opacity:'+(done?'.45':'1')+'">' +
+                '<span style="font-size:13px;font-weight:700;color:#232c54;white-space:nowrap">'+esc2(timeStr)+'</span>'+
+                '<div><div style="font-size:13px;font-weight:600;color:#232c54;line-height:1.3">'+esc2(j.client_name||'—')+'</div>'+(addr?'<div style="font-size:11px;color:#9b968a;margin-top:1px">'+esc2(addr)+'</div>':'')+
+                (done?'<span style="font-size:10px;color:#3a6b4e;font-weight:700;letter-spacing:.06em">✓ COMPLETED</span>':'')+
+                '</div>'+
+                '<span style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap;background:'+typeBg+';color:'+typeCol+'">'+esc2(typeStr)+'</span>'+
+                (j.job_number?'<span style="font-size:10px;color:#c0bbb3;white-space:nowrap">#'+esc2(j.job_number)+'</span>':'<span></span>')+
+                '</div>';
+            });
+          }
+          dayRows+='</div>';
+        });
 
-      var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roster – '+esc2(staffName)+'</title><style>'+
-        '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+
-        'html,body{background:#fff;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased}'+
-        '@page{size:A4;margin:16mm 18mm}'+
-        '.page{max-width:720px;margin:0 auto;padding:32px 0}'+
-        '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 20px;border-bottom:2px solid #232c54;margin-bottom:26px}'+
-        '.hd-left{display:flex;align-items:center;gap:12px}'+
-        '.hd-mark{width:34px;height:34px;background:#232c54;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
-        '.hd-brand{font-size:16px;font-weight:700;color:#232c54;letter-spacing:-.015em}'+
-        '.hd-right{text-align:right}'+
-        '.hd-doc{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9b968a}'+
-        '.staff-name{font-size:26px;font-weight:700;letter-spacing:-.025em;color:#232c54;margin-bottom:5px;line-height:1.1}'+
-        '.week-label{font-size:13px;color:#9b968a;margin-bottom:6px}'+
-        '.job-count{font-size:12px;font-weight:600;color:#3a6b4e;background:rgba(58,107,78,.1);display:inline-block;padding:3px 10px;border-radius:999px;margin-bottom:28px}'+
-        '.ft{border-top:1px solid #232c5424;padding-top:14px;margin-top:4px;font-size:11px;color:#9b968a;display:flex;justify-content:space-between}'+
-        '</style></head><body>'+
-        '<div class="page">'+
-        '<div class="hd">'+
-          '<div class="hd-left"><div class="hd-mark">MQ</div><span class="hd-brand">MyQuest</span></div>'+
-          '<div class="hd-right"><div class="hd-doc">Weekly Roster</div></div>'+
-        '</div>'+
-        '<div class="staff-name">'+esc2(staffName)+'</div>'+
-        '<div class="week-label">'+esc2(weekLabel)+'</div>'+
-        '<div class="job-count">'+totalJobs+(totalJobs===1?' job':' jobs')+' this week</div>'+
-        dayRows+
-        '<div class="ft"><span>'+esc2(genDate)+'</span><span>myquest.au</span></div>'+
-        '</div></body></html>';
+        var weekLabel='Week of '+fmtDay(monISO)+' – '+fmtDay(sunISO)+' '+mon.getFullYear();
+        var genDate='Generated '+fmtDate(iso(today));
+        var totalJobs=jobs.length;
 
-      var w=window.open('','_blank');
-      if(!w){alert('Allow pop-ups to view the roster.');return;}
-      w.document.write(html);
-      w.document.close();
-      w.focus();
+        var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roster – '+esc2(staffName)+'</title><style>'+
+          '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+
+          'html,body{background:#fff;font-family:system-ui,-apple-system,sans-serif;color:#232c54;-webkit-font-smoothing:antialiased}'+
+          '@page{size:A4;margin:16mm 18mm}'+
+          '.page{max-width:720px;margin:0 auto;padding:32px 0}'+
+          '.hd{display:flex;align-items:center;justify-content:space-between;padding:0 0 20px;border-bottom:2px solid #232c54;margin-bottom:26px}'+
+          '.hd-left{display:flex;align-items:center;gap:12px}'+
+          '.hd-mark{width:34px;height:34px;background:#232c54;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#f3efe4;letter-spacing:.04em;flex-shrink:0}'+
+          '.hd-brand{font-size:16px;font-weight:700;color:#232c54;letter-spacing:-.015em}'+
+          '.hd-right{text-align:right}'+
+          '.hd-doc{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9b968a}'+
+          '.staff-name{font-size:26px;font-weight:700;letter-spacing:-.025em;color:#232c54;margin-bottom:5px;line-height:1.1}'+
+          '.week-label{font-size:13px;color:#9b968a;margin-bottom:6px}'+
+          '.job-count{font-size:12px;font-weight:600;color:#3a6b4e;background:rgba(58,107,78,.1);display:inline-block;padding:3px 10px;border-radius:999px;margin-bottom:28px}'+
+          '.ft{border-top:1px solid #232c5424;padding-top:14px;margin-top:4px;font-size:11px;color:#9b968a;display:flex;justify-content:space-between}'+
+          '</style></head><body>'+
+          '<div class="page">'+
+          '<div class="hd">'+
+            '<div class="hd-left"><div class="hd-mark">MQ</div><span class="hd-brand">MyQuest</span></div>'+
+            '<div class="hd-right"><div class="hd-doc">Weekly Roster</div></div>'+
+          '</div>'+
+          '<div class="staff-name">'+esc2(staffName)+'</div>'+
+          '<div class="week-label">'+esc2(weekLabel)+'</div>'+
+          '<div class="job-count">'+totalJobs+(totalJobs===1?' job':' jobs')+' this week</div>'+
+          dayRows+
+          '<div class="ft"><span>'+esc2(genDate)+'</span><span>myquest.au</span></div>'+
+          '</div></body></html>';
+
+        var w=window.open('','_blank');
+        if(!w){alert('Allow pop-ups to view the roster.');return;}
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+      }
+
+      if(clientIds.length){
+        sb.from('clients').select('id,site_address').in('id',clientIds).then(function(cr){
+          var addrMap={};
+          (cr.data||[]).forEach(function(c){addrMap[c.id]=c.site_address||'';});
+          buildRoster(addrMap);
+        });
+      } else {
+        buildRoster({});
+      }
     });
 }
 
