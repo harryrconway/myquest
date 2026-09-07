@@ -7,49 +7,69 @@
 <title>Quote Calculator — MyQuest CRM</title>
 <link rel="stylesheet" href="style.css?v=20260909">
 <style>
-/* ── Layout ── */
-.qc-outer-grid{display:flex;flex-direction:column;gap:20px;margin-top:16px}
-.qc-top-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
-.qc-top-pair .qc-card{margin-bottom:0}
+/* ── Outer layout ── */
+.qc-outer{display:flex;flex-direction:column;gap:16px;margin-top:16px}
 
-/* ── Section cards (matches .ac) ── */
-.qc-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 22px;margin-bottom:14px}
-.qc-card:last-child{margin-bottom:0}
-.qc-card-head{margin-bottom:14px}
-.qc-card-lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
-.qc-card-hint{font-size:11.5px;color:var(--stone);margin-top:3px}
+/* ── Stats strip override: 3 cols ── */
+#qc-stats{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){#qc-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){#qc-stats{grid-template-columns:1fr}}
+
+/* ── Step cards ── */
+.qc-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px}
+
+/* ── Step header ── */
+.qc-step-hd{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.qc-step-num{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--on);background:var(--navy);border-radius:6px;padding:3px 7px;flex-shrink:0;margin-top:3px;font-family:inherit}
+.qc-step-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;line-height:1.2}
+.qc-step-sub{font-size:12px;color:var(--stone);margin-top:3px}
+
+/* ── Premises tile grid ── */
+.qc-space-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qc-space-tile{
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  padding:16px 18px;background:var(--field);
+  border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
+  color:var(--stone);font-family:inherit;
+  cursor:pointer;transition:border-color .13s,color .13s,background .13s;
+  text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  width:100%;
+}
+.qc-space-tile:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-space-tile.on{background:var(--navy);border-color:var(--navy);color:var(--on)}
+.qst-ico{width:20px;height:20px;flex-shrink:0;opacity:.5;margin-bottom:6px}
+.qc-space-tile.on .qst-ico{opacity:.7}
+.qst-label{font-size:13.5px;font-weight:600;color:inherit;line-height:1.2}
+.qst-sub{font-size:11px;color:inherit;opacity:.55;line-height:1.35;margin-top:1px}
+.qc-space-tile.on .qst-sub{opacity:.65}
+
+/* ── Separator ── */
+.qc-sep{border-top:1px solid var(--hair);margin:20px 0 18px}
+
+/* ── Inner label ── */
+.qc-inner-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
+
+/* ── 2-col / 3-col grids ── */
+.qc-2col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.qc-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
 
 /* ── Choice buttons ── */
 .qc-choices{display:flex;flex-wrap:wrap;gap:8px}
-
-/* ── Add-on grid ── */
-.qc-addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.qc-addon-btn{width:100%;justify-content:space-between;align-items:center;text-align:left;padding:11px 14px}
-.qc-addon-left{display:flex;align-items:flex-start;gap:8px}
-.qc-addon-name{font-size:13px;color:inherit}
-.qc-addon-desc{font-size:11px;color:inherit;opacity:.55;margin-top:2px;line-height:1.3}
-.qc-addon-btn.on .qc-addon-desc{opacity:.7}
-.qc-addon-rate{font-size:11.5px;font-weight:600;white-space:nowrap;color:inherit;opacity:.6;flex-shrink:0;margin-left:10px}
-.qc-addon-btn.on .qc-addon-rate{opacity:.8}
+.qc-choices.col{flex-direction:column}
+.qc-choices.col .qc-choice{width:100%}
 .qc-choice{
   display:inline-flex;align-items:center;gap:8px;
-  padding:10px 16px;
-  background:var(--field);
-  border:1.5px solid var(--hair-md);
-  border-radius:var(--r-sm);
+  padding:10px 16px;background:var(--field);
+  border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
   color:var(--stone);font-size:13.5px;font-family:inherit;
   cursor:pointer;transition:border-color .13s,color .13s,background .13s;
   line-height:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
 .qc-choice:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
 .qc-choice.on{background:var(--navy);border-color:var(--navy);color:var(--on);font-weight:600}
-.qc-choices.col{flex-direction:column}
-.qc-choices.col .qc-choice{width:100%}
-.qc-choice-ico{width:18px;height:18px;flex-shrink:0;opacity:.55}
-.qc-choice.on .qc-choice-ico{opacity:.7}
 
 /* ── SQM input ── */
-.qc-sqm-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.qc-sqm-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px}
 .qc-sqm-mid{display:flex;align-items:baseline;gap:7px}
 #qc-sqm-v{
   width:100px;font-size:44px;font-weight:700;color:var(--navy);
@@ -58,7 +78,7 @@
 }
 #qc-sqm-v::-webkit-outer-spin-button,#qc-sqm-v::-webkit-inner-spin-button{-webkit-appearance:none}
 .qc-sqm-unit{font-size:15px;font-weight:500;color:var(--stone);letter-spacing:.02em}
-.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px}
+.qc-sqm-picks{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .qc-sqm-pick{
   background:none;border:1px solid var(--hair);border-radius:6px;
   font-family:inherit;font-size:12px;color:var(--stone);cursor:pointer;
@@ -66,10 +86,10 @@
 }
 .qc-sqm-pick:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
 .qc-sqm-pick.on{background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.25);color:var(--navy);font-weight:600}
-.qc-sqm-hint{font-size:11.5px;color:var(--amber);margin-top:6px;display:none}
+.qc-sqm-hint{font-size:11.5px;color:var(--amber);margin-top:8px;display:none;text-align:center}
 .qc-sqm-hint.vis{display:block}
 
-/* ── Bathroom stepper ── */
+/* ── Stepper ── */
 .qc-stepper-row{display:flex;align-items:center;gap:16px}
 .qc-ste-btn{
   background:var(--field);border:1.5px solid var(--hair-md);border-radius:var(--r-sm);
@@ -81,92 +101,98 @@
 .qc-ste-val{font-size:26px;font-weight:700;color:var(--navy);min-width:32px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
 .qc-ste-sub{font-size:11.5px;color:var(--stone);margin-top:2px}
 
-/* ── Inner layouts ── */
-.qc-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.qc-sched-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
-.qc-two-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
-.qc-card-sep{border-top:1px solid var(--hair);margin:18px 0 16px}
-
-/* ── Preview panel ── */
+/* ── Quote card wrapper ── */
 #qc-preview{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
 
-/* Placeholder */
-.qc-ph{padding:20px;display:flex;gap:14px;align-items:flex-start}
-.qc-ph-left{flex:1}
-.qc-ph-client{font-size:13.5px;font-weight:700;color:var(--navy);letter-spacing:-.01em;margin-bottom:4px}
-.qc-ph-ttl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
-.qc-ph-list{display:flex;flex-direction:column;gap:6px}
-.qc-ph-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--stone)}
-.qc-ph-item.done{color:var(--navy)}
-.qc-ph-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--hair-md)}
-.qc-ph-item.done .qc-ph-dot{background:var(--navy)}
+/* ── Progress pills (empty state) ── */
+.qc-card-top{padding:22px 24px 0}
+.qc-prog-band{background:var(--navy);padding:18px 24px;margin-top:18px;border-radius:0}
+.qc-prog-title{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--on-sub);margin-bottom:12px}
+.qc-pills{display:flex;flex-wrap:wrap;gap:8px}
+.qc-pill{font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:20px;letter-spacing:.01em;white-space:nowrap}
+.qc-pill.done{background:var(--on);color:var(--navy)}
+.qc-pill.todo{background:rgba(243,239,228,.1);color:rgba(243,239,228,.4);border:1px solid rgba(243,239,228,.1)}
+.qc-prog-body{padding:20px 24px}
+.qc-prog-hint{font-size:13px;color:var(--stone);margin:0}
 
-/* Quote band — vertical */
-.qc-q-band{background:var(--navy);padding:18px 20px 15px;border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0}
-.qc-band-client{font-size:13px;font-weight:700;color:var(--on);letter-spacing:-.01em;margin-bottom:8px}
-.qc-q-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+/* ── Quote band (live state) ── */
+.qc-q-band{background:var(--navy);padding:20px 24px 18px;margin-top:18px}
+.qc-q-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
 .qc-q-tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:rgba(243,239,228,.55);background:rgba(243,239,228,.1);border-radius:5px;padding:3px 8px}
-.qc-q-range{font-size:34px;font-weight:700;color:var(--on);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
-.qc-q-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:5px;flex-wrap:wrap;gap:4px}
+.qc-q-price-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--on-sub);margin-bottom:6px}
+.qc-q-range{font-size:40px;font-weight:700;color:var(--on);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.qc-q-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:7px;flex-wrap:wrap;gap:4px}
 .qc-q-lbl{font-size:11px;color:var(--on-sub)}
 .qc-q-mth{font-size:11px;color:var(--on-sub)}
-.qc-q-wk{font-size:11px;color:var(--on-sub);margin-top:2px}
+.qc-q-wk{font-size:11px;color:var(--on-sub);margin-top:3px}
 
-/* Quote body — single column */
-.qc-q-body{padding:16px 20px}
-.qc-q-sec{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin:14px 0 8px}
+/* ── Quote body ── */
+.qc-q-body{padding:18px 24px}
+.qc-q-sec{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin:16px 0 10px}
 .qc-q-sec:first-child{margin-top:0}
-
-/* Breakdown rows */
 .qc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--hair);color:var(--stone);font-size:13px;font-variant-numeric:tabular-nums}
 .qc-row:last-child{border-bottom:none}
-.qc-row.total{color:var(--navy);font-weight:600;font-size:13.5px;border-bottom:none;border-top:1px solid var(--hair-md);padding-top:10px;margin-top:4px}
+.qc-row.total{color:var(--navy);font-weight:600;font-size:14px;border-bottom:none;border-top:1px solid var(--hair-md);padding-top:10px;margin-top:4px}
 .qc-row.ann{color:var(--navy);font-weight:700;font-size:13px;border-bottom:none;padding-top:6px}
 
-/* Buffer toggle row */
-.qc-buf-btn{
-  width:100%;border:none;border-bottom:1px solid var(--hair);background:none;
-  font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;
-  align-items:center;padding:7px 0;font-size:13px;color:rgba(35,44,84,.3);
-  transition:color .15s;text-align:left;-webkit-tap-highlight-color:transparent;
+/* ── Site allowance checkbox toggle ── */
+.qc-allow{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--hair);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  width:100%;background:none;border-top:none;border-left:none;border-right:none;
+  font-family:inherit;text-align:left;
 }
-.qc-buf-btn:hover,.qc-buf-btn.on{color:var(--stone)}
-.qc-buf-btn.on span:last-child{color:var(--navy)}
+.qc-allow-box{
+  width:16px;height:16px;border-radius:4px;
+  border:1.5px solid var(--hair-md);flex-shrink:0;margin-top:3px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .13s,border-color .13s;
+}
+.qc-allow.on .qc-allow-box{background:var(--navy);border-color:var(--navy)}
+.qc-allow-tick{display:none;color:var(--on);font-size:9px;line-height:1;font-weight:900}
+.qc-allow.on .qc-allow-tick{display:block}
+.qc-allow-text{flex:1}
+.qc-allow-label{font-size:13px;color:var(--stone);display:block;line-height:1.2}
+.qc-allow.on .qc-allow-label{color:var(--navy)}
+.qc-allow-sub{font-size:11px;color:var(--stone);opacity:.6;margin-top:3px;display:block}
+.qc-allow-amt{font-size:13px;font-weight:600;color:var(--stone);flex-shrink:0;font-variant-numeric:tabular-nums;align-self:center}
+.qc-allow.on .qc-allow-amt{color:var(--navy)}
 
-/* Inclusions */
-.qc-incl{display:flex;flex-direction:column;gap:4px}
+/* ── Inclusions ── */
+.qc-incl{display:flex;flex-direction:column;gap:5px}
 .qc-incl-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone)}
 .qc-incl-check{width:14px;height:14px;border-radius:50%;background:rgba(58,107,78,.12);border:1px solid rgba(58,107,78,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;color:var(--green)}
 
-/* Valid notice */
+/* ── Footer / actions ── */
 .qc-valid{font-size:11px;color:var(--stone);text-align:center;padding:12px 22px;border-top:1px solid var(--hair);background:var(--field);opacity:.7;letter-spacing:.02em}
-
-/* Action buttons */
-.qc-actions{padding:16px 22px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:8px}
+.qc-actions{padding:16px 24px;border-top:1px solid var(--hair)}
 .qc-btn-dl{
   width:100%;background:var(--navy);color:var(--on);border:none;
-  border-radius:var(--r-sm);color:var(--on);padding:13px 20px;font-size:14px;font-weight:600;
+  border-radius:var(--r-sm);padding:13px 20px;font-size:14px;font-weight:600;
   cursor:pointer;font-family:inherit;letter-spacing:-.01em;transition:background .15s;
   -webkit-tap-highlight-color:transparent;
 }
 .qc-btn-dl:hover{background:var(--navy-deep)}
 
-
-
-/* Print */
+/* ── Print ── */
 .qc-print{display:none}
 @media print{body>*{display:none!important}#qc-print{display:block!important;position:fixed;inset:0;padding:18mm 20mm;background:#fff;color:#232c54;font-family:system-ui,sans-serif;font-size:13px;line-height:1.6}}
 
-/* Mobile */
+/* ── Responsive ── */
 @media(max-width:900px){
-  .qc-top-pair{grid-template-columns:1fr}
-  .qc-two{grid-template-columns:1fr;gap:14px}
-  .qc-sched-grid{grid-template-columns:1fr;gap:14px}
-  .qc-addon-grid{grid-template-columns:1fr}
+  .qc-3col{grid-template-columns:1fr}
+  .qc-2col{grid-template-columns:1fr}
 }
 @media(max-width:600px){
-  .qc-choices{flex-direction:column}
   .qc-q-range{font-size:32px}
+  .qc-space-grid{gap:8px}
+  .qc-card{padding:18px 18px}
+  .qc-q-body{padding:16px 18px}
+  .qc-card-top{padding:18px 18px 0}
+  .qc-actions{padding:14px 18px}
+  .qc-prog-body{padding:16px 18px}
+  .qc-q-band,.qc-prog-band{padding:16px 18px}
 }
 </style>
 </head>
@@ -231,7 +257,7 @@
 
     <div class="stats pg-2" id="qc-stats"></div>
 
-    <div class="qc-outer-grid pg-3">
+    <div class="qc-outer pg-3">
       <div id="qc-form"></div>
       <div id="qc-preview"></div>
     </div>
@@ -240,7 +266,6 @@
 </div>
 
 <div class="mob-overlay" id="mob-overlay"><div class="mob-nav-inner"><nav class="mob-nav-links"><a href="overview.html">Overview</a><a href="index.html">Clients</a><a href="jobs.html">Jobs</a><a href="inquiries.html">Inquiries<span class="sb-notif" id="mob-inq-notif"></span></a><a href="scope.html">Scope</a><a href="calculator.html" class="mob-on">Calculator</a><a href="reports.html">Reports</a><a href="staff.html">Staff</a></nav><button class="mob-signout" onclick="MQ&&MQ.signOut()">Sign out</button></div></div>
-
 
 <div id="qc-print" class="qc-print"></div>
 
@@ -294,7 +319,7 @@ function resetState(){
   s={space:null,sqm:100,baths:2,kitchen:null,freq:null,type:null,buffer:false,floors:1,afterHoursPct:0,hasResult:false};
 }
 
-// ─── Calculation (unchanged) ─────────────────────────────────────
+// ─── Calculation ─────────────────────────────────────────────────
 
 function calc(){
   var sqm=Math.max(50,Math.min(5000,Math.floor(s.sqm||50)));
@@ -327,7 +352,7 @@ function esc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function row(l,v,cls){return '<div class="qc-row'+(cls?' '+cls:'')+'"><span>'+l+'</span><span>'+v+'</span></div>';}
 function chk(txt){return '<div class="qc-incl-row"><div class="qc-incl-check">&#10003;</div><span>'+txt+'</span></div>';}
 
-// ─── Stats strip ─────────────────────────────────────────────────
+// ─── Stats strip (3 cells) ────────────────────────────────────────
 
 function initStats(){
   var el=document.getElementById('qc-stats');
@@ -337,39 +362,53 @@ function initStats(){
   el.innerHTML=
     '<div class="stat"><div class="stat-lbl">Labour rate</div><div class="stat-val">$'+QC.rate+'<span style="font-size:13px;opacity:.55;font-weight:500"> /hr</span></div></div>'+
     '<div class="stat"><div class="stat-lbl">Maintenance minimum</div><div class="stat-val">'+QC.minHrsMaint+' hrs</div><div class="stat-hint">'+au(minCost)+' minimum charge</div></div>'+
-    '<div class="stat"><div class="stat-lbl">Deep clean from</div><div class="stat-val">'+au(deepCost)+'</div><div class="stat-hint">'+QC.minHrsDeep+' hr minimum</div></div>'+
-    '<div class="stat"><div class="stat-lbl">Site allowance</div><div class="stat-val">+'+Math.round(QC.bufferPct*100)+'%</div><div class="stat-hint">Optional buffer</div></div>';
+    '<div class="stat"><div class="stat-lbl">Deep clean from</div><div class="stat-val">'+au(deepCost)+'</div><div class="stat-hint">'+QC.minHrsDeep+' hr minimum</div></div>';
 }
+
+// ─── Icons (inline SVG) ──────────────────────────────────────────
+
+var SPACE_ICONS={
+  office:'<svg class="qst-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+  retail:'<svg class="qst-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>',
+  medical:'<svg class="qst-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>',
+  industrial:'<svg class="qst-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M4 20V10l6-6 6 6v10"/><path d="M10 20v-6h4v6"/></svg>'
+};
 
 // ─── Form rendering ───────────────────────────────────────────────
-
-function choice(label,key,on,group,hint){
-  return '<button type="button" class="qc-choice'+(on?' on':'')+'" data-key="'+key+'" data-grp="'+group+'">'+(hint?'<span>'+label+'</span>':label)+'</button>';
-}
 
 function renderFormCol(){
   var h='';
 
-  // ── Cards 1+2: Premises type & Building dimensions (side by side) ───
-  h+='<div class="qc-top-pair">';
-
-  // Card 1: Premises type
+  // ── Card 1: Space type ──
   h+='<div class="qc-card">'+
-    '<div class="qc-card-head"><div class="qc-card-lbl">Premises type</div></div>'+
-    '<div class="qc-choices col">'+
+    '<div class="qc-step-hd">'+
+      '<span class="qc-step-num">01</span>'+
+      '<div>'+
+        '<div class="qc-step-title">What kind of space?</div>'+
+        '<div class="qc-step-sub">Affects how we calculate clean time</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="qc-space-grid">'+
       SPACE_KEYS.map(function(k,i){
-        return '<button type="button" class="qc-choice'+(s.space===k?' on':'')+'" data-key="'+k+'" data-grp="space" style="justify-content:space-between">'+
-          '<span>'+SPACE_LABELS[i]+'</span>'+
-          '<span style="font-size:11.5px;opacity:'+(s.space===k?'.65':'.4')+';font-weight:400">'+SPACE_HINTS[i]+'</span>'+
+        return '<button type="button" class="qc-space-tile'+(s.space===k?' on':'')+'" data-key="'+k+'" data-grp="space">'+
+          SPACE_ICONS[k]+
+          '<span class="qst-label">'+SPACE_LABELS[i]+'</span>'+
+          '<span class="qst-sub">'+SPACE_HINTS[i]+'</span>'+
         '</button>';
       }).join('')+
     '</div>'+
   '</div>';
 
-  // Card 2: Building dimensions
+  // ── Card 2: About the space ──
   h+='<div class="qc-card">'+
-    '<div class="qc-card-head"><div class="qc-card-lbl">Building dimensions</div></div>'+
-    '<div class="qc-two-lbl" style="margin-bottom:10px">Floor area</div>'+
+    '<div class="qc-step-hd">'+
+      '<span class="qc-step-num">02</span>'+
+      '<div>'+
+        '<div class="qc-step-title">Tell us about the space</div>'+
+        '<div class="qc-step-sub">Used to estimate clean time</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="qc-inner-lbl">Floor area</div>'+
     '<div class="qc-sqm-row">'+
       '<button type="button" class="qc-ste-btn" id="qc-sqm-m">&#8722;</button>'+
       '<div class="qc-sqm-mid">'+
@@ -378,16 +417,16 @@ function renderFormCol(){
       '</div>'+
       '<button type="button" class="qc-ste-btn" id="qc-sqm-p">+</button>'+
     '</div>'+
-    '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
     '<div class="qc-sqm-picks">'+
       [50,100,200,500,1000,2000].map(function(v){
         return '<button type="button" class="qc-sqm-pick'+(s.sqm===v?' on':'')+'" data-sqm="'+v+'">'+v+'</button>';
       }).join('')+
     '</div>'+
-    '<div class="qc-card-sep"></div>'+
-    '<div class="qc-two">'+
+    '<div id="qc-sqm-hint" class="qc-sqm-hint">Minimum 50 sqm</div>'+
+    '<div class="qc-sep"></div>'+
+    '<div class="qc-3col">'+
       '<div>'+
-        '<div class="qc-two-lbl">Floors / levels</div>'+
+        '<div class="qc-inner-lbl">Floors / levels</div>'+
         '<div class="qc-stepper-row">'+
           '<button type="button" class="qc-ste-btn" id="qc-fl-minus">&#8722;</button>'+
           '<div><div class="qc-ste-val" id="qc-flnum">'+s.floors+'</div><div class="qc-ste-sub" id="qc-flsub">'+(s.floors===1?'level':'levels')+'</div></div>'+
@@ -395,28 +434,35 @@ function renderFormCol(){
         '</div>'+
       '</div>'+
       '<div>'+
-        '<div class="qc-two-lbl">Bathrooms / toilets</div>'+
+        '<div class="qc-inner-lbl">Bathrooms / toilets</div>'+
         '<div class="qc-stepper-row">'+
           '<button type="button" class="qc-ste-btn" id="qc-minus">&#8722;</button>'+
           '<div><div class="qc-ste-val" id="qc-bnum">'+s.baths+'</div><div class="qc-ste-sub" id="qc-bsub">'+(s.baths===1?'bathroom':'bathrooms')+'</div></div>'+
           '<button type="button" class="qc-ste-btn" id="qc-plus">+</button>'+
         '</div>'+
       '</div>'+
-    '</div>'+
-    '<div style="margin-top:14px">'+
-      '<div class="qc-two-lbl">Kitchenette?</div>'+
-      '<div class="qc-choices">'+choice('Yes','yes',s.kitchen===true,'kit')+choice('No','no',s.kitchen===false,'kit')+'</div>'+
+      '<div>'+
+        '<div class="qc-inner-lbl">Kitchenette?</div>'+
+        '<div class="qc-choices col" style="gap:6px">'+
+          '<button type="button" class="qc-choice'+(s.kitchen===true?' on':'')+'" data-key="yes" data-grp="kit">Yes</button>'+
+          '<button type="button" class="qc-choice'+(s.kitchen===false?' on':'')+'" data-key="no" data-grp="kit">No</button>'+
+        '</div>'+
+      '</div>'+
     '</div>'+
   '</div>';
 
-  h+='</div>'; // end .qc-top-pair
-
-  // ── Card 3: Service schedule ────────────────────────────────────────
+  // ── Card 3: Service details ──
   h+='<div class="qc-card">'+
-    '<div class="qc-card-head"><div class="qc-card-lbl">Service schedule</div></div>'+
-    '<div class="qc-sched-grid">'+
+    '<div class="qc-step-hd">'+
+      '<span class="qc-step-num">03</span>'+
       '<div>'+
-        '<div class="qc-two-lbl">Frequency</div>'+
+        '<div class="qc-step-title">Service details</div>'+
+        '<div class="qc-step-sub">How often and what kind of clean</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="qc-2col">'+
+      '<div>'+
+        '<div class="qc-inner-lbl">Frequency</div>'+
         '<div class="qc-choices col">'+
           FREQ_KEYS.map(function(k,i){
             return '<button type="button" class="qc-choice'+(s.freq===k?' on':'')+'" data-key="'+k+'" data-grp="freq">'+FREQ_LABELS[i]+'</button>';
@@ -424,7 +470,7 @@ function renderFormCol(){
         '</div>'+
       '</div>'+
       '<div>'+
-        '<div class="qc-two-lbl">Clean type</div>'+
+        '<div class="qc-inner-lbl">Clean type</div>'+
         '<div class="qc-choices col">'+
           '<button type="button" class="qc-choice'+(s.type==='maintenance'?' on':'')+'" data-key="maintenance" data-grp="type" style="flex-direction:column;align-items:flex-start;gap:3px">'+
             '<span>Maintenance</span>'+
@@ -436,17 +482,16 @@ function renderFormCol(){
           '</button>'+
         '</div>'+
       '</div>'+
+    '</div>'+
+    '<div class="qc-sep"></div>'+
+    '<div class="qc-inner-lbl" style="opacity:.65">After-hours loading <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.9;font-size:11px">(optional)</span></div>'+
+    '<div class="qc-stepper-row">'+
+      '<button type="button" class="qc-ste-btn" id="qc-ah-minus">&#8722;</button>'+
       '<div>'+
-        '<div class="qc-two-lbl">After-hours loading</div>'+
-        '<div class="qc-stepper-row">'+
-          '<button type="button" class="qc-ste-btn" id="qc-ah-minus">&#8722;</button>'+
-          '<div>'+
-            '<div class="qc-ste-val" id="qc-ahnum">'+s.afterHoursPct+'%</div>'+
-            '<div class="qc-ste-sub" id="qc-ahsub">'+(s.afterHoursPct>0?'+'+s.afterHoursPct+'% on labour':'No premium')+'</div>'+
-          '</div>'+
-          '<button type="button" class="qc-ste-btn" id="qc-ah-plus">+</button>'+
-        '</div>'+
+        '<div class="qc-ste-val" id="qc-ahnum">'+s.afterHoursPct+'%</div>'+
+        '<div class="qc-ste-sub" id="qc-ahsub">'+(s.afterHoursPct>0?'+'+s.afterHoursPct+'% on labour':'No premium')+'</div>'+
       '</div>'+
+      '<button type="button" class="qc-ste-btn" id="qc-ah-plus">+</button>'+
     '</div>'+
   '</div>';
 
@@ -457,16 +502,29 @@ function renderFormCol(){
 
 function renderPreviewEmpty(){
   var done={space:!!s.space,kit:s.kitchen!==null,freq:!!s.freq,type:!!s.type};
-  return '<div class="qc-ph">'+
-    '<div class="qc-ph-left">'+
-      '<div class="qc-ph-ttl">Quote in progress</div>'+
+  function pill(label,ok){
+    return '<span class="qc-pill '+(ok?'done':'todo')+'">'+(ok?'&#10003; ':'')+label+'</span>';
+  }
+  return '<div class="qc-card-top">'+
+    '<div class="qc-step-hd" style="margin-bottom:0">'+
+      '<span class="qc-step-num">04</span>'+
+      '<div>'+
+        '<div class="qc-step-title">Your quote</div>'+
+        '<div class="qc-step-sub">Appears once all details are filled in</div>'+
+      '</div>'+
     '</div>'+
-    '<div class="qc-ph-list">'+
-      '<div class="qc-ph-item'+(done.space?' done':'')+'"><div class="qc-ph-dot"></div>Premises</div>'+
-      '<div class="qc-ph-item'+(done.kit?' done':'')+'"><div class="qc-ph-dot"></div>Kitchen</div>'+
-      '<div class="qc-ph-item'+(done.freq?' done':'')+'"><div class="qc-ph-dot"></div>Frequency</div>'+
-      '<div class="qc-ph-item'+(done.type?' done':'')+'"><div class="qc-ph-dot"></div>Clean type</div>'+
+  '</div>'+
+  '<div class="qc-prog-band">'+
+    '<div class="qc-prog-title">Still needed</div>'+
+    '<div class="qc-pills">'+
+      pill('Premises type',done.space)+
+      pill('Kitchenette',done.kit)+
+      pill('Frequency',done.freq)+
+      pill('Clean type',done.type)+
     '</div>'+
+  '</div>'+
+  '<div class="qc-prog-body">'+
+    '<p class="qc-prog-hint">Select your options in the cards above to generate a price estimate.</p>'+
   '</div>';
 }
 
@@ -484,9 +542,20 @@ function renderPreview(r){
 
   updatePrint(r,sLab,fLab,tLab);
 
+  var allowDisplayAmt=s.buffer?au(r.bufferAmt):au(r5(r.per*QC.bufferPct));
+
   var h='';
 
-  // Band: vertical
+  h+='<div class="qc-card-top">'+
+    '<div class="qc-step-hd" style="margin-bottom:0">'+
+      '<span class="qc-step-num">04</span>'+
+      '<div>'+
+        '<div class="qc-step-title">Your quote</div>'+
+        '<div class="qc-step-sub">Estimated price based on your details</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+
   h+='<div class="qc-q-band">'+
     '<div class="qc-q-tags">'+
       '<span class="qc-q-tag">'+esc(sLab)+'</span>'+
@@ -494,30 +563,36 @@ function renderPreview(r){
       '<span class="qc-q-tag">'+esc(fLab)+'</span>'+
       '<span class="qc-q-tag">'+tLab+'</span>'+
     '</div>'+
+    '<div class="qc-q-price-lbl">Estimated price per clean</div>'+
     '<div class="qc-q-range">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
     '<div class="qc-q-meta">'+
-      '<span class="qc-q-lbl">per clean (estimate)</span>'+
+      '<span class="qc-q-lbl">&#177;10% estimate &middot; GST not included</span>'+
       (r.monthly?'<span class="qc-q-mth">&#8776; '+au(r.monthly)+' / mo</span>':'')+
     '</div>'+
     (weeklyEq?'<div class="qc-q-wk">&#8776; '+au(weeklyEq)+' per week</div>':'')+
   '</div>';
 
-  // Body: breakdown
   h+='<div class="qc-q-body">';
   h+='<div class="qc-q-sec">Cost breakdown</div>';
   h+=row('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour));
-  if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)',au(r.afterHoursAmt));
-  h+=row('Cleaning products &amp; equipment',au(r.sup));
-  h+='<button type="button" class="qc-buf-btn'+(s.buffer?' on':'')+'" id="qc-buf">'+
-    '<span>Site allowance <span style="font-size:11px;opacity:.55">(+'+Math.round(QC.bufferPct*100)+'% buffer)</span></span>'+
-    '<span>'+(s.buffer?'+'+au(r.bufferAmt):'+ Add')+'</span>'+
+  if(r.afterHoursAmt>0)h+=row('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt));
+  h+=row('Cleaning supplies &amp; equipment',au(r.sup));
+
+  h+='<button type="button" class="qc-allow'+(s.buffer?' on':'')+'" id="qc-allow">'+
+    '<div class="qc-allow-box"><span class="qc-allow-tick">&#10003;</span></div>'+
+    '<div class="qc-allow-text">'+
+      '<span class="qc-allow-label">Add site allowance (+'+Math.round(QC.bufferPct*100)+'%)</span>'+
+      '<span class="qc-allow-sub">For travel time or site complexity</span>'+
+    '</div>'+
+    '<span class="qc-allow-amt">+'+allowDisplayAmt+'</span>'+
   '</button>';
+
   h+=row('Per clean total',au(r.per),'total');
   if(annVal)h+=row('Annual contract value','&#8776; '+au(annVal),'ann');
 
-  h+='<div class="qc-q-sec" style="margin-top:16px">What\'s included</div>';
+  h+='<div class="qc-q-sec" style="margin-top:18px">What\'s included</div>';
   h+='<div class="qc-incl">'+
-    chk('Cleaning products &amp; equipment')+
+    chk('Cleaning supplies &amp; equipment')+
     chk('Public liability insurance')+
     chk('Background-checked, trained staff')+
     chk('Post-clean quality checklist')+
@@ -525,7 +600,6 @@ function renderPreview(r){
   h+='</div>';
 
   h+='<div class="qc-valid">Estimate valid 30 days &middot; GST not included</div>';
-
   h+='<div class="qc-actions">'+
     '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
   '</div>';
@@ -551,8 +625,8 @@ function calcLive(){
 }
 
 function bindPreview(r){
-  var buf=document.getElementById('qc-buf');
-  if(buf)buf.addEventListener('click',function(){s.buffer=!s.buffer;calcLive();});
+  var allow=document.getElementById('qc-allow');
+  if(allow)allow.addEventListener('click',function(){s.buffer=!s.buffer;calcLive();});
   var dl=document.getElementById('qc-dl');
   if(dl)dl.addEventListener('click',function(){var el=document.getElementById('qc-print');if(el&&el.innerHTML)window.print();});
 }
@@ -566,11 +640,21 @@ function initForm(){
 }
 
 function bindForm(){
+  document.querySelectorAll('#qc-form .qc-space-tile[data-grp]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var key=this.dataset.key;
+      s.space=key;
+      document.querySelectorAll('#qc-form .qc-space-tile[data-grp="space"]').forEach(function(b){
+        b.classList.toggle('on',b.dataset.key===key);
+      });
+      calcLive();
+    });
+  });
+
   document.querySelectorAll('#qc-form .qc-choice[data-grp]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var key=this.dataset.key,grp=this.dataset.grp;
-      if(grp==='space')s.space=key;
-      else if(grp==='kit')s.kitchen=(key==='yes');
+      if(grp==='kit')s.kitchen=(key==='yes');
       else if(grp==='freq')s.freq=key;
       else if(grp==='type')s.type=key;
       document.querySelectorAll('#qc-form .qc-choice[data-grp="'+grp+'"]').forEach(function(b){
@@ -674,7 +758,6 @@ function bindForm(){
       calcLive();
     }
   });
-
 }
 
 function syncSqmPicks(){
@@ -700,18 +783,18 @@ function updatePrint(r,sLab,fLab,tLab){
     '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px">'+
       prow('Labour ('+r.hrs.toFixed(1)+' hrs)',au(r.baseLabour))+
       (r.afterHoursAmt>0?prow('After-hours loading (+'+r.afterHoursPct+'%)','+'+au(r.afterHoursAmt)):'')+
-      prow('Cleaning products & equipment',au(r.sup))+
+      prow('Cleaning supplies & equipment',au(r.sup))+
       (r.bufferAmt>0?prow('Site allowance (+'+Math.round(QC.bufferPct*100)+'%)','+'+au(r.bufferAmt)):'')+
       '<tr><td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;border-top:2px solid #000">Per clean</td>'+
       '<td style="padding:8px 0;font-weight:700;font-size:14px;color:#000;text-align:right;border-top:2px solid #000">'+au(r.per)+'</td></tr>'+
     '</table>'+
     '<div style="background:#f5f5f5;border-radius:8px;padding:18px 22px;margin-bottom:16px">'+
       '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#666;margin-bottom:4px">Price estimate</div>'+
-      '<div style="font-size:28px;font-weight:700;letter-spacing:-.02em;color:#000">'+au(r.lo)+' – '+au(r.hi)+'</div>'+
-      (r.monthly?'<div style="font-size:12px;color:#555;margin-top:4px">≈ '+au(r.monthly)+' per month</div>':'')+
+      '<div style="font-size:28px;font-weight:700;letter-spacing:-.02em;color:#000">'+au(r.lo)+' &#8211; '+au(r.hi)+'</div>'+
+      (r.monthly?'<div style="font-size:12px;color:#555;margin-top:4px">&#8776; '+au(r.monthly)+' per month</div>':'')+
     '</div>'+
     '<div style="font-size:11px;color:#777;line-height:1.65;margin-bottom:20px">Estimate valid for 30 days. GST not included. Final pricing confirmed in writing before work begins.</div>'+
-    '<div style="font-size:12px;color:#000;border-top:1px solid #ddd;padding-top:12px">hello@myquest.au  ·  0413 154 932  ·  myquest.au</div>';
+    '<div style="font-size:12px;color:#000;border-top:1px solid #ddd;padding-top:12px">hello@myquest.au  &middot;  0413 154 932  &middot;  myquest.au</div>';
 }
 
 // ─── Mobile nav ───────────────────────────────────────────────────
