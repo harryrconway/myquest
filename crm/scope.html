@@ -24,11 +24,7 @@
 .sa-tasks{padding:0 20px}
 .sa-task{display:grid;grid-template-columns:16px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
 .sa-task:last-child{border-bottom:none}
-.sa-check-box{width:14px;height:14px;border:1.5px solid rgba(35,44,84,.25);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s,border-color .12s}
-.sa-check-box:hover{border-color:rgba(35,44,84,.5)}
-.sa-task.done .sa-check-box{background:var(--green);border-color:var(--green)}
-.sa-task.done .sa-check-box::after{content:'';display:block;width:4px;height:7px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
-.sa-task.done .sa-task-text{text-decoration:line-through;color:var(--stone)}
+.sa-bullet{font-size:16px;color:var(--stone);line-height:1;display:flex;align-items:center;justify-content:center}
 .sa-task-text{border:none;background:none;outline:none;font-family:var(--font);font-size:13px;color:var(--navy);width:100%;padding:0}
 .sa-task-text::placeholder{color:rgba(35,44,84,.3)}
 .sa-task-rm{border:none;background:none;color:var(--stone);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;transition:color .12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px}
@@ -74,9 +70,7 @@
 .sv-area:last-of-type{margin-bottom:0}
 .sv-area-name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:8px}
 .sv-task{display:flex;align-items:center;gap:9px;padding:5px 0}
-.sv-check{width:13px;height:13px;border:1.5px solid rgba(35,44,84,.25);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.sv-check.done{background:var(--green);border-color:var(--green)}
-.sv-check.done::after{content:'';display:block;width:3px;height:6px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+.sv-bullet{font-size:14px;color:var(--stone);line-height:1;flex-shrink:0}
 .sv-task-text{font-size:12.5px;color:var(--navy)}
 .sv-task-text.done{text-decoration:line-through;color:var(--stone)}
 .sv-freq{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
@@ -106,7 +100,7 @@
   .sa-name{color:#000}
   .scope-area{border:1px solid #ddd;margin-bottom:10px;break-inside:avoid;background:#fff}
   .sa-header{background:#f5f5f5;border-bottom:1px solid #ddd}
-  .sa-check-box{border:1.5px solid #888;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .sa-bullet{color:#555}
   .sa-tasks{padding:0 16px}
   .sa-task-text,.scope-name-input{color:#000}
   .scope-global{border:1px solid #ddd;background:#fff}
@@ -264,7 +258,7 @@ function freqOpts(sel){
 }
 function taskHTML(t){
   return '<div class="sa-task'+(t.done?' done':'')+'" data-task-id="'+esc(t.id)+'">'+
-    '<span class="sa-check-box" data-check="1"></span>'+
+    '<span class="sa-bullet">•</span>'+
     '<input class="sa-task-text" type="text" placeholder="Task description…" value="'+esc(t.text||'')+'" autocomplete="off">'+
     '<button class="sa-task-rm" data-rm-task="1" title="Remove task">&times;</button>'+
   '</div>';
@@ -411,7 +405,7 @@ function printScope(sc){
 function renderScopeView(sc){
   var areas=(sc.areas||[]).map(function(a){
     var tasks=(a.tasks||[]).map(function(t){
-      return '<div class="sv-task"><div class="sv-check'+(t.done?' done':'')+'"></div>'+
+      return '<div class="sv-task"><span class="sv-bullet">•</span>'+
         '<span class="sv-task-text'+(t.done?' done':'')+'">'+esc(t.text||'')+'</span>'+
         '<span class="sv-freq">'+(FREQ_LABELS[t.freq]||t.freq||'Weekly')+'</span></div>';
     }).join('');
@@ -488,9 +482,7 @@ document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
 document.getElementById('scope-cancel-btn').addEventListener('click',function(){resetEditor();scrollToTop();});
 
 document.getElementById('scope-areas').addEventListener('click',function(e){
-  var chk=e.target.closest('[data-check]');
-  if(chk){chk.closest('.sa-task').classList.toggle('done');return;}
-  var rmTask=e.target.closest('[data-rm-task]');
+var rmTask=e.target.closest('[data-rm-task]');
   if(rmTask){rmTask.closest('.sa-task').remove();return;}
   var addTask2=e.target.closest('[data-add-task]');
   if(addTask2){addTask(addTask2.closest('.scope-area'));return;}
