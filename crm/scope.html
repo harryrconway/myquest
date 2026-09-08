@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260913">
+<link rel="stylesheet" href="style.css?v=20260908">
 <style>
 .scope-info{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px;margin-bottom:20px}
-.scope-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 160px;gap:14px;align-items:end}
+.scope-info-grid{display:grid;grid-template-columns:1fr 1fr 160px;gap:14px;align-items:end}
 .scope-name-row{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--hair)}
 .scope-name-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:14px}
 .scope-name-input{width:100%;font-size:36px;font-weight:700;color:var(--navy);border:none;background:none;outline:none;font-family:var(--font);letter-spacing:-.03em;padding:0}
@@ -22,7 +22,7 @@
 .sa-remove:hover{color:var(--red)}
 
 .sa-tasks{padding:0 20px}
-.sa-task{display:grid;grid-template-columns:16px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
+.sa-task{display:grid;grid-template-columns:16px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
 .sa-task:last-child{border-bottom:none}
 .sa-check-box{width:14px;height:14px;border:1.5px solid rgba(35,44,84,.25);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s,border-color .12s}
 .sa-check-box:hover{border-color:rgba(35,44,84,.5)}
@@ -31,18 +31,12 @@
 .sa-task.done .sa-task-text{text-decoration:line-through;color:var(--stone)}
 .sa-task-text{border:none;background:none;outline:none;font-family:var(--font);font-size:13px;color:var(--navy);width:100%;padding:0}
 .sa-task-text::placeholder{color:rgba(35,44,84,.3)}
-.sa-freq{border:1px solid var(--hair);border-radius:6px;font-size:11px;font-family:var(--font);color:var(--stone);padding:4px 24px 4px 8px;background:var(--field);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' fill='none'%3E%3Cpath stroke='%239b968a' stroke-width='1.4' d='M1 1l3 3 3-3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;transition:border-color .12s}
-.sa-freq:focus{border-color:rgba(35,44,84,.3);outline:none}
 .sa-task-rm{border:none;background:none;color:var(--stone);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;transition:color .12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px}
 .sa-task-rm:hover{color:var(--red);background:var(--red-bg)}
 
-.sa-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 14px;gap:10px}
+.sa-footer{padding:10px 20px 14px}
 .sa-add-task{border:none;background:none;color:var(--stone);font-size:12.5px;font-weight:600;font-family:var(--font);cursor:pointer;padding:0;transition:color .12s}
 .sa-add-task:hover{color:var(--navy)}
-.sa-notes-wrap{flex:1;text-align:right}
-.sa-notes{font-size:11.5px;font-family:var(--font);color:var(--stone);border:none;background:none;outline:none;resize:none;text-align:left;width:200px;height:20px;vertical-align:middle;transition:height .15s}
-.sa-notes:focus{height:52px;color:var(--navy)}
-.sa-notes::placeholder{color:rgba(155,150,138,.5);font-style:italic}
 
 .scope-add-area{width:100%;padding:13px 20px;border:1.5px dashed rgba(35,44,84,.16);border-radius:var(--r);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;margin-bottom:20px;text-align:center}
 .scope-add-area:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
@@ -94,7 +88,6 @@
 .empty-areas{padding:36px 24px;text-align:center;color:var(--stone);font-size:13px;border:1.5px dashed rgba(35,44,84,.12);border-radius:var(--r);margin-bottom:14px}
 .empty-areas p{margin-bottom:12px}
 .scope-info-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 10px;border-radius:5px;margin-bottom:16px}
-.scope-job-field{display:block}
 
 @media print{
   .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-cancel-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge,.scope-empty-state,.scope-name-lbl{display:none!important}
@@ -102,30 +95,23 @@
   .main{padding:20px!important;min-width:0}
   body{background:#fff!important}
   .scope-info{border:none;padding:0;margin-bottom:16px;background:none}
-  .scope-info-grid{grid-template-columns:1fr 1fr 1fr;gap:8px;border-top:1px solid #ddd;padding-top:10px;margin-top:4px}
-  .scope-job-field{display:none}
+  .scope-info-grid{grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid #ddd;padding-top:10px;margin-top:4px}
   .scope-name-input{font-size:20px;color:#000}
   .sa-name{color:#000}
   .scope-area{border:1px solid #ddd;margin-bottom:10px;break-inside:avoid;background:#fff}
   .sa-header{background:#f5f5f5;border-bottom:1px solid #ddd}
   .sa-check-box{border:1.5px solid #888;print-color-adjust:exact;-webkit-print-color-adjust:exact}
   .sa-tasks{padding:0 16px}
-  .sa-task-text,.sa-freq,.scope-name-input{color:#000}
+  .sa-task-text,.scope-name-input{color:#000}
   .scope-global{border:1px solid #ddd;background:#fff}
   .form-lbl,.scope-global label{color:#666}
   .form-input{border:1px solid #ddd;background:#fff;color:#000}
   select.form-input{background-image:none;padding-right:12px}
 }
-@media(max-width:1100px){
-  .scope-info-grid{grid-template-columns:1fr 1fr}
-}
 @media(max-width:600px){
   .scope-info-grid{grid-template-columns:1fr}
-  .sa-task{grid-template-columns:16px 1fr auto}
-  .sa-freq{display:none}
   .scope-bottom{flex-wrap:wrap}
   .scope-bottom button{flex:1 1 auto}
-  .sa-notes{width:100%}
 }
 </style>
 </head>
@@ -205,16 +191,11 @@
         <span class="sh-lbl" id="scope-editor-lbl">New scope</span>
       </div>
       <div class="scope-info">
-        <div class="scope-info-badge" id="scope-job-ref" hidden style="font-size:12px;font-weight:600;color:var(--stone);padding-bottom:14px;align-items:center;gap:8px"></div>
         <div class="scope-name-row">
           <label class="scope-name-lbl" for="scope-name">Scope name</label>
           <input class="scope-name-input" id="scope-name" type="text" placeholder="e.g. Aria Property Group · Weekly" autocomplete="off">
         </div>
         <div class="scope-info-grid">
-          <div class="scope-job-field">
-            <label class="form-lbl" for="scope-job-link">Link to job</label>
-            <select class="form-input" id="scope-job-link"><option value="">No job linked</option></select>
-          </div>
           <div>
             <label class="form-lbl" for="scope-client">Client</label>
             <select class="form-input" id="scope-client"><option value="">Select client…</option></select>
@@ -261,8 +242,6 @@ window.MQ.requireAuth(function(){
 var sb=MQ.sb;
 var editingId=null;
 var allClients=[];
-var allJobs=[];
-var jobId=null;
 
 function uid(){return '_'+Math.random().toString(36).slice(2,9);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -281,7 +260,6 @@ function taskHTML(t){
   return '<div class="sa-task'+(t.done?' done':'')+'" data-task-id="'+esc(t.id)+'">'+
     '<span class="sa-check-box" data-check="1"></span>'+
     '<input class="sa-task-text" type="text" placeholder="Task description…" value="'+esc(t.text||'')+'" autocomplete="off">'+
-    '<select class="sa-freq">'+freqOpts(t.freq||'weekly')+'</select>'+
     '<button class="sa-task-rm" data-rm-task="1" title="Remove task">&times;</button>'+
   '</div>';
 }
@@ -294,7 +272,6 @@ function areaHTML(a){
     '<div class="sa-tasks">'+((a.tasks||[]).map(taskHTML).join(''))+'</div>'+
     '<div class="sa-footer">'+
       '<button class="sa-add-task" data-add-task="1">+ Add task</button>'+
-      '<textarea class="sa-notes" placeholder="Area notes (optional)…" rows="1">'+esc(a.notes||'')+'</textarea>'+
     '</div>'+
   '</div>';
 }
@@ -329,10 +306,9 @@ function readScope(){
     aEl.querySelectorAll('.sa-task').forEach(function(tEl){
       var text=tEl.querySelector('.sa-task-text').value.trim();
       if(!text)return;
-      tasks.push({id:tEl.dataset.taskId,text:text,freq:tEl.querySelector('.sa-freq').value,done:tEl.classList.contains('done')});
+      tasks.push({id:tEl.dataset.taskId,text:text,freq:'weekly',done:tEl.classList.contains('done')});
     });
-    var notes=aEl.querySelector('.sa-notes').value.trim();
-    if(areaName||tasks.length)areas.push({id:aEl.dataset.areaId,name:areaName,tasks:tasks,notes:notes});
+    if(areaName||tasks.length)areas.push({id:aEl.dataset.areaId,name:areaName,tasks:tasks,notes:''});
   });
   return {
     name:document.getElementById('scope-name').value.trim(),
@@ -351,29 +327,27 @@ function saveScope(){
   var sc=readScope();
   if(!sc.name&&!sc.areas.length){alert('Add a scope name or at least one area first.');return;}
   if(!sc.name)sc.name=sc.client_name||'Untitled scope';
-  if(jobId)sc.job_id=jobId;
   if(editingId){
-    sb.from('scopes').update(sc).eq('id',editingId).then(function(){flashSaved();renderSavedList();scrollToTop();});
+    sb.from('scopes').update(sc).eq('id',editingId).then(function(r){
+      if(r.error){alert('Save failed: '+r.error.message);return;}
+      resetEditor();renderSavedList();scrollToTop();
+    });
   } else {
-    sb.from('scopes').insert(sc).select('id').single().then(function(r){
-      if(r.data)editingId=r.data.id;
-      flashSaved();renderSavedList();scrollToTop();
+    sb.from('scopes').insert(sc).then(function(r){
+      if(r.error){alert('Save failed: '+r.error.message);return;}
+      resetEditor();renderSavedList();scrollToTop();
     });
   }
 }
 function resetEditor(){
   editingId=null;
-  jobId=null;
   document.getElementById('scope-name').value='';
-  document.getElementById('scope-job-link').value='';
   document.getElementById('scope-client').value='';
   document.getElementById('scope-site').value='';
   document.getElementById('scope-date').valueAsDate=new Date();
   document.getElementById('scope-global-notes').value='';
-  var ref=document.getElementById('scope-job-ref');
-  if(ref)ref.hidden=true;
   renderAreas([]);
-  document.getElementById('scope-name').focus();
+  var lbl=document.getElementById('scope-editor-lbl');if(lbl)lbl.textContent='New scope';
 }
 function loadIntoEditor(sc){
   editingId=sc.id;
@@ -382,18 +356,6 @@ function loadIntoEditor(sc){
   document.getElementById('scope-site').value=sc.site||'';
   document.getElementById('scope-date').value=sc.date||'';
   document.getElementById('scope-global-notes').value=sc.global_notes||'';
-  if(sc.job_id){
-    var jobSel=document.getElementById('scope-job-link');
-    jobSel.value=sc.job_id;
-    jobId=sc.job_id;
-    var ref=document.getElementById('scope-job-ref');
-    var found=null;allJobs.forEach(function(j){if(j.id===sc.job_id)found=j;});
-    if(found&&ref){
-      var num=found.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(found.job_number).padStart(3,'0')+'</span>':'';
-      ref.innerHTML=num+' '+esc(found.client_name||'');
-      ref.hidden=false;
-    }
-  }
   renderAreas(sc.areas||[]);
   document.getElementById('scope-name').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -455,7 +417,7 @@ function scrollToEditor(){document.getElementById('scope-editor').scrollIntoView
 function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
 
 function renderSavedList(){
-  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').order('created_at',{ascending:false}).then(function(r){
+  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').order('created_at',{ascending:false}).then(function(r){
     var scopes=r.data||[];
     var list=document.getElementById('saved-scopes-list');
     if(!scopes.length){
@@ -479,62 +441,8 @@ function renderSavedList(){
   });
 }
 
-function fmtJobLabel(j){
-  var num=j.job_number?'#'+String(j.job_number).padStart(3,'0'):'';
-  var dt='';
-  if(j.date){var d=new Date(j.date+'T00:00:00');dt=d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];}
-  return [num,j.client_name,dt].filter(Boolean).join(' — ');
-}
-
-function onJobSelect(val){
-  jobId=val||null;
-  var ref=document.getElementById('scope-job-ref');
-  if(!val){if(ref)ref.hidden=true;return;}
-  var found=null;allJobs.forEach(function(j){if(j.id===val)found=j;});
-  if(!found){if(ref)ref.hidden=true;return;}
-  var clientSel=document.getElementById('scope-client');
-  if(found.client_id)clientSel.value=found.client_id;
-  if(found.site&&!document.getElementById('scope-site').value)document.getElementById('scope-site').value=found.site;
-  var nameIn=document.getElementById('scope-name');
-  if(!nameIn.value)nameIn.value=(found.client_name||'')+(found.client_name?' — Scope':'Scope');
-  if(ref){
-    var num=found.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px">Job #'+String(found.job_number).padStart(3,'0')+'</span>':'';
-    ref.innerHTML=num+' '+esc(found.client_name||'');
-    ref.hidden=false;
-  }
-  sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id').eq('job_id',val).maybeSingle().then(function(sr){
-    if(sr.data&&!editingId)loadIntoEditor(sr.data);
-  });
-}
-
-function populateJobDropdown(clientId){
-  var jobSel=document.getElementById('scope-job-link');
-  var prev=jobSel.value;
-  jobSel.innerHTML='<option value="">No job linked</option>';
-  var filtered=clientId?allJobs.filter(function(j){return j.client_id===clientId;}):allJobs;
-  if(!clientId){
-    var groups={};
-    filtered.forEach(function(j){var k=j.client_name||'';if(!groups[k])groups[k]=[];groups[k].push(j);});
-    Object.keys(groups).sort().forEach(function(k){
-      var grp=document.createElement('optgroup');grp.label=k||'—';
-      groups[k].forEach(function(j){var o=document.createElement('option');o.value=j.id;o.textContent=fmtJobLabel(j);grp.appendChild(o);});
-      jobSel.appendChild(grp);
-    });
-  } else {
-    filtered.forEach(function(j){var o=document.createElement('option');o.value=j.id;o.textContent=fmtJobLabel(j);jobSel.appendChild(o);});
-  }
-  if(prev)jobSel.value=prev;
-}
 function init(){
   document.getElementById('scope-editor').hidden=false;
-
-  var jobParam=getParam('job_id');
-
-  sb.from('jobs').select('id,job_number,client_id,client_name,site,date,status').eq('status','upcoming').order('date',{ascending:false}).limit(200).then(function(jr){
-    allJobs=jr.data||[];
-    populateJobDropdown('');
-    if(jobParam){document.getElementById('scope-job-link').value=jobParam;onJobSelect(jobParam);}
-  });
 
   sb.from('clients').select('id,name,site_address').order('name').then(function(r){
     allClients=r.data||[];
@@ -549,7 +457,6 @@ function init(){
         sb.from('jobs').select('site').eq('client_id',found.id).not('site','is',null).order('date',{ascending:false}).limit(1)
           .then(function(jr){siteInput.value=(jr.data&&jr.data[0])?jr.data[0].site:'';});
       } else {siteInput.value='';}
-      populateJobDropdown(sel.value);
     });
   });
 
@@ -558,7 +465,6 @@ function init(){
   renderSavedList();
 }
 
-document.getElementById('scope-job-link').addEventListener('change',function(){onJobSelect(this.value);});
 document.getElementById('scope-add-area').addEventListener('click',addArea);
 document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
 document.getElementById('scope-cancel-btn').addEventListener('click',function(){resetEditor();scrollToTop();});
@@ -601,7 +507,7 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
   var editBtn=e.target.closest('[data-edit-id]');
   if(editBtn){
     var lbl=document.getElementById('scope-editor-lbl');if(lbl)lbl.textContent='Edit scope';
-    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,job_id,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){
+    sb.from('scopes').select('id,client_id,client_name,name,site,date,global_notes,areas,created_at').eq('id',editBtn.dataset.editId).single().then(function(r){
       if(r.data){loadIntoEditor(r.data);scrollToEditor();}
     });
     return;
