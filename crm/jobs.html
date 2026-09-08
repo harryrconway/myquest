@@ -365,14 +365,15 @@ function renderRow(j){
 
 function renderAll(){
   var jobs=allJobs.slice();
+  function cmpTime(a,b){var at=a.start_time||'99:99',bt=b.start_time||'99:99';return at<bt?-1:at>bt?1:0;}
   jobs.sort(function(a,b){
     var ao=isOverdue(a),bo=isOverdue(b);
     var au=a.status==='upcoming'&&!ao,bu=b.status==='upcoming'&&!bo;
     if(ao&&!bo)return -1;if(!ao&&bo)return 1;
-    if(ao&&bo)return a.date<b.date?-1:a.date>b.date?1:0;
+    if(ao&&bo)return a.date<b.date?-1:a.date>b.date?1:cmpTime(a,b);
     if(au&&!bu)return -1;if(!au&&bu)return 1;
-    if(au&&bu)return a.date<b.date?-1:a.date>b.date?1:0;
-    return a.date>b.date?-1:a.date<b.date?1:0;
+    if(au&&bu)return a.date<b.date?-1:a.date>b.date?1:cmpTime(a,b);
+    return a.date>b.date?-1:a.date<b.date?1:cmpTime(b,a);
   });
   var overdue=jobs.filter(function(j){return isOverdue(j);});
   var todayJobs=jobs.filter(function(j){return isToday(j);});
