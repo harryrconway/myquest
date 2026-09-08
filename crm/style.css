@@ -300,28 +300,29 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   }
   .bnav-bg.open{display:block}
 
-  /* More sheet */
+  /* More sheet — right-side drawer */
   .bnav-sheet{
     display:block;position:fixed;
+    top:0;right:0;
     bottom:calc(56px + env(safe-area-inset-bottom,0px));
-    left:0;right:0;z-index:395;
+    left:auto;
+    width:min(260px,80vw);
+    z-index:395;
     background:var(--card);
-    border-radius:18px 18px 0 0;
-    padding-bottom:2px;
-    box-shadow:0 -4px 24px rgba(35,44,84,.10);
-    transform:translateY(calc(100% + 4px));
+    border-radius:12px 0 0 12px;
+    box-shadow:-6px 0 28px rgba(35,44,84,.13);
+    transform:translateX(calc(100% + 6px));
     transition:transform .26s cubic-bezier(.32,0,.67,0);
     pointer-events:none;
+    overflow-y:auto;
+    padding-top:8px;
   }
   .bnav-sheet.open{
-    transform:translateY(0);
+    transform:translateX(0);
     transition:transform .32s cubic-bezier(.33,1,.68,1);
     pointer-events:auto;
   }
-  .bnav-sheet-handle{
-    width:32px;height:3px;background:var(--stone);opacity:.25;
-    border-radius:2px;margin:8px auto 8px;
-  }
+  .bnav-sheet-handle{display:none}
 
   /* Sheet items */
   .bnav-si{
