@@ -14,10 +14,10 @@
 .f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 
 .job-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
-.jl-head{display:grid;grid-template-columns:80px .7fr .8fr 100px 64px 1.2fr auto 28px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
+.jl-head{display:grid;grid-template-columns:80px .6fr .8fr 100px 52px .4fr auto 24px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
 .jl-head span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone)}
 .jl-row{
-  display:grid;grid-template-columns:80px .7fr .8fr 100px 64px 1.2fr auto 28px;
+  display:grid;grid-template-columns:80px .6fr .8fr 100px 52px .4fr auto 24px;
   gap:12px;padding:13px 20px;align-items:center;
   border-bottom:1px solid var(--hair);
   border-left:3px solid transparent;
@@ -77,7 +77,7 @@
 .search:focus{border-color:var(--hair-md)}
 
 @media(max-width:1000px){
-  .jl-head,.jl-row{grid-template-columns:80px 1fr 100px 64px 80px}
+  .jl-head,.jl-row{grid-template-columns:80px 1fr 100px 52px 80px}
   .jl-head span:nth-child(3),.jl-row .jl-site,
   .jl-head span:nth-child(6),.jl-row .jl-crew,
   .jl-head span:nth-child(8),.jl-row .jl-arr{display:none}
