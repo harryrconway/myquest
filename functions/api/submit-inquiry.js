@@ -83,7 +83,7 @@ export async function onRequestPost({ request, env }) {
       <tr><td style="padding:6px 12px 6px 0;color:#666">Contact</td><td style="padding:6px 0">${row.contact_name}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Email</td><td style="padding:6px 0"><a href="mailto:${row.email}">${row.email}</a></td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Mobile</td><td style="padding:6px 0">${row.mobile}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Suburb</td><td style="padding:6px 0">${row.suburb}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Address</td><td style="padding:6px 0">${row.suburb}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Space type</td><td style="padding:6px 0">${spaceLabels[row.space_type] || row.space_type}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Size</td><td style="padding:6px 0">${row.sqm_range}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Frequency</td><td style="padding:6px 0">${freqLabels[row.frequency] || row.frequency}</td></tr>

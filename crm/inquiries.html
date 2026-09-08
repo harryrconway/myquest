@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Inquiries — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260910">
+<link rel="stylesheet" href="style.css?v=20260911">
 <style>
 .pg-head{margin-bottom:28px}
 .ph-sub{font-size:13px;color:var(--stone);margin-top:5px}
@@ -260,7 +260,7 @@
         </div>
         <div class="cv-field full">
           <label for="cv-site">Site address</label>
-          <input type="text" id="cv-site" placeholder="Street address (start with suburb if unsure)" autocomplete="off">
+          <input type="text" id="cv-site" placeholder="Street address" autocomplete="off">
         </div>
         <div class="cv-field full">
           <label for="cv-client-notes">Notes <span style="opacity:.5;font-weight:400">(optional)</span></label>
@@ -447,7 +447,7 @@ function expandContent(inq){
       '<div><div class="xp-lbl">Contact</div><div class="xp-val">'+esc(inq.contact_name||'—')+'</div></div>'+
       '<div><div class="xp-lbl">Email</div><div class="xp-val"><a href="mailto:'+esc(inq.email||'')+'" style="color:var(--navy)">'+esc(inq.email||'—')+'</a></div></div>'+
       '<div><div class="xp-lbl">Mobile</div><div class="xp-val"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></div></div>'+
-      '<div><div class="xp-lbl">Suburb</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
+      '<div><div class="xp-lbl">Address</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
       sourceHtml+
       notesHtml+
     '</div>'+
