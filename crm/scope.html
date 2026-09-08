@@ -91,6 +91,10 @@
 .empty-areas p{margin-bottom:12px}
 .scope-info-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 10px;border-radius:5px;margin-bottom:16px}
 
+.scope-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--navy);color:#fff;font-size:13px;font-weight:600;font-family:var(--font);letter-spacing:.01em;padding:11px 22px;border-radius:10px;box-shadow:0 6px 24px rgba(35,44,84,.28);z-index:500;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;white-space:nowrap}
+.scope-toast.scope-toast-in{opacity:1;transform:translateX(-50%) translateY(0)}
+.scope-toast.scope-toast-err{background:var(--red)}
+
 @media print{
   .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-cancel-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge,.scope-empty-state,.scope-name-lbl{display:none!important}
   .layout{display:block!important}
@@ -321,23 +325,35 @@ function readScope(){
     global_notes:document.getElementById('scope-global-notes').value.trim()
   };
 }
-function flashSaved(){
-  var b=document.getElementById('scope-save-btn-2');if(!b)return;
-  var orig=b.textContent;b.textContent='Saved ✓';setTimeout(function(){b.textContent=orig;},1800);
+function showToast(msg,isError){
+  var t=document.getElementById('scope-toast');
+  if(!t){
+    t=document.createElement('div');t.id='scope-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.className='scope-toast'+(isError?' scope-toast-err':'');
+  clearTimeout(t._tid);
+  requestAnimationFrame(function(){t.classList.add('scope-toast-in');});
+  t._tid=setTimeout(function(){t.classList.remove('scope-toast-in');},2800);
 }
 function saveScope(){
   var sc=readScope();
   if(!sc.name&&!sc.areas.length){alert('Add a scope name or at least one area first.');return;}
   if(!sc.name)sc.name=sc.client_name||'Untitled scope';
+  var btn=document.getElementById('scope-save-btn-2');
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
   if(editingId){
     sb.from('scopes').update(sc).eq('id',editingId).then(function(r){
-      if(r.error){alert('Save failed: '+r.error.message);return;}
-      resetEditor();renderSavedList();scrollToTop();
+      if(btn){btn.disabled=false;btn.textContent='Save scope';}
+      if(r.error){showToast('Save failed: '+r.error.message,true);return;}
+      showToast('Scope saved');resetEditor();renderSavedList();scrollToTop();
     });
   } else {
     sb.from('scopes').insert(sc).then(function(r){
-      if(r.error){alert('Save failed: '+r.error.message);return;}
-      resetEditor();renderSavedList();scrollToTop();
+      if(btn){btn.disabled=false;btn.textContent='Save scope';}
+      if(r.error){showToast('Save failed: '+r.error.message,true);return;}
+      showToast('Scope saved');resetEditor();renderSavedList();scrollToTop();
     });
   }
 }
