@@ -119,7 +119,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 /* Badges */
 .badge{
   display:inline-flex;align-items:center;gap:4px;
-  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;line-height:1;
   padding:3px 8px;border-radius:999px;white-space:nowrap;
 }
 .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
