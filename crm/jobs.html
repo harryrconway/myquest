@@ -37,7 +37,7 @@
 .jl-type.deep{color:var(--navy);background:rgba(35,44,84,.12)}
 .jl-crew{display:flex;gap:4px;min-width:0;overflow:hidden}
 .jl-scope-chip{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:4px;white-space:nowrap;align-self:center;justify-self:center;color:var(--green);background:var(--green-bg)}
-.jl-scope-chip.no-scope{color:var(--stone);background:rgba(35,44,84,.06);font-weight:600}
+.jl-no-chip{visibility:hidden}
 .jl-crew-name{font-size:13px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .jl-price{font-size:14px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
 .jl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
@@ -355,7 +355,7 @@ function renderRow(j){
       '<div class="jl-client">'+esc(j.client_name||'—')+'</div>'+
       '<div class="jl-site">'+esc(j.site||'—')+'</div>'+
       '<span class="jl-type'+(j.type==='deep'?' deep':'')+'">'+typeLbl+'</span>'+
-      (hasScope(j)?'<span class="jl-scope-chip">Scope</span>':'')+
+      '<span class="jl-scope-chip'+(hasScope(j)?'':' jl-no-chip')+'">'+(hasScope(j)?'Scope':'')+'</span>'+
       '<div class="jl-crew">'+crewHtml+'</div>'+badge+
       '<div class="jl-arr">'+ARR+'</div>'+
     '</div>'+

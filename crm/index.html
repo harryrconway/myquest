@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260913">
+<link rel="stylesheet" href="style.css?v=20260908">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -649,12 +649,10 @@ function buildClientDetail(c,jobs,contracts,quotes){
     var cls=j.status==='completed'?'done':'next';
     var dateStr='—';
     if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+MONTHS[dd.getMonth()]+'<br>'+DAYS[dd.getDay()];}
-    return '<div class="ci-job '+cls+'">'+
+    return '<div class="ci-job '+cls+'" data-action="view-job" data-jid="'+esc(j.id)+'">'+
       '<div class="ci-job-date">'+dateStr+'</div>'+
       '<div class="ci-job-info"><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div>'+
       '<div class="ci-job-actions">'+
-        '<button class="ci-job-link" data-action="view-job" data-jid="'+esc(j.id)+'">Open</button>'+
-        '<button class="ci-job-link" data-action="edit-job" data-jid="'+esc(j.id)+'" data-jtype="'+esc(j.type||'maintenance')+'" data-jfreq="'+esc(j.repeat||'none')+'" data-jcid="'+esc(c.id)+'">Edit</button>'+
         '<button class="ci-job-del" data-action="del-job" data-jid="'+esc(j.id)+'" data-jcid="'+esc(c.id)+'" title="Delete job">'+
           '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'+
         '</button>'+

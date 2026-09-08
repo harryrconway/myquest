@@ -300,26 +300,29 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   }
   .bnav-bg.open{display:block}
 
-  /* More sheet — right-side drawer */
+  /* More sheet — floating panel above bottom nav, right-anchored */
   .bnav-sheet{
     display:block;position:fixed;
-    top:0;right:0;
-    bottom:calc(56px + env(safe-area-inset-bottom,0px));
-    left:auto;
+    bottom:calc(56px + env(safe-area-inset-bottom,0px) + 10px);
+    right:12px;
+    top:auto;left:auto;
     width:min(260px,80vw);
+    max-height:calc(100vh - 100px);
     z-index:395;
     background:var(--card);
-    border-radius:12px 0 0 12px;
-    box-shadow:-6px 0 28px rgba(35,44,84,.13);
-    transform:translateX(calc(100% + 6px));
-    transition:transform .26s cubic-bezier(.32,0,.67,0);
+    border-radius:14px;
+    box-shadow:0 8px 40px rgba(35,44,84,.18),0 2px 8px rgba(35,44,84,.08);
+    transform:translateY(16px);
+    opacity:0;
+    transition:transform .22s cubic-bezier(.32,0,.67,0),opacity .18s;
     pointer-events:none;
     overflow-y:auto;
-    padding-top:8px;
+    padding:6px 0;
   }
   .bnav-sheet.open{
-    transform:translateX(0);
-    transition:transform .32s cubic-bezier(.33,1,.68,1);
+    transform:translateY(0);
+    opacity:1;
+    transition:transform .28s cubic-bezier(.33,1,.68,1),opacity .2s;
     pointer-events:auto;
   }
   .bnav-sheet-handle{display:none}
