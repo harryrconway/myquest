@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260911">
+<link rel="stylesheet" href="style.css?v=20260912">
 <style>
 .scope-info{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px;margin-bottom:20px}
 .scope-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 160px;gap:14px;align-items:end}
-.scope-name-row{margin-bottom:18px}
-.scope-name-input{width:100%;font-size:19px;font-weight:700;color:var(--navy);border:none;background:none;outline:none;font-family:var(--font);letter-spacing:-.025em;padding:0}
-.scope-name-input::placeholder{color:rgba(35,44,84,.25)}
+.scope-name-row{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--hair)}
+.scope-name-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
+.scope-name-input{width:100%;font-size:19px;font-weight:700;color:var(--navy);border:none;border-bottom:2px solid var(--hair-md);background:none;outline:none;font-family:var(--font);letter-spacing:-.025em;padding:0 0 8px}
+.scope-name-input:focus{border-bottom-color:var(--navy)}
+.scope-name-input::placeholder{color:rgba(35,44,84,.2)}
 
 .scope-area{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);margin-bottom:14px;overflow:hidden}
 .sa-header{display:flex;align-items:center;gap:12px;padding:14px 20px 12px;border-bottom:1px solid var(--hair);background:rgba(35,44,84,.025)}
@@ -96,7 +98,7 @@
 .scope-job-field{display:block}
 
 @media print{
-  .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-cancel-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge,.scope-empty-state{display:none!important}
+  .sidebar,.mob-overlay,.mob-menu-btn,.ph-btn,.scope-add-area,.sa-remove,.sa-task-rm,.sa-add-task,.scope-bottom,.saved-scopes,.sh,.scope-cancel-btn,.sa-footer,.empty-areas,.bc,.scope-info-badge,.scope-empty-state,.scope-name-lbl{display:none!important}
   .layout{display:block!important}
   .main{padding:20px!important;min-width:0}
   body{background:#fff!important}
@@ -207,7 +209,8 @@
       <div class="scope-info">
         <div class="scope-info-badge" id="scope-job-ref" hidden style="font-size:12px;font-weight:600;color:var(--stone);padding-bottom:14px;align-items:center;gap:8px"></div>
         <div class="scope-name-row">
-          <input class="scope-name-input" id="scope-name" type="text" placeholder="Scope name — e.g. Aria Property Group · Weekly" autocomplete="off">
+          <label class="scope-name-lbl" for="scope-name">Scope name</label>
+          <input class="scope-name-input" id="scope-name" type="text" placeholder="e.g. Aria Property Group · Weekly" autocomplete="off">
         </div>
         <div class="scope-info-grid">
           <div class="scope-job-field">
