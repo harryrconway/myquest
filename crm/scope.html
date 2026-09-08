@@ -11,8 +11,7 @@
 .scope-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 160px;gap:14px;align-items:end}
 .scope-name-row{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--hair)}
 .scope-name-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:14px}
-.scope-name-input{width:100%;font-size:36px;font-weight:700;color:var(--navy);border:none;border-bottom:2px solid var(--hair-md);background:none;outline:none;font-family:var(--font);letter-spacing:-.03em;padding:0 0 14px}
-.scope-name-input:focus{border-bottom-color:var(--navy)}
+.scope-name-input{width:100%;font-size:36px;font-weight:700;color:var(--navy);border:none;background:none;outline:none;font-family:var(--font);letter-spacing:-.03em;padding:0}
 .scope-name-input::placeholder{color:rgba(35,44,84,.2)}
 
 .scope-area{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);margin-bottom:14px;overflow:hidden}
@@ -186,7 +185,6 @@
     <div class="ph pg-1">
       <button type="button" class="mob-menu-btn" id="mob-menu-btn" aria-label="Menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Scope of Works</h1>
-      <button type="button" class="ph-btn" id="scope-new-btn-ph">+ New scope</button>
     </div>
 
     <div class="bc pg-2"><a href="overview.html">MyQuest</a><span class="bc-sep">›</span>Scope of Works</div>
@@ -528,7 +526,6 @@ function populateJobDropdown(clientId){
   if(prev)jobSel.value=prev;
 }
 function init(){
-  document.getElementById('scope-no-job').hidden=true;
   document.getElementById('scope-editor').hidden=false;
 
   var jobParam=getParam('job_id');
@@ -564,10 +561,6 @@ function init(){
 document.getElementById('scope-job-link').addEventListener('change',function(){onJobSelect(this.value);});
 document.getElementById('scope-add-area').addEventListener('click',addArea);
 document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
-document.getElementById('scope-new-btn-ph').addEventListener('click',function(){
-  var lbl=document.getElementById('scope-editor-lbl');if(lbl)lbl.textContent='New scope';
-  resetEditor();scrollToEditor();
-});
 document.getElementById('scope-cancel-btn').addEventListener('click',function(){resetEditor();scrollToTop();});
 
 document.getElementById('scope-areas').addEventListener('click',function(e){
