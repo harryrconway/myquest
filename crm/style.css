@@ -168,8 +168,8 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   .stat:nth-child(3){border-top:1px solid var(--on-hair)}
   .stat:nth-child(4){border-top:1px solid var(--on-hair);border-right:none}
 
-  /* Hamburger button — stays in page flow but above overlay via z-index */
-  .mob-menu-btn{display:flex}
+  /* Hamburger replaced by bottom nav — hidden */
+  .mob-menu-btn{display:none}
 
   /* Sidebar hidden — replaced by full-screen overlay */
   .sidebar{display:none!important}
@@ -255,6 +255,90 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 @media(max-width:600px){
   .ph{padding:12px 20px 16px;gap:8px}
   .ph-title{font-size:22px}
+}
+
+/* ── Bottom navigation bar (mobile) ───────────────────────── */
+.mob-bnav,.bnav-bg,.bnav-sheet{display:none}
+
+@media(max-width:900px){
+  /* Suppress old overlay nav — bottom bar replaces it */
+  .mob-overlay{display:none!important}
+
+  /* Page content clears the bar */
+  .main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+
+  /* Fixed bottom tab bar */
+  .mob-bnav{
+    display:flex;
+    position:fixed;bottom:0;left:0;right:0;z-index:400;
+    background:var(--card);
+    border-top:1.5px solid var(--hair);
+    height:calc(56px + env(safe-area-inset-bottom,0px));
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .bnav-tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:3px;
+    text-decoration:none;color:var(--stone);
+    background:none;border:none;font-family:var(--font);
+    cursor:pointer;padding:0;position:relative;
+    -webkit-tap-highlight-color:transparent;
+    transition:color .15s;
+  }
+  .bnav-tab span{font-size:9px;font-weight:500;letter-spacing:.04em;line-height:1;white-space:nowrap}
+  .bnav-tab svg{width:22px;height:22px;flex-shrink:0}
+  .bnav-tab.bnav-on{color:var(--navy)}
+  .bnav-icon{position:relative;display:flex;align-items:center;justify-content:center}
+  .bnav-tab .sb-notif{position:absolute;top:-3px;right:-8px;margin-left:0}
+
+  /* More sheet backdrop */
+  .bnav-bg{
+    display:none;position:fixed;inset:0;z-index:390;
+    background:rgba(35,44,84,.18);
+    backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  }
+  .bnav-bg.open{display:block}
+
+  /* More sheet */
+  .bnav-sheet{
+    display:block;position:fixed;
+    bottom:calc(56px + env(safe-area-inset-bottom,0px));
+    left:0;right:0;z-index:395;
+    background:var(--card);
+    border-radius:18px 18px 0 0;
+    padding-bottom:2px;
+    box-shadow:0 -4px 24px rgba(35,44,84,.10);
+    transform:translateY(calc(100% + 4px));
+    transition:transform .26s cubic-bezier(.32,0,.67,0);
+    pointer-events:none;
+  }
+  .bnav-sheet.open{
+    transform:translateY(0);
+    transition:transform .32s cubic-bezier(.33,1,.68,1);
+    pointer-events:auto;
+  }
+  .bnav-sheet-handle{
+    width:32px;height:3px;background:var(--stone);opacity:.25;
+    border-radius:2px;margin:8px auto 8px;
+  }
+
+  /* Sheet items */
+  .bnav-si{
+    display:flex;align-items:center;gap:14px;
+    padding:13px 20px;
+    color:var(--navy);text-decoration:none;
+    font-size:15px;font-weight:400;font-family:var(--font);
+    background:none;border:none;width:100%;text-align:left;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
+    transition:background .1s;
+  }
+  .bnav-si svg{width:20px;height:20px;flex-shrink:0;color:var(--stone);transition:color .1s}
+  .bnav-si.bnav-on{font-weight:600;color:var(--navy)}
+  .bnav-si.bnav-on svg{color:var(--navy)}
+  .bnav-si:active{background:rgba(35,44,84,.05)}
+  .bnav-sheet-div{height:1px;background:var(--hair);margin:4px 0}
+  .bnav-si-danger{color:var(--red)!important}
+  .bnav-si-danger svg{color:var(--red)!important}
 }
 
 /* Custom date picker */

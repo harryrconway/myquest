@@ -139,6 +139,7 @@ animated thank-you; falls back to a pre-addressed email if the network fails */
       showStep(3,4);
       setTimeout(function(){
         var t=document.getElementById('iqThanks');t.classList.add('go');
+        setTimeout(function(){window.scrollTo({top:0,behavior:'smooth'});},3000);
       },320);
     }catch(e){
       btn.textContent='Get My Free Quote';btn.disabled=false;
