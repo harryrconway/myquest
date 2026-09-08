@@ -36,7 +36,7 @@ function initInput(inputEl){
   wrap.className='dp-wrap';
   inputEl.parentNode.insertBefore(wrap,inputEl);
   wrap.appendChild(inputEl);
-  inputEl.style.cssText='position:absolute;opacity:0;pointer-events:none;width:1px;height:1px';
+  inputEl.style.cssText='display:none';
 
   // Trigger button — uses form-input class to inherit the exact input styling
   var btn=document.createElement('button');
