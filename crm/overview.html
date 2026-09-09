@@ -286,7 +286,7 @@ Promise.all([
     var upcomingJobs=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).length;
     monthEl.innerHTML=
       '<div class="qs-row"><span class="qs-lbl">Total clients</span><span class="qs-val">'+clients.length+'</span></div>'+
-      '<div class="qs-row"><span class="qs-lbl">Upcoming jobs</span><span class="qs-val">'+upcomingJobs+'</span></div>'+
+      '<div class="qs-row"><span class="qs-lbl">Total jobs</span><span class="qs-val">'+upcomingJobs+'</span></div>'+
       '<div class="qs-row"><span class="qs-lbl">Jobs completed</span><span class="qs-val">'+completedJobs+'</span></div>'+
       '<div class="qs-row"><span class="qs-lbl">Total staff</span><span class="qs-val">'+staff.length+'</span></div>'+
       '<div class="qs-row"><span class="qs-lbl">Active staff</span><span class="qs-val">'+activeStaff+'</span></div>';
