@@ -180,7 +180,6 @@
 
   <main class="main">
     <div class="ph pg-1">
-      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <div>
         <h1 class="ph-title">Inquiries</h1>
         <div class="ph-sub" id="inq-count">—</div>
@@ -387,7 +386,7 @@ function updateCount(){
   var active=allInquiries.filter(function(i){return i.status==='new'||i.status==='viewed';}).length;
   var countEl=document.getElementById('inq-count');
   if(countEl)countEl.textContent=allInquiries.length+' total · '+won+' converted · '+active+' active';
-  ['inq-notif','mob-inq-notif','bnav-inq-notif'].forEach(function(id){
+  ['inq-notif','bnav-inq-notif'].forEach(function(id){
     var el=document.getElementById(id);if(!el)return;
     if(newCount>0){el.textContent=newCount>9?'9+':String(newCount);el.classList.add('show');}
     else el.classList.remove('show');

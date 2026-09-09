@@ -145,7 +145,6 @@
   <main class="main">
 
     <div class="ph pg-1">
-      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Jobs</h1>
       <button class="ph-btn" id="new-job-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -609,7 +608,7 @@ Promise.all([
     });
 
 MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
-  var n=r.count||0;['inq-notif','mob-inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
+  var n=r.count||0;['inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
 });
 if(window.mqGenerate)window.mqGenerate().then(function(){sb.from('jobs').select('id,client_id,client_name,date,start_time,start_tz,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r2){allJobs=r2.data||[];renderAll();});});
     var jobParam=getParam('job');

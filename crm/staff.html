@@ -129,7 +129,6 @@
   <main class="main">
 
     <div class="ph pg-1">
-      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Staff</h1>
       <button class="ph-btn" id="new-staff-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -691,7 +690,7 @@ if(bnavBg)bnavBg.addEventListener('click',bnavClose);
 
 reload();
 MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
-  var n=r.count||0;['inq-notif','mob-inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
+  var n=r.count||0;['inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
 });
 }); // end requireAuth
 })();

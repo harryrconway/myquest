@@ -116,7 +116,6 @@
   <main class="main">
 
     <div class="ph pg-1">
-      <button class="mob-menu-btn" id="mob-menu" aria-label="Open menu"><span class="mob-bar"></span><span class="mob-bar"></span><span class="mob-bar"></span></button>
       <h1 class="ph-title">Reports</h1>
     </div>
 
@@ -224,7 +223,7 @@ Promise.all([
   var contracts=res[4].data||[];
 
   MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
-    var n=r.count||0;['inq-notif','mob-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
+    var n=r.count||0;['inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
   });
 
   var yrStr=String(yr);
