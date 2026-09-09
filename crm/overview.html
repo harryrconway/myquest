@@ -255,6 +255,10 @@ Promise.all([
   var attnEl=document.getElementById('ov-attn');
   if(attnEl){
     var html='';
+    var jobsToday=jobs.filter(function(j){return j.date===today&&j.status==='upcoming';});
+    if(jobsToday.length)html+='<div class="attn-item"><div class="attn-dot red"></div><div>'+
+      '<div class="attn-title">'+jobsToday.length+' job'+(jobsToday.length!==1?'s':'')+' scheduled for today</div>'+
+      '<div class="attn-sub"><a href="jobs.html" style="color:inherit">View in Jobs →</a></div></div></div>';
     var jobsTomorrow=jobs.filter(function(j){return j.date===tomorrowStr&&j.status==='upcoming';});
     if(jobsTomorrow.length)html+='<div class="attn-item"><div class="attn-dot amber"></div><div>'+
       '<div class="attn-title">'+jobsTomorrow.length+' job'+(jobsTomorrow.length!==1?'s':'')+' scheduled for tomorrow</div>'+
