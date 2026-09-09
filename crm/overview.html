@@ -305,9 +305,11 @@ return Promise.all([
   }
 
   
-setTimeout(function(){MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
+function refreshInqBadge(){MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
   var n=r.count||0;['inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
-});},0);
+});}
+setTimeout(refreshInqBadge,0);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refreshInqBadge();});
 });
 
 var bnavMore=document.getElementById('bnav-more');
