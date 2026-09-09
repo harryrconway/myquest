@@ -124,6 +124,15 @@
   .inq-row .inq-cell,.inq-row .inq-date{display:none}
   .cv-grid{grid-template-columns:1fr}
 }
+@media(max-width:900px){
+  .cv-overlay{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px) + 12px)}
+  .cv-card{display:flex;flex-direction:column;max-height:calc(100dvh - 56px - env(safe-area-inset-bottom,0px) - 40px);overflow:hidden}
+  .cv-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
+@media(max-width:600px){
+  .cv-overlay{align-items:flex-end;padding:16px 16px calc(56px + env(safe-area-inset-bottom,0px) + 12px)}
+  .cv-card{max-height:calc(100dvh - 56px - env(safe-area-inset-bottom,0px) - 32px)}
+}
 </style>
 </head>
 <body>
