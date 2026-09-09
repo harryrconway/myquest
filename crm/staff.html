@@ -63,9 +63,14 @@
 @media print{
   body>*:not(#roster-modal){display:none!important}
   #roster-modal{position:static!important;background:none!important;padding:0!important;display:block!important}
-  #roster-modal .modal-card{box-shadow:none!important;max-width:100%!important;border-radius:0!important}
+  #roster-modal .modal-card{box-shadow:none!important;max-width:100%!important;border-radius:0!important;background:#fff!important}
   #roster-modal .modal-hd{display:none!important}
-  .rp-page{padding:0}
+  .rp-page{padding:0;background:#fff}
+  .rp-sub,.rp-day-hd,.rp-no-jobs,.rp-job-time,.rp-job-name,.rp-job-addr,.rp-job-type,.rp-job-num{color:#000!important}
+  .rp-job-type{background:none!important;border:1px solid #ccc}
+  .rp-job-num{opacity:1!important}
+  .rp-job-row.done{opacity:1!important}
+  .rp-day-hd{border-bottom-color:#000!important}
 }
 </style>
 </head>
