@@ -19,6 +19,10 @@ function makeJob(src,ds){
 window.mqGenerate=function(){
   var sb=window.MQ&&window.MQ.sb;
   if(!sb)return Promise.resolve();
+  try{
+    var last=parseInt(localStorage.getItem('mq_gen_last')||'0');
+    if(Date.now()-last<6*60*60*1000)return Promise.resolve();
+  }catch(e){}
   var today=new Date();today.setHours(0,0,0,0);
   var ts=iso(today);
 
@@ -72,6 +76,8 @@ window.mqGenerate=function(){
               if(added.length)return sb.from('jobs').insert(added);
             });
         });
+    }).then(function(){
+      try{localStorage.setItem('mq_gen_last',String(Date.now()));}catch(e){}
     });
 };
 
