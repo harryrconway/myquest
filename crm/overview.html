@@ -230,12 +230,14 @@ var nwSun=new Date(nwMon);nwSun.setDate(nwMon.getDate()+6);
 var nwMonStr=isoLocal(nwMon);
 var nwSunStr=isoLocal(nwSun);
 
-Promise.all([
+(window.mqGenerate?window.mqGenerate():Promise.resolve()).then(function(){
+return Promise.all([
   sb.from('clients').select('id,status'),
   sb.from('jobs').select('id,date,start_time,start_tz,status,type,site,client_name,assigned_staff_id,assigned_staff_name'),
   sb.from('staff').select('id,status'),
   sb.from('contracts').select('id,end_date').not('end_date','is',null)
-]).then(function(results){
+]);
+}).then(function(results){
   var clients=results[0].data||[];
   var jobs=results[1].data||[];
   var staff=results[2].data||[];
@@ -356,7 +358,6 @@ Promise.all([
 MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
   var n=r.count||0;['inq-notif','mob-inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
 });
-if(window.mqGenerate)window.mqGenerate();
 });
 
 var bnavMore=document.getElementById('bnav-more');
