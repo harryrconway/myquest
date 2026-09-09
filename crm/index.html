@@ -906,9 +906,14 @@ if(searchEl)searchEl.addEventListener('input',function(){searchTerm=this.value.t
 
 // New client modal
 var overlay=document.getElementById('modal-overlay');
-function openModal(){overlay.hidden=false;setTimeout(function(){document.getElementById('f-name').focus();},40);}
+function adjustModalViewport(){
+  if(overlay.hidden)return;
+  if(window.visualViewport){overlay.style.height=window.visualViewport.height+'px';overlay.style.top=window.visualViewport.offsetTop+'px';}
+}
+if(window.visualViewport){window.visualViewport.addEventListener('resize',adjustModalViewport);window.visualViewport.addEventListener('scroll',adjustModalViewport);}
+function openModal(){overlay.hidden=false;adjustModalViewport();setTimeout(function(){document.getElementById('f-name').focus();},40);}
 function closeModal(){
-  overlay.hidden=true;
+  overlay.hidden=true;overlay.style.height='';overlay.style.top='';
   ['f-name','f-contact','f-phone','f-email','f-site-address'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-industry').value='Commercial office';
 }
