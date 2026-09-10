@@ -59,6 +59,10 @@
 .rep-reset-row{display:flex;justify-content:flex-end;padding:40px 0 20px}
 .rep-reset-btn{padding:9px 18px;border-radius:var(--r-sm);border:1.5px solid rgba(166,61,47,.25);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--red);cursor:pointer;transition:background .12s,border-color .12s}
 .rep-reset-btn:hover{background:rgba(166,61,47,.06);border-color:rgba(166,61,47,.4)}
+.rep-period{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.rep-p-btn{padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;font-family:var(--font);border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;transition:color .12s,background .12s,border-color .12s}
+.rep-p-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.rep-p-btn.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
 </style>
 </head>
 <body>
@@ -263,39 +267,75 @@ Promise.all([
     '</div>';
 
   // --- JOBS ---
+  function isoD(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(dy<10?'0'+dy:dy);}
   var firstDone=doneAll.reduce(function(a,j){return(!a||j.date<a)?j.date:a;},null);
-  var avgWk='—';
+  var avgWkAll='—';
   if(firstDone&&doneAll.length){
-    var wks=Math.max(1,Math.round((new Date()-new Date(firstDone+'T00:00:00'))/(7*86400000)));
-    avgWk=(doneAll.length/wks).toFixed(1);
+    var wksAll=Math.max(1,Math.round((now-new Date(firstDone+'T00:00:00'))/(7*86400000)));
+    avgWkAll=(doneAll.length/wksAll).toFixed(1);
   }
-  var moAll=new Array(12).fill(0);
-  doneAll.filter(function(j){return j.date&&j.date.startsWith(yrStr);}).forEach(function(j){moAll[new Date(j.date+'T00:00:00').getMonth()]++;});
-  var maxMo=Math.max.apply(null,moAll.slice(0,mo+1).concat([1]));
-  var byCl={};doneAll.forEach(function(j){if(!j.client_name)return;byCl[j.client_name]=(byCl[j.client_name]||0)+1;});
-  var clSorted=Object.keys(byCl).map(function(k){return{name:k,n:byCl[k]};}).sort(function(a,b){return b.n-a.n;});
-  var maxCl=clSorted.length?clSorted[0].n:1;
-  var byDow=[0,0,0,0,0,0,0];
-  doneAll.forEach(function(j){if(j.date)byDow[new Date(j.date+'T00:00:00').getDay()]++;});
-  var maxDow=Math.max.apply(null,byDow.concat([1]));
-  document.getElementById('panel-jobs').innerHTML=
-    statStrip([
-      ['Total jobs',jobs.length,'All time'],
-      ['Completed',doneAll.length,'All time'],
-      ['Upcoming',jobsUp.length,'Scheduled ahead'],
-      ['Avg. per week',avgWk,'Completed jobs']
-    ])+
-    '<div class="rep-grid">'+
-      '<div class="rep-card"><div class="rep-title">Completed by month — '+yr+'</div><div class="bar-chart">'+
-        MO.slice(0,mo+1).map(function(m,i){return vbar(m,moAll[i],maxMo,i===mo?'green':'');}).join('')+
-      '</div></div>'+
-      '<div class="rep-card"><div class="rep-title">Jobs by client (top 8)</div>'+
-        (clSorted.length?clSorted.slice(0,8).map(function(c){return hbar(c.name,c.n,maxCl);}).join(''):'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+
+  var wkStart=new Date(now);wkStart.setHours(0,0,0,0);
+  var wd=wkStart.getDay();wkStart.setDate(wkStart.getDate()-(wd===0?6:wd-1));
+  var wkEnd=new Date(wkStart);wkEnd.setDate(wkStart.getDate()+6);
+  var wkStartStr=isoD(wkStart),wkEndStr=isoD(wkEnd);
+  var moStr=yrStr+'-'+(mo<9?'0':'')+(mo+1);
+
+  function renderJobsPanel(period){
+    function inPeriod(j){
+      var d=j.date;if(!d)return false;
+      if(period==='week')return d>=wkStartStr&&d<=wkEndStr;
+      if(period==='month')return d.startsWith(moStr);
+      if(period==='year')return d.startsWith(yrStr);
+      return true;
+    }
+    var pJobs=jobs.filter(inPeriod);
+    var pDone=pJobs.filter(function(j){return j.status==='completed';});
+    var pUp=period==='all'?jobsUp:pJobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;});
+    var hint=period==='week'?'This week':period==='month'?'This month':period==='year'?'Year to date':'All time';
+    var avgWk='—';
+    if(period==='all'){avgWk=avgWkAll;}
+    else if(pDone.length){
+      var pStart=period==='week'?wkStartStr:period==='month'?moStr+'-01':yrStr+'-01-01';
+      var wksPd=Math.max(1,Math.round((now-new Date(pStart+'T00:00:00'))/(7*86400000)));
+      avgWk=(pDone.length/wksPd).toFixed(1);
+    }
+    var moChart=new Array(12).fill(0);
+    pDone.filter(function(j){return j.date&&j.date.startsWith(yrStr);}).forEach(function(j){moChart[new Date(j.date+'T00:00:00').getMonth()]++;});
+    var maxMoP=Math.max.apply(null,moChart.slice(0,mo+1).concat([1]));
+    var byClP={};pDone.forEach(function(j){if(!j.client_name)return;byClP[j.client_name]=(byClP[j.client_name]||0)+1;});
+    var clSortedP=Object.keys(byClP).map(function(k){return{name:k,n:byClP[k]};}).sort(function(a,b){return b.n-a.n;});
+    var maxClP=clSortedP.length?clSortedP[0].n:1;
+    var byDowP=[0,0,0,0,0,0,0];
+    pDone.forEach(function(j){if(j.date)byDowP[new Date(j.date+'T00:00:00').getDay()]++;});
+    var maxDowP=Math.max.apply(null,byDowP.concat([1]));
+    var pills=['week','month','year','all'].map(function(p){
+      var lbl=p==='week'?'This Week':p==='month'?'This Month':p==='year'?'This Year':'All Time';
+      return'<button class="rep-p-btn'+(period===p?' on':'')+'" data-p="'+p+'">'+lbl+'</button>';
+    }).join('');
+    document.getElementById('panel-jobs').innerHTML=
+      '<div class="rep-period">'+pills+'</div>'+
+      statStrip([
+        ['Total jobs',pJobs.length,hint],
+        ['Completed',pDone.length,hint],
+        ['Upcoming',pUp.length,'Scheduled ahead'],
+        ['Avg. per week',avgWk,hint]
+      ])+
+      '<div class="rep-grid">'+
+        '<div class="rep-card"><div class="rep-title">Completed by month — '+yr+'</div><div class="bar-chart">'+
+          MO.slice(0,mo+1).map(function(m,i){return vbar(m,moChart[i],maxMoP,i===mo?'green':'');}).join('')+
+        '</div></div>'+
+        '<div class="rep-card"><div class="rep-title">Jobs by client (top 8)</div>'+
+          (clSortedP.length?clSortedP.slice(0,8).map(function(c){return hbar(c.name,c.n,maxClP);}).join(''):'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+
+        '</div>'+
       '</div>'+
-    '</div>'+
-    '<div class="rep-card" style="margin-bottom:18px"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+
-      DOW.map(function(d,i){return vbar(d.slice(0,2),byDow[i],maxDow);}).join('')+
-    '</div></div>';
+      '<div class="rep-card" style="margin-bottom:18px"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+
+        DOW.map(function(d,i){return vbar(d.slice(0,2),byDowP[i],maxDowP);}).join('')+
+      '</div></div>';
+    document.querySelectorAll('#panel-jobs .rep-p-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){renderJobsPanel(btn.dataset.p);});
+    });
+  }
+  renderJobsPanel('year');
 
   // --- CLIENTS ---
   var clActive=clients.filter(function(c){return c.status==='active';}).length;
