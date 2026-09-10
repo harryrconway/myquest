@@ -200,7 +200,8 @@ function lineSvg(data,labels){
 
 var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-var now=new Date(),yr=now.getFullYear(),mo=now.getMonth(),today=now.toISOString().slice(0,10);
+function isoD(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(dy<10?'0'+dy:dy);}
+var now=new Date(),yr=now.getFullYear(),mo=now.getMonth(),today=isoD(now);
 
 // Tab switching
 var repTabs=document.querySelectorAll('.rep-tab');
@@ -218,7 +219,7 @@ Promise.all([
   sb.from('clients').select('id,status,industry'),
   sb.from('staff').select('id,status,role,name'),
   sb.from('inquiries').select('id,status,source,lost_reason,created_at,converted_at'),
-  sb.from('contracts').select('id,value,end_date')
+  sb.from('contracts').select('id,end_date')
 ]).then(function(res){
   var jobs=res[0].data||[];
   var clients=res[1].data||[];
@@ -240,7 +241,8 @@ Promise.all([
   var inqWon=inquiries.filter(function(i){return i.status==='won';}).length;
   var inqLost=inquiries.filter(function(i){return i.status==='lost';}).length;
   var inqActive=inquiries.filter(function(i){return i.status==='new'||i.status==='viewed';}).length;
-  var convRate=inqTotal>0?Math.round(inqWon/inqTotal*100):0;
+  var closedInq=inqWon+inqLost;
+  var convRate=closedInq>0?Math.round(inqWon/closedInq*100):0;
 
   // --- OVERVIEW ---
   var revYTD=doneYTD.reduce(function(a,j){return a+(j.quoted_price||0);},0);
@@ -259,7 +261,7 @@ Promise.all([
       ['Jobs YTD',doneYTD.length,'Jan–'+MO[mo]+' '+yr],
       ['Quoted value YTD',revYTD>0?'$'+Math.round(revYTD).toLocaleString():'—','Completed jobs'],
       ['Active clients',activeClients,clients.length+' total'],
-      ['Conversion rate',convRate+'%',inqWon+'/'+inqTotal+' inquiries']
+      ['Conversion rate',convRate+'%',inqWon+'/'+closedInq+' closed']
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Jobs completed by month — '+yr+'</div>'+lineSvg(moData.slice(0,mo+1),MO.slice(0,mo+1))+'</div>'+
@@ -267,7 +269,6 @@ Promise.all([
     '</div>';
 
   // --- JOBS ---
-  function isoD(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(dy<10?'0'+dy:dy);}
   var firstDone=doneAll.reduce(function(a,j){return(!a||j.date<a)?j.date:a;},null);
   var avgWkAll='—';
   if(firstDone&&doneAll.length){
@@ -282,25 +283,28 @@ Promise.all([
 
   function renderJobsPanel(period){
     function inPeriod(j){
+      if(period==='all')return true;
       var d=j.date;if(!d)return false;
       if(period==='week')return d>=wkStartStr&&d<=wkEndStr;
       if(period==='month')return d.startsWith(moStr);
-      if(period==='year')return d.startsWith(yrStr);
-      return true;
+      return d.startsWith(yrStr);
     }
     var pJobs=jobs.filter(inPeriod);
     var pDone=pJobs.filter(function(j){return j.status==='completed';});
     var pUp=period==='all'?jobsUp:pJobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;});
     var hint=period==='week'?'This week':period==='month'?'This month':period==='year'?'Year to date':'All time';
-    var avgWk='—';
+    var avgWk='—';var avgLbl='Avg. per week';
     if(period==='all'){avgWk=avgWkAll;}
-    else if(pDone.length){
-      var pStart=period==='week'?wkStartStr:period==='month'?moStr+'-01':yrStr+'-01-01';
+    else if(period==='week'){
+      if(pDone.length){var daysEl=Math.max(1,Math.round((now-new Date(wkStartStr+'T00:00:00'))/86400000));avgWk=(pDone.length/daysEl).toFixed(1);}
+      avgLbl='Avg. per day';
+    }else if(pDone.length){
+      var pStart=period==='month'?moStr+'-01':yrStr+'-01-01';
       var wksPd=Math.max(1,Math.round((now-new Date(pStart+'T00:00:00'))/(7*86400000)));
       avgWk=(pDone.length/wksPd).toFixed(1);
     }
     var moChart=new Array(12).fill(0);
-    pDone.filter(function(j){return j.date&&j.date.startsWith(yrStr);}).forEach(function(j){moChart[new Date(j.date+'T00:00:00').getMonth()]++;});
+    doneAll.filter(function(j){return j.date&&j.date.startsWith(yrStr);}).forEach(function(j){moChart[new Date(j.date+'T00:00:00').getMonth()]++;});
     var maxMoP=Math.max.apply(null,moChart.slice(0,mo+1).concat([1]));
     var byClP={};pDone.forEach(function(j){if(!j.client_name)return;byClP[j.client_name]=(byClP[j.client_name]||0)+1;});
     var clSortedP=Object.keys(byClP).map(function(k){return{name:k,n:byClP[k]};}).sort(function(a,b){return b.n-a.n;});
@@ -318,7 +322,7 @@ Promise.all([
         ['Total jobs',pJobs.length,hint],
         ['Completed',pDone.length,hint],
         ['Upcoming',pUp.length,'Scheduled ahead'],
-        ['Avg. per week',avgWk,hint]
+        [avgLbl,avgWk,hint]
       ])+
       '<div class="rep-grid">'+
         '<div class="rep-card"><div class="rep-title">Completed by month — '+yr+'</div><div class="bar-chart">'+
@@ -341,7 +345,7 @@ Promise.all([
   var clActive=clients.filter(function(c){return c.status==='active';}).length;
   var clOnb=clients.filter(function(c){return c.status==='onboarding';}).length;
   var clEx=clients.filter(function(c){return c.status==='exited';}).length;
-  var in60=new Date();in60.setDate(in60.getDate()+60);var in60Str=in60.toISOString().slice(0,10);
+  var in60=new Date();in60.setDate(in60.getDate()+60);var in60Str=isoD(in60);
   var ctActive=contracts.filter(function(ct){return ct.end_date&&ct.end_date>=today;}).length;
   var ctExp=contracts.filter(function(ct){return ct.end_date&&ct.end_date>=today&&ct.end_date<=in60Str;}).length;
   var ctPast=contracts.filter(function(ct){return ct.end_date&&ct.end_date<today;}).length;
@@ -354,7 +358,7 @@ Promise.all([
       ['Active',clActive,clients.length+' total'],
       ['Onboarding',clOnb,'New clients'],
       ['Exited',clEx,'Former clients'],
-      ['Active contracts',ctActive,contracts.length+' total']
+      ['Active contracts',ctActive+ctNoEx,contracts.length+' total']
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Client status</div>'+
