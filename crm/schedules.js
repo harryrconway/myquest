@@ -16,13 +16,13 @@ function makeJob(src,ds){
     source_job_id:src.id,from_schedule:true};
 }
 
-window.mqGenerate=function(){
+window.mqGenerate=function(force){
   var sb=window.MQ&&window.MQ.sb;
   if(!sb)return Promise.resolve();
-  try{
+  if(!force){try{
     var last=parseInt(localStorage.getItem('mq_gen_last')||'0');
     if(Date.now()-last<6*60*60*1000)return Promise.resolve();
-  }catch(e){}
+  }catch(e){}}
   var today=new Date();today.setHours(0,0,0,0);
   var ts=iso(today);
 
