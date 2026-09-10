@@ -526,7 +526,7 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
       }
     });
   } else {
-    sb.from('jobs').insert(row).then(function(r){
+    sb.from('jobs').insert(Object.assign({from_schedule:false},row)).then(function(r){
       savBtn.disabled=false;savBtn.textContent='Add job';
       if(r&&r.error){alert('Save failed: '+r.error.message);return;}
       if(site){var found=null;allClients.forEach(function(c){if(c.id===sel.value&&!c.site_address)found=c;});
