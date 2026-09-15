@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260911">
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel=stylesheet><link rel="stylesheet" href="style.css?v=20260911">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
-.staff-card:hover{box-shadow:0 0 0 2px rgba(35,44,84,.12);border-color:rgba(35,44,84,.2)}
+.staff-card:hover{box-shadow:0 0 0 2px rgba(0,0,0,.12);border-color:rgba(0,0,0,.2)}
 .sc-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
 .sc-av{
-  width:44px;height:44px;border-radius:50%;background:rgba(35,44,84,.1);
+  width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.1);
   display:flex;align-items:center;justify-content:center;
   font-size:15px;font-weight:700;color:var(--navy);flex-shrink:0;letter-spacing:.02em;
 }
@@ -26,8 +26,8 @@
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
-.f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
-.f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+.f-pill:hover{color:var(--navy);border-color:rgba(0,0,0,.2)}
+.f-pill.on{color:var(--navy);background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.18)}
 .search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
 .search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--stone);pointer-events:none}
 .search{width:100%;padding:9px 12px 9px 34px;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;color:var(--navy);outline:none;transition:border-color .12s}
@@ -38,7 +38,7 @@
 /* Document upload/view buttons */
 .sf-doc-view,.sf-doc-upload{font-size:11.5px;font-weight:500;color:var(--navy);background:none;border:1.5px solid var(--hair-md);border-radius:7px;padding:4px 10px;cursor:pointer;font-family:var(--font);transition:border-color .12s,color .12s;white-space:nowrap}
 .sf-doc-upload{color:var(--stone)}
-.sf-doc-view:hover,.sf-doc-upload:hover{border-color:rgba(35,44,84,.25);color:var(--navy)}
+.sf-doc-view:hover,.sf-doc-upload:hover{border-color:rgba(0,0,0,.25);color:var(--navy)}
 .sf-doc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .sc-roster-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--hair)}
 .sc-roster-period{flex:1;font-family:var(--font);font-size:12px;color:var(--stone);border:1px solid var(--hair-md);border-radius:6px;padding:6px 8px;background:var(--field);cursor:pointer}
@@ -78,10 +78,7 @@
 <div class="layout">
 
   <aside class="sidebar">
-    <a class="sb-logo" href="https://myquest.au">
-      <div class="sb-mark">MQ</div>
-      <span class="sb-name">MyQuest</span>
-    </a>
+    <a class="sb-logo" href="https://myquest.au"><img src=/assets/myquest-logo.svg alt=MyQuest height=20 style="display:block"></a>
     <nav class="sb-nav">
       <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -609,8 +606,8 @@ function openRoster(staffId,staffName,period){
             jj.forEach(function(j){
               var done=j.status==='completed';
               var timeStr=fmtTime(j.start_time)+(j.start_tz?' · '+j.start_tz:'');
-              var typeBg=j.type==='deep'?'rgba(58,107,78,.1)':'rgba(35,44,84,.07)';
-              var typeCol=j.type==='deep'?'#3a6b4e':'#232c54';
+              var typeBg=j.type==='deep'?'rgba(58,107,78,.1)':'rgba(0,0,0,.07)';
+              var typeCol=j.type==='deep'?'#3a6b4e':'#111111';
               var addr=addrMap[j.client_id]||j.site||'';
               dayRows+=
                 '<div class="rp-job-row'+(done?' done':'')+'">'+

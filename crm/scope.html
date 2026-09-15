@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260911">
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel=stylesheet><link rel="stylesheet" href="style.css?v=20260911">
 <style>
 .scope-info{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px;margin-bottom:20px}
 .scope-info-grid{display:grid;grid-template-columns:1fr 1fr 160px;gap:14px;align-items:end}
 .scope-name-row{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--hair)}
 .scope-name-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:14px}
 .scope-name-input{width:100%;font-size:36px;font-weight:700;color:var(--navy);border:none;background:none;outline:none;font-family:var(--font);letter-spacing:-.03em;padding:0}
-.scope-name-input::placeholder{color:rgba(35,44,84,.2)}
+.scope-name-input::placeholder{color:rgba(0,0,0,.2)}
 
 .scope-area{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);margin-bottom:14px;overflow:hidden}
-.sa-header{display:flex;align-items:center;gap:12px;padding:14px 20px 12px;border-bottom:1px solid var(--hair);background:rgba(35,44,84,.025)}
+.sa-header{display:flex;align-items:center;gap:12px;padding:14px 20px 12px;border-bottom:1px solid var(--hair);background:rgba(0,0,0,.025)}
 .sa-name{flex:1;font-size:14px;font-weight:700;color:var(--navy);border:none;background:none;outline:none;font-family:var(--font);letter-spacing:-.01em;padding:0}
-.sa-name::placeholder{color:rgba(35,44,84,.3)}
+.sa-name::placeholder{color:rgba(0,0,0,.3)}
 .sa-remove{border:none;background:none;color:var(--stone);cursor:pointer;font-size:11px;font-weight:600;font-family:var(--font);letter-spacing:.04em;text-transform:uppercase;padding:0;transition:color .12s;flex-shrink:0}
 .sa-remove:hover{color:var(--red)}
 
@@ -26,7 +26,7 @@
 .sa-task:last-child{border-bottom:none}
 .sa-bullet{font-size:16px;color:var(--stone);line-height:1;display:flex;align-items:center;justify-content:center}
 .sa-task-text{border:none;background:none;outline:none;font-family:var(--font);font-size:13px;color:var(--navy);width:100%;padding:0}
-.sa-task-text::placeholder{color:rgba(35,44,84,.3)}
+.sa-task-text::placeholder{color:rgba(0,0,0,.3)}
 .sa-task-rm{border:none;background:none;color:var(--stone);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;transition:color .12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px}
 .sa-task-rm:hover{color:var(--red);background:var(--red-bg)}
 
@@ -34,8 +34,8 @@
 .sa-add-task{border:none;background:none;color:var(--stone);font-size:12.5px;font-weight:600;font-family:var(--font);cursor:pointer;padding:0;transition:color .12s}
 .sa-add-task:hover{color:var(--navy)}
 
-.scope-add-area{width:100%;padding:13px 20px;border:1.5px dashed rgba(35,44,84,.16);border-radius:var(--r);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;margin-bottom:20px;text-align:center}
-.scope-add-area:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.scope-add-area{width:100%;padding:13px 20px;border:1.5px dashed rgba(0,0,0,.16);border-radius:var(--r);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;margin-bottom:20px;text-align:center}
+.scope-add-area:hover{border-color:rgba(0,0,0,.3);color:var(--navy)}
 
 .scope-global{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:20px 24px;margin-bottom:24px}
 .scope-global label{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);display:block;margin-bottom:10px}
@@ -44,20 +44,20 @@
 
 .scope-bottom{display:flex;align-items:center;gap:10px;padding-bottom:40px}
 .scope-print-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;display:inline-flex;align-items:center;gap:6px}
-.scope-print-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.scope-print-btn:hover{color:var(--navy);border-color:rgba(0,0,0,.2)}
 .scope-cancel-btn{padding:9px 16px;border-radius:var(--r-sm);border:1.5px solid var(--hair-md);background:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--stone);cursor:pointer;transition:border-color .12s,color .12s;margin-left:auto}
-.scope-cancel-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
+.scope-cancel-btn:hover{color:var(--navy);border-color:rgba(0,0,0,.2)}
 
 .saved-scopes{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;margin-bottom:40px}
 .ss-wrap{border-bottom:1px solid var(--hair);border-left:3px solid var(--hair-md);transition:border-left-color .15s}
 .ss-wrap:last-child{border-bottom:none}
-.ss-wrap:hover{border-left-color:rgba(35,44,84,.25)}
+.ss-wrap:hover{border-left-color:rgba(0,0,0,.25)}
 .ss-wrap.open{border-left-color:var(--navy)}
 .ss-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:16px 20px;align-items:center;cursor:pointer;transition:background .1s}
-.ss-row:hover{background:rgba(35,44,84,.025)}
+.ss-row:hover{background:rgba(0,0,0,.025)}
 .ss-name{font-size:15px;font-weight:700;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
 .ss-sub{font-size:11.5px;color:var(--stone);margin-top:3px}
-.ss-date{font-size:11px;color:var(--stone);white-space:nowrap;font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:rgba(35,44,84,.06);padding:3px 8px;border-radius:4px}
+.ss-date{font-size:11px;color:var(--stone);white-space:nowrap;font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:rgba(0,0,0,.06);padding:3px 8px;border-radius:4px}
 .ss-del{background:var(--red);border:1.5px solid var(--red);color:#fff;cursor:pointer;padding:7px 14px;border-radius:var(--r-sm);transition:background .12s,border-color .12s;font-size:12.5px;font-family:var(--font);font-weight:600}
 .ss-del:hover{background:#8a3126;border-color:#8a3126}
 .ss-site{font-size:13px;color:var(--stone);margin-top:3px}
@@ -73,19 +73,19 @@
 .sv-bullet{font-size:14px;color:var(--stone);line-height:1;flex-shrink:0}
 .sv-task-text{font-size:12.5px;color:var(--navy)}
 .sv-task-text.done{text-decoration:line-through;color:var(--stone)}
-.sv-freq{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
+.sv-freq{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
 .sv-notes{font-size:11.5px;color:var(--stone);padding-left:22px;margin-top:2px;font-style:italic}
 .sv-global{margin-top:14px;padding-top:12px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--stone);line-height:1.7}
 .sv-global-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:4px}
 .sv-footer{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--hair)}
 .sv-edit-btn{padding:7px 14px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:background .12s,border-color .12s}
-.sv-edit-btn:hover{background:rgba(35,44,84,.06);border-color:rgba(35,44,84,.2)}
+.sv-edit-btn:hover{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.2)}
 
-.empty-areas{padding:36px 24px;text-align:center;color:var(--stone);font-size:13px;border:1.5px dashed rgba(35,44,84,.12);border-radius:var(--r);margin-bottom:14px}
+.empty-areas{padding:36px 24px;text-align:center;color:var(--stone);font-size:13px;border:1.5px dashed rgba(0,0,0,.12);border-radius:var(--r);margin-bottom:14px}
 .empty-areas p{margin-bottom:12px}
-.scope-info-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:3px 10px;border-radius:5px;margin-bottom:16px}
+.scope-info-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.07);padding:3px 10px;border-radius:5px;margin-bottom:16px}
 
-.scope-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--navy);color:#fff;font-size:13px;font-weight:600;font-family:var(--font);letter-spacing:.01em;padding:11px 22px;border-radius:10px;box-shadow:0 6px 24px rgba(35,44,84,.28);z-index:500;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;white-space:nowrap}
+.scope-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--navy);color:#fff;font-size:13px;font-weight:600;font-family:var(--font);letter-spacing:.01em;padding:11px 22px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.28);z-index:500;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;white-space:nowrap}
 .scope-toast.scope-toast-in{opacity:1;transform:translateX(-50%) translateY(0)}
 .scope-toast.scope-toast-err{background:var(--red)}
 
@@ -119,10 +119,7 @@
 <div class="layout">
 
   <aside class="sidebar">
-    <a class="sb-logo" href="https://myquest.au">
-      <div class="sb-mark">MQ</div>
-      <span class="sb-name">MyQuest</span>
-    </a>
+    <a class="sb-logo" href="https://myquest.au"><img src=/assets/myquest-logo.svg alt=MyQuest height=20 style="display:block"></a>
     <nav class="sb-nav">
       <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>

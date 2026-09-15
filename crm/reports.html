@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260911">
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel=stylesheet><link rel="stylesheet" href="style.css?v=20260911">
 <style>
 /* Grid & cards */
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
@@ -22,7 +22,7 @@
 .bar-chart{display:flex;flex-direction:column;gap:8px}
 .bar-row{display:flex;align-items:center;gap:10px}
 .bar-lbl{font-size:11px;color:var(--stone);width:30px;flex-shrink:0;text-align:right}
-.bar-track{flex:1;height:7px;background:rgba(35,44,84,.07);border-radius:4px;overflow:hidden}
+.bar-track{flex:1;height:7px;background:rgba(0,0,0,.07);border-radius:4px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px;background:var(--navy)}
 .bar-fill.green{background:var(--green)}
 .bar-val{font-size:11px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;width:24px;text-align:right;flex-shrink:0}
@@ -30,7 +30,7 @@
 .cl-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
 .cl-bar-row:last-child{margin-bottom:0}
 .cl-bar-name{font-size:12px;color:var(--stone);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cl-bar-track{flex:1;height:6px;background:rgba(35,44,84,.07);border-radius:3px;overflow:hidden}
+.cl-bar-track{flex:1;height:6px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden}
 .cl-bar-fill{height:100%;border-radius:3px;background:var(--navy);opacity:.7}
 .cl-bar-val{font-size:11.5px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;width:52px;text-align:right;flex-shrink:0}
 /* Summary rows */
@@ -53,7 +53,7 @@
 .rep-pill-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
 .rep-pill.green{background:var(--green-bg)}.rep-pill.green .rep-pill-n,.rep-pill.green .rep-pill-lbl{color:var(--green)}
 .rep-pill.amber{background:var(--amber-bg)}.rep-pill.amber .rep-pill-n,.rep-pill.amber .rep-pill-lbl{color:var(--amber)}
-.rep-pill.stone{background:rgba(35,44,84,.06)}.rep-pill.stone .rep-pill-n,.rep-pill.stone .rep-pill-lbl{color:var(--stone)}
+.rep-pill.stone{background:rgba(0,0,0,.06)}.rep-pill.stone .rep-pill-n,.rep-pill.stone .rep-pill-lbl{color:var(--stone)}
 @media(max-width:900px){.rep-grid{grid-template-columns:1fr}.rep-stats{flex-wrap:wrap}.rep-stat{flex:0 0 calc(50% - 0px);border-right:none;border-bottom:1px solid var(--hair)}.rep-stat:nth-child(odd){border-right:1px solid var(--hair)}.rep-stat:nth-last-child(-n+2):last-child,.rep-stat:nth-last-child(-n+2):nth-last-child(2){border-bottom:none}}
 @media(max-width:600px){.rep-stats{flex-direction:column}.rep-stat{border-right:none!important;border-bottom:1px solid var(--hair)}.rep-stat:last-child{border-bottom:none}.cl-bar-name{width:80px}.rep-funnel-n{font-size:20px}.rep-stat-val{font-size:18px}}
 .rep-reset-row{display:flex;justify-content:flex-end;padding:40px 0 20px}
@@ -61,18 +61,15 @@
 .rep-reset-btn:hover{background:rgba(166,61,47,.06);border-color:rgba(166,61,47,.4)}
 .rep-period{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
 .rep-p-btn{padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;font-family:var(--font);border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;transition:color .12s,background .12s,border-color .12s}
-.rep-p-btn:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
-.rep-p-btn.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+.rep-p-btn:hover{color:var(--navy);border-color:rgba(0,0,0,.2)}
+.rep-p-btn.on{color:var(--navy);background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.18)}
 </style>
 </head>
 <body>
 <div class="layout">
 
   <aside class="sidebar">
-    <a class="sb-logo" href="https://myquest.au">
-      <div class="sb-mark">MQ</div>
-      <span class="sb-name">MyQuest</span>
-    </a>
+    <a class="sb-logo" href="https://myquest.au"><img src=/assets/myquest-logo.svg alt=MyQuest height=20 style="display:block"></a>
     <nav class="sb-nav">
       <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -188,14 +185,14 @@ function lineSvg(data,labels){
   var grid='';
   for(var t=0;t<=3;t++){
     var ty=pT+(1-t/3)*(h-pT-pB);
-    grid+='<line x1="'+pL+'" y1="'+ty.toFixed(1)+'" x2="'+(w-pR)+'" y2="'+ty.toFixed(1)+'" stroke="rgba(35,44,84,.08)" stroke-width="1"/>';
+    grid+='<line x1="'+pL+'" y1="'+ty.toFixed(1)+'" x2="'+(w-pR)+'" y2="'+ty.toFixed(1)+'" stroke="rgba(0,0,0,.08)" stroke-width="1"/>';
     grid+='<text x="'+(pL-4)+'" y="'+ty.toFixed(1)+'" text-anchor="end" dominant-baseline="middle" font-size="9" fill="var(--stone)">'+Math.round(max*t/3)+'</text>';
   }
   var xlbls=labels.map(function(lbl,i){
     var x=pL+(labels.length<2?0:i/(labels.length-1))*(w-pL-pR);
     return'<text x="'+x.toFixed(1)+'" y="'+(h-6)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(lbl)+'</text>';
   }).join('');
-  return'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;display:block">'+grid+(area?'<path d="'+area+'" fill="rgba(35,44,84,.07)"/>':'')+(n>1?'<path d="'+line+'" fill="none" stroke="var(--navy)" stroke-width="2"/>':'')+dots+xlbls+'</svg>';
+  return'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;display:block">'+grid+(area?'<path d="'+area+'" fill="rgba(0,0,0,.07)"/>':'')+(n>1?'<path d="'+line+'" fill="none" stroke="var(--navy)" stroke-width="2"/>':'')+dots+xlbls+'</svg>';
 }
 
 var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

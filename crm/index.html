@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260911">
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel=stylesheet><link rel="stylesheet" href="style.css?v=20260911">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -15,8 +15,8 @@
 .search:focus{border-color:var(--hair-md)}
 .filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
-.f-pill:hover{color:var(--navy);border-color:rgba(35,44,84,.2)}
-.f-pill.on{color:var(--navy);background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.18)}
+.f-pill:hover{color:var(--navy);border-color:rgba(0,0,0,.2)}
+.f-pill.on{color:var(--navy);background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.18)}
 
 .client-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
 .cl-head{display:grid;grid-template-columns:2fr 100px 120px 120px 40px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--hair)}
@@ -24,10 +24,10 @@
 .cl-wrap{border-bottom:1px solid var(--hair)}
 .cl-wrap:last-child{border-bottom:none}
 .cl-row{display:grid;grid-template-columns:2fr 100px 120px 120px 40px;gap:12px;padding:14px 20px;align-items:center;color:inherit;transition:background .1s;cursor:pointer}
-.cl-row:hover{background:rgba(35,44,84,.03)}
+.cl-row:hover{background:rgba(0,0,0,.03)}
 .cl-name{font-size:14.5px;font-weight:600;color:var(--navy);margin-bottom:3px;letter-spacing:-.01em}
 .cl-sub{font-size:11.5px;color:var(--stone)}
-.cl-industry{display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 7px;border-radius:4px;margin-top:4px}
+.cl-industry{display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 7px;border-radius:4px;margin-top:4px}
 .cl-val{font-size:14px;font-variant-numeric:tabular-nums;color:var(--navy)}
 .cl-val.warn{color:var(--amber);font-weight:600}
 .cl-val.ok{color:var(--stone)}
@@ -69,7 +69,7 @@
 .ci-meta-row a:hover{color:var(--navy)}
 .ci-meta-row svg{flex-shrink:0;color:var(--stone)}
 .ci-edit-btn{padding:5px 12px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:11.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color .12s}
-.ci-edit-btn:hover{border-color:rgba(35,44,84,.3)}
+.ci-edit-btn:hover{border-color:rgba(0,0,0,.3)}
 .ci-grid{display:grid;grid-template-columns:1fr 240px;gap:20px}
 .ci-sh{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin:0 0 8px;display:flex;align-items:center;justify-content:space-between}
 .ci-panel{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;margin-bottom:18px}
@@ -79,9 +79,9 @@
 .ci-job:last-child{border-bottom:none}
 .ci-job.done{border-left-color:var(--green)}
 .ci-job.next{border-left-color:var(--navy)}
-.ci-job:hover{background:rgba(35,44,84,.03)}
+.ci-job:hover{background:rgba(0,0,0,.03)}
 .ci-job-date{font-size:10.5px;color:var(--stone);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.4}
-.ci-job-type{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(35,44,84,.07);padding:2px 5px;border-radius:3px;display:inline-block;margin-bottom:2px}
+.ci-job-type{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 5px;border-radius:3px;display:inline-block;margin-bottom:2px}
 .ci-job-site{font-size:13px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ci-job-info{min-width:0;flex:1}
 .ci-job-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
@@ -95,7 +95,7 @@
 .cd-row{display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--hair)}
 .cd-row:last-child{border-bottom:none}
 .cd-row.ct-clickable{cursor:pointer}
-.cd-row.ct-clickable:hover{background:rgba(35,44,84,.03)}
+.cd-row.ct-clickable:hover{background:rgba(0,0,0,.03)}
 .cd-num{font-size:11.5px;font-weight:600;color:var(--navy)}
 .cd-desc{font-size:11.5px;color:var(--stone);min-width:0}
 .cd-amt{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -113,7 +113,7 @@
 /* Action buttons inside accordion */
 .ci-act-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;border:none;border-bottom:1px solid var(--hair);background:none;font-family:var(--font);font-size:12.5px;font-weight:500;color:var(--navy);cursor:pointer;transition:background .1s;text-align:left}
 .ci-act-btn:last-child{border-bottom:none}
-.ci-act-btn:hover{background:rgba(35,44,84,.04)}
+.ci-act-btn:hover{background:rgba(0,0,0,.04)}
 .ci-act-btn svg{color:var(--stone);flex-shrink:0}
 .ci-add-btn{font-size:11.5px;font-weight:600;color:var(--stone);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;line-height:1}
 .ci-add-btn:hover{color:var(--navy)}
@@ -126,7 +126,7 @@
 .ci-qc-label.unnamed{color:var(--stone);font-weight:500;font-style:italic}
 .ci-qc-meta{font-size:12px;color:var(--stone);margin-bottom:8px;line-height:1.4}
 .ci-qc-pills{display:flex;flex-wrap:wrap;gap:4px}
-.ci-qc-pill{font-size:10.5px;font-weight:500;color:var(--stone);background:rgba(35,44,84,.06);border-radius:4px;padding:2px 7px;white-space:nowrap;line-height:1.6}
+.ci-qc-pill{font-size:10.5px;font-weight:500;color:var(--stone);background:rgba(0,0,0,.06);border-radius:4px;padding:2px 7px;white-space:nowrap;line-height:1.6}
 .ci-qc-right{text-align:right;flex-shrink:0}
 .ci-qc-price{font-size:19px;font-weight:700;color:var(--navy);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
 .ci-qc-monthly{font-size:11px;color:var(--stone);margin-top:3px;font-variant-numeric:tabular-nums}
@@ -134,7 +134,7 @@
 .ci-qc-latest{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:rgba(58,107,78,.1);border-radius:4px;padding:2px 6px;flex-shrink:0}
 .ci-qc-date{font-size:11px;color:var(--stone);opacity:.5;flex:1}
 .ci-qc-view{background:none;border:1px solid var(--hair-md);border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;color:var(--stone);cursor:pointer;padding:4px 10px;transition:border-color .12s,color .12s;white-space:nowrap;flex-shrink:0}
-.ci-qc-view:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.ci-qc-view:hover{border-color:rgba(0,0,0,.3);color:var(--navy)}
 .ci-qc-del{background:none;border:none;cursor:pointer;padding:4px;color:var(--stone);opacity:.3;line-height:0;transition:opacity .12s,color .12s;flex-shrink:0}
 .ci-qc-del:hover{opacity:1;color:#c0392b}
 /* Quote detail modal body */
@@ -179,10 +179,7 @@ details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
 <div class="layout">
 
   <aside class="sidebar">
-    <a class="sb-logo" href="https://myquest.au">
-      <div class="sb-mark">MQ</div>
-      <span class="sb-name">MyQuest</span>
-    </a>
+    <a class="sb-logo" href="https://myquest.au"><img src=/assets/myquest-logo.svg alt=MyQuest height=20 style="display:block"></a>
     <nav class="sb-nav">
       <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>

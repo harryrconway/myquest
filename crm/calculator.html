@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Quote Calculator — MyQuest CRM</title>
-<link rel="stylesheet" href="style.css?v=20260911">
+<link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel=stylesheet><link rel="stylesheet" href="style.css?v=20260911">
 <style>
 /* ── Outer layout ── */
 .qc-outer{display:flex;flex-direction:column;gap:16px;margin-top:16px}
@@ -33,7 +33,7 @@
   cursor:pointer;transition:border-color .13s,color .13s,background .13s;
   text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;
 }
-.qc-space-tile:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-space-tile:hover{border-color:rgba(0,0,0,.3);color:var(--navy)}
 .qc-space-tile.on{background:var(--navy);border-color:var(--navy);color:var(--on)}
 .qst-ico{width:20px;height:20px;flex-shrink:0;opacity:.5;margin-bottom:6px}
 .qc-space-tile.on .qst-ico{opacity:.7}
@@ -62,11 +62,11 @@
   cursor:pointer;transition:border-color .13s,color .13s,background .13s;
   line-height:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
-.qc-choice:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-choice:hover{border-color:rgba(0,0,0,.3);color:var(--navy)}
 .qc-choice.on{background:var(--navy);border-color:var(--navy);color:var(--on);font-weight:600}
 
 /* ── After-hours info ── */
-.qc-ah-info{display:flex;flex-direction:column;gap:6px;margin:8px 0 4px;padding:12px 14px;background:rgba(35,44,84,.04);border-radius:8px}
+.qc-ah-info{display:flex;flex-direction:column;gap:6px;margin:8px 0 4px;padding:12px 14px;background:rgba(0,0,0,.04);border-radius:8px}
 .qc-ah-info-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--stone);line-height:1.5}
 .qc-ah-dot{width:4px;height:4px;border-radius:50%;background:var(--stone);opacity:.4;flex-shrink:0;margin-top:6px}
 
@@ -78,7 +78,7 @@
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:border-color .13s,color .13s;-webkit-tap-highlight-color:transparent;
 }
-.qc-ste-btn:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
+.qc-ste-btn:hover{border-color:rgba(0,0,0,.3);color:var(--navy)}
 .qc-ste-val{font-size:26px;font-weight:700;color:var(--navy);min-width:32px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
 .qc-ste-sub{font-size:11.5px;color:var(--stone);margin-top:2px}
 
@@ -98,8 +98,8 @@
   font-family:inherit;font-size:12px;color:var(--stone);cursor:pointer;
   padding:5px 11px;transition:border-color .13s,color .13s,background .13s;
 }
-.qc-hrs-pick:hover{border-color:rgba(35,44,84,.3);color:var(--navy)}
-.qc-hrs-pick.on{background:rgba(35,44,84,.07);border-color:rgba(35,44,84,.25);color:var(--navy);font-weight:600}
+.qc-hrs-pick:hover{border-color:rgba(0,0,0,.3);color:var(--navy)}
+.qc-hrs-pick.on{background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.25);color:var(--navy);font-weight:600}
 .qc-hrs-hint{font-size:11.5px;color:var(--stone);margin-top:10px;opacity:.6;line-height:1.5}
 
 /* ── Quote card wrapper ── */
@@ -193,7 +193,7 @@
   font-family:inherit;font-size:13.5px;color:var(--navy);outline:none;
   box-sizing:border-box;-webkit-appearance:none;appearance:none;
 }
-.qc-save-sel:focus,.qc-save-input:focus{border-color:rgba(35,44,84,.35)}
+.qc-save-sel:focus,.qc-save-input:focus{border-color:rgba(0,0,0,.35)}
 .qc-save-input::placeholder{color:var(--stone);opacity:.6}
 .qc-save-ok{font-size:13px;font-weight:600;color:var(--green);padding:4px 0}
 .qc-save-err{font-size:12px;color:#c0392b;padding:4px 0}
@@ -205,7 +205,7 @@
   #qc-print{
     display:block!important;
     padding:18mm 20mm;box-sizing:border-box;
-    background:#fff;color:#232c54;
+    background:#fff;color:#111111;
     font-family:system-ui,sans-serif;font-size:13px;line-height:1.6;
   }
 }
@@ -227,10 +227,7 @@
 <div class="layout">
 
   <aside class="sidebar">
-    <a class="sb-logo" href="https://myquest.au">
-      <div class="sb-mark">MQ</div>
-      <span class="sb-name">MyQuest</span>
-    </a>
+    <a class="sb-logo" href="https://myquest.au"><img src=/assets/myquest-logo.svg alt=MyQuest height=20 style="display:block"></a>
     <nav class="sb-nav">
       <a class="sb-item" href="overview.html">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
