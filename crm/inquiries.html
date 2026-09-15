@@ -202,6 +202,7 @@
         <button class="f-pill" data-filter="lost">Lost</button>
         <button class="f-pill" data-filter="all">All</button>
       </div>
+      <button class="btn-cvt" id="al-btn" style="margin-left:auto;white-space:nowrap">+ Add lead</button>
     </div>
 
     <div class="inq-list" id="inq-list">
@@ -344,6 +345,88 @@
     <div class="lost-actions">
       <button class="cv-btn-ghost" id="lost-cancel">Cancel</button>
       <button class="cv-btn-primary" id="lost-confirm">Mark as lost</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add lead modal -->
+<div class="cv-overlay" id="al-overlay">
+  <div class="cv-card">
+    <div class="cv-hd">
+      <div class="cv-hd-left">
+        <span class="cv-title">Add lead</span>
+        <span class="cv-subtitle">Phone, email or referral enquiry</span>
+      </div>
+      <button class="cv-close" id="al-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="cv-body">
+      <div class="cv-grid">
+        <div class="cv-field full">
+          <label for="al-biz">Business name <span style="color:var(--red)">*</span></label>
+          <input type="text" id="al-biz" autocomplete="off">
+        </div>
+        <div class="cv-field">
+          <label for="al-contact">Contact name</label>
+          <input type="text" id="al-contact" autocomplete="off">
+        </div>
+        <div class="cv-field">
+          <label for="al-email">Email</label>
+          <input type="email" id="al-email">
+        </div>
+        <div class="cv-field">
+          <label for="al-mobile">Phone / mobile</label>
+          <input type="tel" id="al-mobile">
+        </div>
+        <div class="cv-field">
+          <label for="al-suburb">Suburb</label>
+          <input type="text" id="al-suburb" autocomplete="off">
+        </div>
+        <div class="cv-field">
+          <label for="al-space">Space type</label>
+          <select id="al-space">
+            <option value="">Not specified</option>
+            <option value="office">Office</option>
+            <option value="retail">Retail</option>
+            <option value="medical">Medical</option>
+            <option value="industrial">Industrial</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="cv-field">
+          <label for="al-sqm">Size (sqm)</label>
+          <input type="text" id="al-sqm" placeholder="e.g. 200–500sqm" autocomplete="off">
+        </div>
+        <div class="cv-field">
+          <label for="al-freq">Frequency</label>
+          <select id="al-freq">
+            <option value="">Not specified</option>
+            <option value="weekly">Weekly</option>
+            <option value="fortnightly">Fortnightly</option>
+            <option value="monthly">Monthly</option>
+            <option value="once-off">Once-off</option>
+          </select>
+        </div>
+        <div class="cv-field">
+          <label for="al-source">How did they hear about us?</label>
+          <select id="al-source">
+            <option value="">Not sure</option>
+            <option value="google">Google</option>
+            <option value="referral">Referral</option>
+            <option value="social">Social media</option>
+            <option value="repeat">Repeat client</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="cv-field full">
+          <label for="al-notes">Notes <span style="opacity:.5;font-weight:400">(optional)</span></label>
+          <textarea id="al-notes" placeholder="Any context about this lead…"></textarea>
+        </div>
+      </div>
+      <div class="cv-err" id="al-err"></div>
+    </div>
+    <div class="cv-footer">
+      <button class="cv-btn-ghost" id="al-cancel">Cancel</button>
+      <button class="cv-btn-primary" id="al-submit">Add lead</button>
     </div>
   </div>
 </div>
@@ -723,6 +806,51 @@ window._iqReopen=function(id){
     renderList();
   });
 };
+
+// --- Add lead modal ---
+var alOverlay=document.getElementById('al-overlay');
+function openAlModal(){
+  ['al-biz','al-contact','al-email','al-mobile','al-suburb','al-sqm','al-notes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('al-space').value='';
+  document.getElementById('al-freq').value='';
+  document.getElementById('al-source').value='';
+  document.getElementById('al-err').textContent='';
+  alOverlay.classList.add('open');
+  setTimeout(function(){document.getElementById('al-biz').focus();},50);
+}
+function closeAlModal(){alOverlay.classList.remove('open');}
+document.getElementById('al-btn').addEventListener('click',openAlModal);
+document.getElementById('al-close').addEventListener('click',closeAlModal);
+document.getElementById('al-cancel').addEventListener('click',closeAlModal);
+alOverlay.addEventListener('click',function(e){if(e.target===alOverlay)closeAlModal();});
+document.getElementById('al-submit').addEventListener('click',function(){
+  var biz=document.getElementById('al-biz').value.trim();
+  if(!biz){document.getElementById('al-err').textContent='Business name is required.';document.getElementById('al-biz').focus();return;}
+  var btn=this;btn.disabled=true;btn.textContent='Adding…';
+  var row={
+    biz_name:biz,
+    contact_name:document.getElementById('al-contact').value.trim()||null,
+    email:document.getElementById('al-email').value.trim().toLowerCase()||null,
+    mobile:document.getElementById('al-mobile').value.trim()||null,
+    suburb:document.getElementById('al-suburb').value.trim()||null,
+    space_type:document.getElementById('al-space').value||null,
+    sqm_range:document.getElementById('al-sqm').value.trim()||null,
+    frequency:document.getElementById('al-freq').value||null,
+    source:document.getElementById('al-source').value||null,
+    notes:document.getElementById('al-notes').value.trim()||null,
+    status:'new'
+  };
+  sb.from('inquiries').insert(row).select('*').single().then(function(r){
+    btn.disabled=false;btn.textContent='Add lead';
+    if(r.error){document.getElementById('al-err').textContent='Error: '+(r.error.message||'Could not add lead.');return;}
+    allInquiries.unshift(r.data);
+    closeAlModal();
+    currentFilter='active';
+    document.querySelectorAll('.f-pill').forEach(function(p){p.classList.toggle('on',p.dataset.filter==='active');});
+    updateCount();
+    renderList();
+  });
+});
 
 // --- Filters ---
 document.getElementById('inq-filters').addEventListener('click',function(e){

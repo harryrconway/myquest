@@ -436,7 +436,11 @@ Promise.all([
 document.getElementById('rep-reset-btn').addEventListener('click',function(){
   if(!confirm('Reset all CRM data?\n\nThis permanently deletes all clients, jobs, contracts, inquiries and scopes. Staff records are not affected.\n\nThis cannot be undone.'))return;
   var btn=this;btn.textContent='Resetting…';btn.disabled=true;
-  sb.from('scopes').delete().neq('id','00000000-0000-0000-0000-000000000000').then(function(){
+  sb.storage.from('contract-pdfs').list('',{limit:1000}).then(function(r){
+    var files=(r.data||[]).map(function(f){return f.name;});
+    return files.length?sb.storage.from('contract-pdfs').remove(files):Promise.resolve();
+  }).then(function(){
+  return sb.from('scopes').delete().neq('id','00000000-0000-0000-0000-000000000000');}).then(function(){
     return sb.from('inquiries').delete().neq('id','00000000-0000-0000-0000-000000000000');
   }).then(function(){
     return sb.from('contracts').delete().neq('id','00000000-0000-0000-0000-000000000000');
