@@ -125,7 +125,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .badge.active{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
 .badge.onboarding{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
-.badge.exited{color:var(--stone);background:rgba(155,150,138,.1);border:1px solid rgba(155,150,138,.2)}
+.badge.exited{color:var(--stone);background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1)}
 .badge.overdue{color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.2)}
 .badge.pending{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
 .badge.declined{color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.2)}
