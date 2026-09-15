@@ -21,7 +21,7 @@
   --on-hair:rgba(255,255,255,0.12);
   --r:18px;
   --r-sm:11px;
-  --font:'Nunito',system-ui,sans-serif;
+  --font:'DynaPuff',system-ui;
 }
 
 html,body{height:100%;background:var(--field)}
