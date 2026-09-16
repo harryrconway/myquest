@@ -76,50 +76,58 @@ export async function onRequestPost({ request, env }) {
   const spaceLabels = { office: 'Office', retail: 'Retail', medical: 'Medical', industrial: 'Industrial', other: 'Other' };
   const freqLabels = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once-off' };
 
+  function escHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   const adminEmailHtml = `
-    <h2 style="margin:0 0 16px">New inquiry — ${row.biz_name}</h2>
+    <h2 style="margin:0 0 16px">New inquiry — ${escHtml(row.biz_name)}</h2>
     <table style="border-collapse:collapse;width:100%;font-size:14px">
-      <tr><td style="padding:6px 12px 6px 0;color:#666;width:140px">Business</td><td style="padding:6px 0"><strong>${row.biz_name}</strong></td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Contact</td><td style="padding:6px 0">${row.contact_name}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Email</td><td style="padding:6px 0"><a href="mailto:${row.email}">${row.email}</a></td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Mobile</td><td style="padding:6px 0">${row.mobile}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Address</td><td style="padding:6px 0">${row.suburb}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Space type</td><td style="padding:6px 0">${spaceLabels[row.space_type] || row.space_type}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Size</td><td style="padding:6px 0">${row.sqm_range}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Frequency</td><td style="padding:6px 0">${freqLabels[row.frequency] || row.frequency}</td></tr>
-      ${row.notes ? `<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top">Notes</td><td style="padding:6px 0">${row.notes}</td></tr>` : ''}
+      <tr><td style="padding:6px 12px 6px 0;color:#666;width:140px">Business</td><td style="padding:6px 0"><strong>${escHtml(row.biz_name)}</strong></td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Contact</td><td style="padding:6px 0">${escHtml(row.contact_name)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Email</td><td style="padding:6px 0"><a href="mailto:${escHtml(row.email)}">${escHtml(row.email)}</a></td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Mobile</td><td style="padding:6px 0">${escHtml(row.mobile)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Address</td><td style="padding:6px 0">${escHtml(row.suburb)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Space type</td><td style="padding:6px 0">${escHtml(spaceLabels[row.space_type] || row.space_type)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Size</td><td style="padding:6px 0">${escHtml(row.sqm_range)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666">Frequency</td><td style="padding:6px 0">${escHtml(freqLabels[row.frequency] || row.frequency)}</td></tr>
+      ${row.notes ? `<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top">Notes</td><td style="padding:6px 0">${escHtml(row.notes)}</td></tr>` : ''}
     </table>
     <p style="margin:20px 0 0;font-size:13px;color:#999">View in CRM: <a href="https://crm.myquest.au/crm/inquiries.html">Inquiries</a></p>
   `;
 
   const confirmEmailHtml = `
-    <h2 style="margin:0 0 12px">Thanks, ${row.contact_name.split(' ')[0]}.</h2>
+    <h2 style="margin:0 0 12px">Thanks, ${escHtml(row.contact_name.split(' ')[0])}.</h2>
     <p style="margin:0 0 16px">We've received your inquiry and will put a quote together and give you a call shortly.</p>
     <p style="margin:0;color:#666;font-size:13px">— The MyQuest team</p>
   `;
 
-  await Promise.all([
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'MyQuest <hello@myquest.au>',
-        to: ['hello@myquest.au'],
-        subject: `New inquiry: ${row.biz_name} — ${row.suburb}`,
-        html: adminEmailHtml,
+  try {
+    await Promise.all([
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'MyQuest <hello@myquest.au>',
+          to: ['hello@myquest.au'],
+          subject: `New inquiry: ${row.biz_name} — ${row.suburb}`,
+          html: adminEmailHtml,
+        }),
       }),
-    }),
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'MyQuest <hello@myquest.au>',
-        to: [row.email],
-        subject: 'We\'ve received your inquiry — MyQuest',
-        html: confirmEmailHtml,
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'MyQuest <hello@myquest.au>',
+          to: [row.email],
+          subject: 'We\'ve received your inquiry — MyQuest',
+          html: confirmEmailHtml,
+        }),
       }),
-    }),
-  ]);
+    ]);
+  } catch (e) {
+    console.error('Resend error (inquiry already saved):', e);
+  }
 
   return json({ success: true, id: inquiryId });
 }

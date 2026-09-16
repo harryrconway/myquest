@@ -33,9 +33,7 @@ window.mqGenerate=function(force){
         .filter(function(t){return!t.repeat||t.repeat==='none';})
         .map(function(t){return t.id;});
       if(!orphanIds.length)return Promise.resolve();
-      return Promise.all(orphanIds.map(function(id){
-        return sb.from('jobs').delete().eq('source_job_id',id).gt('date',ts);
-      }));
+      return sb.from('jobs').delete().in('source_job_id',orphanIds).gt('date',ts);
     })
     // Pass 2: generate missing instances for active repeating templates
     .then(function(){
@@ -56,7 +54,9 @@ window.mqGenerate=function(force){
                 if(src.repeat==='monthly'){
                   var bd=new Date(src.date+'T00:00:00').getDate();
                   for(var i=0;i<14;i++){
-                    var c=new Date(today.getFullYear(),today.getMonth()+i,bd);
+                    var mo=today.getMonth()+i;var yr=today.getFullYear()+Math.floor(mo/12);mo=mo%12;
+                    var d=Math.min(bd,new Date(yr,mo+1,0).getDate());
+                    var c=new Date(yr,mo,d);
                     var cs=iso(c);
                     if(cs>ws)break;
                     if(cs>ts&&!covered[src.id+'|'+cs]){added.push(makeJob(src,cs));covered[src.id+'|'+cs]=1;}
@@ -87,7 +87,11 @@ window.mqNextOcc=function(j){
   var ts=iso(today);
   if(j.repeat==='monthly'){
     var bd=new Date(j.date+'T00:00:00').getDate();
-    for(var i=0;i<13;i++){var c=new Date(today.getFullYear(),today.getMonth()+i,bd);var cs=iso(c);if(cs>ts)return cs;}
+    for(var i=0;i<13;i++){
+      var mo=today.getMonth()+i;var yr=today.getFullYear()+Math.floor(mo/12);mo=mo%12;
+      var d=Math.min(bd,new Date(yr,mo+1,0).getDate());
+      var c=new Date(yr,mo,d);var cs=iso(c);if(cs>ts)return cs;
+    }
     return null;
   }
   var iv=IDAYS[j.repeat]||7;

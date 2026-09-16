@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Inquiries — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260911">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260916">
 <style>
 .pg-head{margin-bottom:28px}
 .ph-sub{font-size:13px;color:var(--stone);margin-top:5px}
@@ -554,7 +554,7 @@ window._iqConvert=function(id){
   document.getElementById('cv-submit').disabled=false;
 
   var subtitleEl=document.getElementById('cv-subtitle');
-  if(subtitleEl)subtitleEl.textContent=esc(inq.biz_name||'');
+  if(subtitleEl)subtitleEl.textContent=inq.biz_name||'';
 
   var pills=[];
   if(inq.frequency)pills.push('<span class="cv-pill">'+(FREQ_LABELS[inq.frequency]||esc(inq.frequency))+'</span>');
@@ -650,6 +650,11 @@ document.getElementById('cv-submit').addEventListener('click',async function(){
       repeat:repeatVal!=='none'?repeatVal:null
     }).select('id').single();
     if(!jobRes.error){jobId=jobRes.data.id;if(repeatVal!=='none'&&window.mqGenerate)window.mqGenerate();}
+    else{
+      errEl.textContent='Client created but job creation failed. Please add the job manually from the Jobs page.';
+      errEl.classList.add('show');btn.disabled=false;
+      btn.textContent='Create Client & Job';return;
+    }
   }
 
   var updateRes=await sb.from('inquiries').update({
@@ -702,7 +707,7 @@ document.getElementById('lost-confirm').addEventListener('click',function(){
   var reason=r&&r.value?r.value:null;
   var btn=this;btn.textContent='Saving…';btn.disabled=true;
   sb.from('inquiries').update({status:'lost',lost_reason:reason}).eq('id',currentLostId).then(function(r){
-    btn.textContent='Confirm';btn.disabled=false;
+    btn.textContent='Mark as lost';btn.disabled=false;
     if(r.error)return;
     var inq=allInquiries.find(function(i){return i.id===currentLostId;});
     if(inq){inq.status='lost';inq.lost_reason=reason;}

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260911">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260916">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -466,7 +466,7 @@ details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260910"></script>
 <script src="datepicker.js?v=20260913"></script>
-<script src="schedules.js?v=20260910"></script>
+<script src="schedules.js?v=20260916"></script>
 <script>
 (function(){
 'use strict';
@@ -477,6 +477,7 @@ var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var TL2={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function isoLocal(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 function fmtDateShort(iso){if(!iso)return'—';var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
 function fmtNextClean(iso){if(!iso)return null;var d=new Date(iso+'T00:00:00');return d.getDate()+' '+MONTHS[d.getMonth()]+' · '+DAYS[d.getDay()];}
 function contractStatus(ct){
@@ -727,7 +728,7 @@ function renderStats(){
   var dow=new Date().getDay()||7;
   var mon=new Date();mon.setDate(mon.getDate()-(dow-1));
   var sun=new Date(mon);sun.setDate(mon.getDate()+6);
-  var cleansThisWeek=allJobs.filter(function(j){return j.date>=mon.toISOString().slice(0,10)&&j.date<=sun.toISOString().slice(0,10);}).length;
+  var cleansThisWeek=allJobs.filter(function(j){return j.date>=isoLocal(mon)&&j.date<=isoLocal(sun);}).length;
   var el=document.getElementById('stats-strip');if(!el)return;
   el.innerHTML='<div class="stat"><div class="stat-lbl">Total clients</div><div class="stat-val">'+allClients.length+'</div><div class="stat-hint">'+(active?' '+active+' active':'—')+(onb?' · '+onb+' onboarding':'')+'</div></div>'+
     '<div class="stat"><div class="stat-lbl">Cleans this week</div><div class="stat-val">'+cleansThisWeek+'</div><div class="stat-hint">Mon – Sun</div></div>'+
@@ -751,7 +752,7 @@ function renderRow(c,nc,ctSt){
 }
 function renderAll(){
   renderStats();
-  var today=new Date().toISOString().slice(0,10);
+  var today=isoLocal(new Date());
   var nextMap={};
   allJobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;})
     .sort(function(a,b){return a.date<b.date?-1:1;})

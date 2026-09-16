@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260911">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260916">
 <style>
 /* Grid & cards */
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
@@ -226,7 +226,7 @@ Promise.all([
   var contracts=res[4].data||[];
 
   function refreshInqBadge(){MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){
-    var n=r.count||0;['inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
+    var n=r.count||0;['inq-notif','bnav-inq-notif'].forEach(function(id){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');});
   });}
   setTimeout(refreshInqBadge,0);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refreshInqBadge();});
@@ -451,6 +451,9 @@ document.getElementById('rep-reset-btn').addEventListener('click',function(){
   }).then(function(){
     btn.textContent='Reset all CRM data';btn.disabled=false;
     window.location.reload();
+  }).catch(function(){
+    btn.textContent='Reset all CRM data';btn.disabled=false;
+    alert('Reset failed partway through. Some data may have been deleted. Refresh and check each section.');
   });
 });
 

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260911">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260916">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
@@ -522,6 +522,8 @@ document.getElementById('sf-police-cert').addEventListener('change',function(){
   uploadDoc(editingId,'police-check',file,function(path){
     sb.from('staff').update({police_check_path:path}).eq('id',editingId).then(function(){
       btn.disabled=false;updateDocUI('police',path);
+      var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
+      if(found)found.police_check_path=path;
     });
   });
 });
@@ -539,6 +541,8 @@ document.getElementById('sf-ins-cert').addEventListener('change',function(){
   uploadDoc(editingId,'insurance-cert',file,function(path){
     sb.from('staff').update({insurance_cert_path:path}).eq('id',editingId).then(function(){
       btn.disabled=false;updateDocUI('ins',path);
+      var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
+      if(found)found.insurance_cert_path=path;
     });
   });
 });

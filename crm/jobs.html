@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260911">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260916">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -186,6 +186,8 @@
         <button class="f-pill" data-filter="completed">Completed</button>
         <button class="f-pill" data-filter="deep">Deep clean</button>
         <button class="f-pill" data-filter="maintenance">Maintenance</button>
+        <button class="f-pill" data-filter="window">Window clean</button>
+        <button class="f-pill" data-filter="builders">Builders clean</button>
       </div>
     </div>
 
@@ -276,7 +278,7 @@
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260910"></script>
 <script src="datepicker.js?v=20260913"></script>
-<script src="schedules.js?v=20260910"></script>
+<script src="schedules.js?v=20260916"></script>
 <script>
 (function(){
 'use strict';
@@ -291,7 +293,7 @@ function isOverdue(j){return j.status==='upcoming'&&j.date<todayStr;}
 function isToday(j){return j.status==='upcoming'&&j.date===todayStr;}
 var activeFilter='all',searchTerm='',openId=null,editingJobId=null,expandedClients={};
 var allJobs=[],allClients=[],allStaff=[],jobsWithScope=new Set();
-var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean'};
+var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var REPEAT_OPTS=[['none','Does not repeat'],['weekly','Weekly'],['fortnightly','Fortnightly'],['monthly','Monthly']];
@@ -429,18 +431,19 @@ pills.forEach(function(p){
 });
 
 var modal=document.getElementById('job-modal');
+var clientSel=document.getElementById('jf-client');
+clientSel.addEventListener('change',function(){
+  var found=null;allClients.forEach(function(c){if(c.id===clientSel.value)found=c;});
+  var siteEl=document.getElementById('jf-site');
+  if(!siteEl.value&&found&&found.site_address)siteEl.value=found.site_address;
+});
 function openModal(j){
   editingJobId=j?j.id:null;
   document.querySelector('#job-modal .modal-title').textContent=j?'Edit job':'New job';
   document.getElementById('job-modal-save').textContent=j?'Save changes':'Add job';
-  var sel=document.getElementById('jf-client');
+  var sel=clientSel;
   sel.innerHTML='<option value="">Select client…</option>';
   allClients.forEach(function(c){sel.innerHTML+='<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';});
-  sel.addEventListener('change',function(){
-    var found=null;allClients.forEach(function(c){if(c.id===sel.value)found=c;});
-    var siteEl=document.getElementById('jf-site');
-    if(!siteEl.value&&found&&found.site_address)siteEl.value=found.site_address;
-  });
   var staffSel=document.getElementById('jf-staff');
   var MODAL_STAFF_STATUS={active:'Active','on-leave':'On leave',left:'Resigned'};
   staffSel.innerHTML='<option value="">No team member</option>';
@@ -466,6 +469,10 @@ function openModal(j){
   } else {
     document.getElementById('jf-date').valueAsDate=new Date();
     document.getElementById('jf-time').value='';
+    document.getElementById('jf-tz').value='';
+    document.getElementById('jf-type').value='maintenance';
+    document.getElementById('jf-status').value='upcoming';
+    document.getElementById('jf-staff').value='';
     repeatRow.hidden=false;repeatSel.value='none';editingJobRepeat=null;
   }
   modal.hidden=false;
