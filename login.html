@@ -161,7 +161,7 @@ h1{
   .card{padding:36px 28px 44px;border-radius:16px}
   h1{font-size:28px}
 }
-</style>
+#flt{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:20px;z-index:300;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.flt-r{background:var(--navy);color:var(--card);border-radius:14px;padding:14px 16px;text-decoration:none;display:flex;flex-direction:column;gap:6px;box-shadow:0 4px 20px rgba(0,0,0,.18);transition:background .2s}.flt-r:hover{background:var(--navy-deep)}.flt-rl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.55;font-weight:600}.flt-rr{display:flex;align-items:center;gap:10px}.flt-rs{font-size:28px;font-weight:700;line-height:1;letter-spacing:-.02em}.flt-rx{font-size:13px;letter-spacing:.06em;color:#f5c518;display:block}.flt-rc{font-size:10px;opacity:.65;white-space:nowrap;display:block}.flt-cta{background:var(--navy);color:var(--card);border-radius:999px;padding:13px 22px;font-family:var(--disp);font-size:13px;font-weight:500;letter-spacing:.02em;text-decoration:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.18);transition:background .2s;display:block}.flt-cta:hover{background:var(--navy-deep)}@media(width<=560px){.flt-r{display:none}}</style>
 </head>
 <body>
 
@@ -260,5 +260,5 @@ document.getElementById('back').addEventListener('click',function(){
 });
 })();
 </script>
-</body>
+<aside id=flt aria-label="Reviews and enquiry"><a class=flt-r href="https://www.google.com/maps/place/MyQuest/@-29.0546366,151.5817393,8z/data=!4m8!3m7!1s0xa00502a8c1e9b53b:0xd84f383bf9f874b4!8m2!3d-29.0635115!4d152.903426!9m1!1b1!16s%2Fg%2F11nqdxgs_4" target=_blank rel="noopener noreferrer"><span class=flt-rl>Reviews</span><div class=flt-rr><span class=flt-rs>5.0</span><div><span class=flt-rx>&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class=flt-rc>4 Google reviews &#x2197;</span></div></div></a><a class=flt-cta href=/#enquire>Request a proposal</a></aside></body>
 </html>
