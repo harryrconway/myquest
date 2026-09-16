@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260916">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chango&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260917">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -372,16 +372,14 @@ details[open] .ci-qhist-sum::before{transform:rotate(90deg)}
         <label class="form-lbl" for="ef-site-address">Site address</label>
         <input class="form-input" type="text" id="ef-site-address" autocomplete="off">
       </div>
-    </div>
-    <div class="modal-actions edit-client-actions">
-      <div class="eca-danger">
+      <div class="modal-danger-row">
         <button type="button" class="danger-ghost-btn" id="edit-modal-del-jobs">Delete all jobs</button>
         <button type="button" class="danger-ghost-btn" id="edit-modal-delete">Delete client</button>
       </div>
-      <div class="eca-ok">
-        <button type="button" class="cancel-btn" id="edit-modal-cancel">Cancel</button>
-        <button type="button" class="ph-btn" id="edit-modal-save">Save changes</button>
-      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel-btn" id="edit-modal-cancel">Cancel</button>
+      <button type="button" class="ph-btn" id="edit-modal-save">Save changes</button>
     </div>
   </div>
 </div>

@@ -294,13 +294,10 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .delete-btn:hover{opacity:.8}
 .danger-ghost-btn{padding:9px 16px;border:1.5px solid var(--red);background:none;color:var(--red);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s;white-space:nowrap}
 .danger-ghost-btn:hover{opacity:.7}
-.edit-client-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.eca-danger,.eca-ok{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.modal-danger-row{display:flex;gap:8px;padding:16px 0 4px;border-top:1px solid var(--hair);margin-top:8px;flex-wrap:wrap}
 @media(max-width:520px){
-  .edit-client-actions{flex-direction:column-reverse;align-items:stretch;gap:0}
-  .eca-danger{flex-direction:column-reverse;gap:6px;padding-top:12px;border-top:1px solid var(--hair);margin-top:4px}
-  .eca-ok{flex-direction:column-reverse;gap:6px}
-  .eca-danger button,.eca-ok button{width:100%;justify-content:center}
+  .modal-danger-row{gap:6px}
+  .modal-danger-row button{flex:1}
 }
 
 /* Reports tab navigation */
