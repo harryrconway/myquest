@@ -39,7 +39,7 @@
 .jl-crew{display:flex;gap:4px;min-width:0;overflow:hidden}
 .jl-scope-chip{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:4px;white-space:nowrap;align-self:center;justify-self:center;color:var(--green);background:var(--green-bg)}
 .jl-no-chip{visibility:hidden}
-.jl-crew-name{font-size:13px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.jl-crew-name{font-size:13px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.jl-crew-none{font-size:13px;color:var(--red);white-space:nowrap}
 .jl-price{font-size:14px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;text-align:right}
 .jl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end}
 .jl-row:hover .jl-arr{color:var(--navy)}
@@ -348,10 +348,7 @@ function renderRow(j){
   var isOpen=openId===j.id;
   var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
   var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':isOverdue(j)?'<span class="badge overdue">Overdue</span>':isToday(j)?'<span class="badge today">Today</span>':'<span class="badge upcoming">Upcoming</span>';
-  var crewHtml='';
-  if(j.assigned_staff_name){
-    crewHtml='<span class="jl-crew-name">'+esc(j.assigned_staff_name)+'</span>';
-  }
+  var crewHtml=j.assigned_staff_name?'<span class="jl-crew-name">'+esc(j.assigned_staff_name)+'</span>':'<span class="jl-crew-none">No team member</span>';
   return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
     '<div class="jl-row'+(j.status==='completed'?' done':' next')+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
       '<div class="jl-date">'+(j.job_number?'<span class="jl-num">#'+String(j.job_number).padStart(3,'0')+'</span>':'')+fmtDate(j.date)+'<span class="jl-time'+(j.start_time?'':' jl-time--empty')+'">'+(j.start_time?fmtTime(j.start_time)+(j.start_tz?' · '+j.start_tz:''):'—')+'</span></div>'+
