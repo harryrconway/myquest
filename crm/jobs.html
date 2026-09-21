@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260917">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260921">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -365,6 +365,13 @@ function renderRow(j){
   '</div>';
 }
 
+function setBadge(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');}
+function updateJobsBadge(){
+  var today=new Date();var m=today.getMonth()+1;var dy=today.getDate();
+  var todayStr=today.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;
+  var n=allJobs.filter(function(j){return j.status!=='completed'&&j.date&&j.date<=todayStr;}).length;
+  setBadge('jobs-notif',n);setBadge('bnav-jobs-notif',n);
+}
 function renderAll(){
   var jobs=allJobs.slice();
   function cmpTime(a,b){var at=a.start_time||'99:99',bt=b.start_time||'99:99';return at<bt?-1:at>bt?1:0;}
@@ -417,13 +424,6 @@ function renderAll(){
   }
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
   updateJobsBadge();
-}
-function setBadge(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');}
-function updateJobsBadge(){
-  function _d(dt){var m=dt.getMonth()+1,dy=dt.getDate();return dt.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
-  var todayStr=_d(new Date());
-  var n=allJobs.filter(function(j){return j.status!=='completed'&&j.date&&j.date<=todayStr;}).length;
-  setBadge('jobs-notif',n);setBadge('bnav-jobs-notif',n);
 }
 function reload(cb){
   sb.from('jobs').select('id,client_id,client_name,date,start_time,start_tz,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
