@@ -31,7 +31,7 @@
 .jl-date{font-size:13px;color:var(--stone);font-variant-numeric:tabular-nums;line-height:1.4}
 .jl-num{display:block;font-size:9px;font-weight:700;letter-spacing:.05em;color:var(--stone);opacity:.55;margin-bottom:2px}
 .jl-time{display:block;font-size:10px;font-weight:600;color:var(--navy);margin-top:2px}
-.jl-time--empty{color:var(--stone);font-weight:400;opacity:.55}
+.jl-time--empty{color:var(--red);font-weight:400}
 .jl-client{font-size:14px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jl-site{font-size:13px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jl-type{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block;justify-self:center;align-self:center}
@@ -315,7 +315,7 @@ function renderExpand(j){
   if(j.from_schedule&&j.source_job_id){allJobs.forEach(function(t){if(t.id===j.source_job_id)cur=t.repeat||'none';});}
   var repeatLbl=(REPEAT_OPTS.find(function(o){return o[0]===cur;})||['none','—'])[1];
   var repeatRow='<div><div class="xp-lbl">Repeat</div><div class="xp-val">'+esc(repeatLbl)+'</div></div>';
-  var teamRow='<div><div class="xp-lbl">Team member</div><div class="xp-val">'+esc(j.assigned_staff_name||'—')+'</div></div>';
+  var teamRow='<div><div class="xp-lbl">Team member</div><div class="xp-val">'+(j.assigned_staff_name?esc(j.assigned_staff_name):'<span style="color:var(--red)">No team member</span>')+'</div></div>';
   var quotePanel='';
   if(j.quoted_price){
     var ADDON_MAP={windows:'Internal windows',ext_windows:'External windows',high_dust:'High-dusting',kitchen_deep:'Kitchen deep clean'};
