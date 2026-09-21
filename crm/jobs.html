@@ -418,6 +418,13 @@ function renderAll(){
   document.getElementById('jl-body').innerHTML=html||'<div style="padding:28px 20px;color:var(--stone);font-size:13px">No jobs match your filter.</div>';
   updateJobsBadge();
 }
+function setBadge(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');}
+function updateJobsBadge(){
+  function _d(dt){var m=dt.getMonth()+1,dy=dt.getDate();return dt.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
+  var todayStr=_d(new Date());
+  var n=allJobs.filter(function(j){return j.status!=='completed'&&j.date&&j.date<=todayStr;}).length;
+  setBadge('jobs-notif',n);setBadge('bnav-jobs-notif',n);
+}
 function reload(cb){
   sb.from('jobs').select('id,client_id,client_name,date,start_time,start_tz,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_id,assigned_staff_name,job_number,sqm,floors,baths,kitchen,after_hours_pct,extras,consumables,quoted_price,quoted_hrs,buffer').then(function(r){allJobs=r.data||[];renderAll();if(cb)cb();});
 }
@@ -614,13 +621,6 @@ Promise.all([
       renderAll();
     });
 
-function setBadge(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':String(n);el.classList.add('show');}else el.classList.remove('show');}
-function updateJobsBadge(){
-  function _d(dt){var m=dt.getMonth()+1,dy=dt.getDate();return dt.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
-  var todayStr=_d(new Date());
-  var n=allJobs.filter(function(j){return j.status!=='completed'&&j.date&&j.date<=todayStr;}).length;
-  setBadge('jobs-notif',n);setBadge('bnav-jobs-notif',n);
-}
 function refreshAllBadges(){
   MQ.sb.from('inquiries').select('id',{count:'exact',head:true}).eq('status','new').then(function(r){var n=r.count||0;setBadge('inq-notif',n);setBadge('bnav-inq-notif',n);});
   updateJobsBadge();
