@@ -292,7 +292,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
       fEl.classList.add('iq-hidden');fEl.classList.remove('iq-exit');
       tEl.classList.remove('iq-hidden');tEl.classList.add('iq-enter');
       requestAnimationFrame(function(){requestAnimationFrame(function(){tEl.classList.remove('iq-enter');});});
-      setNodes(to>4?4:to);
+      setNodes(to);
       if(to===3)renderQuote();
       if(window.innerWidth<=740){var c=document.getElementById('iqCard');window.scrollTo({top:c.getBoundingClientRect().top+window.pageYOffset-88,behavior:reduce?'auto':'smooth'});}
     },280);
