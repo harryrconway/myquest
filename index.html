@@ -278,7 +278,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     if(q.mult){var m=q.per*q.mult;st='<div class="iq-stat iq-stat-once"><div class=iq-stat-val>'+fmt(m)+'</div><div class=iq-stat-lbl>per month (estimated)</div></div>';}
     else{st='<div class="iq-stat iq-stat-once"><div class=iq-stat-val>Once-off clean</div><div class=iq-stat-lbl>No ongoing commitment required</div></div>';}
     var hrsR=Math.round(q.hrs*2)/2;var hrsStr=hrsR+(hrsR===1?' hour':' hours');
-    document.getElementById('iqHours').innerHTML='Based on our experience, we estimate this job will take around <strong>'+hrsStr+'</strong> at $70/hr.';
+    document.getElementById('iqHours').innerHTML='Based on our experience, we estimate this job will take around <strong>'+hrsStr+'</strong>.';
     document.getElementById('iqStats').innerHTML=st;
     document.getElementById('iqDisc').textContent=q.sqm==='500m²+'?'This is an estimated quote. For larger premises, the final price may vary — we’ll confirm after reviewing your space.':'This is an estimated quote based on the details you’ve provided. Final pricing is confirmed after we assess your premises.';
   }

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260917">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260923">
 <style>
 /* Grid & cards */
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
@@ -64,6 +64,18 @@
 .rep-p-btn{padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;font-family:var(--font);border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;transition:color .12s,background .12s,border-color .12s}
 .rep-p-btn:hover{color:var(--navy);border-color:rgba(0,0,0,.2)}
 .rep-p-btn.on{color:var(--navy);background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.18)}
+.rev-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.rev-table th{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);padding:8px 12px;border-bottom:2px solid var(--hair);text-align:left;white-space:nowrap}
+.rev-table th.num{text-align:right}
+.rev-table td{padding:9px 12px;border-bottom:1px solid var(--hair);color:var(--navy);white-space:nowrap;font-size:13px}
+.rev-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.rev-table td.muted{color:var(--stone)}
+.rev-table tr:last-child td{border-bottom:none}
+.rev-table .rev-total td{border-top:2px solid var(--hair);border-bottom:none;font-weight:700}
+.rev-mg{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.rev-mg.high{color:var(--green);background:var(--green-bg)}
+.rev-mg.mid{color:var(--amber);background:var(--amber-bg)}
+.rev-mg.low{color:var(--red);background:rgba(166,61,47,.1)}
 </style>
 </head>
 <body>
@@ -215,7 +227,7 @@ repTabs.forEach(function(t){t.addEventListener('click',function(){switchTab(t.da
 try{switchTab(localStorage.getItem('rep-tab')||'overview');}catch(e){switchTab('overview');}
 
 Promise.all([
-  sb.from('jobs').select('id,status,date,type,client_name,assigned_staff_name,quoted_price'),
+  sb.from('jobs').select('id,status,date,type,client_name,assigned_staff_name,quoted_price,quoted_hrs,job_number'),
   sb.from('clients').select('id,status,industry'),
   sb.from('staff').select('id,status,role,name'),
   sb.from('inquiries').select('id,status,source,lost_reason,created_at,converted_at'),
@@ -323,6 +335,15 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
       var lbl=p==='week'?'This Week':p==='month'?'This Month':p==='year'?'This Year':'All Time';
       return'<button class="rep-p-btn'+(period===p?' on':'')+'" data-p="'+p+'">'+lbl+'</button>';
     }).join('');
+    var typeFull={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+    var revRows=pDone.filter(function(j){return j.quoted_price;}).sort(function(a,b){return a.date>b.date?-1:1;});
+    var totalRev=revRows.reduce(function(s,j){return s+(j.quoted_price||0);},0);
+    var jobsWithHrs=revRows.filter(function(j){return j.quoted_hrs;});
+    var totalMg=jobsWithHrs.reduce(function(s,j){var h=parseFloat(j.quoted_hrs),c=(h*35)+20;return s+(j.quoted_price-c)/j.quoted_price*100;},0);
+    var avgMgStr=jobsWithHrs.length?'avg '+Math.round(totalMg/jobsWithHrs.length)+'%':'';
+    var revTableHtml='';
+    if(!revRows.length){revTableHtml='<div style="color:var(--stone);font-size:13px;padding:4px 0">No completed jobs with pricing in this period.</div>';}
+    else{revTableHtml='<div style="overflow-x:auto"><table class="rev-table"><thead><tr><th>Date</th><th>Job</th><th>Client</th><th>Type</th><th class="num">Revenue</th><th class="num">Hours</th><th class="num">Est. cost</th><th class="num">Margin</th></tr></thead><tbody>'+revRows.map(function(j){var d=new Date(j.date+'T00:00:00'),ds=d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear(),jn=j.job_number?'#'+String(j.job_number).padStart(3,'0'):'—',tp=typeFull[j.type]||esc(j.type||''),pr='$'+Math.round(j.quoted_price).toLocaleString('en-AU'),hs='—',cs='—',mg='<span style="color:var(--stone)">—</span>';if(j.quoted_hrs){var h=parseFloat(j.quoted_hrs),c=Math.round((h*35)+20),m=Math.round((j.quoted_price-c)/j.quoted_price*100),mc=m>=50?'high':m>=30?'mid':'low';hs=parseFloat(h.toFixed(2))+'h';cs='$'+c.toLocaleString('en-AU');mg='<span class="rev-mg '+mc+'">'+m+'%</span>';}return'<tr><td class="muted">'+ds+'</td><td class="muted">'+jn+'</td><td>'+esc(j.client_name||'—')+'</td><td class="muted">'+tp+'</td><td class="num">'+pr+'</td><td class="num muted">'+hs+'</td><td class="num muted">'+cs+'</td><td class="num">'+mg+'</td></tr>';}).join('')+'<tr class="rev-total"><td colspan="4">Total &mdash; '+revRows.length+' job'+(revRows.length===1?'':'s')+'</td><td class="num">$'+Math.round(totalRev).toLocaleString('en-AU')+'</td><td></td><td></td><td class="num muted">'+avgMgStr+'</td></tr></tbody></table></div>';}
     document.getElementById('panel-jobs').innerHTML=
       '<div class="rep-period">'+pills+'</div>'+
       statStrip([
@@ -341,7 +362,8 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
       '</div>'+
       '<div class="rep-card" style="margin-bottom:18px"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+
         DOW.map(function(d,i){return vbar(d.slice(0,2),byDowP[i],maxDowP);}).join('')+
-      '</div></div>';
+      '</div></div>'+
+      '<div class="rep-card"><div class="rep-title">Revenue detail — '+hint.toLowerCase()+'</div>'+revTableHtml+'</div>';
     document.querySelectorAll('#panel-jobs .rep-p-btn').forEach(function(btn){
       btn.addEventListener('click',function(){renderJobsPanel(btn.dataset.p);});
     });
