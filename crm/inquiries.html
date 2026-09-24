@@ -565,7 +565,22 @@ window._iqConvert=function(id){
   }
   var priceMatch=(inq.estimate||'').match(/\$(\d+)\s*[–\-]\s*\$(\d+)/);
   document.getElementById('cv-job-price').value=priceMatch?Math.round((parseInt(priceMatch[1])+parseInt(priceMatch[2]))/2):'';
-  document.getElementById('cv-job-hrs').value='';
+  var SQM_HRS={'Under 100m²':1.5,'100–300m²':3,'300–500m²':5,'500m²+':8};
+  var sqmH=SQM_HRS[inq.sqm_range]||0;
+  var bathH=inq.baths!=null?(inq.baths>=3?1.5:(inq.baths*0.5)):0;
+  var kitH=inq.kitchen?0.75:0;
+  var baseHrs=sqmH+bathH+kitH;
+  var hrsEl=document.getElementById('cv-job-hrs');
+  hrsEl.value=baseHrs||'';
+  hrsEl.dataset.baseHrs=baseHrs;
+  document.getElementById('cv-job-type').onchange=function(){
+    var cur=parseFloat(hrsEl.value)||0;
+    var base=parseFloat(hrsEl.dataset.baseHrs)||0;
+    if(!base)return;
+    var deepHrs=Math.round(base*1.5*2)/2;
+    if(this.value==='deep'&&cur===base)hrsEl.value=deepHrs;
+    else if(this.value!=='deep'&&cur===deepHrs)hrsEl.value=base;
+  };
   document.getElementById('cv-job-check').checked=true;
   document.getElementById('cv-job-section').classList.add('open');
   document.getElementById('cv-submit').textContent='Create Client & Job';
