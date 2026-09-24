@@ -365,6 +365,7 @@
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20260910"></script>
 <script src="datepicker.js?v=20260913"></script>
+<script src="schedules.js?v=20260916"></script>
 <script>
 (function(){
 'use strict';
@@ -687,7 +688,7 @@ document.getElementById('cv-submit').addEventListener('click',async function(){
       quoted_price:document.getElementById('cv-job-price').value?parseFloat(document.getElementById('cv-job-price').value):null,
       quoted_hrs:document.getElementById('cv-job-hrs').value?parseFloat(document.getElementById('cv-job-hrs').value):null
     }).select('id').single();
-    if(!jobRes.error){jobId=jobRes.data.id;if(repeatVal!=='none'&&window.mqGenerate)window.mqGenerate();}
+    if(!jobRes.error){jobId=jobRes.data.id;if(repeatVal!=='none'&&window.mqGenerate)window.mqGenerate(true);}
     else{
       errEl.textContent='Client created but job creation failed. Please add the job manually from the Jobs page.';
       errEl.classList.add('show');btn.disabled=false;

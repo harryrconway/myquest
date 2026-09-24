@@ -13,6 +13,11 @@ function makeJob(src,ds){
     type:src.type,status:'upcoming',site:src.site||'',
     assigned_staff_id:src.assigned_staff_id||null,
     assigned_staff_name:src.assigned_staff_name||null,
+    quoted_price:src.quoted_price||null,
+    quoted_hrs:src.quoted_hrs||null,
+    sqm:src.sqm||null,floors:src.floors||null,
+    baths:src.baths!=null?src.baths:null,
+    kitchen:src.kitchen||false,
     source_job_id:src.id,from_schedule:true};
 }
 
@@ -37,7 +42,7 @@ window.mqGenerate=function(force){
     })
     // Pass 2: generate missing instances for active repeating templates
     .then(function(){
-      return sb.from('jobs').select('id,client_id,client_name,date,start_time,start_tz,type,site,repeat,assigned_staff_id,assigned_staff_name')
+      return sb.from('jobs').select('id,client_id,client_name,date,start_time,start_tz,type,site,repeat,assigned_staff_id,assigned_staff_name,quoted_price,quoted_hrs,sqm,floors,baths,kitchen')
         .not('repeat','is',null).neq('repeat','none').eq('from_schedule',false)
         .then(function(r1){
           var templates=r1.data||[];
