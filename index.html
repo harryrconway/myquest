@@ -312,8 +312,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     var btn=document.getElementById('iqSubmit');btn.textContent='Sending…';btn.disabled=true;
     var q=calc();
     var est=q?fmt(q.lo)+' – '+fmt(q.hi)+' per clean'+(q.mult?' (~'+fmt(q.per*q.mult)+'/month)':''):'';
-    var facParts=[];if(q&&q.kitchen)facParts.push('Kitchen: '+(q.kitchen==='yes'?'Yes':'No'));if(q&&q.bath!==null)facParts.push('Bathrooms: '+q.bath);
-    var estLine=est?(est+(facParts.length?' · '+facParts.join(' · '):'')):'';
+    var estLine=est||'';
     var notes=v('iqNotes').trim();
     var spaceEl=document.querySelector('input[name=iqSpace]:checked');
     var sqmEl=document.querySelector('input[name=iqSqm]:checked');
