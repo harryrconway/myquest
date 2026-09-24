@@ -444,6 +444,7 @@ function expandContent(inq){
   }
 
   var sourceHtml=inq.source?'<div><div class="xp-lbl">Source</div><div class="xp-val">'+esc(inq.source)+'</div></div>':'';
+  var estimateHtml=inq.estimate?'<div style="grid-column:1/-1"><div class="xp-lbl">Estimate</div><div class="xp-val">'+esc(inq.estimate)+'</div></div>':'';
   var notesHtml=inq.notes?'<div style="grid-column:1/-1"><div class="xp-lbl">Notes</div><div class="xp-val">'+esc(inq.notes)+'</div></div>':'';
 
   var actions='';
@@ -460,6 +461,7 @@ function expandContent(inq){
       '<div><div class="xp-lbl">Mobile</div><div class="xp-val"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></div></div>'+
       '<div><div class="xp-lbl">Address</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
       sourceHtml+
+      estimateHtml+
       notesHtml+
     '</div>'+
     (actions?'<div class="xp-actions">'+actions+'</div>':'')+

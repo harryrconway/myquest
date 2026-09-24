@@ -49,6 +49,7 @@ export async function onRequestPost({ request, env }) {
     sqm_range:    String(body.sqm_range).trim(),
     frequency:    String(body.frequency).trim(),
     notes:        body.notes ? String(body.notes).trim() : null,
+    estimate:     body.estimate ? String(body.estimate).trim() : null,
     source:       body.source ? String(body.source).trim() : null,
     status:       'new',
   };
@@ -91,6 +92,7 @@ export async function onRequestPost({ request, env }) {
       <tr><td style="padding:6px 12px 6px 0;color:#666">Space type</td><td style="padding:6px 0">${escHtml(spaceLabels[row.space_type] || row.space_type)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Size</td><td style="padding:6px 0">${escHtml(row.sqm_range)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666">Frequency</td><td style="padding:6px 0">${escHtml(freqLabels[row.frequency] || row.frequency)}</td></tr>
+      ${row.estimate ? `<tr><td style="padding:6px 12px 6px 0;color:#666">Estimate</td><td style="padding:6px 0">${escHtml(row.estimate)}</td></tr>` : ''}
       ${row.notes ? `<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top">Notes</td><td style="padding:6px 0">${escHtml(row.notes)}</td></tr>` : ''}
     </table>
     <p style="margin:20px 0 0;font-size:13px;color:#999">View in CRM: <a href="https://crm.myquest.au/crm/inquiries.html">Inquiries</a></p>
