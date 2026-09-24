@@ -130,6 +130,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 .badge.pending{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
 .badge.declined{color:var(--red);background:var(--red-bg);border:1px solid rgba(166,61,47,.2)}
 .badge.upcoming{color:var(--navy);background:rgba(0,0,0,.09);border:1px solid rgba(0,0,0,.15)}
+.badge.tomorrow{color:#1d6fa4;background:rgba(29,111,164,.1);border:1px solid rgba(29,111,164,.2)}
 .badge.today{color:var(--amber);background:var(--amber-bg);border:1px solid rgba(176,125,42,.2)}
 .badge.completed{color:var(--green);background:var(--green-bg);border:1px solid rgba(58,107,78,.2)}
 

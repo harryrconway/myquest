@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Jobs — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260921">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260924">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
@@ -262,6 +262,19 @@
         <label class="form-lbl" for="jf-staff">Team member</label>
         <select class="form-input" id="jf-staff"><option value="">No team member</option></select>
       </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-lbl" for="jf-sqm">Floor area (sqm)</label>
+          <input class="form-input" type="number" id="jf-sqm" min="0" placeholder="e.g. 250">
+        </div>
+        <div>
+          <label class="form-lbl" for="jf-baths">Bathrooms</label>
+          <select class="form-input" id="jf-baths"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5+</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="jf-kitchen" style="width:auto;margin:0"> Kitchen included</label>
+      </div>
       <div class="form-row" id="jf-repeat-row">
         <label class="form-lbl" for="jf-repeat">Recurring</label>
         <select class="form-input" id="jf-repeat">
@@ -293,8 +306,10 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function getParam(name){var m=(window.location.search||'').match(new RegExp('[?&]'+name+'=([^&]*)'));return m?decodeURIComponent(m[1]):null;}
 function iso(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 var todayStr=iso(new Date());
+var tomorrowStr=(function(){var d=new Date();d.setDate(d.getDate()+1);return iso(d);}());
 function isOverdue(j){return j.status==='upcoming'&&j.date<todayStr;}
 function isToday(j){return j.status==='upcoming'&&j.date===todayStr;}
+function isTomorrow(j){return j.status==='upcoming'&&j.date===tomorrowStr;}
 var activeFilter='all',searchTerm='',openId=null,editingJobId=null,expandedClients={};
 var allJobs=[],allClients=[],allStaff=[],jobsWithScope=new Set();
 var TYPE_LABELS={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
@@ -320,6 +335,16 @@ function renderExpand(j){
   var repeatLbl=(REPEAT_OPTS.find(function(o){return o[0]===cur;})||['none','—'])[1];
   var repeatRow='<div><div class="xp-lbl">Repeat</div><div class="xp-val">'+esc(repeatLbl)+'</div></div>';
   var teamRow='<div><div class="xp-lbl">Team member</div><div class="xp-val">'+(j.assigned_staff_name?esc(j.assigned_staff_name):'<span style="color:var(--red)">No team member</span>')+'</div></div>';
+  var hasDetails=!j.quoted_price&&(j.sqm||j.baths||j.kitchen);
+  var detailsPanel=hasDetails?
+    '<div class="xp-quote">'+
+      '<div class="xp-quote-hd">Job details</div>'+
+      '<div class="xp-quote-grid">'+
+      (j.sqm?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Floor area</div><div class="xp-quote-val">'+esc(String(j.sqm))+' sqm</div></div>':'')+
+      (j.baths?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Bathrooms</div><div class="xp-quote-val">'+j.baths+' bathroom'+(j.baths===1?'':'s')+'</div></div>':'')+
+      (j.kitchen?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Kitchen</div><div class="xp-quote-val">Yes</div></div>':'')+
+      '</div>'+
+    '</div>':'';
   var quotePanel='';
   if(j.quoted_price){
     var ADDON_MAP={windows:'Internal windows',ext_windows:'External windows',high_dust:'High-dusting',kitchen_deep:'Kitchen deep clean'};
@@ -340,7 +365,7 @@ function renderExpand(j){
         '</div>'+
       '</div>';
   }
-  return quotePanel+'<div class="xp-grid">'+
+  return detailsPanel+quotePanel+'<div class="xp-grid">'+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+fmtDateFull(j.date)+(j.start_time?' · '+fmtTime(j.start_time):'')+(j.start_tz?' · '+j.start_tz+' time':' · No timezone set')+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
@@ -351,7 +376,7 @@ function renderExpand(j){
 function renderRow(j){
   var isOpen=openId===j.id;
   var typeLbl=TYPE_LABELS[j.type]||esc(j.type||'');
-  var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':isOverdue(j)?'<span class="badge overdue">Overdue</span>':isToday(j)?'<span class="badge today">Today</span>':'<span class="badge upcoming">Upcoming</span>';
+  var badge=j.status==='completed'?'<span class="badge completed">Completed</span>':isOverdue(j)?'<span class="badge overdue">Overdue</span>':isToday(j)?'<span class="badge today">Today</span>':isTomorrow(j)?'<span class="badge tomorrow">Tomorrow</span>':'<span class="badge upcoming">Upcoming</span>';
   var crewHtml=j.assigned_staff_name?'<span class="jl-crew-name">'+esc(j.assigned_staff_name)+'</span>':'<span class="jl-crew-none">No team member</span>';
   return '<div class="xp-wrap'+(isOpen?' open':'')+'" data-id="'+esc(j.id)+'">'+
     '<div class="jl-row'+(j.status==='completed'?' done':' next')+'" data-type="'+j.type+'" data-status="'+j.status+'">'+
@@ -470,6 +495,9 @@ function openModal(j){
     document.getElementById('jf-type').value=j.type||'maintenance';
     document.getElementById('jf-status').value=j.status||'upcoming';
     staffSel.value=j.assigned_staff_id||'';
+    document.getElementById('jf-sqm').value=j.sqm||'';
+    document.getElementById('jf-baths').value=j.baths!=null?String(j.baths):'';
+    document.getElementById('jf-kitchen').checked=!!j.kitchen;
     if(j.from_schedule){
       repeatRow.hidden=true;editingJobRepeat=null;
     } else {
@@ -482,6 +510,9 @@ function openModal(j){
     document.getElementById('jf-type').value='maintenance';
     document.getElementById('jf-status').value='upcoming';
     document.getElementById('jf-staff').value='';
+    document.getElementById('jf-sqm').value='';
+    document.getElementById('jf-baths').value='';
+    document.getElementById('jf-kitchen').checked=false;
     repeatRow.hidden=false;repeatSel.value='none';editingJobRepeat=null;
   }
   modal.hidden=false;
@@ -517,10 +548,15 @@ document.getElementById('job-modal-save').addEventListener('click',function(){
   var tzVal=document.getElementById('jf-tz').value||null;
   var newRepeat=document.getElementById('jf-repeat').value||'none';
   var repeatChanged=editingJobRepeat!==null&&newRepeat!==editingJobRepeat;
+  var sqmVal=document.getElementById('jf-sqm').value;
+  var bathsVal=document.getElementById('jf-baths').value;
   var row={date:date,start_time:timeVal,start_tz:tzVal,client_id:sel.value,client_name:clientName,site:site,
     type:document.getElementById('jf-type').value,status:document.getElementById('jf-status').value,
     assigned_staff_id:staffId,assigned_staff_name:staffName,
-    repeat:newRepeat!=='none'?newRepeat:null};
+    repeat:newRepeat!=='none'?newRepeat:null,
+    sqm:sqmVal?parseFloat(sqmVal):null,
+    baths:bathsVal!==''?parseInt(bathsVal,10):null,
+    kitchen:document.getElementById('jf-kitchen').checked};
   var savBtn=document.getElementById('job-modal-save');
   savBtn.disabled=true;savBtn.textContent='Saving…';
   if(editingJobId){
