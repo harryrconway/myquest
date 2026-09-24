@@ -514,7 +514,11 @@ saveBtn.addEventListener('click',function(){
     insurance_expiry:document.getElementById('sf-ins-expiry').value||null
   };
   if(editingId){
-    sb.from('staff').update(row).eq('id',editingId).then(function(){closeModal();reload();});
+    var oldName=null;allStaff.forEach(function(s){if(s.id===editingId)oldName=s.name;});
+    sb.from('staff').update(row).eq('id',editingId).then(function(){
+      if(oldName&&row.name!==oldName)sb.from('jobs').update({assigned_staff_name:row.name}).eq('assigned_staff_id',editingId).then(function(){});
+      closeModal();reload();
+    });
   } else {
     sb.from('staff').insert(row).then(function(){closeModal();reload();});
   }
