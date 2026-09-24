@@ -335,16 +335,6 @@ function renderExpand(j){
   var repeatLbl=(REPEAT_OPTS.find(function(o){return o[0]===cur;})||['none','—'])[1];
   var repeatRow='<div><div class="xp-lbl">Repeat</div><div class="xp-val">'+esc(repeatLbl)+'</div></div>';
   var teamRow='<div><div class="xp-lbl">Team member</div><div class="xp-val">'+(j.assigned_staff_name?esc(j.assigned_staff_name):'<span style="color:var(--red)">No team member</span>')+'</div></div>';
-  var hasDetails=!j.quoted_price&&(j.sqm||j.baths||j.kitchen);
-  var detailsPanel=hasDetails?
-    '<div class="xp-quote">'+
-      '<div class="xp-quote-hd">Job details</div>'+
-      '<div class="xp-quote-grid">'+
-      (j.sqm?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Floor area</div><div class="xp-quote-val">'+esc(String(j.sqm))+' sqm</div></div>':'')+
-      (j.baths?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Bathrooms</div><div class="xp-quote-val">'+j.baths+' bathroom'+(j.baths===1?'':'s')+'</div></div>':'')+
-      (j.kitchen?'<div class="xp-quote-cell"><div class="xp-quote-lbl">Kitchen</div><div class="xp-quote-val">Yes</div></div>':'')+
-      '</div>'+
-    '</div>':'';
   var quotePanel='';
   if(j.quoted_price){
     var ADDON_MAP={windows:'Internal windows',ext_windows:'External windows',high_dust:'High-dusting',kitchen_deep:'Kitchen deep clean'};
@@ -365,12 +355,15 @@ function renderExpand(j){
         '</div>'+
       '</div>';
   }
-  return detailsPanel+quotePanel+'<div class="xp-grid">'+
+  return quotePanel+'<div class="xp-grid">'+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Date &amp; time</div><div class="xp-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+fmtDateFull(j.date)+(j.start_time?' · '+fmtTime(j.start_time):'')+(j.start_tz?' · '+j.start_tz+' time':' · No timezone set')+(j.job_number?'<span style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 7px;border-radius:4px">Job #'+String(j.job_number).padStart(3,'0')+'</span>':'')+'</div></div>'+
     '<div><div class="xp-lbl">Client</div><div class="xp-val">'+esc(j.client_name||'—')+'</div></div>'+
     '<div><div class="xp-lbl">Type</div><div class="xp-val">'+typeLbl+'</div></div>'+
     teamRow+repeatRow+
     '<div style="grid-column:1/-1"><div class="xp-lbl">Site</div><div class="xp-val">'+esc(j.site||'—')+'</div></div>'+
+    (!j.quoted_price&&j.sqm?'<div><div class="xp-lbl">Floor area</div><div class="xp-val">'+esc(String(j.sqm))+' sqm</div></div>':'')+
+    (!j.quoted_price&&j.baths?'<div><div class="xp-lbl">Bathrooms</div><div class="xp-val">'+j.baths+' bathroom'+(j.baths===1?'':'s')+'</div></div>':'')+
+    (!j.quoted_price&&j.kitchen?'<div><div class="xp-lbl">Kitchen</div><div class="xp-val">Yes</div></div>':'')+
     '</div><div class="xp-actions">'+actions+'</div>';
 }
 function renderRow(j){
