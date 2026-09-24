@@ -50,6 +50,8 @@ export async function onRequestPost({ request, env }) {
     frequency:    String(body.frequency).trim(),
     notes:        body.notes ? String(body.notes).trim() : null,
     estimate:     body.estimate ? String(body.estimate).trim() : null,
+    kitchen:      typeof body.kitchen === 'boolean' ? body.kitchen : null,
+    baths:        body.baths != null ? parseInt(body.baths, 10) : null,
     source:       body.source ? String(body.source).trim() : null,
     status:       'new',
   };

@@ -644,6 +644,7 @@ document.getElementById('cv-submit').addEventListener('click',async function(){
     var staffId=staffSelEl.value||null;
     var staffName=null;if(staffId)allStaff.forEach(function(s){if(s.id===staffId)staffName=s.name;});
     var repeatVal=document.getElementById('cv-job-repeat').value;
+    var srcInq=allInquiries.find(function(i){return i.id===currentConvertId;})||{};
     var jobRes=await sb.from('jobs').insert({
       client_id:clientId,client_name:biz,
       date:jobDate,
@@ -651,7 +652,9 @@ document.getElementById('cv-submit').addEventListener('click',async function(){
       start_tz:document.getElementById('cv-job-tz').value||null,
       type:jobType,site:site,status:'upcoming',
       assigned_staff_id:staffId,assigned_staff_name:staffName,
-      repeat:repeatVal!=='none'?repeatVal:null
+      repeat:repeatVal!=='none'?repeatVal:null,
+      kitchen:!!srcInq.kitchen,
+      baths:srcInq.baths!=null?srcInq.baths:null
     }).select('id').single();
     if(!jobRes.error){jobId=jobRes.data.id;if(repeatVal!=='none'&&window.mqGenerate)window.mqGenerate();}
     else{

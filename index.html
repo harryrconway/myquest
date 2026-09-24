@@ -318,7 +318,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     var spaceEl=document.querySelector('input[name=iqSpace]:checked');
     var sqmEl=document.querySelector('input[name=iqSqm]:checked');
     var freqEl=document.querySelector('input[name=iqFreq]:checked');
-    var body={biz_name:v('iqBiz').trim(),contact_name:v('iqContact').trim(),email:v('iqEmail').trim(),mobile:v('iqMobile').trim(),suburb:v('iqSuburb').trim(),space_type:spaceEl?spaceEl.value:'',sqm_range:sqmEl?sqmEl.value:'',frequency:freqEl?freqEl.value:'',notes:notes||null,estimate:estLine||null,source:'calculator'};
+    var body={biz_name:v('iqBiz').trim(),contact_name:v('iqContact').trim(),email:v('iqEmail').trim(),mobile:v('iqMobile').trim(),suburb:v('iqSuburb').trim(),space_type:spaceEl?spaceEl.value:'',sqm_range:sqmEl?sqmEl.value:'',frequency:freqEl?freqEl.value:'',notes:notes||null,estimate:estLine||null,kitchen:q?q.kitchen==='yes':null,baths:q&&q.bath!==null?(q.bath==='3+'?3:parseInt(q.bath,10)):null,source:'calculator'};
     var firstName=body.contact_name.split(/\s+/)[0];
     fetch('/api/submit-inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
       if(!r.ok)throw new Error('err');
