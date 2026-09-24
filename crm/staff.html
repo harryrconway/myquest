@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260917">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20260924">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
@@ -480,7 +480,12 @@ document.getElementById('new-staff-btn').addEventListener('click',openNewModal);
 document.getElementById('staff-modal-close').addEventListener('click',closeModal);
 document.getElementById('staff-modal-cancel').addEventListener('click',closeModal);
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden)closeModal();});
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  var rm=document.getElementById('roster-modal');
+  if(rm&&!rm.hidden){rm.hidden=true;return;}
+  if(!modal.hidden)closeModal();
+});
 document.getElementById('sf-emp-type').addEventListener('change',toggleAbn);
 
 delBtn.addEventListener('click',function(){
@@ -588,7 +593,7 @@ function openRoster(staffId,staffName,period){
   function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   sb.from('jobs')
-    .select('id,job_number,client_id,client_name,site,date,start_time,start_tz,type,status')
+    .select('id,job_number,client_id,client_name,site,date,start_time,start_tz,type,status,quoted_hrs')
     .eq('assigned_staff_id',staffId)
     .gte('date',startISO).lte('date',endISO)
     .neq('status','cancelled')
@@ -636,7 +641,9 @@ function openRoster(staffId,staffName,period){
         });
 
         var totalJobs=jobs.length;
-        var jobCountLabel=totalJobs+(totalJobs===1?' job':' jobs')+(period==='month'?' this month':period==='fortnight'?' this fortnight':' this week');
+        var totalHrs=jobs.reduce(function(s,j){return s+(parseFloat(j.quoted_hrs)||0);},0);
+        var hrsLabel=totalHrs>0?' · '+parseFloat(totalHrs.toFixed(1))+' hrs est.':'';
+        var jobCountLabel=totalJobs+(totalJobs===1?' job':' jobs')+(period==='month'?' this month':period==='fortnight'?' this fortnight':' this week')+hrsLabel;
         rBody.innerHTML=
           '<div class="rp-page">'+
           '<div class="rp-sub">'+esc2(periodLabel)+'</div>'+
