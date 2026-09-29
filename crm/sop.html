@@ -75,13 +75,12 @@
 
     <div class="pg-2" style="max-width:720px">
 
-      <div class="sop-tabs">
-        <button class="sop-tab active" data-panel="hiring">Hiring Process</button>
-        <button class="sop-tab" data-panel="interview">Interview Questions</button>
-      </div>
-
       <!-- Hiring Process -->
-      <div class="sop-panel active" id="sop-panel-hiring">
+      <div class="sop-group-hd">
+        <span class="sop-group-badge hiring">Part 1</span>
+        <h2 class="sop-group-title">Hiring Process</h2>
+        <p class="sop-group-sub">From identifying a need through to onboarding a new team member.</p>
+      </div>
 
         <div class="sop-section open">
           <div class="sop-hd">
@@ -235,10 +234,13 @@
           </div>
         </div>
 
-      </div><!-- /hiring -->
-
       <!-- Interview Questions -->
-      <div class="sop-panel" id="sop-panel-interview">
+      <div class="sop-group-div"></div>
+      <div class="sop-group-hd">
+        <span class="sop-group-badge interview">Part 2</span>
+        <h2 class="sop-group-title">Interview Questions</h2>
+        <p class="sop-group-sub">Questions to ask, scenarios to probe, and red flags to watch for.</p>
+      </div>
 
         <div class="sop-section open">
           <div class="sop-hd">
@@ -337,8 +339,6 @@
           </div>
         </div>
 
-      </div><!-- /interview -->
-
     </div><!-- /pg-2 -->
   </main>
 </div>
@@ -353,17 +353,6 @@
 
 // Auth guard — redirects if not signed in
 window.MQ.requireAuth(function(){});
-
-// Tab switching — runs immediately, no auth dependency
-document.querySelectorAll('.sop-tab').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.sop-tab').forEach(function(b){b.classList.remove('active');});
-    document.querySelectorAll('.sop-panel').forEach(function(p){p.classList.remove('active');});
-    btn.classList.add('active');
-    var panel=document.getElementById('sop-panel-'+btn.dataset.panel);
-    if(panel)panel.classList.add('active');
-  });
-});
 
 // Accordion toggle
 document.querySelectorAll('.sop-hd').forEach(function(hd){
