@@ -350,23 +350,24 @@
 (function(){
 'use strict';
 
-window.MQ.requireAuth(function(){
-  // Tab switching
-  document.querySelectorAll('.sop-tab').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      document.querySelectorAll('.sop-tab').forEach(function(b){b.classList.remove('active');});
-      document.querySelectorAll('.sop-panel').forEach(function(p){p.classList.remove('active');});
-      btn.classList.add('active');
-      var panel=document.getElementById('sop-panel-'+btn.dataset.panel);
-      if(panel)panel.classList.add('active');
-    });
-  });
+// Auth guard — redirects if not signed in
+window.MQ.requireAuth(function(){});
 
-  // Accordion toggle
-  document.querySelectorAll('.sop-hd').forEach(function(hd){
-    hd.addEventListener('click',function(){
-      hd.closest('.sop-section').classList.toggle('open');
-    });
+// Tab switching — runs immediately, no auth dependency
+document.querySelectorAll('.sop-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.sop-tab').forEach(function(b){b.classList.remove('active');});
+    document.querySelectorAll('.sop-panel').forEach(function(p){p.classList.remove('active');});
+    btn.classList.add('active');
+    var panel=document.getElementById('sop-panel-'+btn.dataset.panel);
+    if(panel)panel.classList.add('active');
+  });
+});
+
+// Accordion toggle
+document.querySelectorAll('.sop-hd').forEach(function(hd){
+  hd.addEventListener('click',function(){
+    hd.closest('.sop-section').classList.toggle('open');
   });
 });
 
