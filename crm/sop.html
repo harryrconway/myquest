@@ -350,7 +350,7 @@
 (function(){
 'use strict';
 
-MQ.onReady(function(){
+window.MQ.requireAuth(function(){
   // Tab switching
   document.querySelectorAll('.sop-tab').forEach(function(btn){
     btn.addEventListener('click',function(){
