@@ -358,14 +358,21 @@ function tick(){
   busy=true;
   const ni=(idx+1)%words.length,ai=(ni+1)%words.length;
   const h=live.offsetHeight;
+  const curW=live.offsetWidth,nextW=ghost.offsetWidth;
   const ga=ghost.animate([{transform:'translateY(0px)',opacity:.18},{transform:`translateY(${h}px)`,opacity:1}],{duration:680,easing:'cubic-bezier(.25,.8,.25,1)'});
   live.animate([{opacity:1,transform:'translateY(0px)'},{opacity:0,transform:'translateY(3px)'}],{duration:460,easing:'ease-in'}).onfinish=()=>{
     ghost.style.opacity='0';
     ga.cancel();
+    el.style.width=curW+'px';
     idx=ni;
     live.textContent=words[idx];
     live.style.cssText='';
     ghost.textContent=words[ai];
+    requestAnimationFrame(()=>{
+      el.style.transition='width .52s cubic-bezier(.25,.8,.25,1)';
+      el.style.width=nextW+'px';
+    });
+    setTimeout(()=>{el.style.cssText='';},620);
     setTimeout(()=>{
       const fi=ghost.animate([{opacity:0},{opacity:.18}],{duration:500,fill:'forwards'});
       fi.onfinish=()=>{fi.cancel();ghost.style.opacity='';busy=false;};
