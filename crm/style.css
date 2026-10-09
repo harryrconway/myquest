@@ -144,13 +144,16 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
 /* Responsive */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
-  .main{padding:28px 20px}
-  .ph{position:sticky;top:0;z-index:210;background:var(--field);border-bottom:1px solid var(--hair);padding:12px 20px;margin:0 -20px 28px;padding-bottom:12px;transition:background .25s,border-color .25s}
+  .main{padding:0 20px 28px}
+  .ph{position:sticky;top:0;z-index:210;background:var(--field);border-bottom:1px solid var(--hair);padding:12px 20px;margin:0 -20px 28px;transition:background .25s,border-color .25s}
+  .mob-logo{display:flex;align-items:center;flex-shrink:0;padding-right:10px;text-decoration:none}
+  .mob-logo img{height:22px;width:auto}
+  .ph-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ph .date-sub{display:none}
   .stats{grid-template-columns:repeat(2,1fr)}
   .stat:nth-child(2){border-right:none}
   .stat:nth-child(3){border-top:1px solid var(--on-hair)}
   .stat:nth-child(4){border-top:1px solid var(--on-hair);border-right:none}
-  .mob-logo{display:flex;align-items:center;flex-shrink:0;padding-right:10px;text-decoration:none}
 
   /* Sidebar hidden — replaced by bottom nav */
   .sidebar{display:none!important}
