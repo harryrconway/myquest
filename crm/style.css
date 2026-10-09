@@ -149,7 +149,7 @@ body{font-family:var(--font);color:var(--navy);-webkit-font-smoothing:antialiase
   .stat:nth-child(2){border-right:none}
   .stat:nth-child(3){border-top:1px solid var(--on-hair)}
   .stat:nth-child(4){border-top:1px solid var(--on-hair);border-right:none}
-  .mob-logo{display:flex;align-items:center;position:fixed;top:0;left:0;right:0;height:46px;padding-left:16px;z-index:300;background:var(--card);border-bottom:1px solid var(--hair)}
+  .mob-logo{display:flex;align-items:center;position:fixed;top:0;left:0;right:0;height:46px;padding-left:16px;z-index:300;background:var(--card);border-bottom:1px solid var(--hair);text-decoration:none}
 
   /* Sidebar hidden — replaced by bottom nav */
   .sidebar{display:none!important}
