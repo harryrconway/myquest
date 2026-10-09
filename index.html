@@ -345,7 +345,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
 <aside id=flt aria-label="Reviews and enquiry"><a class=flt-r href="https://www.google.com/maps/place/MyQuest/@-29.0546366,151.5817393,8z/data=!4m8!3m7!1s0xa00502a8c1e9b53b:0xd84f383bf9f874b4!8m2!3d-29.0635115!4d152.903426!9m1!1b1!16s%2Fg%2F11nqdxgs_4" target=_blank rel="noopener noreferrer" aria-label="5.0 rating on Google, 4 reviews"><span class=flt-rl>Reviews</span><div class=flt-rr><span class=flt-gmark aria-hidden=true><svg viewBox="0 0 48 48"><path d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.8-2.1 5.1-4.4 6.7v5.5h7.1c4.2-3.8 6.6-9.5 6.6-16.2z" fill="#4285F4"/><path d="M24 46c6 0 10.9-2 14.5-5.3l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.2 15.5 46 24 46z" fill="#34A853"/><path d="M11.8 28.3c-.4-1.3-.7-2.8-.7-4.3s.2-3 .7-4.3V14H4.5C3 17 2.1 20.4 2.1 24s.9 7 2.4 10l7.3-5.7z" fill="#FBBC05"/><path d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.2 30 2 24 2 15.5 2 8.1 6.8 4.5 14l7.3 5.7c1.7-5.2 6.5-8.9 12.2-8.9z" fill="#EA4335"/></svg></span><div class=flt-gcol><span class=flt-gline1>5.0 <span aria-hidden=true class=flt-gstars>&#9733;&#9733;&#9733;&#9733;&#9733;</span></span><span class=flt-gline2>4 Google reviews</span></div><span aria-hidden=true class=flt-garr>&#x2197;</span></div></a></aside><script>(()=>{
 const words=['Office','Medical','Retail','Builders','DVA'];
 const N=words.length;
-const opacs=[1,0.20,0.12,0.07,0.04];
+const opacs=[1,0.22,0.14,0.07];
 let idx=0,busy=false;
 const el=document.getElementById('heroTicker');
 if(!el)return;
@@ -358,7 +358,7 @@ if(matchMedia('(prefers-reduced-motion:reduce)').matches){
 }
 
 const ghosts=[];
-for(let i=1;i<N;i++){
+for(let i=1;i<=3;i++){
   const g=document.createElement('span');
   g.className='ticker-ghost';
   g.setAttribute('aria-hidden','true');
