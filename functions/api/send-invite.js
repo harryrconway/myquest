@@ -58,32 +58,19 @@ export async function onRequestPost({ request, env }) {
 
   let reqBody;
   try { reqBody = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
-  const { staffId } = reqBody;
+  const { staffId, staffEmail, staffName } = reqBody;
   if (!staffId) return json({ error: 'Missing staffId' }, 400);
-
-  // Fetch staff record
-  const staffRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/staff?id=eq.${encodeURIComponent(staffId)}&select=id,email,name`,
-    { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
-  );
-  if (!staffRes.ok) {
-    const errText = await staffRes.text();
-    console.error('Staff lookup error:', staffRes.status, errText);
-    return json({ error: 'Staff lookup failed (' + staffRes.status + '): ' + errText }, 500);
-  }
-  const staffList = await staffRes.json();
-  if (!staffList.length || !staffList[0].email) return json({ error: 'Staff member has no email address' }, 400);
-  const staff = staffList[0];
+  if (!staffEmail) return json({ error: 'Missing staffEmail — reload the profile and try again' }, 400);
 
   // Try invite (creates user + link). Fall back to magiclink if user already exists.
   let magicLink;
-  let result = await generateLink(SUPABASE_URL, SVC_KEY, 'invite', staff.email);
+  let result = await generateLink(SUPABASE_URL, SVC_KEY, 'invite', staffEmail);
 
   if (!result.ok) {
     const msg = (result.body?.msg || result.body?.message || '').toLowerCase();
     const alreadyExists = msg.includes('already') || msg.includes('registered') || result.status === 422;
     if (alreadyExists) {
-      result = await generateLink(SUPABASE_URL, SVC_KEY, 'magiclink', staff.email);
+      result = await generateLink(SUPABASE_URL, SVC_KEY, 'magiclink', staffEmail);
     }
     if (!result.ok) {
       const detail = result.body?.msg || result.body?.message || result.body?.error_description || JSON.stringify(result.body);
@@ -99,7 +86,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Send email via Resend
-  const firstName = (staff.name || '').split(' ')[0] || 'there';
+  const firstName = (staffName || '').split(' ')[0] || 'there';
   const emailHtml = `
     <div style="font-family:Inter,system-ui,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a">
       <p style="margin:0 0 16px">Hi ${firstName},</p>
@@ -114,7 +101,7 @@ export async function onRequestPost({ request, env }) {
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from: 'MyQuest <hello@myquest.au>',
-      to: [staff.email],
+      to: [staffEmail],
       subject: 'Your MyQuest staff portal access',
       html: emailHtml,
     }),
@@ -125,7 +112,7 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Could not send email — check Resend key' }, 500);
   }
 
-  // Stamp invited_at (best-effort — ignore if column doesn't exist yet)
+  // Stamp invited_at (best-effort — silently ignored if column not yet migrated)
   await fetch(`${SUPABASE_URL}/rest/v1/staff?id=eq.${encodeURIComponent(staffId)}`, {
     method: 'PATCH',
     headers: {

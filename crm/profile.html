@@ -303,7 +303,7 @@ var LEVEL_MAP={
 };
 var LEVEL_LABELS=['Junior','Mid-Level','Senior'];
 
-var staffId=null,isPreview=false,isOwnerViewer=false;
+var staffId=null,isPreview=false,isOwnerViewer=false,staffEmail=null,staffName=null;
 
 window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   var sb=MQ.sb;
@@ -344,6 +344,9 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     var h=new Date().getHours();
     var gr=h<12?'Good morning,':h<17?'Good afternoon,':'Good evening,';
     document.getElementById('prof-greeting').textContent=gr;
+
+    staffEmail=d.email||null;
+    staffName=d.name||null;
 
     // Name + initials avatar
     document.getElementById('prof-name').textContent=d.name||'—';
@@ -542,7 +545,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
         fetch('/api/send-invite',{
           method:'POST',
           headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},
-          body:JSON.stringify({staffId:id})
+          body:JSON.stringify({staffId:id,staffEmail:staffEmail,staffName:staffName})
         }).then(function(r){return r.json();}).then(function(data){
           btn.disabled=false;
           if(data.error){MQ.toast(data.error,true);btn.textContent='Send Invite';return;}
