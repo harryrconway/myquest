@@ -21,12 +21,30 @@ export async function onRequestOptions() {
   });
 }
 
+async function generateLink(supabaseUrl, svcKey, type, email) {
+  const res = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${svcKey}`,
+      'apikey': svcKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type,
+      email,
+      options: { redirect_to: 'https://myquest.au/crm/profile.html' },
+    }),
+  });
+  const body = await res.json();
+  return { ok: res.ok, status: res.status, body };
+}
+
 export async function onRequestPost({ request, env }) {
   const SUPABASE_URL = env.SUPABASE_URL;
   const SVC_KEY = env.SUPABASE_SERVICE_KEY;
   const RESEND_KEY = env.RESEND_API_KEY;
 
-  // Verify JWT and check owner
+  // Verify JWT and confirm owner
   const authHeader = request.headers.get('Authorization') || '';
   const jwt = authHeader.replace(/^Bearer\s+/i, '').trim();
   if (!jwt) return json({ error: 'Unauthorized' }, 401);
@@ -38,53 +56,45 @@ export async function onRequestPost({ request, env }) {
   const { email: callerEmail } = await userRes.json();
   if (!OWNER_EMAILS.includes(callerEmail)) return json({ error: 'Forbidden' }, 403);
 
-  let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
-  const { staffId } = body;
+  let reqBody;
+  try { reqBody = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+  const { staffId } = reqBody;
   if (!staffId) return json({ error: 'Missing staffId' }, 400);
 
   // Fetch staff record
-  const staffRes = await fetch(`${SUPABASE_URL}/rest/v1/staff?id=eq.${encodeURIComponent(staffId)}&select=id,email,name`, {
-    headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY },
-  });
+  const staffRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/staff?id=eq.${encodeURIComponent(staffId)}&select=id,email,name`,
+    { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
+  );
   if (!staffRes.ok) return json({ error: 'Staff lookup failed' }, 500);
   const staffList = await staffRes.json();
-  if (!staffList.length || !staffList[0].email) return json({ error: 'Staff not found' }, 404);
+  if (!staffList.length || !staffList[0].email) return json({ error: 'Staff member has no email address' }, 400);
   const staff = staffList[0];
 
-  // Create auth user if they don't exist yet (email_confirm skips the confirmation email)
-  await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SVC_KEY}`,
-      'apikey': SVC_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email: staff.email, email_confirm: true }),
-  });
+  // Try invite (creates user + link). Fall back to magiclink if user already exists.
+  let magicLink;
+  let result = await generateLink(SUPABASE_URL, SVC_KEY, 'invite', staff.email);
 
-  // Generate a magic link for the staff email
-  const linkRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SVC_KEY}`,
-      'apikey': SVC_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      type: 'magiclink',
-      email: staff.email,
-      options: { redirect_to: 'https://myquest.au/crm/profile.html' },
-    }),
-  });
-  if (!linkRes.ok) {
-    const err = await linkRes.text();
-    console.error('generate_link error:', err);
-    return json({ error: 'Could not generate invite link' }, 500);
+  if (!result.ok) {
+    const msg = (result.body?.msg || result.body?.message || '').toLowerCase();
+    const alreadyExists = msg.includes('already') || msg.includes('registered') || result.status === 422;
+    if (alreadyExists) {
+      result = await generateLink(SUPABASE_URL, SVC_KEY, 'magiclink', staff.email);
+    }
+    if (!result.ok) {
+      const detail = result.body?.msg || result.body?.message || result.body?.error_description || JSON.stringify(result.body);
+      console.error('generate_link failed:', result.status, detail);
+      return json({ error: 'Could not generate invite link: ' + detail }, 500);
+    }
   }
-  const { action_link: magicLink } = await linkRes.json();
 
-  // Send invite email via Resend
+  magicLink = result.body?.action_link;
+  if (!magicLink) {
+    console.error('generate_link response missing action_link:', JSON.stringify(result.body));
+    return json({ error: 'Invite link missing from Supabase response' }, 500);
+  }
+
+  // Send email via Resend
   const firstName = (staff.name || '').split(' ')[0] || 'there';
   const emailHtml = `
     <div style="font-family:Inter,system-ui,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a">
@@ -108,10 +118,10 @@ export async function onRequestPost({ request, env }) {
   if (!sendRes.ok) {
     const err = await sendRes.text();
     console.error('Resend error:', err);
-    return json({ error: 'Could not send email' }, 500);
+    return json({ error: 'Could not send email — check Resend key' }, 500);
   }
 
-  // Stamp invited_at
+  // Stamp invited_at (best-effort — ignore if column doesn't exist yet)
   await fetch(`${SUPABASE_URL}/rest/v1/staff?id=eq.${encodeURIComponent(staffId)}`, {
     method: 'PATCH',
     headers: {
