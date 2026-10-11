@@ -383,7 +383,7 @@ function renderCard(s){
     '<button class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">View roster →</button>'+
     '</div>'+
     '<div style="padding-top:10px;border-top:1px solid var(--hair);margin-top:0">'+
-    '<a class="sc-roster-btn" href="profile.html?id='+esc(s.id)+'" style="text-decoration:none;display:inline-block">View profile →</a>'+
+    '<a class="sc-profile-link" href="profile.html?id='+esc(s.id)+'" style="text-decoration:none;display:inline-block;font-size:12px;font-weight:600;color:var(--stone);letter-spacing:.01em;transition:color .12s">View profile →</a>'+
     '</div>'+
   '</div>';
 }
@@ -685,6 +685,7 @@ document.getElementById('staff-grid').addEventListener('click',function(e){
     return;
   }
   if(e.target.closest('.sc-roster-row'))return;
+  if(e.target.closest('.sc-profile-link'))return;
   var card=e.target.closest('.staff-card');
   if(!card)return;
   var sid=card.dataset.id;
