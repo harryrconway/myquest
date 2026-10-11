@@ -217,7 +217,7 @@
       <div class="form-row-2">
         <div>
           <label class="form-lbl" for="sf-phone">Phone</label>
-          <input class="form-input" type="tel" id="sf-phone" placeholder="04xx xxx xxx">
+          <input class="form-input" type="tel" id="sf-phone" placeholder="04xx xxx xxx" maxlength="13" inputmode="numeric">
         </div>
         <div>
           <label class="form-lbl" for="sf-email">Email</label>
@@ -364,6 +364,7 @@ document.getElementById('staff-modal-cancel').addEventListener('click',closeModa
 modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
+  if(bnavSheet&&bnavSheet.classList.contains('open')){bnavClose();return;}
   var rm=document.getElementById('roster-modal');
   if(rm&&!rm.hidden){rm.hidden=true;return;}
   if(!modal.hidden)closeModal();
@@ -545,6 +546,23 @@ function refreshAllBadges(){
 setTimeout(refreshAllBadges,0);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refreshAllBadges();});
 }); // end requireAuth
+
+// Phone formatter
+(function(){
+  function fmtPhone(val){
+    var d=val.replace(/\D/g,'').slice(0,10);
+    if(d.length<=4)return d;
+    if(d.length<=7)return d.slice(0,4)+' '+d.slice(4);
+    return d.slice(0,4)+' '+d.slice(4,7)+' '+d.slice(7);
+  }
+  var el=document.getElementById('sf-phone');
+  if(el)el.addEventListener('input',function(){
+    var pos=this.selectionStart,old=this.value;
+    this.value=fmtPhone(old);
+    var diff=this.value.length-old.length;
+    this.setSelectionRange(pos+diff,pos+diff);
+  });
+})();
 })();
 </script>
 </body>

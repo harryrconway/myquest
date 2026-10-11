@@ -182,7 +182,7 @@
           <div class="form-row-2">
             <div>
               <label class="form-lbl" for="pf-phone-in">Phone</label>
-              <input class="form-input" type="tel" id="pf-phone-in" placeholder="04xx xxx xxx">
+              <input class="form-input" type="tel" id="pf-phone-in" placeholder="04xx xxx xxx" maxlength="13" inputmode="numeric">
             </div>
             <div>
               <label class="form-lbl" for="pf-email-in">Email</label>
@@ -197,7 +197,7 @@
             </div>
             <div>
               <label class="form-lbl" for="pf-ec-phone-in">Contact phone</label>
-              <input class="form-input" type="tel" id="pf-ec-phone-in" placeholder="04xx xxx xxx">
+              <input class="form-input" type="tel" id="pf-ec-phone-in" placeholder="04xx xxx xxx" maxlength="13" inputmode="numeric">
             </div>
           </div>
           <button class="prof-save-btn" type="submit" id="prof-save-btn">Save changes</button>
@@ -590,6 +590,31 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     return 'hsl('+h+',28%,28%)';
   }
 });
+
+// Phone input formatter — digits only, auto-formats as 04xx xxx xxx
+(function(){
+  function fmtPhone(val){
+    var d=val.replace(/\D/g,'').slice(0,10);
+    if(d.length<=4)return d;
+    if(d.length<=7)return d.slice(0,4)+' '+d.slice(4);
+    return d.slice(0,4)+' '+d.slice(4,7)+' '+d.slice(7);
+  }
+  ['pf-phone-in','pf-ec-phone-in'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el)return;
+    el.addEventListener('input',function(){
+      var pos=this.selectionStart;
+      var old=this.value;
+      this.value=fmtPhone(old);
+      // keep cursor roughly in place
+      var diff=this.value.length-old.length;
+      this.setSelectionRange(pos+diff,pos+diff);
+    });
+    el.addEventListener('keydown',function(e){
+      if(e.key==='Escape')this.blur();
+    });
+  });
+})();
 })();
 </script>
 </body>
