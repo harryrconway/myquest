@@ -32,7 +32,7 @@ async function generateLink(supabaseUrl, svcKey, type, email) {
     body: JSON.stringify({
       type,
       email,
-      options: { redirect_to: 'https://myquest.au/crm/profile.html' },
+      options: { redirect_to: 'https://myquest.au/login.html' },
     }),
   });
   const body = await res.json();

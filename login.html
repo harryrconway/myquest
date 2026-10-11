@@ -204,18 +204,15 @@ function goApp(){location.href='/crm/overview.html';}
 
 sb.auth.onAuthStateChange(function(ev,session){
   if(!session)return;
-  if(ALLOWED.indexOf(session.user.email)===-1){
-    sb.auth.signOut().then(function(){showErr('This email is not authorised to access MyQuest.');});
-    return;
-  }
-  goApp();
+  if(ALLOWED.indexOf(session.user.email)!==-1){goApp();}
+  else{location.href='/crm/profile.html';}
 });
 
 sb.auth.getSession().then(function(r){
   var s=r.data.session;
   if(!s)return;
-  if(ALLOWED.indexOf(s.user.email)===-1){sb.auth.signOut();return;}
-  goApp();
+  if(ALLOWED.indexOf(s.user.email)!==-1){goApp();}
+  else{location.href='/crm/profile.html';}
 });
 
 function showErr(msg){
