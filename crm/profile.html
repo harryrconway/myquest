@@ -322,7 +322,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     // Name + initials avatar
     document.getElementById('prof-name').textContent=d.name||'—';
     if(!isPreview)document.getElementById('ph-title').textContent=(d.name||'').split(' ')[0]||'Profile';
-    if(isPreview)document.getElementById('preview-bar-name').textContent='Previewing '+d.name+''s profile';
+    if(isPreview)document.getElementById('preview-bar-name').textContent='Previewing '+d.name+"'s profile";
 
     var initials=(d.name||'').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
     var av=document.getElementById('prof-av');
