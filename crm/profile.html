@@ -530,9 +530,13 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     });
     delBtn.addEventListener('click',function(){
       if(!confirm('Remove this staff member? This cannot be undone.'))return;
-      sb.from('staff').delete().eq('id',id).then(function(r){
-        if(r.error){MQ.toast('Could not delete',true);}
-        else{location.href='staff.html';}
+      delBtn.disabled=true;delBtn.textContent='Removing…';
+      // Clear staff assignment from all their jobs first, then delete
+      sb.from('jobs').update({assigned_staff_id:null,assigned_staff_name:null}).eq('assigned_staff_id',id).then(function(){
+        sb.from('staff').delete().eq('id',id).then(function(r){
+          if(r.error){MQ.toast('Could not delete',true);delBtn.disabled=false;delBtn.textContent='Remove staff member';}
+          else{location.href='staff.html';}
+        });
       });
     });
   }
