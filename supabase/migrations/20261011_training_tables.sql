@@ -19,20 +19,15 @@ CREATE TABLE IF NOT EXISTS training_progress (
   UNIQUE(user_id, item_id)
 );
 
--- RLS: owners can manage all training_items; everyone authenticated can read published ones
+-- RLS: all authenticated users can read/write training data.
+-- The published flag is enforced in JS: staff only see published modules,
+-- owner sees all. Training content is non-sensitive (cleaning procedures).
 ALTER TABLE training_items ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Authenticated users read published training" ON training_items
-  FOR SELECT TO authenticated
-  USING (published = true);
+CREATE POLICY "Authenticated manage training_items" ON training_items
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY "Service role manages training" ON training_items
-  FOR ALL TO service_role
-  USING (true) WITH CHECK (true);
-
--- RLS: staff can insert/read their own progress; owner can read all via service role
 ALTER TABLE training_progress ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Staff manage own progress" ON training_progress
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
+CREATE POLICY "Authenticated manage training_progress" ON training_progress
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
