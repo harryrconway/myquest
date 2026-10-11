@@ -29,6 +29,8 @@ window.MQ.requireAuth=function(opts,cb){
 
     // Not owner — look up staff record by email
     MQ.sb.from('staff').select('id,name,role,status,email').eq('email',email).maybeSingle().then(function(r){
+      if(r.error)console.error('[auth] staff lookup error:',r.error);
+      console.log('[auth] staff lookup email:',email,'data:',r.data,'error:',r.error);
       if(!r.data){
         MQ.sb.auth.signOut().then(function(){location.href='/login.html?e=1';});
         return;
