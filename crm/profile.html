@@ -246,6 +246,10 @@
       <!-- Owner admin card — only shown in preview mode -->
       <div class="ac prof-full" id="owner-admin-card" hidden>
         <div class="prof-card-hd">Owner controls</div>
+        <div id="admin-invite-row" style="margin-bottom:16px;display:flex;align-items:center;gap:12px" hidden>
+          <button class="ph-btn" id="admin-invite-btn">Send Invite</button>
+          <span id="admin-invite-sub" style="font-size:12px;color:var(--stone)"></span>
+        </div>
         <div class="form-row-2" style="margin-bottom:16px">
           <div>
             <label class="form-lbl" for="admin-status">Status</label>
@@ -325,7 +329,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
 
   function loadProfile(id){
     sb.from('staff')
-      .select('id,name,role,phone,email,start_date,status,employment_type,abn,emergency_contact,emergency_phone,police_check_expiry,police_check_path,insurance_expiry,insurance_cert_path')
+      .select('id,name,role,phone,email,start_date,status,employment_type,abn,emergency_contact,emergency_phone,police_check_expiry,police_check_path,insurance_expiry,insurance_cert_path,invited_at')
       .eq('id',id)
       .single()
       .then(function(r){
@@ -390,6 +394,19 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
       document.getElementById('owner-admin-card').removeAttribute('hidden');
       document.getElementById('admin-status').value=d.status||'onboarding';
       document.getElementById('admin-role').value=d.role||'Cleaner';
+      if(d.status==='onboarding'){
+        var invRow=document.getElementById('admin-invite-row');
+        invRow.removeAttribute('hidden');
+        var invBtn=document.getElementById('admin-invite-btn');
+        var invSub=document.getElementById('admin-invite-sub');
+        if(d.invited_at){
+          var invDate=new Date(d.invited_at).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+          invBtn.textContent='Resend Invite';
+          invSub.textContent='Invited '+invDate;
+        }else{
+          invBtn.textContent='Send Invite';
+        }
+      }
     }
 
     // Documents
@@ -515,6 +532,28 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     var delBtn=document.getElementById('admin-delete-btn');
     document.getElementById('admin-role').addEventListener('change',function(){
       renderLevel(this.value);
+    });
+    document.getElementById('admin-invite-btn').addEventListener('click',function(){
+      var btn=document.getElementById('admin-invite-btn');
+      var sub=document.getElementById('admin-invite-sub');
+      btn.disabled=true;btn.textContent='Sending…';
+      MQ.sb.auth.getSession().then(function(res){
+        var jwt=res.data.session.access_token;
+        fetch('/api/send-invite',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},
+          body:JSON.stringify({staffId:id})
+        }).then(function(r){return r.json();}).then(function(data){
+          btn.disabled=false;
+          if(data.error){MQ.toast(data.error,true);btn.textContent='Send Invite';return;}
+          MQ.toast('Invite sent');
+          btn.textContent='Resend Invite';
+          sub.textContent='Just sent';
+        }).catch(function(){
+          btn.disabled=false;btn.textContent='Send Invite';
+          MQ.toast('Could not send invite',true);
+        });
+      });
     });
     saveBtn.addEventListener('click',function(){
       var row={
