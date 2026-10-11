@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Staff — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261009c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
 <style>
 .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
@@ -320,7 +320,7 @@
   </div>
 </div>
 <script src="supabase.min.js?v=20260806"></script>
-<script src="auth.js?v=20260910"></script>
+<script src="auth.js?v=20261011"></script>
 <script src="datepicker.js?v=20260913"></script>
 <script>
 (function(){
@@ -381,6 +381,9 @@ function renderCard(s){
       '<option value="month">This month</option>'+
     '</select>'+
     '<button class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">View roster →</button>'+
+    '</div>'+
+    '<div style="padding-top:10px;border-top:1px solid var(--hair);margin-top:0">'+
+    '<a class="sc-roster-btn" href="profile.html?id='+esc(s.id)+'" style="text-decoration:none;display:inline-block">View profile →</a>'+
     '</div>'+
   '</div>';
 }

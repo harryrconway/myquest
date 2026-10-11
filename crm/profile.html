@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href=/assets/favicon.svg type="image/svg+xml">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>My Profile — MyQuest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261011">
+<style>
+/* ── Profile page ─────────────────────────────────────── */
+.preview-bar{display:flex;align-items:center;gap:16px;padding:10px 24px;background:var(--navy);color:#fff;font-size:13px;font-weight:500;position:sticky;top:0;z-index:500}
+.preview-bar a{color:#fff;text-decoration:none;opacity:.75;transition:opacity .15s;font-weight:600}
+.preview-bar a:hover{opacity:1}
+.preview-bar-name{opacity:.9}
+
+/* Hero */
+.prof-hero{background:#fff;border:1px solid var(--hair);border-radius:var(--r);padding:32px;display:flex;align-items:flex-start;gap:24px;margin-bottom:20px}
+.prof-av{width:72px;height:72px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.02em;overflow:hidden}
+.prof-av img{width:100%;height:100%;object-fit:cover}
+.prof-hero-info{flex:1;min-width:0}
+.prof-greeting{font-size:13px;color:var(--stone);margin-bottom:4px;font-weight:500}
+.prof-name{font-size:24px;font-weight:700;letter-spacing:-.03em;color:var(--navy);line-height:1.1;margin-bottom:6px}
+.prof-since{font-size:12.5px;color:var(--stone);margin-bottom:16px}
+
+/* Level steps */
+.lv-wrap{display:flex;align-items:center;gap:0}
+.lv-step{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:64px}
+.lv-pip{width:14px;height:14px;border-radius:50%;background:var(--hair);border:2px solid var(--hair);transition:all .2s}
+.lv-pip.on{border:none}
+.lv-connector{height:2px;width:28px;background:var(--hair);margin-bottom:19px;transition:background .2s}
+.lv-connector.on{background:currentColor}
+.lv-step-label{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--stone);transition:color .2s}
+.lv-step.cur .lv-step-label{font-weight:700}
+
+/* Photo upload btn */
+.prof-av-wrap{position:relative;flex-shrink:0}
+.prof-photo-btn{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:var(--navy);color:#fff;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s}
+.prof-photo-btn:hover{background:#333}
+
+/* Cards grid */
+.prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.prof-card-hd{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--hair)}
+.prof-field-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair);gap:12px}
+.prof-field-row:last-child{border-bottom:none}
+.prof-lbl{font-size:13px;color:var(--stone);flex-shrink:0}
+.prof-val{font-size:13px;font-weight:600;color:var(--navy);text-align:right}
+.prof-full{grid-column:1/-1}
+
+/* Status badge inline */
+.prof-status{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 9px;border-radius:999px}
+.prof-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.prof-status.active{color:var(--green);background:var(--green-bg)}
+.prof-status.on-leave{color:var(--amber);background:var(--amber-bg)}
+.prof-status.left{color:var(--stone);background:rgba(0,0,0,.06)}
+
+/* Document rows */
+.doc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair);gap:12px}
+.doc-row:last-child{border-bottom:none}
+.doc-lbl{font-size:13px;color:var(--navy);font-weight:500}
+.doc-sub{font-size:11.5px;color:var(--stone);margin-top:1px}
+.doc-btns{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.doc-view-btn,.doc-upload-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:7px;border:1.5px solid var(--hair-md);background:none;cursor:pointer;font-family:var(--font);transition:border-color .12s,color .12s;white-space:nowrap}
+.doc-view-btn{color:var(--navy)}
+.doc-upload-btn{color:var(--stone)}
+.doc-view-btn:hover,.doc-upload-btn:hover{border-color:rgba(0,0,0,.25);color:var(--navy)}
+
+/* Training card */
+.train-progress-bar{height:6px;border-radius:999px;background:var(--hair);overflow:hidden;margin:12px 0 8px}
+.train-progress-fill{height:100%;border-radius:999px;background:var(--green);transition:width .4s ease}
+.train-link{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--navy);text-decoration:none;margin-top:12px;padding:8px 0}
+.train-link:hover{opacity:.7}
+.train-empty{font-size:13px;color:var(--stone);line-height:1.6}
+
+/* Save btn */
+.prof-save-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:var(--navy);color:#fff;border:none;border-radius:var(--r-sm);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.01em;transition:opacity .12s;margin-top:18px}
+.prof-save-btn:hover{opacity:.8}
+.prof-save-btn:disabled{opacity:.5;cursor:default}
+
+/* Staff sidebar (different from owner sidebar) */
+.staff-sidebar .sb-logo{display:flex;align-items:center;padding:28px 20px 24px;border-bottom:1px solid var(--hair);text-decoration:none}
+.staff-sidebar .sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+
+@media(max-width:900px){
+  .prof-hero{flex-direction:column;gap:20px;padding:24px 20px}
+  .prof-grid{grid-template-columns:1fr}
+  .prof-full{grid-column:1}
+  .lv-step{min-width:52px}
+  .lv-connector{width:20px}
+}
+@media(max-width:600px){
+  .prof-name{font-size:20px}
+  .prof-hero{padding:20px 16px}
+  .lv-step{min-width:44px}
+  .lv-connector{width:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="preview-bar" class="preview-bar" hidden>
+  <a href="staff.html">← Back to Staff</a>
+  <span class="preview-bar-name" id="preview-bar-name">Previewing profile</span>
+</div>
+
+<div class="layout">
+  <aside class="sidebar staff-sidebar">
+    <a class="sb-logo" href="https://myquest.au">
+      <img src="/assets/myquest-logo.svg" alt="MyQuest" height="36" style="display:block">
+    </a>
+    <nav class="sb-nav">
+      <a class="sb-item on" href="profile.html">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0116 0v1"/></svg>
+        <span class="sb-label">My Profile</span>
+      </a>
+      <a class="sb-item" href="training.html">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg>
+        <span class="sb-label">Training</span>
+      </a>
+    </nav>
+    <div class="sb-bottom">
+      <hr class="sb-div">
+      <button class="sb-item" onclick="MQ&&MQ.signOut()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="ph pg-1">
+      <a class="mob-logo" href="https://myquest.au"><img src="/assets/myquest-logo.svg" alt="MyQuest" height="36" style="display:block"></a>
+      <h1 class="ph-title" id="ph-title">My Profile</h1>
+    </div>
+
+    <!-- Hero -->
+    <section class="prof-hero pg-1" id="prof-hero">
+      <div class="prof-av-wrap">
+        <div class="prof-av" id="prof-av">—</div>
+        <button class="prof-photo-btn" id="prof-photo-btn" title="Change photo" aria-label="Change photo">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+        <input type="file" id="prof-photo-input" hidden accept="image/*">
+      </div>
+      <div class="prof-hero-info">
+        <p class="prof-greeting" id="prof-greeting">Good morning,</p>
+        <h2 class="prof-name" id="prof-name">Loading…</h2>
+        <p class="prof-since" id="prof-since"></p>
+        <div id="prof-level"></div>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <div class="prof-grid pg-2">
+
+      <!-- Employment — read-only -->
+      <div class="ac">
+        <div class="prof-card-hd">Employment</div>
+        <div class="prof-field-row">
+          <span class="prof-lbl">Status</span>
+          <span id="pf-status" class="prof-val">—</span>
+        </div>
+        <div class="prof-field-row">
+          <span class="prof-lbl">Role</span>
+          <span id="pf-role" class="prof-val">—</span>
+        </div>
+        <div class="prof-field-row">
+          <span class="prof-lbl">Type</span>
+          <span id="pf-type" class="prof-val">—</span>
+        </div>
+        <div class="prof-field-row">
+          <span class="prof-lbl">Start date</span>
+          <span id="pf-since" class="prof-val">—</span>
+        </div>
+        <div class="prof-field-row" id="pf-abn-row" hidden>
+          <span class="prof-lbl">ABN</span>
+          <span id="pf-abn" class="prof-val">—</span>
+        </div>
+      </div>
+
+      <!-- Personal details — editable -->
+      <div class="ac">
+        <div class="prof-card-hd">Personal details</div>
+        <form id="prof-form">
+          <div class="form-row-2">
+            <div>
+              <label class="form-lbl" for="pf-phone-in">Phone</label>
+              <input class="form-input" type="tel" id="pf-phone-in" placeholder="04xx xxx xxx">
+            </div>
+            <div>
+              <label class="form-lbl" for="pf-email-in">Email</label>
+              <input class="form-input" type="email" id="pf-email-in" placeholder="name@email.com">
+            </div>
+          </div>
+          <div class="prof-card-hd" style="margin-top:18px">Emergency contact</div>
+          <div class="form-row-2">
+            <div>
+              <label class="form-lbl" for="pf-ec-name-in">Contact name</label>
+              <input class="form-input" type="text" id="pf-ec-name-in" placeholder="Full name">
+            </div>
+            <div>
+              <label class="form-lbl" for="pf-ec-phone-in">Contact phone</label>
+              <input class="form-input" type="tel" id="pf-ec-phone-in" placeholder="04xx xxx xxx">
+            </div>
+          </div>
+          <button class="prof-save-btn" type="submit" id="prof-save-btn">Save changes</button>
+        </form>
+      </div>
+
+      <!-- Documents -->
+      <div class="ac">
+        <div class="prof-card-hd">Documents</div>
+        <div class="doc-row">
+          <div>
+            <div class="doc-lbl">Police check</div>
+            <div class="doc-sub" id="police-expiry-sub">—</div>
+          </div>
+          <div class="doc-btns">
+            <button class="doc-view-btn" id="doc-police-view" hidden>View</button>
+            <button class="doc-upload-btn" id="doc-police-upload">Upload</button>
+          </div>
+          <input type="file" id="doc-police-file" hidden accept=".pdf,.jpg,.jpeg,.png">
+        </div>
+        <div class="doc-row">
+          <div>
+            <div class="doc-lbl">Insurance certificate</div>
+            <div class="doc-sub" id="ins-expiry-sub">—</div>
+          </div>
+          <div class="doc-btns">
+            <button class="doc-view-btn" id="doc-ins-view" hidden>View</button>
+            <button class="doc-upload-btn" id="doc-ins-upload">Upload</button>
+          </div>
+          <input type="file" id="doc-ins-file" hidden accept=".pdf,.jpg,.jpeg,.png">
+        </div>
+      </div>
+
+      <!-- Training progress -->
+      <div class="ac">
+        <div class="prof-card-hd">Training</div>
+        <div id="prof-training">
+          <p class="train-empty">Loading training…</p>
+        </div>
+        <a href="training.html" class="train-link">
+          View all training
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+    </div><!-- /prof-grid -->
+  </main>
+</div>
+
+<!-- Mobile nav — staff only -->
+<nav class="mob-bnav" aria-label="Navigation">
+  <a href="profile.html" class="bnav-tab bnav-on">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0116 0v1"/></svg>
+    <span>Profile</span>
+  </a>
+  <a href="training.html" class="bnav-tab">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg>
+    <span>Training</span>
+  </a>
+</nav>
+
+<script src="supabase.min.js?v=20260806"></script>
+<script src="auth.js?v=20261011"></script>
+<script>
+(function(){
+'use strict';
+
+var LEVEL_MAP={
+  'Lead cleaner':{n:3,label:'Senior',color:'var(--green)'},
+  'Senior cleaner':{n:2,label:'Mid-Level',color:'#1d6fa4'},
+  'Cleaner':{n:1,label:'Junior',color:'var(--amber)'}
+};
+var LEVEL_LABELS=['Junior','Mid-Level','Senior'];
+
+var staffId=null,isPreview=false,isOwnerViewer=false;
+
+window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
+  var sb=MQ.sb;
+  var params=new URLSearchParams(location.search);
+  var previewUid=params.get('id');
+  isOwnerViewer=MQ.isOwner(session);
+
+  if(isOwnerViewer&&previewUid){
+    // Owner previewing a staff member's profile
+    isPreview=true;
+    staffId=previewUid;
+    document.getElementById('preview-bar').removeAttribute('hidden');
+    loadProfile(staffId);
+  }else if(isOwnerViewer&&!previewUid){
+    // Owner with no target → back to their dashboard
+    location.href='/crm/overview.html';
+    return;
+  }else{
+    // Staff viewing their own profile
+    staffId=staffRow.id;
+    loadProfile(staffId);
+    document.getElementById('ph-title').textContent=staffRow.name.split(' ')[0]||'Profile';
+  }
+
+  function loadProfile(id){
+    sb.from('staff')
+      .select('id,name,role,phone,email,start_date,status,employment_type,abn,emergency_contact,emergency_phone,police_check_expiry,police_check_path,insurance_expiry,insurance_cert_path')
+      .eq('id',id)
+      .single()
+      .then(function(r){
+        if(r.error||!r.data){MQ.toast('Could not load profile',true);return;}
+        renderProfile(r.data);
+        loadTraining(id);
+      });
+  }
+
+  function renderProfile(d){
+    // Greeting
+    var h=new Date().getHours();
+    var gr=h<12?'Good morning,':h<17?'Good afternoon,':'Good evening,';
+    document.getElementById('prof-greeting').textContent=gr;
+
+    // Name + initials avatar
+    document.getElementById('prof-name').textContent=d.name||'—';
+    if(!isPreview)document.getElementById('ph-title').textContent=(d.name||'').split(' ')[0]||'Profile';
+    if(isPreview)document.getElementById('preview-bar-name').textContent='Previewing '+d.name+''s profile';
+
+    var initials=(d.name||'').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+    var av=document.getElementById('prof-av');
+    av.textContent=initials;
+    av.style.background=nameToColor(d.name);
+
+    // Since
+    if(d.start_date){
+      var sd=new Date(d.start_date);
+      document.getElementById('prof-since').textContent='Member since '+sd.toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+    }
+
+    // Level badge
+    renderLevel(d.role);
+
+    // Employment card
+    var st=document.getElementById('pf-status');
+    var statusLabels={'active':'Active','on-leave':'On leave','left':'Resigned'};
+    st.innerHTML='<span class="prof-status '+d.status+'">'+(statusLabels[d.status]||d.status)+'</span>';
+    document.getElementById('pf-role').textContent=d.role||'—';
+    document.getElementById('pf-type').textContent=(d.employment_type||'').replace(/-/g,' ')||'—';
+    document.getElementById('pf-since').textContent=d.start_date?formatDate(d.start_date):'—';
+    if(d.employment_type==='subcontractor'&&d.abn){
+      document.getElementById('pf-abn-row').removeAttribute('hidden');
+      document.getElementById('pf-abn').textContent=d.abn;
+    }
+
+    // Personal form
+    document.getElementById('pf-phone-in').value=d.phone||'';
+    document.getElementById('pf-email-in').value=d.email||'';
+    document.getElementById('pf-ec-name-in').value=d.emergency_contact||'';
+    document.getElementById('pf-ec-phone-in').value=d.emergency_phone||'';
+
+    // Read-only in preview mode
+    if(isPreview){
+      document.getElementById('prof-form').querySelectorAll('input').forEach(function(el){el.disabled=true;});
+      document.getElementById('prof-save-btn').hidden=true;
+      document.getElementById('prof-photo-btn').hidden=true;
+    }
+
+    // Documents
+    if(d.police_check_path){
+      document.getElementById('doc-police-view').removeAttribute('hidden');
+    }
+    if(d.police_check_expiry){
+      document.getElementById('police-expiry-sub').textContent='Expires '+formatDate(d.police_check_expiry);
+    }else{
+      document.getElementById('police-expiry-sub').textContent='Not uploaded';
+    }
+    if(d.insurance_cert_path){
+      document.getElementById('doc-ins-view').removeAttribute('hidden');
+    }
+    if(d.insurance_expiry){
+      document.getElementById('ins-expiry-sub').textContent='Expires '+formatDate(d.insurance_expiry);
+    }else{
+      document.getElementById('ins-expiry-sub').textContent='Not uploaded';
+    }
+
+    setupDocHandlers(d);
+    setupPhotoHandler(d.id);
+    setupForm(d.id);
+  }
+
+  function renderLevel(role){
+    var lv=LEVEL_MAP[role]||{n:1,label:'Junior',color:'var(--amber)'};
+    var el=document.getElementById('prof-level');
+    var html='<div class="lv-wrap">';
+    for(var i=1;i<=3;i++){
+      var active=i<=lv.n,isCur=i===lv.n;
+      var col=active?lv.color:'';
+      html+='<div class="lv-step'+(isCur?' cur':'')+'">'+
+        '<div class="lv-pip'+(active?' on':'')+'" style="'+(active?'background:'+col+';':'')+'">'+'</div>'+
+        '<span class="lv-step-label" style="'+(isCur?'color:'+col:'')+'">'+(LEVEL_LABELS[i-1])+'</span>'+
+        '</div>';
+      if(i<3){
+        html+='<div class="lv-connector'+(active&&i<lv.n?' on':'')+'" style="'+(active&&i<lv.n?'background:'+col:'')+'"></div>';
+      }
+    }
+    html+='</div>';
+    el.innerHTML=html;
+  }
+
+  function setupDocHandlers(d){
+    function setupDoc(type,viewId,uploadId,fileId,colPath){
+      var viewBtn=document.getElementById(viewId);
+      var uploadBtn=document.getElementById(uploadId);
+      var fileIn=document.getElementById(fileId);
+      if(isPreview){uploadBtn.hidden=true;return;}
+      if(viewBtn){
+        viewBtn.addEventListener('click',function(){
+          sb.storage.from('staff-documents').createSignedUrl(d[colPath],3600).then(function(r){
+            if(r.data&&r.data.signedUrl)window.open(r.data.signedUrl,'_blank');
+            else MQ.toast('Could not open document',true);
+          });
+        });
+      }
+      uploadBtn.addEventListener('click',function(){fileIn.click();});
+      fileIn.addEventListener('change',function(){
+        var file=fileIn.files[0];
+        if(!file)return;
+        var path=d.id+'/'+type;
+        uploadBtn.textContent='Uploading…';uploadBtn.disabled=true;
+        sb.storage.from('staff-documents').upload(path,file,{upsert:true}).then(function(r){
+          uploadBtn.textContent='Uploaded!';uploadBtn.disabled=false;
+          if(!r.error){
+            var update={};update[colPath]=path;
+            sb.from('staff').update(update).eq('id',d.id).then(function(){
+              viewBtn.removeAttribute('hidden');
+              MQ.toast('Document uploaded');
+            });
+          }else{MQ.toast('Upload failed',true);}
+          setTimeout(function(){uploadBtn.textContent='Replace';},2000);
+        });
+      });
+    }
+    setupDoc('police_check','doc-police-view','doc-police-upload','doc-police-file','police_check_path');
+    setupDoc('insurance_cert','doc-ins-view','doc-ins-upload','doc-ins-file','insurance_cert_path');
+  }
+
+  function setupPhotoHandler(id){
+    if(isPreview)return;
+    var btn=document.getElementById('prof-photo-btn');
+    var fileIn=document.getElementById('prof-photo-input');
+    btn.addEventListener('click',function(){fileIn.click();});
+    fileIn.addEventListener('change',function(){
+      var file=fileIn.files[0];
+      if(!file)return;
+      var ext=file.name.split('.').pop().toLowerCase();
+      var path=id+'/profile-photo.'+ext;
+      sb.storage.from('staff-documents').upload(path,file,{upsert:true}).then(function(r){
+        if(!r.error){
+          sb.storage.from('staff-documents').createSignedUrl(path,86400).then(function(sr){
+            if(sr.data&&sr.data.signedUrl){
+              var av=document.getElementById('prof-av');
+              av.textContent='';
+              av.innerHTML='<img src="'+sr.data.signedUrl+'" alt="Profile photo">';
+            }
+          });
+          MQ.toast('Photo updated');
+        }else{MQ.toast('Upload failed',true);}
+      });
+    });
+    // Load existing photo
+    sb.storage.from('staff-documents').list(id).then(function(r){
+      var photos=(r.data||[]).filter(function(f){return f.name.startsWith('profile-photo');});
+      if(photos.length>0){
+        var path=id+'/'+photos[0].name;
+        sb.storage.from('staff-documents').createSignedUrl(path,86400).then(function(sr){
+          if(sr.data&&sr.data.signedUrl){
+            var av=document.getElementById('prof-av');
+            av.textContent='';
+            av.innerHTML='<img src="'+sr.data.signedUrl+'" alt="Profile photo">';
+          }
+        });
+      }
+    });
+  }
+
+  function setupForm(id){
+    if(isPreview)return;
+    document.getElementById('prof-form').addEventListener('submit',function(e){
+      e.preventDefault();
+      var btn=document.getElementById('prof-save-btn');
+      btn.disabled=true;btn.textContent='Saving…';
+      var row={
+        phone:document.getElementById('pf-phone-in').value.trim(),
+        email:document.getElementById('pf-email-in').value.trim(),
+        emergency_contact:document.getElementById('pf-ec-name-in').value.trim(),
+        emergency_phone:document.getElementById('pf-ec-phone-in').value.trim()
+      };
+      sb.from('staff').update(row).eq('id',id).then(function(r){
+        btn.disabled=false;btn.textContent='Save changes';
+        if(r.error){MQ.toast('Could not save',true);}
+        else{MQ.toast('Profile updated');}
+      });
+    });
+  }
+
+  function loadTraining(id){
+    // Load from training_items + training_progress if tables exist
+    sb.from('training_items').select('id',{count:'exact',head:true}).eq('published',true).then(function(r){
+      if(r.error){
+        // Table doesn't exist yet — show prompt to visit training page
+        document.getElementById('prof-training').innerHTML=
+          '<p class="train-empty">No training modules yet. Your manager will add them here.</p>';
+        return;
+      }
+      var total=r.count||0;
+      sb.from('training_progress').select('item_id',{count:'exact',head:true}).eq('user_id',id).then(function(pr){
+        var done=pr.count||0;
+        var pct=total>0?Math.round(done/total*100):0;
+        document.getElementById('prof-training').innerHTML=
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'+
+          '<span style="font-size:13px;color:var(--stone)">'+done+' of '+total+' completed</span>'+
+          '<span style="font-size:13px;font-weight:700;color:var(--navy)">'+pct+'%</span>'+
+          '</div>'+
+          '<div class="train-progress-bar"><div class="train-progress-fill" style="width:'+pct+'%"></div></div>';
+      });
+    });
+  }
+
+  // Helpers
+  function formatDate(d){
+    return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+  }
+  function nameToColor(name){
+    var hues=[200,160,280,40,320,80];
+    var h=hues[(name||'').split('').reduce(function(a,c){return a+c.charCodeAt(0);},0)%hues.length];
+    return 'hsl('+h+',28%,28%)';
+  }
+});
+})();
+</script>
+</body>
+</html>

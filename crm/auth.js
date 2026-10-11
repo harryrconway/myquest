@@ -3,7 +3,7 @@
 
 var SUPABASE_URL='https://sfyalevtmdiwvefnsaja.supabase.co';
 var SUPABASE_KEY='sb_publishable_7efLI_KQ7QAkZenEyXeuOA_qNnnH8U2';
-var ALLOWED=['harryrconway@icloud.com','hello@myquest.au'];
+var OWNER_EMAILS=['harryrconway@icloud.com','hello@myquest.au'];
 
 window.MQ=window.MQ||{};
 window.MQ.sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
@@ -12,16 +12,39 @@ MQ.sb.auth.onAuthStateChange(function(event){
   if(event==='SIGNED_OUT')location.href='/login.html';
 });
 
-window.MQ.requireAuth=function(cb){
+// requireAuth(cb) — owner-only pages (backward compatible)
+// requireAuth({allowStaff:true}, cb) — pages staff can also access
+// cb receives (session) for owner, (session, staffRow) for staff
+window.MQ.requireAuth=function(opts,cb){
+  if(typeof opts==='function'){cb=opts;opts={};}
   MQ.sb.auth.getSession().then(function(res){
     var s=res.data.session;
     if(!s){location.href='/login.html';return;}
-    if(ALLOWED.indexOf(s.user.email)===-1){
-      MQ.sb.auth.signOut().then(function(){location.href='/login.html?e=1';});
+    var email=s.user.email;
+
+    if(OWNER_EMAILS.indexOf(email)!==-1){
+      if(cb)cb(s);
       return;
     }
-    if(cb)cb(s);
+
+    // Not owner — look up staff record by email
+    MQ.sb.from('staff').select('id,name,role,status,email').eq('email',email).maybeSingle().then(function(r){
+      if(!r.data){
+        MQ.sb.auth.signOut().then(function(){location.href='/login.html?e=1';});
+        return;
+      }
+      if(opts.allowStaff){
+        if(cb)cb(s,r.data);
+      }else{
+        // Owner-only page — send staff to their profile
+        location.href='/crm/profile.html';
+      }
+    });
   });
+};
+
+window.MQ.isOwner=function(session){
+  return session&&OWNER_EMAILS.indexOf(session.user.email)!==-1;
 };
 
 window.MQ.signOut=function(){
@@ -33,10 +56,10 @@ window.MQ.toast=function(msg,isErr){
   if(!t){
     t=document.createElement('div');
     t.id='mq-toast';
-    t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:8px;font:500 13px/1.4 system-ui,sans-serif;color:#fff;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100vw - 40px);text-align:center';
+    t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:8px;font:500 13px/1.4 Inter,system-ui,sans-serif;color:#fff;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100vw - 40px);text-align:center';
     document.body.appendChild(t);
   }
-  t.style.background=isErr?'#c0392b':'var(--navy,#1a2b4a)';
+  t.style.background=isErr?'#c0392b':'var(--navy,#0a0a0a)';
   t.textContent=msg;
   t.style.opacity='1';
   clearTimeout(t._tid);
@@ -45,7 +68,7 @@ window.MQ.toast=function(msg,isErr){
 
 window.addEventListener('unhandledrejection',function(e){
   console.error('Unhandled rejection:',e.reason);
-  if(window.MQ&&window.MQ.toast)MQ.toast('Something went wrong — please refresh if this persists.',true);
+  if(window.MQ&&window.MQ.toast)MQ.toast('Something went wrong — please refresh.',true);
 });
 
 })();
