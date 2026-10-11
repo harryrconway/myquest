@@ -66,7 +66,11 @@ export async function onRequestPost({ request, env }) {
     `${SUPABASE_URL}/rest/v1/staff?id=eq.${encodeURIComponent(staffId)}&select=id,email,name`,
     { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
   );
-  if (!staffRes.ok) return json({ error: 'Staff lookup failed' }, 500);
+  if (!staffRes.ok) {
+    const errText = await staffRes.text();
+    console.error('Staff lookup error:', staffRes.status, errText);
+    return json({ error: 'Staff lookup failed (' + staffRes.status + '): ' + errText }, 500);
+  }
   const staffList = await staffRes.json();
   if (!staffList.length || !staffList[0].email) return json({ error: 'Staff member has no email address' }, 400);
   const staff = staffList[0];
