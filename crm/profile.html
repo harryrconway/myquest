@@ -11,8 +11,6 @@
 <style>
 /* ── Profile page ─────────────────────────────────────── */
 .preview-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--stone);background:rgba(0,0,0,.05);border-radius:999px;padding:3px 10px;margin-bottom:10px}
-.preview-back{font-size:13px;font-weight:600;color:var(--navy);text-decoration:none;display:inline-flex;align-items:center;gap:5px;opacity:.7;transition:opacity .12s;margin-bottom:2px}
-.preview-back:hover{opacity:1}
 
 /* Hero */
 .prof-hero{background:#fff;border:1px solid var(--hair);border-radius:var(--r);padding:32px;display:flex;align-items:flex-start;gap:24px;margin-bottom:20px}
@@ -128,6 +126,7 @@
     <div class="ph pg-1">
       <a class="mob-logo" href="https://myquest.au"><img src="/assets/myquest-logo.svg" alt="MyQuest" height="36" style="display:block"></a>
       <h1 class="ph-title" id="ph-title">My Profile</h1>
+      <a class="ph-btn" id="preview-back" href="staff.html" hidden style="text-decoration:none;margin-left:auto">← Staff</a>
     </div>
 
     <!-- Hero -->
@@ -140,10 +139,6 @@
         <input type="file" id="prof-photo-input" hidden accept="image/*">
       </div>
       <div class="prof-hero-info">
-        <a class="preview-back" id="preview-back" href="staff.html" hidden>
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Back to Staff
-        </a>
         <p class="prof-greeting" id="prof-greeting">Good morning,</p>
         <h2 class="prof-name" id="prof-name">Loading…</h2>
         <span class="preview-badge" id="preview-badge" hidden>Owner preview</span>
