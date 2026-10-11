@@ -10,10 +10,9 @@
 <link rel="stylesheet" href="style.css?v=20261011">
 <style>
 /* ── Profile page ─────────────────────────────────────── */
-.preview-bar{display:flex;align-items:center;gap:16px;padding:10px 24px;background:var(--navy);color:#fff;font-size:13px;font-weight:500;position:sticky;top:0;z-index:500}
-.preview-bar a{color:#fff;text-decoration:none;opacity:.75;transition:opacity .15s;font-weight:600}
-.preview-bar a:hover{opacity:1}
-.preview-bar-name{opacity:.9}
+.preview-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--stone);background:rgba(0,0,0,.05);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+.preview-back{font-size:13px;font-weight:600;color:var(--navy);text-decoration:none;display:inline-flex;align-items:center;gap:5px;opacity:.7;transition:opacity .12s;margin-bottom:2px}
+.preview-back:hover{opacity:1}
 
 /* Hero */
 .prof-hero{background:#fff;border:1px solid var(--hair);border-radius:var(--r);padding:32px;display:flex;align-items:flex-start;gap:24px;margin-bottom:20px}
@@ -100,10 +99,6 @@
 </head>
 <body>
 
-<div id="preview-bar" class="preview-bar" hidden>
-  <a href="staff.html">← Staff</a>
-  <span class="preview-bar-name" id="preview-bar-name">Previewing profile</span>
-</div>
 
 <div class="layout">
   <aside class="sidebar staff-sidebar">
@@ -145,8 +140,13 @@
         <input type="file" id="prof-photo-input" hidden accept="image/*">
       </div>
       <div class="prof-hero-info">
+        <a class="preview-back" id="preview-back" href="staff.html" hidden>
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to Staff
+        </a>
         <p class="prof-greeting" id="prof-greeting">Good morning,</p>
         <h2 class="prof-name" id="prof-name">Loading…</h2>
+        <span class="preview-badge" id="preview-badge" hidden>Owner preview</span>
         <p class="prof-since" id="prof-since"></p>
         <div id="prof-level"></div>
       </div>
@@ -263,9 +263,9 @@
           <div>
             <label class="form-lbl" for="admin-role">Role</label>
             <select class="form-input" id="admin-role">
-              <option value="Cleaner">Cleaner</option>
-              <option value="Senior cleaner">Senior cleaner</option>
-              <option value="Lead cleaner">Lead cleaner</option>
+              <option value="Cleaner">Junior (Cleaner)</option>
+              <option value="Senior cleaner">Mid-Level (Senior cleaner)</option>
+              <option value="Lead cleaner">Senior (Lead cleaner)</option>
             </select>
           </div>
         </div>
@@ -315,7 +315,6 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   if(isOwnerViewer&&previewUid){
     isPreview=true;
     staffId=previewUid;
-    document.getElementById('preview-bar').removeAttribute('hidden');
     loadProfile(staffId);
     setupAdminControls(staffId);
   }else if(isOwnerViewer&&!previewUid){
@@ -350,7 +349,10 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     // Name + initials avatar
     document.getElementById('prof-name').textContent=d.name||'—';
     if(!isPreview)document.getElementById('ph-title').textContent=(d.name||'').split(' ')[0]||'Profile';
-    if(isPreview)document.getElementById('preview-bar-name').textContent='Previewing '+d.name+"'s profile";
+    if(isPreview){
+      document.getElementById('preview-back').removeAttribute('hidden');
+      document.getElementById('preview-badge').removeAttribute('hidden');
+    }
 
     var initials=(d.name||'').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
     var av=document.getElementById('prof-av');
@@ -516,6 +518,9 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   function setupAdminControls(id){
     var saveBtn=document.getElementById('admin-save-btn');
     var delBtn=document.getElementById('admin-delete-btn');
+    document.getElementById('admin-role').addEventListener('change',function(){
+      renderLevel(this.value);
+    });
     saveBtn.addEventListener('click',function(){
       var row={
         status:document.getElementById('admin-status').value,
