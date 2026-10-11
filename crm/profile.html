@@ -10,7 +10,8 @@
 <link rel="stylesheet" href="style.css?v=20261011">
 <style>
 /* ── Profile page ─────────────────────────────────────── */
-.preview-bar{display:flex;align-items:center;gap:16px;padding:10px 24px;background:var(--navy);color:#fff;font-size:13px;font-weight:500;position:sticky;top:0;z-index:500}
+.preview-bar{display:flex;flex-direction:column;padding:0;background:var(--navy);color:#fff;font-size:13px;font-weight:500;position:sticky;top:0;z-index:500}
+.preview-bar-top{display:flex;align-items:center;gap:16px;padding:10px 24px}
 .preview-bar a{color:#fff;text-decoration:none;opacity:.75;transition:opacity .15s;font-weight:600}
 .preview-bar a:hover{opacity:1}
 .preview-bar-name{opacity:.9}
@@ -52,8 +53,17 @@
 .prof-status{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 9px;border-radius:999px}
 .prof-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 .prof-status.active{color:var(--green);background:var(--green-bg)}
-.prof-status.on-leave{color:var(--amber);background:var(--amber-bg)}
-.prof-status.left{color:var(--stone);background:rgba(0,0,0,.06)}
+.prof-status.onboarding{color:var(--amber);background:var(--amber-bg)}
+.prof-status.exited{color:var(--stone);background:rgba(0,0,0,.06)}
+
+/* Owner admin panel (preview mode only) */
+.owner-admin{background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.15);padding:12px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.owner-admin select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer}
+.owner-admin select option{color:var(--navy);background:#fff}
+.owner-admin-save{padding:6px 14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:background .12s}
+.owner-admin-save:hover{background:rgba(255,255,255,.28)}
+.owner-admin-delete{padding:6px 14px;background:none;border:1px solid rgba(255,80,80,.5);color:rgba(255,120,120,1);border-radius:7px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .12s;margin-left:auto}
+.owner-admin-delete:hover{background:rgba(255,60,60,.15)}
 
 /* Document rows */
 .doc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair);gap:12px}
@@ -100,9 +110,25 @@
 <body>
 
 <div id="preview-bar" class="preview-bar" hidden>
-  <a href="staff.html">← Back to Staff</a>
-  <span class="preview-bar-name" id="preview-bar-name">Previewing profile</span>
-</div>
+  <div class="preview-bar-top">
+    <a href="staff.html">← Staff</a>
+    <span class="preview-bar-name" id="preview-bar-name">Previewing profile</span>
+  </div>
+  <div class="owner-admin" id="owner-admin">
+    <select id="admin-status">
+      <option value="onboarding">Onboarding</option>
+      <option value="active">Active</option>
+      <option value="exited">Exited</option>
+    </select>
+    <select id="admin-role">
+      <option value="Cleaner">Cleaner</option>
+      <option value="Senior cleaner">Senior cleaner</option>
+      <option value="Lead cleaner">Lead cleaner</option>
+    </select>
+    <button class="owner-admin-save" id="admin-save-btn">Save</button>
+    <button class="owner-admin-delete" id="admin-delete-btn">Remove staff member</button>
+  </div><!-- /owner-admin -->
+</div><!-- /preview-bar -->
 
 <div class="layout">
   <aside class="sidebar staff-sidebar">
@@ -285,11 +311,11 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   isOwnerViewer=MQ.isOwner(session);
 
   if(isOwnerViewer&&previewUid){
-    // Owner previewing a staff member's profile
     isPreview=true;
     staffId=previewUid;
     document.getElementById('preview-bar').removeAttribute('hidden');
     loadProfile(staffId);
+    setupAdminControls(staffId);
   }else if(isOwnerViewer&&!previewUid){
     // Owner with no target → back to their dashboard
     location.href='/crm/overview.html';
@@ -340,8 +366,9 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
 
     // Employment card
     var st=document.getElementById('pf-status');
-    var statusLabels={'active':'Active','on-leave':'On leave','left':'Resigned'};
-    st.innerHTML='<span class="prof-status '+d.status+'">'+(statusLabels[d.status]||d.status)+'</span>';
+    var statusLabels={'active':'Active','onboarding':'Onboarding','exited':'Exited'};
+    var statusCls={'active':'active','onboarding':'onboarding','exited':'exited'};
+    st.innerHTML='<span class="prof-status '+(statusCls[d.status]||d.status)+'">'+(statusLabels[d.status]||d.status)+'</span>';
     document.getElementById('pf-role').textContent=d.role||'—';
     document.getElementById('pf-type').textContent=(d.employment_type||'').replace(/-/g,' ')||'—';
     document.getElementById('pf-since').textContent=d.start_date?formatDate(d.start_date):'—';
@@ -356,11 +383,13 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     document.getElementById('pf-ec-name-in').value=d.emergency_contact||'';
     document.getElementById('pf-ec-phone-in').value=d.emergency_phone||'';
 
-    // Read-only in preview mode
+    // Preview mode: disable self-edit, sync admin controls
     if(isPreview){
       document.getElementById('prof-form').querySelectorAll('input').forEach(function(el){el.disabled=true;});
       document.getElementById('prof-save-btn').hidden=true;
       document.getElementById('prof-photo-btn').hidden=true;
+      document.getElementById('admin-status').value=d.status||'onboarding';
+      document.getElementById('admin-role').value=d.role||'Cleaner';
     }
 
     // Documents
@@ -478,6 +507,30 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
           }
         });
       }
+    });
+  }
+
+  function setupAdminControls(id){
+    var saveBtn=document.getElementById('admin-save-btn');
+    var delBtn=document.getElementById('admin-delete-btn');
+    saveBtn.addEventListener('click',function(){
+      var row={
+        status:document.getElementById('admin-status').value,
+        role:document.getElementById('admin-role').value
+      };
+      saveBtn.disabled=true;saveBtn.textContent='Saving…';
+      sb.from('staff').update(row).eq('id',id).then(function(r){
+        saveBtn.disabled=false;saveBtn.textContent='Save';
+        if(r.error){MQ.toast('Could not save',true);}
+        else{MQ.toast('Saved');loadProfile(id);}
+      });
+    });
+    delBtn.addEventListener('click',function(){
+      if(!confirm('Remove this staff member? This cannot be undone.'))return;
+      sb.from('staff').delete().eq('id',id).then(function(r){
+        if(r.error){MQ.toast('Could not delete',true);}
+        else{location.href='staff.html';}
+      });
     });
   }
 

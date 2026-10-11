@@ -185,46 +185,33 @@
 <div class="modal-overlay" id="staff-modal" hidden>
   <div class="modal-card">
     <div class="modal-hd">
-      <span class="modal-title" id="staff-modal-title">Add staff member</span>
+      <span class="modal-title">Add staff member</span>
       <button class="modal-close" id="staff-modal-close" type="button" aria-label="Close">&times;</button>
     </div>
     <div class="modal-body">
+      <p style="font-size:13px;color:var(--stone);margin-bottom:18px;line-height:1.5">Basic details only — everything else (documents, emergency contact, compliance) is on the staff member's profile.</p>
       <div class="form-row">
         <label class="form-lbl" for="sf-name">Full name</label>
         <input class="form-input" type="text" id="sf-name" placeholder="e.g. Alex Chen" autocomplete="off">
       </div>
       <div class="form-row-2">
         <div>
+          <label class="form-lbl" for="sf-role">Role</label>
+          <select class="form-input" id="sf-role">
+            <option value="Cleaner">Cleaner</option>
+            <option value="Senior cleaner">Senior cleaner</option>
+            <option value="Lead cleaner">Lead cleaner</option>
+          </select>
+        </div>
+        <div>
           <label class="form-lbl" for="sf-emp-type">Employment type</label>
           <select class="form-input" id="sf-emp-type">
             <option value="">Not set</option>
-            <option value="full-time">Full-time</option>
-            <option value="part-time">Part-time</option>
-            <option value="subcontractor">Subcontractor</option>
             <option value="casual">Casual</option>
+            <option value="part-time">Part-time</option>
+            <option value="full-time">Full-time</option>
+            <option value="subcontractor">Subcontractor</option>
           </select>
-        </div>
-        <div>
-          <label class="form-lbl" for="sf-role">Role</label>
-          <select class="form-input" id="sf-role">
-            <option value="Lead cleaner">Lead cleaner</option>
-            <option value="Senior cleaner">Senior cleaner</option>
-            <option value="Cleaner">Cleaner</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row-2">
-        <div>
-          <label class="form-lbl" for="sf-status">Status</label>
-          <select class="form-input" id="sf-status">
-            <option value="onboarding">Onboarding</option>
-            <option value="active">Active</option>
-            <option value="exited">Exited</option>
-          </select>
-        </div>
-        <div>
-          <label class="form-lbl" for="sf-since">Start date</label>
-          <input class="form-input" type="date" id="sf-since" data-datepicker data-placeholder="Start date">
         </div>
       </div>
       <div class="form-row-2">
@@ -237,70 +224,12 @@
           <input class="form-input" type="email" id="sf-email" placeholder="name@email.com">
         </div>
       </div>
-      <div class="form-row" id="sf-abn-row" hidden>
-        <label class="form-lbl" for="sf-abn">ABN</label>
-        <input class="form-input" type="text" id="sf-abn" placeholder="XX XXX XXX XXX">
-      </div>
-
-      <div class="sf-sec">Emergency contact</div>
-      <div class="form-row-2">
-        <div>
-          <label class="form-lbl" for="sf-ec-name">Contact name</label>
-          <input class="form-input" type="text" id="sf-ec-name" placeholder="Full name">
-        </div>
-        <div>
-          <label class="form-lbl" for="sf-ec-phone">Contact phone</label>
-          <input class="form-input" type="tel" id="sf-ec-phone" placeholder="04xx xxx xxx">
-        </div>
-      </div>
-
-      <!-- Compliance text fields: shown in both Add and Edit -->
-      <div id="sf-compliance-text">
-        <div class="sf-sec">Police check</div>
-        <div class="form-row">
-          <label class="form-lbl" for="sf-police-expiry">Expiry date</label>
-          <input class="form-input" type="date" id="sf-police-expiry">
-        </div>
-
-        <div class="sf-sec">Insurance</div>
-        <div class="form-row-2">
-          <div>
-            <label class="form-lbl" for="sf-ins-provider">Provider</label>
-            <input class="form-input" type="text" id="sf-ins-provider" placeholder="e.g. QBE, Allianz">
-          </div>
-          <div>
-            <label class="form-lbl" for="sf-ins-policy">Policy number</label>
-            <input class="form-input" type="text" id="sf-ins-policy" placeholder="POL-XXXXXXX">
-          </div>
-        </div>
-        <div class="form-row">
-          <label class="form-lbl" for="sf-ins-expiry">Insurance expiry</label>
-          <input class="form-input" type="date" id="sf-ins-expiry">
-        </div>
-      </div>
-
-      <!-- Certificate uploads: shown only in Edit (need staff ID for storage path) -->
-      <div id="sf-compliance-upload" hidden>
-        <div class="sf-doc-row" style="margin-bottom:10px">
-          <label class="form-lbl" style="margin-bottom:0">Police check certificate</label>
-          <div style="display:flex;gap:7px;align-items:center">
-            <button type="button" class="sf-doc-view" id="sf-police-view" hidden>View</button>
-            <button type="button" class="sf-doc-upload" id="sf-police-upload-btn">Upload</button>
-            <input type="file" id="sf-police-cert" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
-          </div>
-        </div>
-        <div class="sf-doc-row">
-          <label class="form-lbl" style="margin-bottom:0">Insurance certificate</label>
-          <div style="display:flex;gap:7px;align-items:center">
-            <button type="button" class="sf-doc-view" id="sf-ins-view" hidden>View</button>
-            <button type="button" class="sf-doc-upload" id="sf-ins-upload-btn">Upload</button>
-            <input type="file" id="sf-ins-cert" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
-          </div>
-        </div>
+      <div class="form-row">
+        <label class="form-lbl" for="sf-since">Start date</label>
+        <input class="form-input" type="date" id="sf-since" data-datepicker data-placeholder="Start date">
       </div>
     </div>
     <div class="modal-actions">
-      <button type="button" class="delete-btn" id="staff-modal-delete" hidden style="margin-right:auto">Remove staff member</button>
       <button type="button" class="cancel-btn" id="staff-modal-cancel">Cancel</button>
       <button type="button" class="ph-btn" id="staff-modal-save">Add staff</button>
     </div>
@@ -418,74 +347,15 @@ function reload(){
 
 var modal=document.getElementById('staff-modal');
 var saveBtn=document.getElementById('staff-modal-save');
-var delBtn=document.getElementById('staff-modal-delete');
-var titleEl=document.getElementById('staff-modal-title');
-
-function updateDocUI(type,path){
-  var viewBtn=document.getElementById('sf-'+type+'-view');
-  var uploadBtn=document.getElementById('sf-'+type+'-upload-btn');
-  if(viewBtn)viewBtn.hidden=!path;
-  if(uploadBtn)uploadBtn.textContent=path?'Replace':'Upload certificate';
-}
-
-function uploadDoc(staffId,docType,file,cb){
-  var path=staffId+'/'+docType;
-  sb.storage.from('staff-documents').upload(path,file,{upsert:true}).then(function(r){
-    if(r.error){alert('Upload failed: '+(r.error.message||'Unknown error'));return;}
-    cb(path);
-  });
-}
-
-function viewDoc(path){
-  sb.storage.from('staff-documents').createSignedUrl(path,3600).then(function(r){
-    if(r.data&&r.data.signedUrl)window.open(r.data.signedUrl,'_blank');
-    else alert('Could not generate view link.');
-  });
-}
-
-function toggleAbn(){
-  var isSubco=document.getElementById('sf-emp-type').value==='subcontractor';
-  document.getElementById('sf-abn-row').hidden=!isSubco;
-}
 
 function openNewModal(){
-  editingId=null;
-  titleEl.textContent='Add staff member';saveBtn.textContent='Add staff';delBtn.hidden=true;
-  ['sf-name','sf-phone','sf-email','sf-abn','sf-ec-name','sf-ec-phone','sf-police-expiry','sf-ins-provider','sf-ins-policy','sf-ins-expiry'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('sf-emp-type').value='';
+  ['sf-name','sf-phone','sf-email','sf-since'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('sf-role').value='Cleaner';
-  document.getElementById('sf-status').value='onboarding';
-  document.getElementById('sf-since').value='';
-  document.getElementById('sf-abn-row').hidden=true;
-  document.getElementById('sf-compliance-upload').hidden=true;
+  document.getElementById('sf-emp-type').value='';
   modal.hidden=false;
   setTimeout(function(){document.getElementById('sf-name').focus();},40);
 }
-function openEditModal(s){
-  editingId=s.id;
-  titleEl.textContent='Edit staff member';saveBtn.textContent='Save changes';delBtn.hidden=false;
-  document.getElementById('sf-name').value=s.name||'';
-  document.getElementById('sf-emp-type').value=s.employment_type||'';
-  document.getElementById('sf-role').value=s.role||'Cleaner';
-  document.getElementById('sf-phone').value=s.phone||'';
-  document.getElementById('sf-email').value=s.email||'';
-  document.getElementById('sf-since').value=s.start_date||'';
-  document.getElementById('sf-status').value=s.status||'active';
-  document.getElementById('sf-abn').value=s.abn||'';
-  document.getElementById('sf-ec-name').value=s.emergency_contact||'';
-  document.getElementById('sf-ec-phone').value=s.emergency_phone||'';
-  document.getElementById('sf-abn-row').hidden=s.employment_type!=='subcontractor';
-  document.getElementById('sf-compliance-upload').hidden=false;
-  document.getElementById('sf-police-expiry').value=s.police_check_expiry||'';
-  document.getElementById('sf-ins-provider').value=s.insurance_provider||'';
-  document.getElementById('sf-ins-policy').value=s.insurance_policy_no||'';
-  document.getElementById('sf-ins-expiry').value=s.insurance_expiry||'';
-  updateDocUI('police',s.police_check_path);
-  updateDocUI('ins',s.insurance_cert_path);
-  modal.hidden=false;
-  setTimeout(function(){document.getElementById('sf-name').focus();},40);
-}
-function closeModal(){modal.hidden=true;editingId=null;}
+function closeModal(){modal.hidden=true;}
 
 document.getElementById('new-staff-btn').addEventListener('click',openNewModal);
 document.getElementById('staff-modal-close').addEventListener('click',closeModal);
@@ -497,13 +367,6 @@ document.addEventListener('keydown',function(e){
   if(rm&&!rm.hidden){rm.hidden=true;return;}
   if(!modal.hidden)closeModal();
 });
-document.getElementById('sf-emp-type').addEventListener('change',toggleAbn);
-
-delBtn.addEventListener('click',function(){
-  if(!editingId)return;
-  if(!confirm('Remove this staff member? This cannot be undone.'))return;
-  sb.from('staff').delete().eq('id',editingId).then(function(){closeModal();reload();});
-});
 
 saveBtn.addEventListener('click',function(){
   var name=document.getElementById('sf-name').value.trim();
@@ -512,66 +375,17 @@ saveBtn.addEventListener('click',function(){
     name:name,
     role:document.getElementById('sf-role').value,
     employment_type:document.getElementById('sf-emp-type').value||null,
-    abn:document.getElementById('sf-abn').value.trim()||null,
-    phone:document.getElementById('sf-phone').value.trim(),
-    email:document.getElementById('sf-email').value.trim(),
+    phone:document.getElementById('sf-phone').value.trim()||null,
+    email:document.getElementById('sf-email').value.trim()||null,
     start_date:document.getElementById('sf-since').value||null,
-    status:document.getElementById('sf-status').value,
-    emergency_contact:document.getElementById('sf-ec-name').value.trim()||null,
-    emergency_phone:document.getElementById('sf-ec-phone').value.trim()||null,
-    police_check_expiry:document.getElementById('sf-police-expiry').value||null,
-    insurance_provider:document.getElementById('sf-ins-provider').value.trim()||null,
-    insurance_policy_no:document.getElementById('sf-ins-policy').value.trim()||null,
-    insurance_expiry:document.getElementById('sf-ins-expiry').value||null
+    status:'onboarding'
   };
-  if(editingId){
-    var oldName=null;allStaff.forEach(function(s){if(s.id===editingId)oldName=s.name;});
-    sb.from('staff').update(row).eq('id',editingId).then(function(){
-      if(oldName&&row.name!==oldName)sb.from('jobs').update({assigned_staff_name:row.name}).eq('assigned_staff_id',editingId).then(function(){});
-      closeModal();reload();
-    });
-  } else {
-    sb.from('staff').insert(row).then(function(){closeModal();reload();});
-  }
-});
-
-// Document upload / view wiring
-document.getElementById('sf-police-upload-btn').addEventListener('click',function(){document.getElementById('sf-police-cert').click();});
-document.getElementById('sf-police-cert').addEventListener('change',function(){
-  var file=this.files[0];
-  if(!file||!editingId)return;
-  var btn=document.getElementById('sf-police-upload-btn');
-  btn.textContent='Uploading…';btn.disabled=true;
-  uploadDoc(editingId,'police-check',file,function(path){
-    sb.from('staff').update({police_check_path:path}).eq('id',editingId).then(function(){
-      btn.disabled=false;updateDocUI('police',path);
-      var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
-      if(found)found.police_check_path=path;
-    });
+  saveBtn.disabled=true;saveBtn.textContent='Adding…';
+  sb.from('staff').insert(row).then(function(r){
+    saveBtn.disabled=false;saveBtn.textContent='Add staff';
+    if(r.error){MQ.toast('Could not add staff',true);return;}
+    closeModal();reload();MQ.toast(name+' added');
   });
-});
-document.getElementById('sf-police-view').addEventListener('click',function(){
-  var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
-  if(found&&found.police_check_path)viewDoc(found.police_check_path);
-});
-
-document.getElementById('sf-ins-upload-btn').addEventListener('click',function(){document.getElementById('sf-ins-cert').click();});
-document.getElementById('sf-ins-cert').addEventListener('change',function(){
-  var file=this.files[0];
-  if(!file||!editingId)return;
-  var btn=document.getElementById('sf-ins-upload-btn');
-  btn.textContent='Uploading…';btn.disabled=true;
-  uploadDoc(editingId,'insurance-cert',file,function(path){
-    sb.from('staff').update({insurance_cert_path:path}).eq('id',editingId).then(function(){
-      btn.disabled=false;updateDocUI('ins',path);
-      var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
-      if(found)found.insurance_cert_path=path;
-    });
-  });
-});
-document.getElementById('sf-ins-view').addEventListener('click',function(){
-  var found=null;allStaff.forEach(function(s){if(s.id===editingId)found=s;});
-  if(found&&found.insurance_cert_path)viewDoc(found.insurance_cert_path);
 });
 
 function openRoster(staffId,staffName,period){
@@ -690,9 +504,7 @@ document.getElementById('staff-grid').addEventListener('click',function(e){
   if(e.target.closest('.sc-profile-link'))return;
   var card=e.target.closest('.staff-card');
   if(!card)return;
-  var sid=card.dataset.id;
-  var found=null;allStaff.forEach(function(s){if(s.id===sid)found=s;});
-  if(found)openEditModal(found);
+  location.href='profile.html?id='+card.dataset.id;
 });
 
 document.getElementById('roster-modal-close').addEventListener('click',function(){document.getElementById('roster-modal').hidden=true;});
