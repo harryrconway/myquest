@@ -198,9 +198,9 @@
         <div>
           <label class="form-lbl" for="sf-role">Role</label>
           <select class="form-input" id="sf-role">
-            <option value="Cleaner">Cleaner</option>
-            <option value="Senior cleaner">Senior cleaner</option>
-            <option value="Lead cleaner">Lead cleaner</option>
+            <option value="Cleaner">Junior (Cleaner)</option>
+            <option value="Senior cleaner">Mid-Level (Senior cleaner)</option>
+            <option value="Lead cleaner">Senior (Lead cleaner)</option>
           </select>
         </div>
         <div>
@@ -293,11 +293,12 @@ function renderCard(s){
   var badgeCls=(STATUS[s.status]||STATUS.active).cls;
   var badgeLbl=(STATUS[s.status]||STATUS.active).lbl;
   var compBadge=complianceBadge(s);
-  var empLabel={  'full-time':'Full-time','part-time':'Part-time','subcontractor':'Contractor','casual':'Casual'}[s.employment_type]||'';
+  var empLabel={'full-time':'Full-time','part-time':'Part-time','subcontractor':'Contractor','casual':'Casual'}[s.employment_type]||'';
+  var roleLabel={'Cleaner':'Junior','Senior cleaner':'Mid-Level','Lead cleaner':'Senior'}[s.role]||s.role||'';
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
       '<div class="sc-av">'+initials(s.name||'?')+'</div>'+
-      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+(empLabel?esc(empLabel)+' · ':'')+esc(s.role||'')+'</div></div>'+
+      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+(empLabel?esc(empLabel)+' · ':'')+esc(roleLabel)+'</div></div>'+
       '<span class="badge '+badgeCls+'" style="margin-left:auto">'+badgeLbl+'</span>'+
     '</div>'+
     (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
