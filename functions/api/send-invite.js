@@ -108,8 +108,8 @@ export async function onRequestPost({ request, env }) {
   });
   if (!sendRes.ok) {
     const err = await sendRes.text();
-    console.error('Resend error:', err);
-    return json({ error: 'Could not send email — check Resend key' }, 500);
+    console.error('Resend error:', sendRes.status, err);
+    return json({ error: 'Resend ' + sendRes.status + ': ' + err }, 500);
   }
 
   // Stamp invited_at (best-effort — silently ignored if column not yet migrated)
