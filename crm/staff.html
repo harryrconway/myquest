@@ -173,8 +173,8 @@
       <div class="filters">
         <button class="f-pill on" data-sf="all">All</button>
         <button class="f-pill" data-sf="active">Active</button>
-        <button class="f-pill" data-sf="on-leave">On leave</button>
-        <button class="f-pill" data-sf="left">Resigned</button>
+        <button class="f-pill" data-sf="onboarding">Onboarding</button>
+        <button class="f-pill" data-sf="exited">Exited</button>
       </div>
     </div>
     <div class="staff-grid pg-3" id="staff-grid"></div>
@@ -217,9 +217,9 @@
         <div>
           <label class="form-lbl" for="sf-status">Status</label>
           <select class="form-input" id="sf-status">
+            <option value="onboarding">Onboarding</option>
             <option value="active">Active</option>
-            <option value="on-leave">On leave</option>
-            <option value="left">Resigned</option>
+            <option value="exited">Exited</option>
           </select>
         </div>
         <div>
@@ -360,8 +360,9 @@ function complianceBadge(s){
 }
 
 function renderCard(s){
-  var badgeCls=s.status==='on-leave'?'onboarding':s.status==='left'?'declined':'active';
-  var badgeLbl=s.status==='on-leave'?'On leave':s.status==='left'?'Resigned':'Active';
+  var STATUS={active:{cls:'active',lbl:'Active'},onboarding:{cls:'onboarding',lbl:'Onboarding'},exited:{cls:'declined',lbl:'Exited'}};
+  var badgeCls=(STATUS[s.status]||STATUS.active).cls;
+  var badgeLbl=(STATUS[s.status]||STATUS.active).lbl;
   var compBadge=complianceBadge(s);
   var empLabel={  'full-time':'Full-time','part-time':'Part-time','subcontractor':'Contractor','casual':'Casual'}[s.employment_type]||'';
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
@@ -389,7 +390,8 @@ function renderCard(s){
 }
 
 function renderAll(){
-  var active=allStaff.filter(function(s){return(s.status||'active')==='active';}).length;
+  var active=allStaff.filter(function(s){return s.status==='active';}).length;
+  var onboarding=allStaff.filter(function(s){return s.status==='onboarding';}).length;
   var yr=new Date().getFullYear();
   var newThisYear=allStaff.filter(function(s){return s.start_date&&s.start_date.slice(0,4)===String(yr);}).length;
   var roles=[];
@@ -398,10 +400,10 @@ function renderAll(){
   if(statsEl)statsEl.innerHTML=
     '<div class="stat"><div class="stat-lbl">Total staff</div><div class="stat-val">'+allStaff.length+'</div><div class="stat-hint">'+active+' active</div></div>'+
     '<div class="stat"><div class="stat-lbl">Active</div><div class="stat-val">'+active+'</div><div class="stat-hint">On the team</div></div>'+
-    '<div class="stat"><div class="stat-lbl">Roles</div><div class="stat-val">'+roles.length+'</div><div class="stat-hint">Distinct roles</div></div>'+
+    '<div class="stat"><div class="stat-lbl">Onboarding</div><div class="stat-val">'+onboarding+'</div><div class="stat-hint">In progress</div></div>'+
     '<div class="stat"><div class="stat-lbl">New this year</div><div class="stat-val">'+newThisYear+'</div><div class="stat-hint">Joined in '+yr+'</div></div>';
   var visible=allStaff.filter(function(s){
-    var mf=activeFilter==='all'||(s.status||'active')===activeFilter;
+    var mf=activeFilter==='all'||s.status===activeFilter;
     var ms=!searchTerm||(s.name+' '+(s.role||'')).toLowerCase().indexOf(searchTerm)!==-1;
     return mf&&ms;
   });
@@ -452,7 +454,7 @@ function openNewModal(){
   ['sf-name','sf-phone','sf-email','sf-abn','sf-ec-name','sf-ec-phone','sf-police-expiry','sf-ins-provider','sf-ins-policy','sf-ins-expiry'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('sf-emp-type').value='';
   document.getElementById('sf-role').value='Cleaner';
-  document.getElementById('sf-status').value='active';
+  document.getElementById('sf-status').value='onboarding';
   document.getElementById('sf-since').value='';
   document.getElementById('sf-abn-row').hidden=true;
   document.getElementById('sf-compliance-upload').hidden=true;
