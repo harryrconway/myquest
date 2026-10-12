@@ -239,7 +239,7 @@ return Promise.all([
       return a.date<b.date?-1:a.date>b.date?1:((a.start_time||'99')<(b.start_time||'99')?-1:1);
     });
     if(!todayJobs.length){
-      schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled this week</div></div></div>';
+      schedEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr;border-left:none"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled this week</div></div></div>';
     } else {
       schedEl.innerHTML=todayJobs.map(function(j){
         var bCls,bTxt;
@@ -271,7 +271,7 @@ return Promise.all([
     var nwJobs=jobs.filter(function(j){return j.date>=nwMonStr&&j.date<=nwSunStr;})
       .sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:((a.start_time||'99')<(b.start_time||'99')?-1:1);});
     if(!nwJobs.length){
-      nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
+      nextWeekEl.innerHTML='<div class="sched-item" style="grid-template-columns:1fr;border-left:none"><div class="si-info"><div class="si-client" style="font-weight:400;color:var(--stone)">No jobs scheduled for next week</div></div></div>';
     } else {
       var nwHtml='';
       nwJobs.forEach(function(j){
