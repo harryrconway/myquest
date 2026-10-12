@@ -8,26 +8,22 @@ var OWNER_EMAILS=['harryrconway@icloud.com','hello@myquest.au'];
 window.MQ=window.MQ||{};
 window.MQ.sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-MQ.sb.auth.onAuthStateChange(function(event){
-  if(event==='SIGNED_OUT')location.href='/login.html';
-});
-
 // requireAuth(cb) — owner-only pages (backward compatible)
 // requireAuth({allowStaff:true}, cb) — pages staff can also access
 // cb receives (session) for owner, (session, staffRow) for staff
 window.MQ.requireAuth=function(opts,cb){
   if(typeof opts==='function'){cb=opts;opts={};}
-  MQ.sb.auth.getSession().then(function(res){
-    var s=res.data.session;
+
+  var resolved=false;
+  function resolve(s){
+    if(resolved)return;
+    resolved=true;
     if(!s){location.href='/login.html';return;}
     var email=s.user.email;
-
     if(OWNER_EMAILS.indexOf(email)!==-1){
       if(cb)cb(s);
       return;
     }
-
-    // Not owner — look up staff record by email
     MQ.sb.from('staff').select('id,name,role,status,email').eq('email',email).maybeSingle().then(function(r){
       if(!r.data){
         MQ.sb.auth.signOut().then(function(){location.href='/login.html?e=1';});
@@ -36,10 +32,21 @@ window.MQ.requireAuth=function(opts,cb){
       if(opts.allowStaff){
         if(cb)cb(s,r.data);
       }else{
-        // Owner-only page — send staff to their profile
         location.href='/crm/profile.html';
       }
     });
+  }
+
+  // Listen for auth events — catches magic link hash processing (SIGNED_IN)
+  // and session expiry (SIGNED_OUT) in one place
+  MQ.sb.auth.onAuthStateChange(function(event,session){
+    if(event==='SIGNED_IN'){resolve(session);}
+    if(event==='SIGNED_OUT'&&resolved){location.href='/login.html';}
+  });
+
+  // Also try getSession immediately — handles already-authenticated visits
+  MQ.sb.auth.getSession().then(function(res){
+    resolve(res.data.session);
   });
 };
 
