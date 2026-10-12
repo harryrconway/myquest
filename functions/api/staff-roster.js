@@ -1,4 +1,6 @@
 const ORIGIN = 'https://myquest.au';
+// Public anon key — same value as in auth.js, safe to include here
+const ANON_KEY = 'sb_publishable_7efLI_KQ7QAkZenEyXeuOA_qNnnH8U2';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -30,22 +32,23 @@ export async function onRequest({ request, env }) {
   const jwt = authHeader.replace(/^Bearer\s+/i, '').trim();
   if (!jwt) return json({ error: 'Unauthorized' }, 401);
 
+  // Verify JWT using the anon key (standard Supabase pattern)
   const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-    headers: { 'Authorization': `Bearer ${jwt}`, 'apikey': SVC_KEY },
+    headers: { 'Authorization': `Bearer ${jwt}`, 'apikey': ANON_KEY },
   });
   if (!userRes.ok) return json({ error: 'Unauthorized' }, 401);
   const { email } = await userRes.json();
   if (!email) return json({ error: 'Unauthorized' }, 401);
 
-  // Look up staff record by email — identity derived from verified JWT only
+  // Look up own staff record using the user's JWT — relies on RLS (staff can read own row)
   const staffRes = await fetch(
     `${SUPABASE_URL}/rest/v1/staff?email=eq.${encodeURIComponent(email)}&select=id,status&limit=1`,
-    { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
+    { headers: { 'Authorization': `Bearer ${jwt}`, 'apikey': ANON_KEY } }
   );
   if (!staffRes.ok) {
     const errText = await staffRes.text();
     console.error('staff lookup failed:', staffRes.status, errText);
-    return json({ error: 'Staff lookup error' }, 500);
+    return json({ error: 'Staff lookup error: ' + staffRes.status }, 500);
   }
   const staffRows = await staffRes.json();
   if (!Array.isArray(staffRows) || !staffRows.length) {
