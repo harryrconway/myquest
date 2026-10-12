@@ -338,7 +338,6 @@
                 <option value="none">Does not repeat</option>
                 <option value="weekly">Weekly</option>
                 <option value="fortnightly">Fortnightly</option>
-
                 <option value="monthly">Monthly</option>
               </select>
             </div>
@@ -562,9 +561,9 @@ window._iqConvert=function(id){
   document.getElementById('cv-industry').value=INDUSTRY_MAP[inq.space_type]||'Commercial office';
   document.getElementById('cv-site').value=inq.suburb||'';
   document.getElementById('cv-client-notes').value=inq.notes||'';
-  document.getElementById('cv-job-date').value='';
+  document.getElementById('cv-job-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('cv-job-time').value='';
-  document.getElementById('cv-job-tz').value='';
+  document.getElementById('cv-job-tz').value='QLD';
   document.getElementById('cv-job-type').value='maintenance';
   var freqMap={weekly:'weekly',fortnightly:'fortnightly',monthly:'monthly','once-off':'none'};
   document.getElementById('cv-job-repeat').value=freqMap[inq.frequency]||'none';
