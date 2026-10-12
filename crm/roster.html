@@ -156,7 +156,7 @@ function card(j,isPast){
     '<div class="rs-body">'+
       '<div class="rs-client">'+esc(j.client_name||'Unnamed client')+'</div>'+
       '<div class="rs-row">'+
-        (time?'<span class="rs-time"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(time)+'</span>':''))+
+        (time?'<span class="rs-time"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(time)+'</span>':'')+
         (time&&j.site?'<span class="rs-sep">·</span>':'')+
         (j.site?'<span class="rs-site">'+esc(j.site)+'</span>':'')+
       '</div>'+
