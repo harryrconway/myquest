@@ -107,10 +107,15 @@ window.MQ.requireAuth({allowStaff:true},function(session){
 
   fetch('/api/staff-roster',{
     headers:{'Authorization':'Bearer '+session.access_token}
-  }).then(function(r){return r.json();}).then(function(data){
-    if(data.error){MQ.toast(data.error,true);document.getElementById('rs-content').innerHTML='<div class="rs-empty"><strong>Could not load roster</strong>Please try refreshing.</div>';return;}
-    render(data.jobs||[]);
-  }).catch(function(){
+  }).then(function(r){return r.json().then(function(data){return {ok:r.ok,status:r.status,data:data};});}).then(function(res){
+    if(!res.ok||res.data.error){
+      var msg=res.data&&res.data.error?res.data.error:'Server error '+res.status;
+      MQ.toast(msg,true);
+      document.getElementById('rs-content').innerHTML='<div class="rs-empty"><strong>Could not load roster</strong>'+msg+'</div>';
+      return;
+    }
+    render(res.data.jobs||[]);
+  }).catch(function(e){
     document.getElementById('rs-content').innerHTML='<div class="rs-empty"><strong>Could not load roster</strong>Please try refreshing.</div>';
   });
 });
