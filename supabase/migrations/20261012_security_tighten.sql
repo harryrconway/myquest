@@ -8,6 +8,7 @@
 --         owner emails can access everything.
 -- ─────────────────────────────────────────
 DROP POLICY IF EXISTS "staff_docs_authenticated_all" ON storage.objects;
+DROP POLICY IF EXISTS "staff_docs_own_files" ON storage.objects;
 
 CREATE POLICY "staff_docs_own_files" ON storage.objects
   FOR ALL TO authenticated
@@ -39,6 +40,7 @@ CREATE POLICY "staff_docs_own_files" ON storage.objects
 --    Fix: staff can only read their own row; owners read all.
 -- ─────────────────────────────────────────
 DROP POLICY IF EXISTS "Authenticated read staff" ON staff;
+DROP POLICY IF EXISTS "staff_self_select" ON staff;
 
 CREATE POLICY "staff_self_select" ON staff
   FOR SELECT TO authenticated
@@ -54,6 +56,7 @@ CREATE POLICY "staff_self_select" ON staff
 --         (Owners covered by crm_owner_only which is OR-combined.)
 -- ─────────────────────────────────────────
 DROP POLICY IF EXISTS "Authenticated insert staff" ON staff;
+DROP POLICY IF EXISTS "staff_self_insert" ON staff;
 
 CREATE POLICY "staff_self_insert" ON staff
   FOR INSERT TO authenticated
@@ -67,6 +70,8 @@ CREATE POLICY "staff_self_insert" ON staff
 --    Previous: any auth user had full INSERT/UPDATE/DELETE.
 -- ─────────────────────────────────────────
 DROP POLICY IF EXISTS "Authenticated manage training_items" ON training_items;
+DROP POLICY IF EXISTS "training_items_select" ON training_items;
+DROP POLICY IF EXISTS "training_items_owner_write" ON training_items;
 
 CREATE POLICY "training_items_select" ON training_items
   FOR SELECT TO authenticated
@@ -83,6 +88,7 @@ CREATE POLICY "training_items_owner_write" ON training_items
 --    Previous: any auth user could read/write any user's completions.
 -- ─────────────────────────────────────────
 DROP POLICY IF EXISTS "Authenticated manage training_progress" ON training_progress;
+DROP POLICY IF EXISTS "training_progress_own" ON training_progress;
 
 CREATE POLICY "training_progress_own" ON training_progress
   FOR ALL TO authenticated
