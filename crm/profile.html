@@ -505,7 +505,9 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
       var fileIn=document.getElementById(fileId);
       if(viewBtn){
         viewBtn.addEventListener('click',function(){
-          sb.storage.from('staff-documents').createSignedUrl(d[colPath],3600).then(function(r){
+          var p=d[colPath];
+          if(!p){MQ.toast('Could not open document',true);return;}
+          sb.storage.from('staff-documents').createSignedUrl(p,3600).then(function(r){
             if(r.data&&r.data.signedUrl)window.open(r.data.signedUrl,'_blank');
             else MQ.toast('Could not open document',true);
           });
@@ -523,6 +525,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
           if(!r.error){
             var update={};update[colPath]=path;
             sb.from('staff').update(update).eq('id',d.id).then(function(){
+              d[colPath]=path;
               viewBtn.removeAttribute('hidden');
               uploadBtn.textContent='Uploaded!';
               MQ.toast('Document uploaded');
