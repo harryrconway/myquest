@@ -44,10 +44,13 @@ window.MQ.requireAuth=function(opts,cb){
     if(event==='SIGNED_OUT'&&resolved){location.href='/login.html';}
   });
 
-  // Also try getSession immediately — handles already-authenticated visits
-  MQ.sb.auth.getSession().then(function(res){
-    resolve(res.data.session);
-  });
+  // getSession handles already-authenticated visits.
+  // Skip if there's a magic link hash — let SIGNED_IN fire instead.
+  if(!location.hash.includes('access_token=')){
+    MQ.sb.auth.getSession().then(function(res){
+      resolve(res.data.session);
+    });
+  }
 };
 
 window.MQ.isOwner=function(session){
