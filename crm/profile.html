@@ -36,6 +36,16 @@
 .prof-photo-btn{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:var(--navy);color:#fff;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s}
 .prof-photo-btn:hover{background:#333}
 
+/* Photo lightbox */
+.photo-lb{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .2s;pointer-events:none}
+.photo-lb.open{opacity:1;pointer-events:auto}
+.photo-lb-img{width:min(72vw,320px);height:min(72vw,320px);border-radius:50%;object-fit:cover;border:4px solid #fff;transform:scale(.7);transition:transform .25s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.photo-lb.open .photo-lb-img{transform:scale(1)}
+.prof-av.has-photo{cursor:pointer}
+@media(max-width:500px){
+  .photo-lb-img{width:80vw;height:80vw}
+}
+
 /* Cards grid */
 .prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .prof-card-hd{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--hair)}
@@ -551,9 +561,19 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
         var path=id+'/'+photos[0].name;
         sb.storage.from('staff-documents').createSignedUrl(path,86400).then(function(sr){
           if(sr.data&&sr.data.signedUrl){
+            var url=sr.data.signedUrl;
             var av=document.getElementById('prof-av');
             av.textContent='';
-            av.innerHTML='<img src="'+sr.data.signedUrl+'" alt="Profile photo">';
+            av.innerHTML='<img src="'+url+'" alt="Profile photo">';
+            av.classList.add('has-photo');
+            av.addEventListener('click',function(){
+              var lb=document.getElementById('photo-lb');
+              document.getElementById('photo-lb-img').src=url;
+              lb.classList.add('open');
+            });
+            document.getElementById('photo-lb').addEventListener('click',function(){
+              this.classList.remove('open');
+            });
           }
         });
       }
@@ -718,5 +738,8 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
 })();
 })();
 </script>
+<div class="photo-lb" id="photo-lb" aria-hidden="true">
+  <img class="photo-lb-img" id="photo-lb-img" src="" alt="Profile photo">
+</div>
 </body>
 </html>
