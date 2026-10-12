@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -64,11 +64,12 @@
 .ci-badge-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .ci-name{font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--navy)}
 .ci-industry{font-size:11.5px;color:var(--stone);margin-bottom:8px}
-.ci-meta{display:flex;flex-direction:column;gap:5px}
-.ci-meta-row{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--stone)}
-.ci-meta-row a{color:inherit;text-decoration:none}
-.ci-meta-row a:hover{color:var(--navy)}
-.ci-meta-row svg{flex-shrink:0;color:var(--stone)}
+.xp-fields{display:grid;grid-template-columns:max-content 1fr max-content 1fr;gap:9px 20px;align-items:baseline}
+.xp-fl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);white-space:nowrap}
+.xp-fv{font-size:13.5px;color:var(--navy)}
+.xp-fv a{color:inherit;text-decoration:none}
+.xp-fv a:hover{text-decoration:underline}
+.xp-fv-full{grid-column:2/span 3}
 .ci-edit-btn{padding:5px 12px;border:1.5px solid var(--hair-md);border-radius:var(--r-sm);background:none;font-family:var(--font);font-size:11.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color .12s}
 .ci-edit-btn:hover{border-color:rgba(0,0,0,.3)}
 .ci-grid{display:grid;grid-template-columns:1fr 240px;gap:20px}
@@ -608,12 +609,12 @@ function buildClientDetail(c,jobs,contracts,quotes){
     '<div class="ci-badge-row"><span class="ci-name">'+esc(c.name)+'</span><span class="badge '+bc+'">'+bl+'</span>'+
     '<button class="ci-edit-btn" data-edit-id="'+esc(c.id)+'">Edit client</button></div>'+
     (c.industry?'<div class="ci-industry">'+esc(c.industry)+'</div>':'')+
-    '<div class="ci-meta">'+
-    (c.contact?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'+esc(c.contact)+(c.contact_title?' · <span style="opacity:.7">'+esc(c.contact_title)+'</span>':'')+'</div>':'')+
-    (c.email?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a></div>':'')+
-    (c.phone?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.37 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6.09 6.09l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:'+esc(c.phone.replace(/\s/g,''))+'">'+esc(c.phone)+'</a></div>':'')+
-    (c.site_address?'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+esc(c.site_address)+'</div>':'')+
-    (function(){if(!c.created_at)return'';var since=new Date(c.created_at);var mths=Math.floor((new Date()-since)/(1000*60*60*24*30.44));var sinceStr=MONTHS[since.getMonth()]+' '+since.getFullYear()+(mths>0?' · '+mths+(mths===1?' month':' months'):'');return'<div class="ci-meta-row"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Client since '+sinceStr+'</div>';})()+
+    '<div class="xp-fields" style="margin-bottom:0">'+
+    '<span class="xp-fl">Contact</span><span class="xp-fv">'+(c.contact?esc(c.contact)+(c.contact_title?' <span style="opacity:.55;font-size:12px">· '+esc(c.contact_title)+'</span>':''):'<span style="opacity:.4">—</span>')+'</span>'+
+    '<span class="xp-fl">Email</span><span class="xp-fv">'+(c.email?'<a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a>':'<span style="opacity:.4">—</span>')+'</span>'+
+    '<span class="xp-fl">Phone</span><span class="xp-fv">'+(c.phone?'<a href="tel:'+esc(c.phone.replace(/\s/g,''))+'">'+esc(c.phone)+'</a>':'<span style="opacity:.4">—</span>')+'</span>'+
+    (function(){if(!c.created_at)return'<span class="xp-fl">Since</span><span class="xp-fv"><span style="opacity:.4">—</span></span>';var since=new Date(c.created_at);var mths=Math.floor((new Date()-since)/(1000*60*60*24*30.44));return'<span class="xp-fl">Since</span><span class="xp-fv">'+MONTHS[since.getMonth()]+' '+since.getFullYear()+(mths>0?' <span style="opacity:.45;font-size:12px">· '+mths+(mths===1?' mo':' mo')+'</span>':'')+'</span>';})()+
+    (c.site_address?'<span class="xp-fl">Site</span><span class="xp-fv xp-fv-full">'+esc(c.site_address)+'</span>':'')+
     '</div></div>';
   jobs.sort(function(a,b){return a.date>b.date?-1:1;});
   var jobsHtml=jobs.length?jobs.map(function(j){

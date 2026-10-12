@@ -6,19 +6,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013">
 <style>
 /* Grid & cards */
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 .rep-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:24px}
 .rep-title{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:18px}
-/* Stat strip */
-.rep-stats{display:flex;margin-bottom:24px;border:1px solid var(--hair);border-radius:var(--r);overflow:hidden}
-.rep-stat{flex:1;padding:16px 20px;border-right:1px solid var(--hair)}
-.rep-stat:last-child{border-right:none}
-.rep-stat-lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);margin-bottom:4px}
-.rep-stat-val{font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-.rep-stat-hint{font-size:11px;color:var(--stone);margin-top:3px}
 /* Vertical bar chart */
 .bar-chart{display:flex;flex-direction:column;gap:8px}
 .bar-row{display:flex;align-items:center;gap:10px}
@@ -186,8 +179,8 @@ function vbar(lbl,val,max,cls){
     '<span class="bar-val">'+val+'</span></div>';
 }
 function statStrip(items){
-  return'<div class="rep-stats">'+items.map(function(it){
-    return'<div class="rep-stat"><div class="rep-stat-lbl">'+it[0]+'</div><div class="rep-stat-val">'+it[1]+'</div>'+(it[2]?'<div class="rep-stat-hint">'+it[2]+'</div>':'')+'</div>';
+  return'<div class="stats" style="margin-bottom:24px">'+items.map(function(it){
+    return'<div class="stat"><div class="stat-lbl">'+it[0]+'</div><div class="stat-val">'+it[1]+'</div>'+(it[2]?'<div class="stat-hint">'+it[2]+'</div>':'')+'</div>';
   }).join('')+'</div>';
 }
 function pill(n,lbl,cls){

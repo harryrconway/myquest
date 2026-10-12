@@ -76,7 +76,7 @@ async function handle(request, env) {
   const cutoffStr = cutoff.toISOString().split('T')[0];
 
   const jobsRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/jobs?assigned_staff_id=eq.${staff.id}&date=gte.${cutoffStr}&select=id,client_name,date,start_time,start_tz,type,status,site&order=date.asc`,
+    `${SUPABASE_URL}/rest/v1/jobs?assigned_staff_id=eq.${staff.id}&date=gte.${cutoffStr}&select=id,client_name,date,start_time,start_tz,type,status,site,job_number,quoted_hrs&order=date.asc`,
     { headers: { 'Authorization': `Bearer ${SVC_KEY}`, 'apikey': SVC_KEY } }
   );
   if (!jobsRes.ok) {

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Overview — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013">
 <style>.sched-badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.06);border:1px solid var(--hair);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle}</style>
 <style>
 .date-sub{font-size:13px;color:var(--stone);margin-top:4px}
@@ -17,23 +17,24 @@
 /* Schedule list */
 .sched-list{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden}
 .sched-item{
-  display:grid;grid-template-columns:70px 1fr auto;
+  display:grid;grid-template-columns:52px 1fr auto;
   align-items:center;gap:14px;
-  padding:13px 20px 13px 16px;
+  padding:11px 16px 11px 0;
   border-bottom:1px solid var(--hair);
   border-left:3px solid var(--navy);
+  text-decoration:none;color:inherit;transition:background .12s;
 }
 .sched-item:last-child{border-bottom:none}
-.si-time{font-size:16px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.3}
+.sched-item.si-done{border-left-color:var(--green)}
+.sched-item--link:hover{background:rgba(0,0,0,.03)}
+.si-date{text-align:center;padding-left:14px}
+.si-day{font-size:19px;font-weight:700;color:var(--navy);line-height:1}
+.si-mon{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);margin-top:2px}
+.si-dow{font-size:9px;color:var(--stone);margin-top:1px}
 .si-info{min-width:0}
 .si-client{font-size:14px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.si-detail{font-size:12.5px;color:var(--stone);margin-top:2px}
-.si-cleaner{font-size:12px;color:var(--stone);margin-top:5px}
-.sched-item--link{color:inherit;text-decoration:none;transition:background .12s}
-.sched-item--link:hover{background:rgba(0,0,0,.03)}
-.sched-day-sep{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);padding:7px 16px 4px;background:rgba(0,0,0,.03);border-bottom:1px solid var(--hair)}
-.si-date-lbl{font-size:12px;font-weight:500;color:rgba(0,0,0,.55);margin-top:3px;white-space:nowrap}
-.si-tz-lbl{font-size:11px;font-weight:700;color:var(--stone);margin-top:2px;letter-spacing:.03em}
+.si-detail{font-size:12px;color:var(--stone);margin-top:2px}
+.si-cleaner{font-size:11.5px;color:var(--stone);margin-top:3px}
 
 /* Attention + quick aside */
 .attn-item{
@@ -48,12 +49,6 @@
 .attn-title{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:2px}
 .attn-sub{font-size:11.5px;color:var(--stone)}
 
-/* Quick stats in aside */
-.qs-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair)}
-.qs-row:first-child{padding-top:0}
-.qs-row:last-child{border-bottom:none;padding-bottom:0}
-.qs-lbl{font-size:12px;color:var(--stone)}
-.qs-val{font-size:13px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
 
 @media(max-width:900px){.ov-grid{grid-template-columns:1fr}}
 </style>
@@ -135,10 +130,7 @@
 
       <div>
         <div class="sh"><span class="sh-lbl">Needs attention</span></div>
-        <div style="margin-bottom:18px" id="ov-attn"></div>
-
-        <div class="sh"><span class="sh-lbl">This month</span></div>
-        <div class="ac" id="ov-month"></div>
+        <div id="ov-attn"></div>
       </div>
 
     </div>
@@ -241,17 +233,6 @@ return Promise.all([
     attnEl.innerHTML=html;
   }
 
-  var monthEl=document.getElementById('ov-month');
-  if(monthEl){
-    var upcomingJobs=jobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;}).length;
-    monthEl.innerHTML=
-      '<div class="qs-row"><span class="qs-lbl">Total clients</span><span class="qs-val">'+clients.length+'</span></div>'+
-      '<div class="qs-row"><span class="qs-lbl">Total jobs</span><span class="qs-val">'+upcomingJobs+'</span></div>'+
-      '<div class="qs-row"><span class="qs-lbl">Jobs completed</span><span class="qs-val">'+completedJobs+'</span></div>'+
-      '<div class="qs-row"><span class="qs-lbl">Total staff</span><span class="qs-val">'+staff.length+'</span></div>'+
-      '<div class="qs-row"><span class="qs-lbl">Active staff</span><span class="qs-val">'+activeStaff+'</span></div>';
-  }
-
   var schedEl=document.getElementById('ov-sched');
   if(schedEl){
     var todayJobs=jobs.filter(function(j){return j.date>=today&&j.date<=sunStr;}).sort(function(a,b){
@@ -266,15 +247,19 @@ return Promise.all([
         else if(j.date===today){bCls='today';bTxt='Today';}
         else if(j.date===tomorrowStr){bCls='today';bTxt='Tomorrow';}
         else{bCls='upcoming';bTxt=DAYS[new Date(j.date+'T00:00:00').getDay()];}
-        var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">Time not set</span>';
-        var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
+        var doneCls=j.status==='completed'?' si-done':'';
+        var d=new Date(j.date+'T00:00:00');
+        var detailParts=[];
+        if(j.start_time)detailParts.push(fmtTime(j.start_time));
+        if(j.site)detailParts.push(esc(j.site));
+        if(j.type)detailParts.push(TYPE_LABELS[j.type]||esc(j.type));
         var teamHtml=j.assigned_staff_name
-          ?'<div class="si-cleaner">Cleaner: '+esc(j.assigned_staff_name)+'</div>'
-          :'<div class="si-cleaner" style="color:var(--red);font-weight:600">No team assigned</div>';
-        return '<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:90px 1fr auto">'+
-          '<div class="si-time">'+timeStr+tzHtml+'<div class="si-date-lbl">'+fmtDateCard(j.date)+'</div></div>'+
+          ?'<div class="si-cleaner">'+esc(j.assigned_staff_name)+'</div>'
+          :'<div class="si-cleaner" style="color:var(--red)">No team assigned</div>';
+        return '<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link'+doneCls+'">'+
+          '<div class="si-date"><div class="si-day">'+d.getDate()+'</div><div class="si-mon">'+MSHORT[d.getMonth()]+'</div><div class="si-dow">'+DSHORT[d.getDay()]+'</div></div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
-          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
+          '<div class="si-detail">'+detailParts.join(' · ')+'</div>'+
           teamHtml+'</div>'+
           '<span class="badge '+bCls+'">'+bTxt+'</span></a>';
       }).join('');
@@ -290,17 +275,21 @@ return Promise.all([
     } else {
       var nwHtml='';
       nwJobs.forEach(function(j){
-        var timeStr=j.start_time?fmtTime(j.start_time):'<span style="color:var(--stone);font-size:12px">—</span>';
-        var tzHtml=j.start_tz?'<div class="si-tz-lbl">'+esc(j.start_tz)+'</div>':'';
         var bCls=j.status==='completed'?'completed':'upcoming';
         var bTxt=j.status==='completed'?'Completed':DAYS[new Date(j.date+'T00:00:00').getDay()];
+        var doneCls=j.status==='completed'?' si-done':'';
+        var d=new Date(j.date+'T00:00:00');
+        var detailParts=[];
+        if(j.start_time)detailParts.push(fmtTime(j.start_time));
+        if(j.site)detailParts.push(esc(j.site));
+        if(j.type)detailParts.push(TYPE_LABELS[j.type]||esc(j.type));
         var teamHtml=j.assigned_staff_name
-          ?'<div class="si-cleaner">Cleaner: '+esc(j.assigned_staff_name)+'</div>'
-          :'<div class="si-cleaner" style="color:var(--red);font-weight:600">No team assigned</div>';
-        nwHtml+='<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link" style="grid-template-columns:90px 1fr auto">'+
-          '<div class="si-time">'+timeStr+tzHtml+'<div class="si-date-lbl">'+fmtDateCard(j.date)+'</div></div>'+
+          ?'<div class="si-cleaner">'+esc(j.assigned_staff_name)+'</div>'
+          :'<div class="si-cleaner" style="color:var(--red)">No team assigned</div>';
+        nwHtml+='<a href="jobs.html?job='+esc(j.id)+'" class="sched-item sched-item--link'+doneCls+'">'+
+          '<div class="si-date"><div class="si-day">'+d.getDate()+'</div><div class="si-mon">'+MSHORT[d.getMonth()]+'</div><div class="si-dow">'+DSHORT[d.getDay()]+'</div></div>'+
           '<div class="si-info"><div class="si-client">'+esc(j.client_name||'—')+'</div>'+
-          '<div class="si-detail">'+(TYPE_LABELS[j.type]||esc(j.type||''))+(j.site?' · '+esc(j.site):'')+'</div>'+
+          '<div class="si-detail">'+detailParts.join(' · ')+'</div>'+
           teamHtml+'</div>'+
           '<span class="badge '+bCls+'">'+bTxt+'</span></a>';
       });

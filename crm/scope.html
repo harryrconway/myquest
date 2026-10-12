@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Scope of Works — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013">
 <style>
 .scope-info{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px 24px;margin-bottom:20px}
 .scope-info-grid{display:grid;grid-template-columns:1fr 1fr 160px;gap:14px;align-items:end}
@@ -23,7 +23,9 @@
 .sa-remove:hover{color:var(--red)}
 
 .sa-tasks{padding:0 20px}
-.sa-task{display:grid;grid-template-columns:16px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
+.sa-task{display:grid;grid-template-columns:16px 1fr max-content auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
+.sa-task-freq{border:1px solid var(--hair-md);border-radius:4px;font-family:var(--font);font-size:11px;font-weight:600;color:var(--stone);background:var(--card);padding:3px 5px;cursor:pointer;outline:none;transition:border-color .12s}
+.sa-task-freq:hover,.sa-task-freq:focus{border-color:rgba(0,0,0,.2);color:var(--navy)}
 .sa-task:last-child{border-bottom:none}
 .sa-bullet{font-size:16px;color:var(--stone);line-height:1;display:flex;align-items:center;justify-content:center}
 .sa-task-text{border:none;background:none;outline:none;font-family:var(--font);font-size:13px;color:var(--navy);width:100%;padding:0}
@@ -176,6 +178,7 @@
     <div class="ph pg-1">
       <a class="mob-logo" href="https://myquest.au"><img src="/assets/myquest-logo.svg" alt="MyQuest" height="36" style="display:block"></a>
       <h1 class="ph-title">Scope of Works</h1>
+      <button class="ph-btn" id="scope-new-btn">New scope</button>
     </div>
 
     <div class="bc pg-2"><a href="overview.html">MyQuest</a><span class="bc-sep">›</span>Scope of Works</div>
@@ -191,7 +194,7 @@
       </div>
 
       <!-- Scope editor — below the list -->
-      <div id="scope-editor">
+      <div id="scope-editor" hidden>
       <div class="sh" id="scope-editor-hd" style="margin-top:32px">
         <span class="sh-lbl" id="scope-editor-lbl">New scope</span>
       </div>
@@ -265,6 +268,7 @@ function taskHTML(t){
   return '<div class="sa-task'+(t.done?' done':'')+'" data-task-id="'+esc(t.id)+'">'+
     '<span class="sa-bullet">•</span>'+
     '<input class="sa-task-text" type="text" placeholder="Task description…" value="'+esc(t.text||'')+'" autocomplete="off">'+
+    '<select class="sa-task-freq" title="Frequency">'+freqOpts(t.freq||'weekly')+'</select>'+
     '<button class="sa-task-rm" data-rm-task="1" title="Remove task">&times;</button>'+
   '</div>';
 }
@@ -311,7 +315,8 @@ function readScope(){
     aEl.querySelectorAll('.sa-task').forEach(function(tEl){
       var text=tEl.querySelector('.sa-task-text').value.trim();
       if(!text)return;
-      tasks.push({id:tEl.dataset.taskId,text:text,freq:'weekly',done:tEl.classList.contains('done')});
+      var freqSel=tEl.querySelector('.sa-task-freq');
+      tasks.push({id:tEl.dataset.taskId,text:text,freq:freqSel?freqSel.value:'weekly',done:tEl.classList.contains('done')});
     });
     if(areaName||tasks.length)areas.push({id:aEl.dataset.areaId,name:areaName,tasks:tasks,notes:''});
   });
@@ -430,7 +435,7 @@ function renderScopeView(sc){
       '<button class="ss-del" data-del-id="'+esc(sc.id)+'">Delete scope</button>'+
     '</div>';
 }
-function scrollToEditor(){document.getElementById('scope-editor').scrollIntoView({behavior:'smooth',block:'start'});}
+function scrollToEditor(){var ed=document.getElementById('scope-editor');ed.hidden=false;ed.scrollIntoView({behavior:'smooth',block:'start'});}
 function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
 
 function renderSavedList(){
@@ -459,7 +464,6 @@ function renderSavedList(){
 }
 
 function init(){
-  document.getElementById('scope-editor').hidden=false;
 
   sb.from('clients').select('id,name,site_address').order('name').then(function(r){
     allClients=r.data||[];
@@ -482,9 +486,10 @@ function init(){
   renderSavedList();
 }
 
+document.getElementById('scope-new-btn').addEventListener('click',function(){scrollToEditor();});
 document.getElementById('scope-add-area').addEventListener('click',addArea);
 document.getElementById('scope-save-btn-2').addEventListener('click',saveScope);
-document.getElementById('scope-cancel-btn').addEventListener('click',function(){resetEditor();scrollToTop();});
+document.getElementById('scope-cancel-btn').addEventListener('click',function(){resetEditor();document.getElementById('scope-editor').hidden=true;scrollToTop();});
 
 document.getElementById('scope-areas').addEventListener('click',function(e){
 var rmTask=e.target.closest('[data-rm-task]');
@@ -537,14 +542,20 @@ document.getElementById('saved-scopes-list').addEventListener('click',function(e
   }
 });
 
-document.addEventListener('keydown',function(e){if(e.key==='Escape')document.activeElement.blur();});
-
 var bnavMore=document.getElementById('bnav-more');
 var bnavSheet=document.getElementById('bnav-sheet');
 var bnavBg=document.getElementById('bnav-bg');
 function bnavClose(){bnavSheet.classList.remove('open');bnavBg.classList.remove('open');}
 if(bnavMore)bnavMore.addEventListener('click',function(){var o=bnavSheet.classList.contains('open');o?bnavClose():(bnavSheet.classList.add('open'),bnavBg.classList.add('open'));});
 if(bnavBg)bnavBg.addEventListener('click',bnavClose);
+
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(bnavSheet&&bnavSheet.classList.contains('open')){bnavClose();return;}
+  var openWrap=document.querySelector('.ss-wrap.open');
+  if(openWrap){openWrap.classList.remove('open');openWrap.querySelector('.ss-body').classList.remove('open');return;}
+  document.activeElement.blur();
+});
 
 init();
 

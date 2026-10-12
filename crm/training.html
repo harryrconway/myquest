@@ -7,7 +7,7 @@
 <meta name="color-scheme" content="light">
 <title>Training — MyQuest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261011">
+<link rel="stylesheet" href="style.css?v=20261013">
 <style>
 /* ── Training page ───────────────────────────────────── */
 
@@ -19,9 +19,11 @@
 
 /* Module card grid */
 .tr-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
-.tr-card{background:#fff;border:1px solid var(--hair);border-radius:14px;padding:20px 22px;cursor:pointer;transition:box-shadow .15s,border-color .15s;display:flex;align-items:flex-start;gap:14px;text-align:left}
+.tr-card{background:#fff;border:1px solid var(--hair);border-radius:14px;padding:20px 22px;cursor:pointer;transition:box-shadow .15s,border-color .15s;display:flex;align-items:flex-start;gap:14px;text-align:left;position:relative}
 .tr-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);border-color:rgba(0,0,0,.15)}
 .tr-card.done{opacity:.6}
+.tr-card.first-incomplete{border-color:var(--navy);border-width:1.5px}
+.tr-card-time{font-size:11.5px;color:var(--stone);margin-top:5px;opacity:.7}
 .tr-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--hair-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;background:#fff}
 .tr-check.done{background:var(--green);border-color:var(--green)}
 .tr-check svg{opacity:0;transition:opacity .2s}
@@ -280,6 +282,17 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     document.body.style.overflow='';
   });
 
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape')return;
+    var sheet=document.getElementById('bnav-sheet');
+    var bg=document.getElementById('bnav-bg');
+    if(sheet&&sheet.classList.contains('open')){sheet.classList.remove('open');if(bg)bg.classList.remove('open');return;}
+    var editor=document.getElementById('tr-editor');
+    if(editor&&!editor.hidden){closeEditor();return;}
+    var reader=document.getElementById('tr-reader');
+    if(reader&&!reader.hidden){reader.setAttribute('hidden','');document.body.style.overflow='';}
+  });
+
   if(isOwnerViewer){
     document.querySelector('.staff-sidebar').hidden=true;
     document.getElementById('owner-sidebar').removeAttribute('hidden');
@@ -345,10 +358,15 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
       return;
     }
     list.innerHTML='';
+    var firstIncompleteDone=false;
     filtered.forEach(function(m){
       var done=completedIds.has(m.id);
+      var isFirst=!done&&!firstIncompleteDone&&!isOwnerViewer;
+      if(isFirst)firstIncompleteDone=true;
+      var words=(m.body||'').split(/\s+/).filter(Boolean).length;
+      var mins=Math.max(1,Math.ceil(words/200));
       var card=document.createElement('div');
-      card.className='tr-card'+(done?' done':'');
+      card.className='tr-card'+(done?' done':'')+(isFirst?' first-incomplete':'');
       card.dataset.id=m.id;
       var preview=(m.body||'').replace(/#{1,3}\s/g,'').replace(/\*\*/g,'').replace(/>/g,'').split('\n').filter(Boolean)[0]||'';
       card.innerHTML=
@@ -357,8 +375,9 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
         '</div>'+
         '<div class="tr-card-body">'+
         '<div class="tr-card-cat">'+(m.category||'General')+'</div>'+
-        '<div class="tr-card-title">'+esc(m.title)+'</div>'+
+        '<div class="tr-card-title">'+esc(m.title)+(isFirst?' <span style="font-size:10.5px;font-weight:700;color:var(--navy);background:rgba(0,0,0,.07);padding:2px 8px;border-radius:99px;letter-spacing:.03em;margin-left:6px">Start here</span>':'')+'</div>'+
         (preview?'<div class="tr-card-preview">'+esc(preview)+'</div>':'')+
+        '<div class="tr-card-time">~'+mins+' min read</div>'+
         '</div>'+
         (isOwnerViewer?
           '<div class="tr-card-actions">'+
@@ -368,7 +387,6 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
           '</div>':
           '<svg class="tr-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
         );
-      // Open reader on card click (not on action buttons)
       card.addEventListener('click',function(e){
         if(e.target.closest('.tr-card-actions'))return;
         openReader(m);

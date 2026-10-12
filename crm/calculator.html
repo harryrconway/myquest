@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Quote Calculator — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013">
 <style>
 /* ── Outer layout ── */
 .qc-outer{display:flex;flex-direction:column;gap:16px;margin-top:16px}
@@ -591,7 +591,7 @@ function renderPreview(r){
 
   h+='<div class="qc-valid">Estimate valid 30 days &middot; GST not included</div>';
   h+='<div class="qc-actions">'+
-    '<button type="button" class="qc-btn-dl" id="qc-dl">&#8595; Download estimate (PDF)</button>'+
+    '<button type="button" class="qc-btn-dl" id="qc-dl">Print estimate</button>'+
     '<button type="button" class="qc-btn-dl" id="qc-save">Save to client</button>'+
   '</div>'+
   '<div id="qc-save-panel" hidden>'+
@@ -806,6 +806,13 @@ var bnavBg=document.getElementById('bnav-bg');
 function bnavClose(){bnavSheet.classList.remove('open');bnavBg.classList.remove('open');}
 if(bnavMore)bnavMore.addEventListener('click',function(){var o=bnavSheet.classList.contains('open');o?bnavClose():(bnavSheet.classList.add('open'),bnavBg.classList.add('open'));});
 if(bnavBg)bnavBg.addEventListener('click',bnavClose);
+
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(bnavSheet&&bnavSheet.classList.contains('open')){bnavClose();return;}
+  var panel=document.getElementById('qc-save-panel');
+  if(panel&&!panel.hidden){panel.hidden=true;return;}
+});
 
 // ─── Init ─────────────────────────────────────────────────────────
 

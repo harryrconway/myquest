@@ -7,7 +7,7 @@
 <meta name="color-scheme" content="light">
 <title>My Roster — MyQuest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261012">
+<link rel="stylesheet" href="style.css?v=20261013">
 <style>
 .rs-section-hd{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);margin:28px 0 12px}
 .rs-section-hd:first-child{margin-top:0}
@@ -23,7 +23,11 @@
 .rs-time{font-size:12.5px;color:var(--stone);display:flex;align-items:center;gap:4px;flex-shrink:0}
 .rs-time svg{opacity:.6}
 .rs-sep{font-size:12px;color:var(--hair-md);flex-shrink:0}
-.rs-site{font-size:12.5px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.rs-site{font-size:12.5px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;text-decoration:none}
+.rs-site:hover{color:var(--navy);text-decoration:underline}
+.rs-summary{background:var(--card);border:1px solid var(--hair);border-radius:var(--r);padding:13px 20px;margin-bottom:20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.rs-sum-item{font-size:13px;color:var(--stone)}
+.rs-sum-item strong{color:var(--navy);font-weight:700}
 .rs-tags{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
 .rs-type{font-size:11px;font-weight:600;background:rgba(0,0,0,.06);color:var(--stone);padding:3px 9px;border-radius:999px;letter-spacing:.01em;white-space:nowrap}
 .rs-status{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.01em}
@@ -109,9 +113,7 @@ window.MQ.requireAuth({allowStaff:true},function(session){
     headers:{'Authorization':'Bearer '+session.access_token}
   }).then(function(r){return r.json().then(function(data){return {ok:r.ok,status:r.status,data:data};});}).then(function(res){
     if(!res.ok||res.data.error){
-      var msg=res.data&&res.data.error?res.data.error:'Server error '+res.status;
-      MQ.toast(msg,true);
-      document.getElementById('rs-content').innerHTML='<div class="rs-empty"><strong>Could not load roster</strong>'+msg+'</div>';
+      document.getElementById('rs-content').innerHTML='<div class="rs-empty"><strong>Could not load your roster</strong>Please try refreshing.</div>';
       return;
     }
     render(res.data.jobs||[]);
@@ -121,13 +123,28 @@ window.MQ.requireAuth({allowStaff:true},function(session){
 });
 
 function render(jobs){
-  var today=new Date().toISOString().split('T')[0];
+  var now=new Date();
+  var today=now.toISOString().split('T')[0];
+  var wd=now.getDay()||7;
+  var monDate=new Date(now);monDate.setDate(now.getDate()-(wd-1));monDate.setHours(0,0,0,0);
+  var sunDate=new Date(monDate);sunDate.setDate(monDate.getDate()+6);
+  var monStr=monDate.toISOString().split('T')[0];
+  var sunStr=sunDate.toISOString().split('T')[0];
+  var thisWeek=jobs.filter(function(j){return j.date>=monStr&&j.date<=sunStr;});
+  var weekHrs=thisWeek.reduce(function(a,j){return a+(parseFloat(j.quoted_hrs)||0);},0);
+
   var upcoming=jobs.filter(function(j){return j.date>=today;});
   var past=jobs.filter(function(j){return j.date<today;}).reverse();
 
   var html='';
+  if(jobs.length){
+    html+='<div class="rs-summary">'+
+      '<span class="rs-sum-item"><strong>'+thisWeek.length+'</strong> job'+(thisWeek.length!==1?'s':'')+' this week</span>'+
+      (weekHrs>0?'<span class="rs-sum-item">~<strong>'+parseFloat(weekHrs.toFixed(1))+'</strong> hrs est.</span>':'')+
+    '</div>';
+  }
   if(!upcoming.length&&!past.length){
-    html='<div class="rs-empty"><strong>No jobs yet</strong>You don\'t have any jobs scheduled.</div>';
+    html+='<div class="rs-empty"><strong>No jobs yet</strong>You don\'t have any jobs scheduled.</div>';
   }else{
     if(upcoming.length){
       html+='<div class="rs-section-hd">Upcoming</div><div class="rs-list">';
@@ -152,6 +169,10 @@ function card(j,isPast){
   var statusLabel=j.status?j.status.charAt(0).toUpperCase()+j.status.slice(1):'Scheduled';
   var time=j.start_time?fmtTime(j.start_time):'';
 
+  var siteHtml=j.site
+    ?'<a class="rs-site" href="https://maps.google.com/?q='+encodeURIComponent(j.site)+'" target="_blank" rel="noopener noreferrer">'+esc(j.site)+'</a>'
+    :'';
+  var jobNum=j.job_number?'<span class="rs-type">#'+String(j.job_number).padStart(3,'0')+'</span>':'';
   return '<div class="rs-card'+(isPast?' rs-past':'')+'">'+
     '<div class="rs-date">'+
       '<span class="rs-date-day">'+day+'</span>'+
@@ -163,9 +184,10 @@ function card(j,isPast){
       '<div class="rs-row">'+
         (time?'<span class="rs-time"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(time)+'</span>':'')+
         (time&&j.site?'<span class="rs-sep">·</span>':'')+
-        (j.site?'<span class="rs-site">'+esc(j.site)+'</span>':'')+
+        siteHtml+
       '</div>'+
       '<div class="rs-tags">'+
+        jobNum+
         (j.type?'<span class="rs-type">'+esc(j.type)+'</span>':'')+
         '<span class="rs-status rs-status-'+statusKey+'">'+esc(statusLabel)+'</span>'+
       '</div>'+

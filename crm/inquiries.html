@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Inquiries — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013">
 <style>
 .pg-head{margin-bottom:28px}
 .ph-sub{font-size:13px;color:var(--stone);margin-top:5px}
@@ -46,10 +46,18 @@
 .xp-wrap:last-child .xp-body{border-bottom:none}
 .xp-wrap:last-child .xp-body.open{border-top:1px solid var(--hair)}
 .xp-inner{padding:20px 24px 22px;background:var(--field)}
-.xp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:16px}
-.xp-lbl{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--stone);margin-bottom:3px}
-.xp-val{font-size:14px;color:var(--navy)}
+.xp-fields{display:grid;grid-template-columns:max-content 1fr max-content 1fr;gap:9px 20px;align-items:baseline;margin-bottom:16px}
+.xp-fl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);white-space:nowrap}
+.xp-fv{font-size:13.5px;color:var(--navy)}
+.xp-fv-full{grid-column:span 3}
 .xp-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge.lost{color:var(--stone);background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1)}
+.badge.viewed{color:var(--stone);background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1)}
+.search-wrap{position:relative;flex:1;max-width:260px}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--stone)}
+.search{width:100%;padding:8px 12px 8px 33px;border:1.5px solid var(--hair-md);border-radius:999px;font-size:12.5px;font-family:var(--font);background:#fff;color:var(--navy);outline:none;transition:border-color .15s;box-sizing:border-box}
+.search:focus{border-color:var(--navy)}
+.search::placeholder{color:var(--stone);opacity:.55}
 .btn-cvt{padding:9px 18px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;background:var(--navy);color:#fff;border:none;transition:background .15s}
 .btn-cvt:hover{background:var(--navy-deep)}
 .btn-lost{padding:8px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;border:1.5px solid var(--hair-md);background:none;color:var(--stone);transition:background .15s,border-color .15s}
@@ -207,6 +215,10 @@
         <button class="f-pill" data-filter="won">Won</button>
         <button class="f-pill" data-filter="lost">Lost</button>
         <button class="f-pill" data-filter="all">All</button>
+      </div>
+      <div class="search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search" id="inq-search" type="text" placeholder="Search business or contact…">
       </div>
     </div>
 
@@ -418,16 +430,23 @@ function updateCount(){
 }
 
 function filteredRows(){
-  if(currentFilter==='active')return allInquiries.filter(function(i){return i.status==='new'||i.status==='viewed';});
-  if(currentFilter==='all')return allInquiries;
-  return allInquiries.filter(function(i){return i.status===currentFilter;});
+  var q=(document.getElementById('inq-search')||{}).value||'';
+  q=q.trim().toLowerCase();
+  var base;
+  if(currentFilter==='active')base=allInquiries.filter(function(i){return i.status==='new'||i.status==='viewed';});
+  else if(currentFilter==='all')base=allInquiries;
+  else base=allInquiries.filter(function(i){return i.status===currentFilter;});
+  if(!q)return base;
+  return base.filter(function(i){
+    return (i.biz_name||'').toLowerCase().indexOf(q)>-1||(i.contact_name||'').toLowerCase().indexOf(q)>-1;
+  });
 }
 
 function statusBadge(status){
   if(status==='new')return'<span class="badge onboarding">New</span>';
   if(status==='won')return'<span class="badge active">Won</span>';
-  if(status==='lost')return'<span class="badge" style="color:var(--stone);background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1)">Lost</span>';
-  return'<span class="badge" style="color:var(--stone);background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1)">Viewed</span>';
+  if(status==='lost')return'<span class="badge lost">Lost</span>';
+  return'<span class="badge viewed">Viewed</span>';
 }
 
 function rowClass(status){
@@ -456,11 +475,15 @@ function expandContent(inq){
       '</div>';
   }
 
-  var sourceHtml=inq.source?'<div><div class="xp-lbl">Source</div><div class="xp-val">'+esc(inq.source)+'</div></div>':'';
-  var estimateHtml=inq.estimate?'<div style="grid-column:1/-1"><div class="xp-lbl">Estimate</div><div class="xp-val">'+esc(inq.estimate)+'</div></div>':'';
-  var kitchenHtml=inq.kitchen!=null?'<div style="grid-column:1/-1"><div class="xp-lbl">Kitchen</div><div class="xp-val">'+(inq.kitchen?'Yes':'No')+'</div></div>':'';
-  var bathsHtml=inq.baths!=null?'<div style="grid-column:1/-1"><div class="xp-lbl">Bathrooms</div><div class="xp-val">'+inq.baths+'</div></div>':'';
-  var notesHtml=inq.notes?'<div style="grid-column:1/-1"><div class="xp-lbl">Notes</div><div class="xp-val">'+esc(inq.notes)+'</div></div>':'';
+  var rows='';
+  rows+='<span class="xp-fl">Contact</span><span class="xp-fv">'+esc(inq.contact_name||'—')+'</span>';
+  rows+='<span class="xp-fl">Mobile</span><span class="xp-fv"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></span>';
+  rows+='<span class="xp-fl">Email</span><span class="xp-fv xp-fv-full"><a href="mailto:'+esc(inq.email||'')+'" style="color:var(--navy)">'+esc(inq.email||'—')+'</a></span>';
+  rows+='<span class="xp-fl">Location</span><span class="xp-fv">'+esc(inq.suburb||'—')+'</span>';
+  rows+='<span class="xp-fl">Source</span><span class="xp-fv">'+(inq.source?esc(inq.source):'—')+'</span>';
+  if(inq.estimate)rows+='<span class="xp-fl">Estimate</span><span class="xp-fv xp-fv-full">'+esc(inq.estimate)+'</span>';
+  if(inq.baths!=null){rows+='<span class="xp-fl">Bathrooms</span><span class="xp-fv">'+inq.baths+(inq.kitchen?' · Kitchenette':'')+'</span><span class="xp-fl"></span><span class="xp-fv"></span>';}
+  if(inq.notes)rows+='<span class="xp-fl">Notes</span><span class="xp-fv xp-fv-full">'+esc(inq.notes)+'</span>';
 
   var actions='';
   if(isActive){
@@ -470,16 +493,7 @@ function expandContent(inq){
 
   return '<div class="xp-inner">'+
     wonNote+lostNote+
-    '<div class="xp-grid">'+
-      '<div><div class="xp-lbl">Contact</div><div class="xp-val">'+esc(inq.contact_name||'—')+'</div></div>'+
-      '<div><div class="xp-lbl">Email</div><div class="xp-val"><a href="mailto:'+esc(inq.email||'')+'" style="color:var(--navy)">'+esc(inq.email||'—')+'</a></div></div>'+
-      '<div><div class="xp-lbl">Mobile</div><div class="xp-val"><a href="tel:'+esc(inq.mobile||'')+'" style="color:var(--navy)">'+esc(inq.mobile||'—')+'</a></div></div>'+
-      '<div><div class="xp-lbl">Address</div><div class="xp-val">'+esc(inq.suburb||'—')+'</div></div>'+
-      sourceHtml+
-      estimateHtml+
-      kitchenHtml+bathsHtml+
-      notesHtml+
-    '</div>'+
+    '<div class="xp-fields">'+rows+'</div>'+
     (actions?'<div class="xp-actions">'+actions+'</div>':'')+
   '</div>';
 }
@@ -782,6 +796,19 @@ document.getElementById('inq-filters').addEventListener('click',function(e){
   pill.classList.add('on');
   currentFilter=pill.dataset.filter;
   renderList();
+});
+
+var inqSearch=document.getElementById('inq-search');
+if(inqSearch)inqSearch.addEventListener('input',function(){renderList();});
+
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  var bnavOpen=bnavSheet&&bnavSheet.classList.contains('open');
+  if(bnavOpen){bnavClose();return;}
+  var cvOpen=document.getElementById('cv-overlay').classList.contains('open');
+  if(cvOpen){closeCvModal();return;}
+  var lostOpen=document.getElementById('lost-overlay').classList.contains('open');
+  if(lostOpen){closeLostModal();}
 });
 
 var bnavMore=document.getElementById('bnav-more');

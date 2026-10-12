@@ -334,6 +334,7 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 .sop-group-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px}
 .sop-group-badge.hiring{color:#1d6fa4;background:rgba(29,111,164,.12)}
 .sop-group-badge.interview{color:#6248c4;background:rgba(98,72,196,.1)}
+.sop-group-badge.ops{color:#1a7a4a;background:rgba(26,122,74,.1)}
 .sop-group-title{font-size:18px;font-weight:700;color:var(--navy);margin:0 0 5px;letter-spacing:-.02em}
 .sop-group-sub{font-size:13px;color:var(--stone);margin:0}
 .sop-group-div{border-top:2px solid var(--hair);margin:32px 0 0}
