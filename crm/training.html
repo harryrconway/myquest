@@ -240,6 +240,11 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   var sb=MQ.sb;
   isOwnerViewer=MQ.isOwner(session);
 
+  document.getElementById('reader-back').addEventListener('click',function(){
+    document.getElementById('tr-reader').setAttribute('hidden','');
+    document.body.style.overflow='';
+  });
+
   if(isOwnerViewer){
     document.getElementById('owner-bar').removeAttribute('hidden');
     document.getElementById('sb-profile-label').textContent='Overview';
@@ -383,11 +388,6 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     document.body.style.overflow='hidden';
   }
 
-  document.getElementById('reader-back').addEventListener('click',function(){
-    document.getElementById('tr-reader').setAttribute('hidden','');
-    document.body.style.overflow='';
-  });
-
   function markComplete(itemId,btn){
     if(!currentStaffId)return;
     btn.disabled=true;btn.textContent='Saving…';
@@ -404,6 +404,10 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
           if(chk)chk.classList.add('done');
         }
         MQ.toast('Module completed!');
+        setTimeout(function(){
+          document.getElementById('tr-reader').setAttribute('hidden','');
+          document.body.style.overflow='';
+        },700);
       }
     });
   }
