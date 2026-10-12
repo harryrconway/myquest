@@ -262,11 +262,23 @@
           <div>
             <label class="form-lbl" for="admin-role">Role</label>
             <select class="form-input" id="admin-role">
-              <option value="Cleaner">Junior (Cleaner)</option>
-              <option value="Senior cleaner">Mid-Level (Senior cleaner)</option>
-              <option value="Lead cleaner">Senior (Lead cleaner)</option>
+              <option value="Cleaner">Junior Cleaner</option>
+              <option value="Senior cleaner">Mid-Level Cleaner</option>
+              <option value="Lead cleaner">Senior Cleaner</option>
             </select>
           </div>
+        </div>
+        <div class="form-row-2" style="margin-bottom:16px">
+          <div>
+            <label class="form-lbl" for="admin-type">Employment type</label>
+            <select class="form-input" id="admin-type">
+              <option value="casual">Casual</option>
+              <option value="part-time">Part-time</option>
+              <option value="full-time">Full-time</option>
+              <option value="subcontractor">Subcontractor</option>
+            </select>
+          </div>
+          <div></div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <button class="ph-btn" id="admin-save-btn">Save changes</button>
@@ -375,7 +387,8 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     var statusCls={'active':'active','onboarding':'onboarding','exited':'exited'};
     st.innerHTML='<span class="prof-status '+(statusCls[d.status]||d.status)+'">'+(statusLabels[d.status]||d.status)+'</span>';
     document.getElementById('pf-role').textContent=d.role||'—';
-    document.getElementById('pf-type').textContent=(d.employment_type||'').replace(/-/g,' ')||'—';
+    var typeLabels={'casual':'Casual','part-time':'Part-time','full-time':'Full-time','subcontractor':'Subcontractor'};
+    document.getElementById('pf-type').textContent=typeLabels[d.employment_type]||(d.employment_type||'—');
     document.getElementById('pf-since').textContent=d.start_date?formatDate(d.start_date):'—';
     if(d.employment_type==='subcontractor'&&d.abn){
       document.getElementById('pf-abn-row').removeAttribute('hidden');
@@ -396,6 +409,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
       document.getElementById('owner-admin-card').removeAttribute('hidden');
       document.getElementById('admin-status').value=d.status||'onboarding';
       document.getElementById('admin-role').value=d.role||'Cleaner';
+      document.getElementById('admin-type').value=d.employment_type||'casual';
       if(d.status==='onboarding'){
         var invRow=document.getElementById('admin-invite-row');
         invRow.removeAttribute('hidden');
@@ -458,7 +472,6 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
       var viewBtn=document.getElementById(viewId);
       var uploadBtn=document.getElementById(uploadId);
       var fileIn=document.getElementById(fileId);
-      if(isPreview){uploadBtn.hidden=true;return;}
       if(viewBtn){
         viewBtn.addEventListener('click',function(){
           sb.storage.from('staff-documents').createSignedUrl(d[colPath],3600).then(function(r){
@@ -467,6 +480,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
           });
         });
       }
+      if(isPreview){uploadBtn.hidden=true;return;}
       uploadBtn.addEventListener('click',function(){fileIn.click();});
       fileIn.addEventListener('change',function(){
         var file=fileIn.files[0];
@@ -491,7 +505,22 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   }
 
   function setupPhotoHandler(id){
+    // Always load existing photo — for both staff and owner preview
+    sb.storage.from('staff-documents').list(id).then(function(r){
+      var photos=(r.data||[]).filter(function(f){return f.name.startsWith('profile-photo');});
+      if(photos.length>0){
+        var path=id+'/'+photos[0].name;
+        sb.storage.from('staff-documents').createSignedUrl(path,86400).then(function(sr){
+          if(sr.data&&sr.data.signedUrl){
+            var av=document.getElementById('prof-av');
+            av.textContent='';
+            av.innerHTML='<img src="'+sr.data.signedUrl+'" alt="Profile photo">';
+          }
+        });
+      }
+    });
     if(isPreview)return;
+    // Upload wiring — staff only
     var btn=document.getElementById('prof-photo-btn');
     var fileIn=document.getElementById('prof-photo-input');
     btn.addEventListener('click',function(){fileIn.click();});
@@ -512,20 +541,6 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
           MQ.toast('Photo updated');
         }else{MQ.toast('Upload failed',true);}
       });
-    });
-    // Load existing photo
-    sb.storage.from('staff-documents').list(id).then(function(r){
-      var photos=(r.data||[]).filter(function(f){return f.name.startsWith('profile-photo');});
-      if(photos.length>0){
-        var path=id+'/'+photos[0].name;
-        sb.storage.from('staff-documents').createSignedUrl(path,86400).then(function(sr){
-          if(sr.data&&sr.data.signedUrl){
-            var av=document.getElementById('prof-av');
-            av.textContent='';
-            av.innerHTML='<img src="'+sr.data.signedUrl+'" alt="Profile photo">';
-          }
-        });
-      }
     });
   }
 
@@ -560,7 +575,8 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     saveBtn.addEventListener('click',function(){
       var row={
         status:document.getElementById('admin-status').value,
-        role:document.getElementById('admin-role').value
+        role:document.getElementById('admin-role').value,
+        employment_type:document.getElementById('admin-type').value
       };
       saveBtn.disabled=true;saveBtn.textContent='Saving…';
       sb.from('staff').update(row).eq('id',id).then(function(r){
