@@ -648,10 +648,11 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
         emergency_contact:document.getElementById('pf-ec-name-in').value.trim(),
         emergency_phone:document.getElementById('pf-ec-phone-in').value.trim()
       };
-      sb.from('staff').update(row).eq('id',id).then(function(r){
+      sb.from('staff').update(row).eq('id',id).select('id').then(function(r){
         btn.disabled=false;btn.textContent='Save changes';
-        if(r.error){MQ.toast('Could not save',true);}
-        else{MQ.toast('Profile updated');}
+        if(r.error||!r.data||r.data.length===0){MQ.toast('Could not save — please try again',true);return;}
+        MQ.toast('Profile updated');
+        loadProfile(id);
       });
     });
   }
