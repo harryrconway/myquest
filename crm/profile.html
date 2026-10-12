@@ -519,15 +519,19 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
         var path=d.id+'/'+type;
         uploadBtn.textContent='Uploading…';uploadBtn.disabled=true;
         sb.storage.from('staff-documents').upload(path,file,{upsert:true,contentType:file.type||'application/octet-stream'}).then(function(r){
-          uploadBtn.textContent='Uploaded!';uploadBtn.disabled=false;
+          uploadBtn.disabled=false;
           if(!r.error){
             var update={};update[colPath]=path;
             sb.from('staff').update(update).eq('id',d.id).then(function(){
               viewBtn.removeAttribute('hidden');
+              uploadBtn.textContent='Uploaded!';
               MQ.toast('Document uploaded');
+              setTimeout(function(){uploadBtn.textContent='Replace';},2000);
             });
-          }else{MQ.toast('Upload failed: '+(r.error.message||r.error.error||JSON.stringify(r.error)),true);}
-          setTimeout(function(){uploadBtn.textContent='Replace';},2000);
+          }else{
+            uploadBtn.textContent='Upload';
+            MQ.toast('Upload failed: '+(r.error.message||r.error.error||JSON.stringify(r.error)),true);
+          }
         });
       });
     }
