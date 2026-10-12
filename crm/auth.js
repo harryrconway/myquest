@@ -25,7 +25,7 @@ window.MQ.requireAuth=function(opts,cb){
       return;
     }
     MQ.sb.from('staff').select('id,name,role,status,email').eq('email',email).maybeSingle().then(function(r){
-      if(!r.data){
+      if(!r.data||r.data.status==='exited'){
         MQ.sb.auth.signOut().then(function(){location.href='/login.html?e=1';});
         return;
       }
