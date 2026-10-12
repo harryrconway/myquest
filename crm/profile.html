@@ -324,7 +324,6 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     // Staff viewing their own profile
     staffId=staffRow.id;
     loadProfile(staffId);
-    document.getElementById('ph-title').textContent=staffRow.name.split(' ')[0]||'Profile';
   }
 
   function loadProfile(id){
@@ -350,7 +349,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
 
     // Name + initials avatar
     document.getElementById('prof-name').textContent=d.name||'—';
-    if(!isPreview)document.getElementById('ph-title').textContent=(d.name||'').split(' ')[0]||'Profile';
+    if(isPreview)document.getElementById('ph-title').textContent=(d.name||'').split(' ')[0]||'Profile';
     if(isPreview){
       document.getElementById('preview-back').removeAttribute('hidden');
       document.getElementById('preview-badge').removeAttribute('hidden');
@@ -482,7 +481,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
               viewBtn.removeAttribute('hidden');
               MQ.toast('Document uploaded');
             });
-          }else{MQ.toast('Upload failed',true);}
+          }else{MQ.toast('Upload failed: '+(r.error.message||r.error.error||JSON.stringify(r.error)),true);}
           setTimeout(function(){uploadBtn.textContent='Replace';},2000);
         });
       });
