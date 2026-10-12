@@ -14,7 +14,7 @@ window.MQ.sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 window.MQ.requireAuth=function(opts,cb){
   if(typeof opts==='function'){cb=opts;opts={};}
 
-  var resolved=false;
+  var resolved=false,signedInAt=0;
   function resolve(s){
     if(resolved)return;
     resolved=true;
@@ -40,8 +40,10 @@ window.MQ.requireAuth=function(opts,cb){
   // Listen for auth events — catches magic link hash processing (SIGNED_IN)
   // and session expiry (SIGNED_OUT) in one place
   MQ.sb.auth.onAuthStateChange(function(event,session){
-    if(event==='SIGNED_IN'){resolve(session);}
-    if(event==='SIGNED_OUT'&&resolved){location.href='/login.html';}
+    if(event==='SIGNED_IN'){signedInAt=Date.now();resolve(session);}
+    // Ignore SIGNED_OUT that fires within 5s of SIGNED_IN — Supabase emits it
+    // when replacing an existing session with the magic link's new session.
+    if(event==='SIGNED_OUT'&&resolved&&(Date.now()-signedInAt>5000)){location.href='/login.html';}
   });
 
   // getSession handles already-authenticated visits.
