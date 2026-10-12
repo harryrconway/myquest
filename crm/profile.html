@@ -463,7 +463,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     if(d.police_check_expiry){
       document.getElementById('police-expiry-sub').textContent='Expires '+formatDate(d.police_check_expiry);
     }else{
-      document.getElementById('police-expiry-sub').textContent='Not uploaded';
+      document.getElementById('police-expiry-sub').textContent=d.police_check_path?'Uploaded':'Not uploaded';
     }
     if(d.insurance_cert_path){
       document.getElementById('doc-ins-view').removeAttribute('hidden');
@@ -471,7 +471,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     if(d.insurance_expiry){
       document.getElementById('ins-expiry-sub').textContent='Expires '+formatDate(d.insurance_expiry);
     }else{
-      document.getElementById('ins-expiry-sub').textContent='Not uploaded';
+      document.getElementById('ins-expiry-sub').textContent=d.insurance_cert_path?'Uploaded':'Not uploaded';
     }
 
     setupDocHandlers(d);
