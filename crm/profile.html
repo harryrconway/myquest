@@ -395,7 +395,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     if(isPreview){
       document.getElementById('preview-back').removeAttribute('hidden');
       document.getElementById('preview-badge').removeAttribute('hidden');
-      document.getElementById('ph-title').textContent=(d.name||'Staff').split(' ')[0];
+      document.getElementById('ph-title').textContent='';
     }
 
     var initials=(d.name||'').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
