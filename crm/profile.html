@@ -633,12 +633,17 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
   (function(){
     var SIZE=300,img=new Image(),scale=1,ox=0,oy=0,minScale=1,maxScale=3;
     var dragging=false,lastX=0,lastY=0;
-    var overlay=document.getElementById('crop-overlay');
-    var canvas=document.getElementById('crop-canvas');
-    var zoomSlider=document.getElementById('crop-zoom');
-    var ctx=canvas.getContext('2d');
-    canvas.width=SIZE;canvas.height=SIZE;
-    canvas.style.width=canvas.style.height='min('+SIZE+'px, 72vw)';
+    var overlay,canvas,zoomSlider,ctx;
+
+    function initElements(){
+      if(ctx)return;
+      overlay=document.getElementById('crop-overlay');
+      canvas=document.getElementById('crop-canvas');
+      zoomSlider=document.getElementById('crop-zoom');
+      canvas.width=SIZE;canvas.height=SIZE;
+      canvas.style.width=canvas.style.height='min('+SIZE+'px, 72vw)';
+      ctx=canvas.getContext('2d');
+    }
 
     function draw(){
       ctx.clearRect(0,0,SIZE,SIZE);
@@ -653,6 +658,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     }
 
     function openCropperInternal(file,cb){
+      initElements();
       var objUrl=URL.createObjectURL(file);
       img.onload=function(){
         minScale=Math.max(SIZE/img.width,SIZE/img.height);
