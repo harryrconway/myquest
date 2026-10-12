@@ -474,7 +474,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
         if(!file)return;
         var path=d.id+'/'+type;
         uploadBtn.textContent='Uploading…';uploadBtn.disabled=true;
-        sb.storage.from('staff-documents').upload(path,file,{upsert:true}).then(function(r){
+        sb.storage.from('staff-documents').upload(path,file,{upsert:true,contentType:file.type||'application/octet-stream'}).then(function(r){
           uploadBtn.textContent='Uploaded!';uploadBtn.disabled=false;
           if(!r.error){
             var update={};update[colPath]=path;
@@ -501,7 +501,7 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
       if(!file)return;
       var ext=file.name.split('.').pop().toLowerCase();
       var path=id+'/profile-photo.'+ext;
-      sb.storage.from('staff-documents').upload(path,file,{upsert:true}).then(function(r){
+      sb.storage.from('staff-documents').upload(path,file,{upsert:true,contentType:file.type||'image/jpeg'}).then(function(r){
         if(!r.error){
           sb.storage.from('staff-documents').createSignedUrl(path,86400).then(function(sr){
             if(sr.data&&sr.data.signedUrl){
