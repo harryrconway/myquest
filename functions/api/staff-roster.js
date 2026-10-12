@@ -24,8 +24,20 @@ export async function onRequest({ request, env }) {
   }
   if (request.method !== 'GET') return new Response('Method not allowed', { status: 405 });
 
+  try {
+    return await handle(request, env);
+  } catch (err) {
+    console.error('staff-roster unhandled:', err.message, err.stack);
+    return json({ error: 'Unhandled: ' + err.message }, 500);
+  }
+}
+
+async function handle(request, env) {
   const SUPABASE_URL = env.SUPABASE_URL;
   const SVC_KEY = env.SUPABASE_SERVICE_KEY;
+
+  if (!SUPABASE_URL) return json({ error: 'Missing SUPABASE_URL env var' }, 500);
+  if (!SVC_KEY) return json({ error: 'Missing SUPABASE_SERVICE_KEY env var' }, 500);
 
   // Verify JWT
   const authHeader = request.headers.get('Authorization') || '';
