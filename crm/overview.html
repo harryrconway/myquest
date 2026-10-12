@@ -21,12 +21,13 @@
   align-items:center;gap:14px;
   padding:11px 16px 11px 0;
   border-bottom:1px solid var(--hair);
-  border-left:3px solid var(--navy);
+  border-left:4px solid transparent;
   text-decoration:none;color:inherit;transition:background .12s;
 }
 .sched-item:last-child{border-bottom:none}
-.sched-item.si-done{border-left-color:var(--green)}
+.sched-item.si-upcoming{border-left-color:var(--navy)}
 .sched-item.si-today{border-left-color:var(--amber)}
+.sched-item.si-done{border-left-color:var(--green)}
 .sched-item--link:hover{background:rgba(0,0,0,.03)}
 .si-date{text-align:center;padding-left:14px}
 .si-day{font-size:19px;font-weight:700;color:var(--navy);line-height:1}
@@ -249,7 +250,7 @@ return Promise.all([
         else if(j.date===today){bCls='today';bTxt='Today';}
         else if(j.date===tomorrowStr){bCls='today';bTxt='Tomorrow';}
         else{bCls='upcoming';bTxt=DAYS[new Date(j.date+'T00:00:00').getDay()];}
-        var stateCls=j.status==='completed'?' si-done':(j.date===today||j.date===tomorrowStr)?' si-today':'';
+        var stateCls=j.status==='completed'?' si-done':(j.date===today||j.date===tomorrowStr)?' si-today':' si-upcoming';
         var d=new Date(j.date+'T00:00:00');
         var detailParts=[];
         if(j.start_time)detailParts.push(fmtTime(j.start_time));
@@ -279,7 +280,7 @@ return Promise.all([
       nwJobs.forEach(function(j){
         var bCls=j.status==='completed'?'completed':'upcoming';
         var bTxt=j.status==='completed'?'Completed':DAYS[new Date(j.date+'T00:00:00').getDay()];
-        var stateCls=j.status==='completed'?' si-done':'';
+        var stateCls=j.status==='completed'?' si-done':' si-upcoming';
         var d=new Date(j.date+'T00:00:00');
         var detailParts=[];
         if(j.start_time)detailParts.push(fmtTime(j.start_time));
