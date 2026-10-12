@@ -118,6 +118,8 @@
 .iq-thanks.go h4{animation:.6s 1s forwards rise}
 .iq-thanks.go p{animation:.6s 1.15s forwards rise}
 .iq-thanks.go .iq-btn-restart{animation:.5s 1.3s forwards rise}
+.iq-thanks .iq-countdown{opacity:0;font-size:12px;color:var(--stone);transform:translateY(8px);margin-top:-6px;margin-bottom:10px;letter-spacing:.01em}
+.iq-thanks.go .iq-countdown{animation:.5s 1.45s forwards rise}
 @media(width<=560px){.iq-2col{grid-template-columns:1fr}}
 #iqS4 .iq-fgroup{margin-bottom:12px}
 #iqS4 textarea{min-height:64px}
@@ -233,6 +235,7 @@
     <svg viewBox="0 0 60 60" aria-hidden=true><circle cx=30 cy=30 r=27 /><path d="M19 31l8 8 15-17"/></svg>
     <h4>Thanks, <span id=iqThanksName></span>.</h4>
     <p>We'll confirm a quote and give you a call — usually same day.</p>
+    <div class=iq-countdown id=iqCountdown></div>
     <button type=button class="btn btn-line iq-btn-restart" id=iqRestart>← Start over</button>
   </div>
 </div>
@@ -323,7 +326,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
       if(!r.ok)throw new Error('err');
       document.getElementById('iqThanksName').textContent=firstName;
       goTo(4,5);
-      setTimeout(function(){document.getElementById('iqThanks').classList.add('go');setTimeout(function(){window.scrollTo({top:0,behavior:'smooth'});},3000);},320);
+      setTimeout(function(){document.getElementById('iqThanks').classList.add('go');var cd=document.getElementById('iqCountdown'),n=5;cd.textContent='Scrolling to top in '+n+'…';var t=setInterval(function(){n--;if(n<=0){clearInterval(t);cd.textContent='';window.scrollTo({top:0,behavior:'smooth'});}else{cd.textContent='Scrolling to top in '+n+'…';}},1000);},320);
     }).catch(function(){
       btn.textContent='Get my free quote';btn.disabled=false;
       var e=document.createElement('p');e.style.cssText='color:#c0392b;font-size:13px;margin-top:10px;text-align:center;';
