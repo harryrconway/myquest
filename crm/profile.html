@@ -416,7 +416,8 @@ window.MQ.requireAuth({allowStaff:true},function(session,staffRow){
     var statusLabels={'active':'Active','onboarding':'Onboarding','exited':'Exited'};
     var statusCls={'active':'active','onboarding':'onboarding','exited':'exited'};
     st.innerHTML='<span class="prof-status '+(statusCls[d.status]||d.status)+'">'+(statusLabels[d.status]||d.status)+'</span>';
-    document.getElementById('pf-role').textContent=d.role||'—';
+    var roleLabels={'Cleaner':'Junior Cleaner','Senior cleaner':'Mid-Level Cleaner','Lead cleaner':'Senior Cleaner'};
+    document.getElementById('pf-role').textContent=roleLabels[d.role]||d.role||'—';
     var typeLabels={'casual':'Casual','part-time':'Part-time','full-time':'Full-time','subcontractor':'Subcontractor'};
     document.getElementById('pf-type').textContent=typeLabels[d.employment_type]||(d.employment_type||'—');
     document.getElementById('pf-since').textContent=d.start_date?formatDate(d.start_date):'—';
