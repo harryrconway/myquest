@@ -8,22 +8,22 @@
 <title>Staff — MyQuest CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261011">
 <style>
-.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);padding:22px;cursor:pointer;transition:box-shadow .14s,border-color .14s}
-.staff-card:hover{box-shadow:0 0 0 2px rgba(0,0,0,.12);border-color:rgba(0,0,0,.2)}
-.sc-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.staff-card{background:var(--card);border-radius:var(--r);border:1px solid var(--hair);overflow:hidden;cursor:pointer;transition:box-shadow .14s,border-color .14s}
+.staff-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);border-color:rgba(0,0,0,.16)}
+.sc-top{display:flex;align-items:flex-start;gap:13px;padding:18px 18px 14px}
 .sc-av{
-  width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.1);
+  width:42px;height:42px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:15px;font-weight:700;color:var(--navy);flex-shrink:0;letter-spacing:.02em;
+  font-size:14px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.02em;
 }
-.sc-name{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:3px;letter-spacing:-.01em}
-.sc-role{font-size:12px;color:var(--stone)}
-.sc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--hair)}
-.sc-lbl{font-size:12px;color:var(--stone)}
-.sc-val{font-size:12.5px;font-weight:600;color:var(--navy)}
-.sc-tenure{color:var(--stone);font-weight:400}
-.sc-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.sc-name{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:2px;letter-spacing:-.01em;line-height:1.3}
+.sc-role{font-size:12px;color:var(--stone);line-height:1.3}
+.sc-info{padding:0 18px 14px;display:flex;flex-direction:column;gap:5px}
+.sc-info-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--stone)}
+.sc-info-row svg{flex-shrink:0;opacity:.5}
+.sc-info-val{color:var(--navy);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-badges{display:flex;gap:5px;flex-wrap:wrap;padding:0 18px 10px}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .f-pill{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.01em;border:1.5px solid var(--hair-md);background:none;color:var(--stone);cursor:pointer;font-family:var(--font);transition:color .12s,background .12s,border-color .12s}
@@ -41,7 +41,7 @@
 .sf-doc-upload{color:var(--stone)}
 .sf-doc-view:hover,.sf-doc-upload:hover{border-color:rgba(0,0,0,.25);color:var(--navy)}
 .sf-doc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.sc-roster-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--hair)}
+.sc-roster-row{display:flex;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--hair)}
 .sc-roster-period{flex:1;font-family:var(--font);font-size:12px;color:var(--stone);border:1px solid var(--hair-md);border-radius:6px;padding:6px 8px;background:var(--field);cursor:pointer}
 .sc-roster-btn{font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s;letter-spacing:.01em;background:none;border:none;font-family:var(--font);white-space:nowrap;padding:6px 10px}
 .sc-roster-btn:hover{color:var(--navy)}
@@ -198,9 +198,9 @@
         <div>
           <label class="form-lbl" for="sf-role">Role</label>
           <select class="form-input" id="sf-role">
-            <option value="Cleaner">Junior (Cleaner)</option>
-            <option value="Senior cleaner">Mid-Level (Senior cleaner)</option>
-            <option value="Lead cleaner">Senior (Lead cleaner)</option>
+            <option value="Cleaner">Junior Cleaner</option>
+            <option value="Senior cleaner">Mid-Level Cleaner</option>
+            <option value="Lead cleaner">Senior Cleaner</option>
           </select>
         </div>
         <div>
@@ -260,7 +260,8 @@ var activeFilter='all',searchTerm='',editingId=null;
 var allStaff=[];
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function initials(name){var p=name.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
+function initials(name){var p=(name||'').trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():(name||'??').slice(0,2).toUpperCase();}
+function nameToColor(name){if(!name)return'#0a1628';var s=0;for(var i=0;i<name.length;i++)s=(s*31+name.charCodeAt(i))&0xffffffff;var h=Math.abs(s)%360;return'hsl('+h+',38%,34%)'}
 function displayDate(iso){if(!iso)return'';var d=new Date(iso+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}
 function tenureText(iso){
   if(!iso)return'';var start=new Date(iso+'T00:00:00');var now=new Date();var diff=now-start;
@@ -294,16 +295,25 @@ function renderCard(s){
   var badgeLbl=(STATUS[s.status]||STATUS.active).lbl;
   var compBadge=complianceBadge(s);
   var empLabel={'full-time':'Full-time','part-time':'Part-time','subcontractor':'Contractor','casual':'Casual'}[s.employment_type]||'';
-  var roleLabel={'Cleaner':'Junior','Senior cleaner':'Mid-Level','Lead cleaner':'Senior'}[s.role]||s.role||'';
+  var roleLabel={'Cleaner':'Junior Cleaner','Senior cleaner':'Mid-Level Cleaner','Lead cleaner':'Senior Cleaner'}[s.role]||s.role||'';
+  var subtitle=(empLabel&&roleLabel)?esc(empLabel)+' · '+esc(roleLabel):(empLabel?esc(empLabel):esc(roleLabel));
+  var iconPhone='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.32 1.84.55 2.81.7A2 2 0 0122 14.92z"/></svg>';
+  var iconEmail='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
+  var iconCal='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
   return '<div class="staff-card" data-id="'+esc(s.id)+'">'+
     '<div class="sc-top">'+
-      '<div class="sc-av">'+initials(s.name||'?')+'</div>'+
-      '<div><div class="sc-name">'+esc(s.name)+'</div><div class="sc-role">'+(empLabel?esc(empLabel)+' · ':'')+esc(roleLabel)+'</div></div>'+
-      '<span class="badge '+badgeCls+'" style="margin-left:auto">'+badgeLbl+'</span>'+
+      '<div class="sc-av" style="background:'+nameToColor(s.name)+'">'+initials(s.name||'?')+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="sc-name">'+esc(s.name)+'</div>'+
+        '<div class="sc-role">'+subtitle+'</div>'+
+      '</div>'+
+      '<span class="badge '+badgeCls+'" style="flex-shrink:0">'+badgeLbl+'</span>'+
     '</div>'+
-    (s.phone?'<div class="sc-row"><span class="sc-lbl">Phone</span><span class="sc-val">'+esc(s.phone)+'</span></div>':'')+
-    (s.email?'<div class="sc-row"><span class="sc-lbl">Email</span><span class="sc-val">'+esc(s.email)+'</span></div>':'')+
-    (s.start_date?'<div class="sc-row"><span class="sc-lbl">Since</span><span class="sc-val">'+displayDate(s.start_date)+'<span class="sc-tenure"> · '+tenureText(s.start_date)+'</span></span></div>':'')+
+    '<div class="sc-info">'+
+      (s.phone?'<div class="sc-info-row">'+iconPhone+'<span class="sc-info-val">'+esc(s.phone)+'</span></div>':'')+
+      (s.email?'<div class="sc-info-row">'+iconEmail+'<span class="sc-info-val">'+esc(s.email)+'</span></div>':'')+
+      (s.start_date?'<div class="sc-info-row">'+iconCal+'<span class="sc-info-val">'+displayDate(s.start_date)+'</span><span style="color:var(--stone);font-size:12px;margin-left:4px">· '+tenureText(s.start_date)+'</span></div>':'')+
+    '</div>'+
     (compBadge?'<div class="sc-badges">'+compBadge+'</div>':'')+
     '<div class="sc-roster-row">'+
     '<select class="sc-roster-period">'+
@@ -311,10 +321,10 @@ function renderCard(s){
       '<option value="fortnight">This fortnight</option>'+
       '<option value="month">This month</option>'+
     '</select>'+
-    '<button class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">View roster →</button>'+
+    '<button class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">Roster →</button>'+
     '</div>'+
-    '<div style="padding-top:10px;border-top:1px solid var(--hair);margin-top:0">'+
-    '<a class="sc-profile-link" href="profile.html?id='+esc(s.id)+'" style="text-decoration:none;display:inline-block;font-size:12px;font-weight:600;color:var(--stone);letter-spacing:.01em;transition:color .12s">View profile →</a>'+
+    '<div style="padding:10px 18px 14px;border-top:1px solid var(--hair)">'+
+    '<a class="sc-profile-link" href="profile.html?id='+esc(s.id)+'" style="text-decoration:none;font-size:12.5px;font-weight:600;color:var(--navy);letter-spacing:.01em;transition:opacity .12s" onclick="event.stopPropagation()">View profile →</a>'+
     '</div>'+
   '</div>';
 }
