@@ -81,8 +81,7 @@ async function handle(request, env) {
   );
   if (!jobsRes.ok) {
     const errText = await jobsRes.text();
-    console.error('jobs query failed:', jobsRes.status, errText);
-    return json({ error: 'Could not load roster' }, 500);
+    return json({ error: 'Jobs ' + jobsRes.status + ': ' + errText.slice(0, 300) }, 500);
   }
   const jobs = await jobsRes.json();
   return json({ jobs: Array.isArray(jobs) ? jobs : [] });
