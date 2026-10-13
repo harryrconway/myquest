@@ -235,8 +235,8 @@ repTabs.forEach(function(t){t.addEventListener('click',function(){switchTab(t.da
 try{switchTab(localStorage.getItem('rep-tab')||'overview');}catch(e){switchTab('overview');}
 
 Promise.all([
-  sb.from('jobs').select('id,status,date,type,client_name,assigned_staff_name,quoted_price,quoted_hrs,job_number'),
-  sb.from('clients').select('id,status,industry'),
+  sb.from('jobs').select('id,status,date,type,client_id,client_name,assigned_staff_name,quoted_price,quoted_hrs,job_number'),
+  sb.from('clients').select('id,name,status,industry'),
   sb.from('staff').select('id,status,role,name'),
   sb.from('inquiries').select('id,status,source,lost_reason,created_at,converted_at'),
   sb.from('contracts').select('id,end_date')
