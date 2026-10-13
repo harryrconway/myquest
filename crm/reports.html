@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Reports — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013b">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013c">
 <style>
 /* Grid & cards */
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
@@ -48,7 +48,7 @@
 .rep-pill.amber{background:var(--amber-bg)}.rep-pill.amber .rep-pill-n,.rep-pill.amber .rep-pill-lbl{color:var(--amber)}
 .rep-pill.stone{background:rgba(0,0,0,.06)}.rep-pill.stone .rep-pill-n,.rep-pill.stone .rep-pill-lbl{color:var(--stone)}
 @media(max-width:900px){.rep-grid{grid-template-columns:1fr}.rep-stats{flex-wrap:wrap}.rep-stat{flex:0 0 calc(50% - 0px);border-right:none;border-bottom:1px solid var(--hair)}.rep-stat:nth-child(odd){border-right:1px solid var(--hair)}.rep-stat:nth-last-child(-n+2):last-child,.rep-stat:nth-last-child(-n+2):nth-last-child(2){border-bottom:none}}
-@media(max-width:600px){.rep-stats{flex-direction:column}.rep-stat{border-right:none!important;border-bottom:1px solid var(--hair)}.rep-stat:last-child{border-bottom:none}.cl-bar-name{width:80px}.rep-funnel-n{font-size:20px}.rep-stat-val{font-size:18px}}
+@media(max-width:600px){.rep-stats{flex-direction:column}.rep-stat{border-right:none!important;border-bottom:1px solid var(--hair)}.rep-stat:last-child{border-bottom:none}.cl-bar-name{width:80px}.rep-funnel-n{font-size:20px}.rep-stat-val{font-size:18px}.rep-card{padding:16px 14px}.rep-funnel{flex-wrap:wrap}.rep-funnel-item{flex:0 0 50%}.rep-funnel-item:nth-child(2){border-right:none}.rep-funnel-item:nth-child(3){border-top:1px solid var(--hair)}.rep-funnel-item:nth-child(4){border-right:none;border-top:1px solid var(--hair)}}
 .rep-reset-row{display:flex;justify-content:flex-end;padding:40px 0 20px}
 .rep-reset-btn{padding:9px 18px;border-radius:var(--r-sm);border:1.5px solid rgba(166,61,47,.25);background:none;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--red);cursor:pointer;transition:background .12s,border-color .12s}
 .rep-reset-btn:hover{background:rgba(166,61,47,.06);border-color:rgba(166,61,47,.4)}
@@ -135,13 +135,15 @@
     </div>
 
     <div class="pg-2" style="margin-bottom:0">
-      <div class="rep-tabs">
-        <button class="rep-tab" data-tab="overview">Overview</button>
-        <button class="rep-tab" data-tab="jobs">Jobs</button>
-        <button class="rep-tab" data-tab="clients">Clients</button>
-        <button class="rep-tab" data-tab="client-detail">Per Client</button>
-        <button class="rep-tab" data-tab="inquiries">Inquiries</button>
-        <button class="rep-tab" data-tab="team">Team</button>
+      <div class="rep-tabs-wrap">
+        <div class="rep-tabs">
+          <button class="rep-tab" data-tab="overview">Overview</button>
+          <button class="rep-tab" data-tab="jobs">Jobs</button>
+          <button class="rep-tab" data-tab="clients">Clients</button>
+          <button class="rep-tab" data-tab="client-detail">Per Client</button>
+          <button class="rep-tab" data-tab="inquiries">Inquiries</button>
+          <button class="rep-tab" data-tab="team">Team</button>
+        </div>
       </div>
     </div>
 
@@ -218,7 +220,7 @@ function vertBarSvg(data,labels,colors,fmtFn){
     var lbl=String(labels[i]);if(lbl.length>maxChars)lbl=lbl.slice(0,maxChars-1)+'…';
     svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(h-8)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(lbl)+'</text>';
   });
-  return'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;display:block">'+svg+'</svg>';
+  return'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><svg viewBox="0 0 '+w+' '+h+'" style="min-width:360px;width:100%;display:block">'+svg+'</svg></div>';
 }
 
 var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

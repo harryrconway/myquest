@@ -310,8 +310,9 @@ select.form-input{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg
 }
 
 /* Reports tab navigation */
-.rep-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--hair);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
-.rep-tabs::-webkit-scrollbar{display:none}
+.rep-tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;border-bottom:1.5px solid var(--hair);margin-bottom:28px}
+.rep-tabs-wrap::-webkit-scrollbar{display:none}
+.rep-tabs{display:flex;gap:0;min-width:min-content}
 .rep-tab{padding:10px 18px 11px;border:none;background:none;font:500 13.5px var(--font);color:var(--stone);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:color .15s;flex-shrink:0;white-space:nowrap}
 .rep-tab.active,.rep-tab:hover{color:var(--navy)}
 .rep-tab.active{border-bottom-color:var(--navy)}
