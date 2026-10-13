@@ -18,14 +18,13 @@
 .bar-lbl{font-size:11px;color:var(--stone);width:30px;flex-shrink:0;text-align:right}
 .bar-track{flex:1;height:7px;background:rgba(0,0,0,.07);border-radius:4px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px;background:var(--navy)}
-.bar-fill.green{background:var(--green)}
 .bar-val{font-size:11px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;width:24px;text-align:right;flex-shrink:0}
 /* Horizontal bars */
 .cl-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
 .cl-bar-row:last-child{margin-bottom:0}
 .cl-bar-name{font-size:12px;color:var(--stone);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cl-bar-track{flex:1;height:6px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden}
-.cl-bar-fill{height:100%;border-radius:3px;background:var(--navy);opacity:.7}
+.cl-bar-fill{height:100%;border-radius:3px}
 .cl-bar-val{font-size:11.5px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;width:52px;text-align:right;flex-shrink:0}
 /* Summary rows */
 .sum-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
@@ -139,6 +138,7 @@
         <button class="rep-tab" data-tab="overview">Overview</button>
         <button class="rep-tab" data-tab="jobs">Jobs</button>
         <button class="rep-tab" data-tab="clients">Clients</button>
+        <button class="rep-tab" data-tab="client-detail">Per Client</button>
         <button class="rep-tab" data-tab="inquiries">Inquiries</button>
         <button class="rep-tab" data-tab="team">Team</button>
       </div>
@@ -148,6 +148,7 @@
       <div id="panel-overview" class="rep-panel"><div style="color:var(--stone);padding:20px 0;font-size:13px">Loading…</div></div>
       <div id="panel-jobs" class="rep-panel"></div>
       <div id="panel-clients" class="rep-panel"></div>
+      <div id="panel-client-detail" class="rep-panel"></div>
       <div id="panel-inquiries" class="rep-panel"></div>
       <div id="panel-team" class="rep-panel"></div>
 
@@ -168,14 +169,19 @@ window.MQ.requireAuth(function(){
 var sb=MQ.sb;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function srow(lbl,val){return'<div class="sum-row"><span class="sum-lbl">'+lbl+'</span><span class="sum-val">'+val+'</span></div>';}
-function hbar(name,val,max){
+var PALETTE=['#0a0a0a','#3a6b4e','#b07d2a','#2563eb','#6d28d9','#0d9488','#be123c','#c2410c'];
+var TYPE_CLR={maintenance:'#0a0a0a',deep:'#3a6b4e',window:'#2563eb',builders:'#b07d2a',other:'#6d28d9'};
+var DOW_CLR=['#be123c','#0a0a0a','#2563eb','#0d9488','#3a6b4e','#b07d2a','#6d28d9'];
+function hbar(name,val,max,color){
+  var c=color||'#0a0a0a';
   return'<div class="cl-bar-row"><span class="cl-bar-name">'+esc(name)+'</span>'+
-    '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(val/(max||1)*100)+'%"></div></div>'+
+    '<div class="cl-bar-track"><div class="cl-bar-fill" style="width:'+Math.round(val/(max||1)*100)+'%;background:'+c+'"></div></div>'+
     '<span class="cl-bar-val">'+val+'</span></div>';
 }
-function vbar(lbl,val,max,cls){
+function vbar(lbl,val,max,color){
+  var c=color||'#0a0a0a';
   return'<div class="bar-row"><span class="bar-lbl">'+esc(lbl)+'</span>'+
-    '<div class="bar-track"><div class="bar-fill'+(cls?' '+cls:'')+'" style="width:'+Math.round(val/(max||1)*100)+'%"></div></div>'+
+    '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(val/(max||1)*100)+'%;background:'+c+'"></div></div>'+
     '<span class="bar-val">'+val+'</span></div>';
 }
 function statStrip(items){
@@ -186,27 +192,30 @@ function statStrip(items){
 function pill(n,lbl,cls){
   return'<div class="rep-pill '+cls+'"><div class="rep-pill-n">'+n+'</div><div class="rep-pill-lbl">'+lbl+'</div></div>';
 }
-function lineSvg(data,labels){
+function vertBarSvg(data,labels,colors){
   var max=Math.max.apply(null,data.concat([1]));
-  var w=580,h=140,pL=32,pR=8,pT=12,pB=26;
+  var w=580,h=160,pL=36,pR=8,pT=18,pB=28;
   var n=data.length;
-  var pts=data.map(function(v,i){
-    return[pL+(n<2?0:i/(n-1))*(w-pL-pR),pT+(1-v/max)*(h-pT-pB)];
-  });
-  var line=pts.map(function(p,i){return(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
-  var area=n>1?line+' L'+pts[n-1][0].toFixed(1)+','+(h-pB)+' L'+pts[0][0].toFixed(1)+','+(h-pB)+' Z':'';
-  var dots=pts.map(function(p){return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3" fill="var(--navy)" stroke="var(--card)" stroke-width="2"/>';}).join('');
-  var grid='';
-  for(var t=0;t<=3;t++){
+  var totalW=w-pL-pR;
+  var barW=Math.min(60,Math.floor(totalW/n*0.68));
+  var step=totalW/n;
+  var svg='';
+  for(var t=1;t<=3;t++){
     var ty=pT+(1-t/3)*(h-pT-pB);
-    grid+='<line x1="'+pL+'" y1="'+ty.toFixed(1)+'" x2="'+(w-pR)+'" y2="'+ty.toFixed(1)+'" stroke="rgba(0,0,0,.08)" stroke-width="1"/>';
-    grid+='<text x="'+(pL-4)+'" y="'+ty.toFixed(1)+'" text-anchor="end" dominant-baseline="middle" font-size="9" fill="var(--stone)">'+Math.round(max*t/3)+'</text>';
+    svg+='<line x1="'+pL+'" y1="'+ty.toFixed(1)+'" x2="'+(w-pR)+'" y2="'+ty.toFixed(1)+'" stroke="rgba(0,0,0,.07)" stroke-width="1"/>';
+    svg+='<text x="'+(pL-5)+'" y="'+ty.toFixed(1)+'" text-anchor="end" dominant-baseline="middle" font-size="9" fill="var(--stone)">'+Math.round(max*t/3)+'</text>';
   }
-  var xlbls=labels.map(function(lbl,i){
-    var x=pL+(labels.length<2?0:i/(labels.length-1))*(w-pL-pR);
-    return'<text x="'+x.toFixed(1)+'" y="'+(h-6)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(lbl)+'</text>';
-  }).join('');
-  return'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;display:block">'+grid+(area?'<path d="'+area+'" fill="rgba(0,0,0,.07)"/>':'')+(n>1?'<path d="'+line+'" fill="none" stroke="var(--navy)" stroke-width="2"/>':'')+dots+xlbls+'</svg>';
+  svg+='<line x1="'+pL+'" y1="'+(h-pB)+'" x2="'+(w-pR)+'" y2="'+(h-pB)+'" stroke="rgba(0,0,0,.12)" stroke-width="1"/>';
+  data.forEach(function(v,i){
+    var bh=Math.max(v>0?3:0,(v/max)*(h-pT-pB));
+    var x=pL+i*step+(step-barW)/2;
+    var y=h-pB-bh;
+    var color=Array.isArray(colors)?colors[i%colors.length]:(colors||'#0a0a0a');
+    if(bh>0){svg+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW+'" height="'+bh.toFixed(1)+'" rx="3" fill="'+color+'"/>';}
+    if(v>0){svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="600" fill="'+color+'">'+v+'</text>';}
+    svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(h-8)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(String(labels[i]))+'</text>';
+  });
+  return'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;display:block">'+svg+'</svg>';
 }
 
 var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -272,8 +281,9 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
   var TYPE_LBL={maintenance:'Maint.',deep:'Deep'};
   var typeTot=doneAll.length||1;
   var typeBars=Object.keys(byType).sort(function(a,b){return byType[b]-byType[a];}).map(function(t){
-    return vbar(TYPE_LBL[t]||t,byType[t],typeTot);
+    return vbar(TYPE_LBL[t]||t,byType[t],typeTot,TYPE_CLR[t]||PALETTE[0]);
   }).join('');
+  var moColors=moData.slice(0,mo+1).map(function(_,i){return i===mo?'#3a6b4e':'#0a0a0a';});
   document.getElementById('panel-overview').innerHTML=
     statStrip([
       ['Jobs YTD',doneYTD.length,'Jan–'+MO[mo]+' '+yr],
@@ -282,7 +292,7 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
       ['Conversion rate',convRate+'%',inqWon+'/'+closedInq+' closed']
     ])+
     '<div class="rep-grid">'+
-      '<div class="rep-card"><div class="rep-title">Jobs completed by month — '+yr+'</div>'+lineSvg(moData.slice(0,mo+1),MO.slice(0,mo+1))+'</div>'+
+      '<div class="rep-card"><div class="rep-title">Jobs completed by month — '+yr+'</div>'+vertBarSvg(moData.slice(0,mo+1),MO.slice(0,mo+1),moColors)+'</div>'+
       '<div class="rep-card"><div class="rep-title">Jobs by type — all time</div><div class="bar-chart">'+(typeBars||'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+'</div></div>'+
     '</div>';
 
@@ -353,14 +363,14 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
       ])+
       '<div class="rep-grid">'+
         '<div class="rep-card"><div class="rep-title">Completed by month — '+yr+'</div><div class="bar-chart">'+
-          MO.slice(0,mo+1).map(function(m,i){return vbar(m,moChart[i],maxMoP,i===mo?'green':'');}).join('')+
+          MO.slice(0,mo+1).map(function(m,i){return vbar(m,moChart[i],maxMoP,i===mo?'#3a6b4e':'#0a0a0a');}).join('')+
         '</div></div>'+
         '<div class="rep-card"><div class="rep-title">Jobs by client (top 8)</div>'+
-          (clSortedP.length?clSortedP.slice(0,8).map(function(c){return hbar(c.name,c.n,maxClP);}).join(''):'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+
+          (clSortedP.length?clSortedP.slice(0,8).map(function(c,i){return hbar(c.name,c.n,maxClP,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+
         '</div>'+
       '</div>'+
       '<div class="rep-card" style="margin-bottom:18px"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+
-        DOW.map(function(d,i){return vbar(d.slice(0,2),byDowP[i],maxDowP);}).join('')+
+        DOW.map(function(d,i){return vbar(d.slice(0,2),byDowP[i],maxDowP,DOW_CLR[i]);}).join('')+
       '</div></div>'+
       '<div class="rep-card"><div class="rep-title">Revenue detail — '+hint.toLowerCase()+'</div>'+revTableHtml+'</div>';
     document.querySelectorAll('#panel-jobs .rep-p-btn').forEach(function(btn){
@@ -399,9 +409,50 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
         srow('Total',String(contracts.length))+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Clients by industry</div>'+
-        (indSorted.length?indSorted.map(function(c){return hbar(c.name,c.n,maxInd);}).join(''):'<div style="color:var(--stone);font-size:13px">No industry data yet.</div>')+
+        (indSorted.length?indSorted.map(function(c,i){return hbar(c.name,c.n,maxInd,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No industry data yet.</div>')+
       '</div>'+
     '</div>';
+
+  // --- PER CLIENT ---
+  var cdClientList=clients.filter(function(c){return c.status==='active'||c.status==='onboarding';}).slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'');});
+  var cdOptions='<option value="">— Choose a client —</option>'+cdClientList.map(function(c){return'<option value="'+esc(c.id)+'">'+esc(c.name||'Unnamed')+'</option>';}).join('');
+  document.getElementById('panel-client-detail').innerHTML=
+    '<div style="margin-bottom:20px"><select id="cd-select" style="padding:9px 14px;border:1.5px solid var(--hair-md);border-radius:9px;font-size:14px;font-family:var(--font);background:#fff;color:var(--navy);min-width:260px;cursor:pointer">'+cdOptions+'</select></div>'+
+    '<div id="cd-report" style="color:var(--stone);font-size:13px;padding:4px 0">Select a client to see their individual report.</div>';
+  function renderClientDetail(clientId){
+    var reportEl=document.getElementById('cd-report');
+    if(!reportEl)return;
+    var cl=cdClientList.find(function(c){return c.id===clientId;});
+    if(!cl){reportEl.innerHTML='<div style="color:var(--stone);font-size:13px">Select a client to see their individual report.</div>';return;}
+    var cJobs=jobs.filter(function(j){return j.client_id===clientId||j.client_name===(cl.name||'');});
+    var cDone=cJobs.filter(function(j){return j.status==='completed';});
+    var cUp=cJobs.filter(function(j){return j.status==='upcoming'&&j.date>=today;});
+    var cRev=cDone.reduce(function(a,j){return a+(j.quoted_price||0);},0);
+    var moC=new Array(12).fill(0);
+    cDone.filter(function(j){return j.date&&j.date.startsWith(String(yr));}).forEach(function(j){moC[new Date(j.date+'T00:00:00').getMonth()]++;});
+    var moCColors=moC.slice(0,mo+1).map(function(_,i){return i===mo?'#3a6b4e':'#2563eb';});
+    var byDowC=[0,0,0,0,0,0,0];
+    cDone.forEach(function(j){if(j.date)byDowC[new Date(j.date+'T00:00:00').getDay()]++;});
+    var maxDowC=Math.max.apply(null,byDowC.concat([1]));
+    var typeFull={maintenance:'Maintenance',deep:'Deep clean',window:'Window clean',builders:'Builders clean'};
+    var recentJobs=cJobs.slice().sort(function(a,b){return a.date>b.date?-1:1;}).slice(0,10);
+    var tableHtml='';
+    if(!recentJobs.length){tableHtml='<div style="color:var(--stone);font-size:13px;padding:4px 0">No jobs on record.</div>';}
+    else{tableHtml='<div style="overflow-x:auto"><table class="rev-table"><thead><tr><th>Date</th><th>Job</th><th>Type</th><th>Staff</th><th class="num">Revenue</th><th class="num">Hours</th><th>Status</th></tr></thead><tbody>'+recentJobs.map(function(j){var d=new Date(j.date+'T00:00:00'),ds=d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear(),jn=j.job_number?'#'+String(j.job_number).padStart(3,'0'):'—',tp=typeFull[j.type]||esc(j.type||'—'),st=j.assigned_staff_name?esc(j.assigned_staff_name):'<span style="color:var(--stone)">—</span>',pr=j.quoted_price?'$'+Math.round(j.quoted_price).toLocaleString('en-AU'):'—',hs=j.quoted_hrs?parseFloat(j.quoted_hrs)+'h':'—',sb=j.status==='completed'?'<span class="badge active">Done</span>':'<span class="badge onboarding">Upcoming</span>';return'<tr><td class="muted">'+ds+'</td><td class="muted">'+jn+'</td><td class="muted">'+tp+'</td><td>'+st+'</td><td class="num">'+pr+'</td><td class="num muted">'+hs+'</td><td>'+sb+'</td></tr>';}).join('')+'</tbody></table></div>';}
+    reportEl.innerHTML=
+      statStrip([
+        ['Total jobs',cJobs.length,'All time'],
+        ['Completed',cDone.length,'All time'],
+        ['Upcoming',cUp.length,'Scheduled ahead'],
+        ['Revenue',cRev>0?'$'+Math.round(cRev).toLocaleString():'—','Completed jobs']
+      ])+
+      '<div class="rep-grid">'+
+        '<div class="rep-card"><div class="rep-title">Jobs completed by month — '+yr+'</div>'+vertBarSvg(moC.slice(0,mo+1),MO.slice(0,mo+1),moCColors)+'</div>'+
+        '<div class="rep-card"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+DOW.map(function(d,i){return vbar(d.slice(0,2),byDowC[i],maxDowC,DOW_CLR[i]);}).join('')+'</div></div>'+
+      '</div>'+
+      '<div class="rep-card"><div class="rep-title">Job history (most recent 10)</div>'+tableHtml+'</div>';
+  }
+  document.getElementById('cd-select').addEventListener('change',function(){renderClientDetail(this.value);});
 
   // --- INQUIRIES ---
   var avgDays='—';
@@ -428,10 +479,10 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
     '</div>'+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Inquiries by source</div>'+
-        (srcSorted.length?srcSorted.map(function(s){return hbar(s.name,s.n,maxSrc);}).join(''):'<div style="color:var(--stone);font-size:13px">No inquiries yet.</div>')+
+        (srcSorted.length?srcSorted.map(function(s,i){return hbar(s.name,s.n,maxSrc,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No inquiries yet.</div>')+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Lost reasons</div>'+
-        (lostSorted.length?lostSorted.map(function(r){return hbar(r.name,r.n,maxLost);}).join(''):'<div style="color:var(--stone);font-size:13px">'+(inqLost?'No reasons recorded.':'No lost inquiries.')+'</div>')+
+        (lostSorted.length?lostSorted.map(function(r,i){return hbar(r.name,r.n,maxLost,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">'+(inqLost?'No reasons recorded.':'No lost inquiries.')+'</div>')+
       '</div>'+
     '</div>';
 
@@ -455,10 +506,10 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Jobs completed per team member</div>'+
-        (staffSorted.length?staffSorted.map(function(s){return hbar(s.name,s.n,maxSt);}).join(''):'<div style="color:var(--stone);font-size:13px">No jobs with staff assigned yet.</div>')+
+        (staffSorted.length?staffSorted.map(function(s,i){return hbar(s.name,s.n,maxSt,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No jobs with staff assigned yet.</div>')+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Role breakdown</div>'+
-        (roleSorted.length?roleSorted.map(function(r){return hbar(r.name,r.n,maxRole);}).join(''):'<div style="color:var(--stone);font-size:13px">No staff yet.</div>')+
+        (roleSorted.length?roleSorted.map(function(r,i){return hbar(r.name,r.n,maxRole,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No staff yet.</div>')+
       '</div>'+
     '</div>';
 });
