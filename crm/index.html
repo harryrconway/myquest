@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013d">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -37,6 +37,7 @@
 .cl-arr{color:var(--stone);display:flex;align-items:center;justify-content:flex-end;transition:color .12s,transform .22s}
 .cl-row:hover .cl-arr{color:var(--navy)}
 .cl-wrap.open .cl-arr{transform:rotate(90deg)}
+.cl-row .badge::before{display:none}
 .cl-body{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.4,0,.2,1)}
 .cl-body.open{max-height:12000px}
 .cl-inner{padding:22px 24px 26px;border-top:1px solid var(--hair);background:var(--field)}
@@ -81,6 +82,7 @@
 .ci-job:last-child{border-bottom:none}
 .ci-job.done{border-left-color:var(--green)}
 .ci-job.next{border-left-color:var(--navy)}
+.ci-job.overdue{border-left-color:var(--amber)}
 .ci-job:hover{background:rgba(0,0,0,.03)}
 .ci-job-date{font-size:10.5px;color:var(--stone);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.4}
 .ci-job-type{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stone);background:rgba(0,0,0,.07);padding:2px 5px;border-radius:3px;display:inline-block;margin-bottom:2px}
@@ -618,14 +620,17 @@ function buildClientDetail(c,jobs,contracts,quotes){
     (c.site_address?'<span class="xp-fl">Site</span><span class="xp-fv xp-fv-full">'+esc(c.site_address)+'</span>':'')+
     '</div></div>';
   jobs.sort(function(a,b){return a.date>b.date?-1:1;});
+  var todayIso=isoLocal(new Date());
   var jobsHtml=jobs.length?jobs.map(function(j){
     var lbl=TL2[j.type]||j.type||'Clean';
-    var cls=j.status==='completed'?'done':'next';
+    var cls=j.status==='completed'?'done':(j.date&&j.date<todayIso?'overdue':'next');
     var dateStr='—';
     if(j.date){var dd=new Date(j.date+'T00:00:00');dateStr=dd.getDate()+' '+MONTHS[dd.getMonth()]+'<br>'+DAYS[dd.getDay()];}
+    var jnStr=j.job_number?'<div style="font-size:10px;color:var(--stone);margin-top:2px;font-variant-numeric:tabular-nums">#'+String(j.job_number).padStart(3,'0')+'</div>':'';
+    var staffStr=j.assigned_staff_name?'<div style="font-size:11px;color:var(--stone);margin-top:2px">'+esc(j.assigned_staff_name)+'</div>':'';
     return '<div class="ci-job '+cls+'" data-action="view-job" data-jid="'+esc(j.id)+'">'+
-      '<div class="ci-job-date">'+dateStr+'</div>'+
-      '<div class="ci-job-info"><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div></div>'+
+      '<div class="ci-job-date">'+dateStr+jnStr+'</div>'+
+      '<div class="ci-job-info"><div class="ci-job-type">'+esc(lbl)+'</div><div class="ci-job-site">'+esc(j.site||'—')+'</div>'+staffStr+'</div>'+
       '<div class="ci-job-actions">'+
         '<button class="ci-job-del" data-action="del-job" data-jid="'+esc(j.id)+'" data-jcid="'+esc(c.id)+'" title="Delete job">'+
           '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'+
@@ -715,7 +720,7 @@ function expandWrap(wrap){
   var body=wrap.querySelector('.cl-body');
   body.innerHTML='<div class="cl-inner"><div style="padding:24px;color:var(--stone);font-size:13px">Loading…</div></div>';
   wrap.classList.add('open');body.classList.add('open');
-  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule').eq('client_id',cid).order('date',{ascending:false}).then(function(jr){
+  sb.from('jobs').select('id,client_id,client_name,date,type,status,site,repeat,source_job_id,from_schedule,assigned_staff_name,job_number').eq('client_id',cid).order('date',{ascending:false}).then(function(jr){
     sb.from('contracts').select('id,client_id,type,value,start_date,end_date,renewal_date,signed_date,notes,pdf_path').eq('client_id',cid).order('created_at',{ascending:false}).then(function(cr){
       sb.from('quotes').select('id,space,freq,type,hrs,per,monthly,label,created_at,after_hours_pct,buffer').eq('client_id',cid).order('created_at',{ascending:false}).then(function(qr){
         body.innerHTML='<div class="cl-inner">'+buildClientDetail(c,jr.data||[],cr.data||[],qr.data||[])+'</div>';
