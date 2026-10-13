@@ -192,7 +192,7 @@ function statStrip(items){
 function pill(n,lbl,cls){
   return'<div class="rep-pill '+cls+'"><div class="rep-pill-n">'+n+'</div><div class="rep-pill-lbl">'+lbl+'</div></div>';
 }
-function vertBarSvg(data,labels,colors){
+function vertBarSvg(data,labels,colors,fmtFn){
   var max=Math.max.apply(null,data.concat([1]));
   var w=580,h=160,pL=36,pR=8,pT=18,pB=28;
   var n=data.length;
@@ -213,7 +213,7 @@ function vertBarSvg(data,labels,colors){
     var y=h-pB-bh;
     var color=Array.isArray(colors)?colors[i%colors.length]:(colors||'#0a0a0a');
     if(bh>0){svg+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW+'" height="'+bh.toFixed(1)+'" rx="3" fill="'+color+'"/>';}
-    if(v>0){svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="600" fill="'+color+'">'+v+'</text>';}
+    if(v>0){svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="600" fill="'+color+'">'+(fmtFn?fmtFn(v):v)+'</text>';}
     var lbl=String(labels[i]);if(lbl.length>maxChars)lbl=lbl.slice(0,maxChars-1)+'…';
     svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(h-8)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(lbl)+'</text>';
   });
@@ -492,25 +492,36 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
 
   // --- TEAM ---
   var stActive=staff.filter(function(s){return s.status==='active';}).length;
-  var stOther=staff.filter(function(s){return s.status!=='active';}).length;
-  var byStaff={};
-  jobs.filter(function(j){return j.status==='completed'&&j.assigned_staff_name;}).forEach(function(j){byStaff[j.assigned_staff_name]=(byStaff[j.assigned_staff_name]||0)+1;});
-  var staffSorted=Object.keys(byStaff).map(function(k){return{name:k,n:byStaff[k]};}).sort(function(a,b){return b.n-a.n;});
-  var maxSt=staffSorted.length?staffSorted[0].n:1;
+  var byStaff={},byStaffRev={},byStaffHrs={};
+  jobs.filter(function(j){return j.status==='completed'&&j.assigned_staff_name;}).forEach(function(j){
+    var n=j.assigned_staff_name;
+    byStaff[n]=(byStaff[n]||0)+1;
+    byStaffRev[n]=(byStaffRev[n]||0)+(j.quoted_price||0);
+    byStaffHrs[n]=(byStaffHrs[n]||0)+(parseFloat(j.quoted_hrs)||0);
+  });
+  var staffSorted=Object.keys(byStaff).map(function(k){return{name:k,n:byStaff[k],rev:byStaffRev[k]||0,hrs:byStaffHrs[k]||0};}).sort(function(a,b){return b.n-a.n;});
   var stJobTotal=staffSorted.reduce(function(a,s){return a+s.n;},0);
+  var stRevTotal=staffSorted.reduce(function(a,s){return a+s.rev;},0);
   var byRole={};staff.forEach(function(s){if(!s.role)return;byRole[s.role]=(byRole[s.role]||0)+1;});
   var roleSorted=Object.keys(byRole).map(function(k){return{name:k,n:byRole[k]};}).sort(function(a,b){return b.n-a.n;});
-  var maxRole=roleSorted.length?roleSorted[0].n:1;
   document.getElementById('panel-team').innerHTML=
     statStrip([
-      ['Total staff',staff.length,'All time'],
-      ['Active',stActive,'Currently active'],
-      ['Other status',stOther,'On leave / resigned'],
-      ['Jobs with staff',stJobTotal,'Completed & assigned']
+      ['Total staff',staff.length,'Active + inactive'],
+      ['Active',stActive,'Currently working'],
+      ['Revenue attributed',stRevTotal>0?'$'+Math.round(stRevTotal).toLocaleString():'—','Completed & assigned'],
+      ['Jobs assigned',stJobTotal,'Completed & assigned']
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Jobs completed per team member</div>'+
         (staffSorted.length?vertBarSvg(staffSorted.map(function(s){return s.n;}),staffSorted.map(function(s){return s.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No jobs with staff assigned yet.</div>')+
+      '</div>'+
+      '<div class="rep-card"><div class="rep-title">Revenue per team member</div>'+
+        (staffSorted.length&&stRevTotal>0?vertBarSvg(staffSorted.map(function(s){return s.rev;}),staffSorted.map(function(s){return s.name;}),PALETTE,function(v){return v>=1000?'$'+Math.round(v/1000)+'k':'$'+Math.round(v);}):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No revenue data yet.</div>')+
+      '</div>'+
+    '</div>'+
+    '<div class="rep-grid">'+
+      '<div class="rep-card"><div class="rep-title">Avg. job value per team member</div>'+
+        (staffSorted.length&&stRevTotal>0?vertBarSvg(staffSorted.map(function(s){return s.n>0?Math.round(s.rev/s.n):0;}),staffSorted.map(function(s){return s.name;}),PALETTE,function(v){return'$'+v;}):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No revenue data yet.</div>')+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Role breakdown</div>'+
         (roleSorted.length?vertBarSvg(roleSorted.map(function(r){return r.n;}),roleSorted.map(function(r){return r.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No staff yet.</div>')+
