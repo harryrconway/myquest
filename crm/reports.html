@@ -199,6 +199,7 @@ function vertBarSvg(data,labels,colors){
   var totalW=w-pL-pR;
   var barW=Math.min(60,Math.floor(totalW/n*0.68));
   var step=totalW/n;
+  var maxChars=Math.max(2,Math.floor(step*0.85/5.5));
   var svg='';
   for(var t=1;t<=3;t++){
     var ty=pT+(1-t/3)*(h-pT-pB);
@@ -213,7 +214,8 @@ function vertBarSvg(data,labels,colors){
     var color=Array.isArray(colors)?colors[i%colors.length]:(colors||'#0a0a0a');
     if(bh>0){svg+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW+'" height="'+bh.toFixed(1)+'" rx="3" fill="'+color+'"/>';}
     if(v>0){svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="600" fill="'+color+'">'+v+'</text>';}
-    svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(h-8)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(String(labels[i]))+'</text>';
+    var lbl=String(labels[i]);if(lbl.length>maxChars)lbl=lbl.slice(0,maxChars-1)+'…';
+    svg+='<text x="'+(x+barW/2).toFixed(1)+'" y="'+(h-8)+'" text-anchor="middle" font-size="9" fill="var(--stone)">'+esc(lbl)+'</text>';
   });
   return'<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;display:block">'+svg+'</svg>';
 }
@@ -280,9 +282,7 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
   doneAll.forEach(function(j){var t=j.type||'other';byType[t]=(byType[t]||0)+1;});
   var TYPE_LBL={maintenance:'Maint.',deep:'Deep'};
   var typeTot=doneAll.length||1;
-  var typeBars=Object.keys(byType).sort(function(a,b){return byType[b]-byType[a];}).map(function(t){
-    return vbar(TYPE_LBL[t]||t,byType[t],typeTot,TYPE_CLR[t]||PALETTE[0]);
-  }).join('');
+  var typeKeys=Object.keys(byType).sort(function(a,b){return byType[b]-byType[a];});
   var moColors=moData.slice(0,mo+1).map(function(_,i){return i===mo?'#3a6b4e':'#0a0a0a';});
   document.getElementById('panel-overview').innerHTML=
     statStrip([
@@ -293,7 +293,9 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Jobs completed by month — '+yr+'</div>'+vertBarSvg(moData.slice(0,mo+1),MO.slice(0,mo+1),moColors)+'</div>'+
-      '<div class="rep-card"><div class="rep-title">Jobs by type — all time</div><div class="bar-chart">'+(typeBars||'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+'</div></div>'+
+      '<div class="rep-card"><div class="rep-title">Jobs by type — all time</div>'+
+        (typeKeys.length?vertBarSvg(typeKeys.map(function(t){return byType[t];}),typeKeys.map(function(t){return TYPE_LBL[t]||t;}),typeKeys.map(function(t){return TYPE_CLR[t]||PALETTE[0];})):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No completed jobs yet.</div>')+
+      '</div>'+
     '</div>';
 
   // --- JOBS ---
@@ -362,17 +364,19 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
         [avgLbl,avgWk,hint]
       ])+
       '<div class="rep-grid">'+
-        '<div class="rep-card"><div class="rep-title">Completed by month — '+yr+'</div><div class="bar-chart">'+
-          MO.slice(0,mo+1).map(function(m,i){return vbar(m,moChart[i],maxMoP,i===mo?'#3a6b4e':'#0a0a0a');}).join('')+
-        '</div></div>'+
+        '<div class="rep-card"><div class="rep-title">Completed by month — '+yr+'</div>'+
+          vertBarSvg(moChart.slice(0,mo+1),MO.slice(0,mo+1),moChart.slice(0,mo+1).map(function(_,i){return i===mo?'#3a6b4e':'#0a0a0a';}))+
+        '</div>'+
         '<div class="rep-card"><div class="rep-title">Jobs by client (top 8)</div>'+
-          (clSortedP.length?clSortedP.slice(0,8).map(function(c,i){return hbar(c.name,c.n,maxClP,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No completed jobs yet.</div>')+
+          (clSortedP.length?vertBarSvg(clSortedP.slice(0,8).map(function(c){return c.n;}),clSortedP.slice(0,8).map(function(c){return c.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No completed jobs yet.</div>')+
         '</div>'+
       '</div>'+
-      '<div class="rep-card" style="margin-bottom:18px"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+
-        DOW.map(function(d,i){return vbar(d.slice(0,2),byDowP[i],maxDowP,DOW_CLR[i]);}).join('')+
-      '</div></div>'+
-      '<div class="rep-card"><div class="rep-title">Revenue detail — '+hint.toLowerCase()+'</div>'+revTableHtml+'</div>';
+      '<div class="rep-grid">'+
+        '<div class="rep-card"><div class="rep-title">Jobs by day of week</div>'+
+          vertBarSvg(byDowP,DOW.map(function(d){return d.slice(0,2);}),DOW_CLR)+
+        '</div>'+
+        '<div class="rep-card" style="overflow-x:auto"><div class="rep-title">Revenue detail — '+hint.toLowerCase()+'</div>'+revTableHtml+'</div>'+
+      '</div>';
     document.querySelectorAll('#panel-jobs .rep-p-btn').forEach(function(btn){
       btn.addEventListener('click',function(){renderJobsPanel(btn.dataset.p);});
     });
@@ -400,8 +404,8 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Client status</div>'+
-        '<div class="rep-pills">'+pill(clActive,'Active','green')+pill(clOnb,'Onboarding','amber')+pill(clEx,'Exited','stone')+'</div>'+
-        '<div class="rep-title" style="margin-top:16px">Contracts</div>'+
+        vertBarSvg([clActive,clOnb,clEx],['Active','Onboard','Exited'],['#3a6b4e','#b07d2a','#6d28d9'])+
+        '<div class="rep-title" style="margin-top:20px">Contracts</div>'+
         srow('Active',String(ctActive))+
         srow('Expiring ≤ 60 days',String(ctExp))+
         srow('Expired',String(ctPast))+
@@ -409,7 +413,7 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
         srow('Total',String(contracts.length))+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Clients by industry</div>'+
-        (indSorted.length?indSorted.map(function(c,i){return hbar(c.name,c.n,maxInd,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No industry data yet.</div>')+
+        (indSorted.length?vertBarSvg(indSorted.map(function(c){return c.n;}),indSorted.map(function(c){return c.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No industry data yet.</div>')+
       '</div>'+
     '</div>';
 
@@ -448,7 +452,7 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
       ])+
       '<div class="rep-grid">'+
         '<div class="rep-card"><div class="rep-title">Jobs completed by month — '+yr+'</div>'+vertBarSvg(moC.slice(0,mo+1),MO.slice(0,mo+1),moCColors)+'</div>'+
-        '<div class="rep-card"><div class="rep-title">Jobs by day of week</div><div class="bar-chart">'+DOW.map(function(d,i){return vbar(d.slice(0,2),byDowC[i],maxDowC,DOW_CLR[i]);}).join('')+'</div></div>'+
+        '<div class="rep-card"><div class="rep-title">Jobs by day of week</div>'+vertBarSvg(byDowC,DOW.map(function(d){return d.slice(0,2);}),DOW_CLR)+'</div>'+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Job history (most recent 10)</div>'+tableHtml+'</div>';
   }
@@ -479,10 +483,10 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
     '</div>'+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Inquiries by source</div>'+
-        (srcSorted.length?srcSorted.map(function(s,i){return hbar(s.name,s.n,maxSrc,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No inquiries yet.</div>')+
+        (srcSorted.length?vertBarSvg(srcSorted.map(function(s){return s.n;}),srcSorted.map(function(s){return s.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No inquiries yet.</div>')+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Lost reasons</div>'+
-        (lostSorted.length?lostSorted.map(function(r,i){return hbar(r.name,r.n,maxLost,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">'+(inqLost?'No reasons recorded.':'No lost inquiries.')+'</div>')+
+        (lostSorted.length?vertBarSvg(lostSorted.map(function(r){return r.n;}),lostSorted.map(function(r){return r.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">'+(inqLost?'No reasons recorded.':'No lost inquiries.')+'</div>')+
       '</div>'+
     '</div>';
 
@@ -506,10 +510,10 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
     ])+
     '<div class="rep-grid">'+
       '<div class="rep-card"><div class="rep-title">Jobs completed per team member</div>'+
-        (staffSorted.length?staffSorted.map(function(s,i){return hbar(s.name,s.n,maxSt,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No jobs with staff assigned yet.</div>')+
+        (staffSorted.length?vertBarSvg(staffSorted.map(function(s){return s.n;}),staffSorted.map(function(s){return s.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No jobs with staff assigned yet.</div>')+
       '</div>'+
       '<div class="rep-card"><div class="rep-title">Role breakdown</div>'+
-        (roleSorted.length?roleSorted.map(function(r,i){return hbar(r.name,r.n,maxRole,PALETTE[i%PALETTE.length]);}).join(''):'<div style="color:var(--stone);font-size:13px">No staff yet.</div>')+
+        (roleSorted.length?vertBarSvg(roleSorted.map(function(r){return r.n;}),roleSorted.map(function(r){return r.name;}),PALETTE):'<div style="color:var(--stone);font-size:13px;padding:8px 0">No staff yet.</div>')+
       '</div>'+
     '</div>';
 });
