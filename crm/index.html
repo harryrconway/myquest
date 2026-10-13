@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Clients — MyQuest CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013d">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=20261013e">
 <style>
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
@@ -619,8 +619,17 @@ function buildClientDetail(c,jobs,contracts,quotes){
     (function(){if(!c.created_at)return'<span class="xp-fl">Since</span><span class="xp-fv"><span style="opacity:.4">—</span></span>';var since=new Date(c.created_at);var mths=Math.floor((new Date()-since)/(1000*60*60*24*30.44));return'<span class="xp-fl">Since</span><span class="xp-fv">'+MONTHS[since.getMonth()]+' '+since.getFullYear()+(mths>0?' <span style="opacity:.45;font-size:12px">· '+mths+(mths===1?' mo':' mo')+'</span>':'')+'</span>';})()+
     (c.site_address?'<span class="xp-fl">Site</span><span class="xp-fv xp-fv-full">'+esc(c.site_address)+'</span>':'')+
     '</div></div>';
-  jobs.sort(function(a,b){return a.date>b.date?-1:1;});
   var todayIso=isoLocal(new Date());
+  jobs.sort(function(a,b){
+    var aOver=a.status!=='completed'&&a.date&&a.date<todayIso;
+    var bOver=b.status!=='completed'&&b.date&&b.date<todayIso;
+    var aDone=a.status==='completed';
+    var bDone=b.status==='completed';
+    if(aOver!==bOver)return aOver?-1:1;
+    if(aDone!==bDone)return aDone?1:-1;
+    if(aDone&&bDone)return a.date>b.date?-1:1;
+    return a.date>b.date?1:-1;
+  });
   var jobsHtml=jobs.length?jobs.map(function(j){
     var lbl=TL2[j.type]||j.type||'Clean';
     var cls=j.status==='completed'?'done':(j.date&&j.date<todayIso?'overdue':'next');
