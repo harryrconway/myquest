@@ -188,7 +188,7 @@
     <div class="toolbar pg-3">
       <div class="search-wrap">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search" type="text" id="job-search" placeholder="Search jobs…" autocomplete="off">
+        <input class="search" type="text" id="job-search" placeholder="Search client or staff…" autocomplete="off">
       </div>
       <div class="filters">
         <button class="f-pill on" data-filter="all">All</button>
@@ -413,7 +413,7 @@ function renderAll(){
     '<div class="stat"><div class="stat-lbl">Completed</div><div class="stat-val">'+completed.length+'</div><div class="stat-hint">All time</div></div>';
   var filtered=jobs.filter(function(j){
     var mf=activeFilter==='all'||(activeFilter==='overdue'&&isOverdue(j))||(activeFilter==='today'&&isToday(j))||(activeFilter==='upcoming'&&j.status==='upcoming'&&!isOverdue(j)&&!isToday(j))||(activeFilter==='completed'&&j.status==='completed')||activeFilter===j.type;
-    var ms=!searchTerm||(j.client_name+' '+(j.site||'')).toLowerCase().indexOf(searchTerm)!==-1;
+    var ms=!searchTerm||(j.client_name+' '+(j.site||'')+' '+(j.assigned_staff_name||'')).toLowerCase().indexOf(searchTerm)!==-1;
     return mf&&ms;
   });
   var html='';

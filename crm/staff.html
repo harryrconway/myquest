@@ -41,38 +41,7 @@
 .sf-doc-upload{color:var(--stone)}
 .sf-doc-view:hover,.sf-doc-upload:hover{border-color:rgba(0,0,0,.25);color:var(--navy)}
 .sf-doc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.sc-roster-row{display:flex;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--hair)}
-.sc-roster-period{flex:1;font-family:var(--font);font-size:12px;color:var(--stone);border:1px solid var(--hair-md);border-radius:6px;padding:6px 8px;background:var(--field);cursor:pointer}
-.sc-roster-btn{font-size:12px;font-weight:600;color:var(--stone);cursor:pointer;transition:color .12s;letter-spacing:.01em;background:none;border:none;font-family:var(--font);white-space:nowrap;padding:6px 10px}
-.sc-roster-btn:hover{color:var(--navy)}
-.rp-page{padding:24px 24px 8px}
-.rp-sub{font-size:13px;color:var(--stone);margin-bottom:6px}
-.rp-count{display:inline-block;font-size:12px;font-weight:600;color:var(--green);background:var(--green-bg);padding:3px 10px;border-radius:999px;margin-bottom:20px}
-.rp-day-block{margin-bottom:20px}
-.rp-day-hd{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--stone);margin-bottom:6px;padding-bottom:6px;border-bottom:1.5px solid var(--hair)}
-.rp-no-jobs{font-size:12px;color:var(--stone);opacity:.5;padding:4px 0}
-.rp-job-row{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--hair)}
-.rp-job-row:last-child{border-bottom:none}
-.rp-job-row.done{opacity:.4}
-.rp-job-time{font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;line-height:1.4}
-.rp-job-name{font-size:13px;font-weight:600;color:var(--navy);line-height:1.3}
-.rp-job-addr{font-size:11px;color:var(--stone);margin-top:2px;line-height:1.4}
-.rp-job-done{font-size:10px;color:var(--green);font-weight:700;letter-spacing:.06em;margin-top:3px}
-.rp-job-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
-.rp-job-type{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap}
-.rp-job-num{font-size:10px;color:var(--stone);opacity:.6;white-space:nowrap}
-@media print{
-  body>*:not(#roster-modal){display:none!important}
-  #roster-modal{position:static!important;background:none!important;padding:0!important;display:block!important}
-  #roster-modal .modal-card{box-shadow:none!important;max-width:100%!important;border-radius:0!important;background:#fff!important}
-  #roster-modal .modal-hd{display:none!important}
-  .rp-page{padding:0;background:#fff}
-  .rp-sub,.rp-day-hd,.rp-no-jobs,.rp-job-time,.rp-job-name,.rp-job-addr,.rp-job-type,.rp-job-num{color:#000!important}
-  .rp-job-type{background:none!important;border:1px solid #ccc}
-  .rp-job-num{opacity:1!important}
-  .rp-job-row.done{opacity:1!important}
-  .rp-day-hd{border-bottom-color:#000!important}
-}
+
 </style>
 </head>
 <body>
@@ -237,18 +206,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="roster-modal" hidden>
-  <div class="modal-card" style="max-width:640px;width:100%">
-    <div class="modal-hd">
-      <span class="modal-title" id="roster-modal-title">Roster</span>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="ph-btn" id="roster-print-btn">Print</button>
-        <button class="modal-close" id="roster-modal-close">&times;</button>
-      </div>
-    </div>
-    <div class="modal-body" id="roster-modal-body" style="padding:0"></div>
-  </div>
-</div>
 <script src="supabase.min.js?v=20260806"></script>
 <script src="auth.js?v=20261012"></script>
 <script src="datepicker.js?v=20260913"></script>
@@ -316,14 +273,6 @@ function renderCard(s){
       (s.start_date?'<div class="sc-info-row">'+iconCal+'<span class="sc-info-val">'+displayDate(s.start_date)+'</span><span style="color:var(--stone);font-size:12px;margin-left:4px">· '+tenureText(s.start_date)+'</span></div>':'')+
     '</div>'+
     (compBadge?'<div class="sc-badges">'+compBadge+'</div>':'')+
-    '<div class="sc-roster-row">'+
-    '<select class="sc-roster-period">'+
-      '<option value="week">This week</option>'+
-      '<option value="fortnight">This fortnight</option>'+
-      '<option value="month">This month</option>'+
-    '</select>'+
-    '<button class="sc-roster-btn" data-roster-id="'+esc(s.id)+'" data-roster-name="'+esc(s.name||'')+'">Roster →</button>'+
-    '</div>'+
     '<div style="padding:10px 18px 14px;border-top:1px solid var(--hair)">'+
     '<a class="sc-profile-link" href="profile.html?id='+esc(s.id)+'" style="text-decoration:none;font-size:12.5px;font-weight:600;color:var(--navy);letter-spacing:.01em;transition:opacity .12s" onclick="event.stopPropagation()">View profile →</a>'+
     '</div>'+
@@ -376,8 +325,6 @@ modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
   if(bnavSheet&&bnavSheet.classList.contains('open')){bnavClose();return;}
-  var rm=document.getElementById('roster-modal');
-  if(rm&&!rm.hidden){rm.hidden=true;return;}
   if(!modal.hidden)closeModal();
 });
 
@@ -401,128 +348,14 @@ saveBtn.addEventListener('click',function(){
   });
 });
 
-function openRoster(staffId,staffName,period){
-  var rModal=document.getElementById('roster-modal');
-  var rBody=document.getElementById('roster-modal-body');
-  document.getElementById('roster-modal-title').textContent=staffName;
-  rBody.innerHTML='<div style="padding:32px;text-align:center;color:var(--stone);font-size:13px">Loading…</div>';
-  rModal.hidden=false;
-
-  var today=new Date();
-  var dow=(today.getDay()+6)%7;
-  var mon=new Date(today);mon.setDate(today.getDate()-dow);
-  function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-  var startDate,endDate,periodLabel;
-  if(period==='month'){
-    startDate=new Date(today.getFullYear(),today.getMonth(),1);
-    endDate=new Date(today.getFullYear(),today.getMonth()+1,0);
-    periodLabel='Month of '+['January','February','March','April','May','June','July','August','September','October','November','December'][today.getMonth()]+' '+today.getFullYear();
-  } else if(period==='fortnight'){
-    startDate=new Date(mon);
-    endDate=new Date(mon);endDate.setDate(mon.getDate()+13);
-    periodLabel='Fortnight: Mon '+startDate.getDate()+' – Sun '+endDate.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][endDate.getMonth()]+' '+endDate.getFullYear();
-  } else {
-    startDate=new Date(mon);
-    endDate=new Date(mon);endDate.setDate(mon.getDate()+6);
-    periodLabel='Week of Mon '+startDate.getDate()+' – Sun '+endDate.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][endDate.getMonth()]+' '+endDate.getFullYear();
-  }
-  var startISO=isoDate(startDate),endISO=isoDate(endDate);
-  var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function fmtHdr(ds){var d=new Date(ds+'T00:00:00');return DAYS[((d.getDay()+6)%7)].toUpperCase()+' '+d.getDate()+' '+MONTHS[d.getMonth()].toUpperCase();}
-  function fmtTime(t){if(!t)return'—';var p=t.split(':');var h=parseInt(p[0],10);var m=p[1];var ampm=h>=12?'pm':'am';var h12=h%12||12;return h12+':'+(m||'00')+' '+ampm;}
-  function typeLbl(t){return t==='deep'?'Deep clean':t==='maintenance'?'Maintenance':t||'—';}
-  function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-  sb.from('jobs')
-    .select('id,job_number,client_id,client_name,site,date,start_time,start_tz,type,status,quoted_hrs')
-    .eq('assigned_staff_id',staffId)
-    .gte('date',startISO).lte('date',endISO)
-    .neq('status','cancelled')
-    .order('date').order('start_time')
-    .then(function(r){
-      var jobs=r.data||[];
-      var clientIds=[];
-      jobs.forEach(function(j){if(j.client_id&&clientIds.indexOf(j.client_id)===-1)clientIds.push(j.client_id);});
-
-      function buildRoster(addrMap){
-        var byDay={};
-        var totalDays=Math.round((endDate-startDate)/86400000)+1;
-        for(var i=0;i<totalDays;i++){var d=new Date(startDate);d.setDate(startDate.getDate()+i);byDay[isoDate(d)]=[];}
-        jobs.forEach(function(j){if(byDay[j.date])byDay[j.date].push(j);});
-
-        var dayRows='';
-        Object.keys(byDay).sort().forEach(function(dateKey){
-          var jj=byDay[dateKey];
-          dayRows+='<div class="rp-day-block"><div class="rp-day-hd">'+fmtHdr(dateKey)+'</div>';
-          if(!jj.length){
-            dayRows+='<div class="rp-no-jobs">No jobs scheduled</div>';
-          } else {
-            jj.forEach(function(j){
-              var done=j.status==='completed';
-              var timeStr=fmtTime(j.start_time)+(j.start_tz?' · '+j.start_tz:'');
-              var typeBg=j.type==='deep'?'rgba(58,107,78,.1)':'rgba(0,0,0,.07)';
-              var typeCol=j.type==='deep'?'#3a6b4e':'#111111';
-              var addr=addrMap[j.client_id]||j.site||'';
-              dayRows+=
-                '<div class="rp-job-row'+(done?' done':'')+'">'+
-                '<div class="rp-job-time">'+esc2(timeStr)+'</div>'+
-                '<div>'+
-                  '<div class="rp-job-name">'+esc2(j.client_name||'—')+'</div>'+
-                  (addr?'<div class="rp-job-addr">'+esc2(addr)+'</div>':'')+
-                  (done?'<div class="rp-job-done">✓ Completed</div>':'')+
-                '</div>'+
-                '<div class="rp-job-right">'+
-                  '<span class="rp-job-type" style="background:'+typeBg+';color:'+typeCol+'">'+esc2(typeLbl(j.type))+'</span>'+
-                  (j.job_number?'<span class="rp-job-num">#'+esc2(j.job_number)+'</span>':'')+
-                '</div>'+
-                '</div>';
-            });
-          }
-          dayRows+='</div>';
-        });
-
-        var totalJobs=jobs.length;
-        var totalHrs=jobs.reduce(function(s,j){return s+(parseFloat(j.quoted_hrs)||0);},0);
-        var hrsLabel=totalHrs>0?' · '+parseFloat(totalHrs.toFixed(1))+' hrs est.':'';
-        var jobCountLabel=totalJobs+(totalJobs===1?' job':' jobs')+(period==='month'?' this month':period==='fortnight'?' this fortnight':' this week')+hrsLabel;
-        rBody.innerHTML=
-          '<div class="rp-page">'+
-          '<div class="rp-sub">'+esc2(periodLabel)+'</div>'+
-          '<div class="rp-count">'+esc2(jobCountLabel)+'</div>'+
-          dayRows+
-          '</div>';
-      }
-
-      if(clientIds.length){
-        sb.from('clients').select('id,site_address').in('id',clientIds).then(function(cr){
-          var addrMap={};
-          (cr.data||[]).forEach(function(c){addrMap[c.id]=c.site_address||'';});
-          buildRoster(addrMap);
-        });
-      } else {
-        buildRoster({});
-      }
-    });
-}
 
 document.getElementById('staff-grid').addEventListener('click',function(e){
-  var rBtn=e.target.closest('.sc-roster-btn');
-  if(rBtn){
-    var periodSel=rBtn.closest('.sc-roster-row').querySelector('.sc-roster-period');
-    openRoster(rBtn.dataset.rosterId,rBtn.dataset.rosterName,periodSel?periodSel.value:'week');
-    return;
-  }
-  if(e.target.closest('.sc-roster-row'))return;
   if(e.target.closest('.sc-profile-link'))return;
   var card=e.target.closest('.staff-card');
   if(!card)return;
   location.href='profile.html?id='+card.dataset.id;
 });
 
-document.getElementById('roster-modal-close').addEventListener('click',function(){document.getElementById('roster-modal').hidden=true;});
-document.getElementById('roster-print-btn').addEventListener('click',function(){window.print();});
-document.getElementById('roster-modal').addEventListener('click',function(e){if(e.target===this)this.hidden=true;});
 var sfPills=document.querySelectorAll('.f-pill[data-sf]');
 sfPills.forEach(function(p){
   p.addEventListener('click',function(){
