@@ -106,6 +106,8 @@ export async function onRequestPost({ request, env }) {
     <p style="margin:0;color:#666;font-size:13px">— The MyQuest team</p>
   `;
 
+  const replyTo = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(row.email) ? row.email : undefined;
+
   try {
     await Promise.all([
       fetch('https://api.resend.com/emails', {
@@ -114,6 +116,7 @@ export async function onRequestPost({ request, env }) {
         body: JSON.stringify({
           from: 'MyQuest <hello@myquest.au>',
           to: ['hello@myquest.au'],
+          reply_to: replyTo,
           subject: `New inquiry: ${row.biz_name} — ${row.suburb}`,
           html: adminEmailHtml,
         }),
