@@ -3,6 +3,8 @@
 ## What this is
 Cleaning business SaaS. Vanilla HTML/CSS/JS on Cloudflare Pages. Workers in `/functions/api/`. Supabase for Postgres + Auth + Storage. No bundler, no framework.
 
+Pages publishes only `public/` (the site and the CRM in `public/crm/`). Everything else in the repo is private. Never add docs, SQL, secrets or server code under `public/`.
+
 ## Conventions you must follow
 
 ### JS pattern

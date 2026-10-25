@@ -13,10 +13,12 @@ Two options depending on what you're working on:
 
 | Method | Command | Works for |
 |---|---|---|
-| Pages only | `python3 -m http.server 8788` | All HTML/CSS/JS, dashboard UI |
-| Pages + API | `npx wrangler pages dev . --port 8788` | Everything including `/api/*` calls |
+| Pages only | `python3 -m http.server 8788 --directory public` | All HTML/CSS/JS, dashboard UI |
+| Pages + API | `npx wrangler pages dev public --port 8788` | Everything including `/api/*` calls |
 
 API calls (login, saving data, uploads) only work under Wrangler — they'll 404 with the plain python server.
+
+Everything the website serves lives in `public/`. Cloudflare Pages publishes only that folder (build output directory `public`), so `functions/`, `supabase/`, `watch/` and these docs stay private. Never put anything in `public/` that shouldn't be readable by anyone.
 
 ---
 
@@ -99,7 +101,7 @@ All migrations use `IF NOT EXISTS` and are safe to re-run.
 
 ## Deployment
 
-Push to `main` → Cloudflare Pages auto-deploys. No build step required.
+Push to `main` → Cloudflare Pages auto-deploys `public/` plus `functions/`. No build step required.
 
 Cache-busting is manual: update `?v=YYYYMMDD` query strings on `<script>` and `<link>` tags when changing JS/CSS files.
 
