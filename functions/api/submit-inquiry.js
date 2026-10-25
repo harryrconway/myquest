@@ -56,25 +56,31 @@ export async function onRequestPost({ request, env }) {
     status:       'new',
   };
 
-  const insertRes = await fetch(`${URL_BASE}/rest/v1/inquiries`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SVC_KEY}`,
-      'apikey': SVC_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-    },
-    body: JSON.stringify(row),
-  });
-
-  if (!insertRes.ok) {
-    const err = await insertRes.text();
-    console.error('Supabase insert error:', err);
-    return json({ error: 'Failed to save inquiry.' }, 500);
+  // A database outage must never lose a lead: the notification email still goes out and says it wasn't saved.
+  let saved = false;
+  let inquiryId = null;
+  try {
+    const insertRes = await fetch(`${URL_BASE}/rest/v1/inquiries`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SVC_KEY}`,
+        'apikey': SVC_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify(row),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (insertRes.ok) {
+      saved = true;
+      const [inserted] = await insertRes.json();
+      inquiryId = inserted?.id ?? null;
+    } else {
+      console.error('Supabase insert error:', await insertRes.text());
+    }
+  } catch (e) {
+    console.error('Supabase insert failed:', e);
   }
-
-  const [inserted] = await insertRes.json();
-  const inquiryId = inserted?.id;
 
   const spaceLabels = { office: 'Office', retail: 'Retail', medical: 'Medical', industrial: 'Industrial', other: 'Other' };
   const freqLabels = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once-off' };
@@ -83,7 +89,10 @@ export async function onRequestPost({ request, env }) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  const adminEmailHtml = `
+  const notSavedHtml = saved ? '' : `
+    <p style="margin:0 0 16px;padding:12px 14px;background:#fdecea;border:1px solid #f5c2c0;border-radius:6px;color:#8a1f17;font-size:14px"><strong>Not saved to the CRM.</strong> The database couldn't be reached, so add this inquiry to the CRM by hand.</p>`;
+
+  const adminEmailHtml = `${notSavedHtml}
     <h2 style="margin:0 0 16px">New inquiry — ${escHtml(row.biz_name)}</h2>
     <table style="border-collapse:collapse;width:100%;font-size:14px">
       <tr><td style="padding:6px 12px 6px 0;color:#666;width:140px">Business</td><td style="padding:6px 0"><strong>${escHtml(row.biz_name)}</strong></td></tr>
@@ -97,7 +106,7 @@ export async function onRequestPost({ request, env }) {
       ${row.estimate ? `<tr><td style="padding:6px 12px 6px 0;color:#666">Estimate</td><td style="padding:6px 0">${escHtml(row.estimate)}</td></tr>` : ''}
       ${row.notes ? `<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top">Notes</td><td style="padding:6px 0">${escHtml(row.notes)}</td></tr>` : ''}
     </table>
-    <p style="margin:20px 0 0;font-size:13px;color:#999">View in CRM: <a href="https://crm.myquest.au/crm/inquiries.html">Inquiries</a></p>
+    <p style="margin:20px 0 0;font-size:13px;color:#999">View in CRM: <a href="https://myquest.au/crm/inquiries.html">Inquiries</a></p>
   `;
 
   const confirmEmailHtml = `
@@ -108,33 +117,38 @@ export async function onRequestPost({ request, env }) {
 
   const replyTo = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(row.email) ? row.email : undefined;
 
-  try {
-    await Promise.all([
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'MyQuest <hello@myquest.au>',
-          to: ['hello@myquest.au'],
-          reply_to: replyTo,
-          subject: `New inquiry: ${row.biz_name} — ${row.suburb}`,
-          html: adminEmailHtml,
-        }),
-      }),
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'MyQuest <hello@myquest.au>',
-          to: [row.email],
-          subject: 'We\'ve received your inquiry — MyQuest',
-          html: confirmEmailHtml,
-        }),
-      }),
-    ]);
-  } catch (e) {
-    console.error('Resend error (inquiry already saved):', e);
+  function sendEmail(payload) {
+    return fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
+    }).then(async res => {
+      if (!res.ok) console.error('Resend error:', res.status, await res.text());
+      return res.ok;
+    }, e => {
+      console.error('Resend error:', e);
+      return false;
+    });
   }
+
+  const [notified] = await Promise.all([
+    sendEmail({
+      from: 'MyQuest <hello@myquest.au>',
+      to: ['hello@myquest.au'],
+      reply_to: replyTo,
+      subject: `${saved ? 'New inquiry' : 'New inquiry (NOT saved to CRM)'}: ${row.biz_name} — ${row.suburb}`,
+      html: adminEmailHtml,
+    }),
+    sendEmail({
+      from: 'MyQuest <hello@myquest.au>',
+      to: [row.email],
+      subject: 'We\'ve received your inquiry — MyQuest',
+      html: confirmEmailHtml,
+    }),
+  ]);
+
+  if (!saved && !notified) return json({ error: 'Failed to save inquiry.' }, 500);
 
   return json({ success: true, id: inquiryId });
 }
