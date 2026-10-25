@@ -105,6 +105,17 @@ Cache-busting is manual: update `?v=YYYYMMDD` query strings on `<script>` and `<
 
 ---
 
+## Monitoring
+
+Supabase pauses free projects after about a week without database activity, which takes the CRM and inquiry saving down. Two things guard against that:
+
+- `/api/submit-inquiry` always emails the inquiry to hello@myquest.au, even when Supabase is unreachable. Those emails are titled **New inquiry (NOT saved to CRM)** and must be added to the CRM by hand.
+- `watch/` is a separate Cloudflare Worker (`myquest-watch`) that runs every 15 minutes. It calls `/api/health` (one database read, which keeps Supabase awake) and checks the website, the inquiry form and CRM sign in. Failures email hello@myquest.au through Resend, with a reminder every 6 hours and an email on recovery.
+
+Deploy the watcher from `watch/` with `npx wrangler deploy`. It needs one secret, set with `npx wrangler secret put RESEND_API_KEY`.
+
+---
+
 ## Mobile requirement
 
 **Every UI change must render correctly on mobile (375px viewport).** Before committing any HTML/CSS change, check:
