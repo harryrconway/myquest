@@ -1,4 +1,5 @@
-https://www.myquest.au/* https://myquest.au/:splat 301!
+/crm/* / 301
+/login* / 301
 /bond-cleaning* / 301
 /residential* / 301
 /airbnb* / 301

@@ -1,1 +1,0 @@
-ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS estimate TEXT;

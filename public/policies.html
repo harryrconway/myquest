@@ -8,7 +8,7 @@
   <title>Policies | MyQuest</title>
   <meta name=theme-color content=#111111>
   <meta name="description" content="MyQuest Pty Ltd policies — lockout, cancellation, payment, privacy, terms and damage.">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"><style>
+  <link rel=preload href=/assets/fonts/instrument-sans.woff2 as=font type=font/woff2 crossorigin><style>@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url(/assets/fonts/instrument-sans.woff2) format('woff2')}
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -19,7 +19,7 @@
       --stone: #666666;
       --hair: rgba(0,0,0,0.1);
       --r: 22px;
-      --font: 'DynaPuff', system-ui;
+      --font: 'Instrument Sans', system-ui;
     }
 
     body {
@@ -82,7 +82,6 @@
     .page-date {
       font-size: 13px;
       color: var(--stone);
-      opacity: 0.7;
       margin-bottom: 40px;
     }
 
@@ -170,7 +169,7 @@
     .pg-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:720px;margin:40px auto 0;padding:24px clamp(16px,4vw,32px);border-top:1px solid var(--hair)}
     .pg-footer-back{font-size:13px;font-weight:600;color:var(--stone);text-decoration:none;transition:color .2s}
     .pg-footer-back:hover{color:var(--navy)}
-    .pg-footer-copy{font-size:12px;color:var(--stone);opacity:.7}
+    .pg-footer-copy{font-size:12px;color:var(--stone)}
 
     .m-actions { display: none; }
 
@@ -202,13 +201,12 @@
       }
       .m-actions .call { color: var(--card); border: 1.5px solid rgba(255,255,255,0.45); }
       .m-actions .quote { background: var(--card); color: var(--navy); }
-    }
-  #flt{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:20px;z-index:300;display:flex;flex-direction:column;align-items:flex-end;gap:10px}.flt-r{color:var(--navy);border-radius:14px;padding:14px 16px;text-decoration:none;display:flex;flex-direction:column;gap:8px}.flt-r:hover .flt-garr{transform:translate(2px,-2px)}.flt-rl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.45;font-weight:600}.flt-rr{display:flex;align-items:center;gap:12px}.flt-gmark{flex:none;width:28px;height:28px;display:block}.flt-gmark svg{width:100%;height:100%;display:block}.flt-gcol{display:flex;flex-direction:column;gap:3px}.flt-gline1{font-family:var(--disp);display:flex;align-items:center;gap:8px;font-size:18px;font-weight:600}.flt-gstars{color:#fbbc04;letter-spacing:2px;font-size:14px}.flt-gline2{color:#5f6368;font-size:12px;font-weight:400}.flt-garr{color:var(--stone);margin-left:auto;font-size:14px;padding-left:8px;transition:transform .2s}@media(width<=560px){.flt-r{display:none}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.menu-overlay,.menu-overlay:before,.menu-overlay:after{transition:none!important}}</style>
-</head>
+    }@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.menu-overlay,.menu-overlay:before,.menu-overlay:after{transition:none!important}}</style>
+<script>try{if(!sessionStorage.mqFrom){var u=new URLSearchParams(location.search);sessionStorage.mqFrom=JSON.stringify({ref:document.referrer,landing:location.pathname,utm_source:u.get('utm_source')||'',utm_medium:u.get('utm_medium')||'',utm_campaign:u.get('utm_campaign')||'',click:u.get('gclid')?'gclid':u.get('fbclid')?'fbclid':''})}}catch(e){}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://myquest.au/"},{"@type":"ListItem","position":2,"name":"Policies","item":"https://myquest.au/policies"}]}</script></head>
 <body>
 
   <div class="top-bar">
-    <a href="/" class="logo"><img src=/assets/myquest-logo.svg alt=MyQuest height=36 style="display:block"></a>
+    <a href="/" class="logo"><img src=/assets/myquest-logo.svg alt=MyQuest width=127 height=36 style="display:block"></a>
     <a href="/" class="back-link">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       Back to site
@@ -281,7 +279,7 @@
       <h2>Privacy Policy</h2>
       <p>MyQuest Pty Ltd (ABN 65 693 175 405, ACN 693 175 405) is committed to protecting your personal information in accordance with the Australian Privacy Principles under the <em>Privacy Act 1988</em> (Cth).</p>
       <p>We collect your name, contact details, site address, and service preferences solely for the purpose of scheduling and delivering your cleaning services. We do not sell, rent, or share your information with third parties except as required to deliver our services or comply with legal obligations.</p>
-      <p>Enquiry and quote request forms on our website save your details to our customer database, hosted by Supabase (supabase.com). We use Resend (resend.com) to email your enquiry to our team and send you a confirmation, and our business email is hosted by Google Workspace (workspace.google.com). These providers handle your information only to deliver these services to us, and may store or process it outside Australia. By submitting a form you consent to your details being handled in this way. You may request access to, correction of, or deletion of your personal information at any time by contacting us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>. We retain your personal information only for as long as necessary to provide our services or as required by law.</p>
+      <p>When you send an enquiry through our website, your details are emailed to our team using Resend (resend.com), and our business email is hosted by Google Workspace (workspace.google.com). We also note how you found us, such as the website or search engine that referred you, so we know which advertising works. These providers handle your information only to deliver these services to us, and may store or process it outside Australia. By submitting a form you consent to your details being handled in this way. You may request access to, correction of, or deletion of your personal information at any time by contacting us at <a href="mailto:hello@myquest.au">hello@myquest.au</a>. We retain your personal information only for as long as necessary to provide our services or as required by law.</p>
 
       <h3>Website analytics</h3>
       <p>This website uses Cloudflare Web Analytics, a privacy-focused service that collects anonymised, aggregated data about page visits (such as page views, referrer, and approximate country). Cloudflare does not use this data to track individuals or build user profiles, and no personally identifiable information is collected through analytics. For details, see Cloudflare's privacy policy at <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer" target="_blank">cloudflare.com/privacypolicy</a>.</p>
@@ -339,5 +337,5 @@
     <a class="call" href="tel:+61413154932">Call</a>
     <a class="quote" href="/#enquire">Get a quote</a>
   </div>
-<aside id=flt aria-label="Reviews and enquiry"><a class=flt-r href="https://www.google.com/maps/place/MyQuest/@-29.0546366,151.5817393,8z/data=!4m8!3m7!1s0xa00502a8c1e9b53b:0xd84f383bf9f874b4!8m2!3d-29.0635115!4d152.903426!9m1!1b1!16s%2Fg%2F11nqdxgs_4" target=_blank rel="noopener noreferrer" aria-label="5.0 rating on Google, 4 reviews"><span class=flt-rl>Reviews</span><div class=flt-rr><span class=flt-gmark aria-hidden=true><svg viewBox="0 0 48 48"><path d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.8-2.1 5.1-4.4 6.7v5.5h7.1c4.2-3.8 6.6-9.5 6.6-16.2z" fill="#4285F4"/><path d="M24 46c6 0 10.9-2 14.5-5.3l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.2 15.5 46 24 46z" fill="#34A853"/><path d="M11.8 28.3c-.4-1.3-.7-2.8-.7-4.3s.2-3 .7-4.3V14H4.5C3 17 2.1 20.4 2.1 24s.9 7 2.4 10l7.3-5.7z" fill="#FBBC05"/><path d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.2 30 2 24 2 15.5 2 8.1 6.8 4.5 14l7.3 5.7c1.7-5.2 6.5-8.9 12.2-8.9z" fill="#EA4335"/></svg></span><div class=flt-gcol><span class=flt-gline1>5.0 <span aria-hidden=true class=flt-gstars>&#9733;&#9733;&#9733;&#9733;&#9733;</span></span><span class=flt-gline2>4 Google reviews</span></div><span aria-hidden=true class=flt-garr>&#x2197;</span></div></a></aside></body>
+</body>
 </html>

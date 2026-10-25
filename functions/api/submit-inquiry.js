@@ -1,30 +1,50 @@
-const ORIGIN = 'https://myquest.au';
+const TO = 'hello@myquest.au';
+const REQUIRED = ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sqm_range', 'frequency', 'heard'];
+
+const LABELS = {
+  clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
+  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', other: 'Other' },
+  frequency: { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off' },
+};
+
+const REFERRERS = [
+  [/(^|\.)google\./, 'Google'],
+  [/(^|\.)bing\.com$/, 'Bing'],
+  [/(^|\.)duckduckgo\.com$/, 'DuckDuckGo'],
+  [/(^|\.)facebook\.com$|(^|\.)fb\.com$/, 'Facebook'],
+  [/(^|\.)instagram\.com$/, 'Instagram'],
+  [/(^|\.)linkedin\.com$|(^|\.)lnkd\.in$/, 'LinkedIn'],
+];
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': ORIGIN,
-    },
-  });
+  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
-export async function onRequestOptions() {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': ORIGIN,
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
+function text(value) {
+  return value == null ? '' : String(value).trim().slice(0, 2000);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Turns the visitor's first page of the session into something readable, e.g. "Google search" or "facebook / cpc (spring)".
+function cameFrom(from, siteHost) {
+  if (!from || typeof from !== 'object') return 'Unknown';
+  const utm = [text(from.utm_source), text(from.utm_medium)].filter(Boolean).join(' / ');
+  if (utm) return utm + (text(from.utm_campaign) ? ` (${text(from.utm_campaign)})` : '');
+  if (from.click === 'gclid') return 'Google Ads';
+  if (from.click === 'fbclid') return 'Facebook or Instagram link';
+  let host = '';
+  try {
+    host = new URL(text(from.ref)).hostname.replace(/^www\./, '');
+  } catch {}
+  if (!host || host === siteHost) return 'Direct (typed the address, a bookmark or an app)';
+  const known = REFERRERS.find(([re]) => re.test(host));
+  return known ? `${known[1]} (${host})` : host;
 }
 
 export async function onRequestPost({ request, env }) {
-  const URL_BASE = env.SUPABASE_URL;
-  const SVC_KEY = env.SUPABASE_SERVICE_KEY;
-  const RESEND_KEY = env.RESEND_API_KEY;
-
   let body;
   try {
     body = await request.json();
@@ -32,123 +52,71 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Invalid JSON.' }, 400);
   }
 
-  const required = ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sqm_range', 'frequency'];
-  for (const field of required) {
-    if (!body[field] || !String(body[field]).trim()) {
-      return json({ error: `Missing required field: ${field}` }, 400);
-    }
+  for (const field of REQUIRED) {
+    if (!text(body[field])) return json({ error: `Missing required field: ${field}` }, 400);
   }
 
-  const row = {
-    biz_name:     String(body.biz_name).trim(),
-    contact_name: String(body.contact_name).trim(),
-    email:        String(body.email).trim().toLowerCase(),
-    mobile:       String(body.mobile).trim(),
-    suburb:       String(body.suburb).trim(),
-    space_type:   String(body.space_type).trim(),
-    sqm_range:    String(body.sqm_range).trim(),
-    frequency:    String(body.frequency).trim(),
-    notes:        body.notes ? String(body.notes).trim() : null,
-    estimate:     body.estimate ? String(body.estimate).trim() : null,
-    kitchen:      typeof body.kitchen === 'boolean' ? body.kitchen : null,
-    baths:        body.baths != null ? parseInt(body.baths, 10) : null,
-    source:       body.source ? String(body.source).trim() : null,
-    status:       'new',
-  };
+  // Bots fill the hidden "website" field; pretend it worked and send nothing.
+  if (text(body.website)) return json({ success: true });
 
-  // A database outage must never lose a lead: the notification email still goes out and says it wasn't saved.
-  let saved = false;
-  let inquiryId = null;
-  try {
-    const insertRes = await fetch(`${URL_BASE}/rest/v1/inquiries`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SVC_KEY}`,
-        'apikey': SVC_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-      },
-      body: JSON.stringify(row),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (insertRes.ok) {
-      saved = true;
-      const [inserted] = await insertRes.json();
-      inquiryId = inserted?.id ?? null;
-    } else {
-      console.error('Supabase insert error:', await insertRes.text());
-    }
-  } catch (e) {
-    console.error('Supabase insert failed:', e);
-  }
+  const e = Object.fromEntries(
+    ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard'].map(k => [k, text(body[k])]),
+  );
+  const site = new URL(request.url).hostname.replace(/^www\./, '');
+  const from = cameFrom(body.from, site);
+  const landing = text(body.from && body.from.landing) || '/';
+  const bathrooms = body.baths == null ? '' : String(parseInt(body.baths, 10) >= 3 ? '3 or more' : parseInt(body.baths, 10));
+  const kitchen = body.kitchen === true ? 'Yes' : body.kitchen === false ? 'No' : '';
 
-  const spaceLabels = { office: 'Office', retail: 'Retail', medical: 'Medical', industrial: 'Industrial', other: 'Other' };
-  const freqLabels = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once-off' };
+  const rows = [
+    ['Business', `<strong>${esc(e.biz_name)}</strong>`],
+    ['Contact', esc(e.contact_name)],
+    ['Email', `<a href="mailto:${esc(e.email)}">${esc(e.email)}</a>`],
+    ['Mobile', `<a href="tel:${esc(e.mobile)}">${esc(e.mobile)}</a>`],
+    ['Suburb', esc(e.suburb)],
+    ['Clean type', esc(LABELS.clean_type[e.clean_type] || e.clean_type)],
+    ['Space type', esc(LABELS.space_type[e.space_type] || e.space_type)],
+    ['Size', esc(e.sqm_range)],
+    ['Frequency', esc(LABELS.frequency[e.frequency] || e.frequency)],
+    ['Kitchen', kitchen],
+    ['Bathrooms', bathrooms],
+    ['Estimate shown', esc(e.estimate)],
+    ['Notes', esc(e.notes).replace(/\n/g, '<br>')],
+    ['Heard about us', `<strong>${esc(e.heard)}</strong>`],
+    ['Came from', esc(from)],
+    ['First page seen', esc(landing)],
+  ].filter(([, v]) => v);
 
-  function escHtml(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  const notSavedHtml = saved ? '' : `
-    <p style="margin:0 0 16px;padding:12px 14px;background:#fdecea;border:1px solid #f5c2c0;border-radius:6px;color:#8a1f17;font-size:14px"><strong>Not saved to the CRM.</strong> The database couldn't be reached, so add this inquiry to the CRM by hand.</p>`;
-
-  const adminEmailHtml = `${notSavedHtml}
-    <h2 style="margin:0 0 16px">New inquiry — ${escHtml(row.biz_name)}</h2>
-    <table style="border-collapse:collapse;width:100%;font-size:14px">
-      <tr><td style="padding:6px 12px 6px 0;color:#666;width:140px">Business</td><td style="padding:6px 0"><strong>${escHtml(row.biz_name)}</strong></td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Contact</td><td style="padding:6px 0">${escHtml(row.contact_name)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Email</td><td style="padding:6px 0"><a href="mailto:${escHtml(row.email)}">${escHtml(row.email)}</a></td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Mobile</td><td style="padding:6px 0">${escHtml(row.mobile)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Address</td><td style="padding:6px 0">${escHtml(row.suburb)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Space type</td><td style="padding:6px 0">${escHtml(spaceLabels[row.space_type] || row.space_type)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Size</td><td style="padding:6px 0">${escHtml(row.sqm_range)}</td></tr>
-      <tr><td style="padding:6px 12px 6px 0;color:#666">Frequency</td><td style="padding:6px 0">${escHtml(freqLabels[row.frequency] || row.frequency)}</td></tr>
-      ${row.estimate ? `<tr><td style="padding:6px 12px 6px 0;color:#666">Estimate</td><td style="padding:6px 0">${escHtml(row.estimate)}</td></tr>` : ''}
-      ${row.notes ? `<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top">Notes</td><td style="padding:6px 0">${escHtml(row.notes)}</td></tr>` : ''}
+  const html = `
+    <h2 style="margin:0 0 16px;font-family:Arial,sans-serif">New enquiry: ${esc(e.biz_name)}</h2>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;font-family:Arial,sans-serif">
+      ${rows.map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;width:140px;vertical-align:top">${k}</td><td style="padding:6px 0">${v}</td></tr>`).join('')}
     </table>
-    <p style="margin:20px 0 0;font-size:13px;color:#999">View in CRM: <a href="https://myquest.au/crm/inquiries.html">Inquiries</a></p>
-  `;
+    <p style="margin:20px 0 0;font-size:13px;color:#999;font-family:Arial,sans-serif">Press Reply to answer ${esc(e.contact_name)} directly.</p>`;
 
-  const confirmEmailHtml = `
-    <h2 style="margin:0 0 12px">Thanks, ${escHtml(row.contact_name.split(' ')[0])}.</h2>
-    <p style="margin:0 0 16px">We've received your inquiry and will put a quote together and give you a call shortly.</p>
-    <p style="margin:0;color:#666;font-size:13px">— The MyQuest team</p>
-  `;
+  const validEmail = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(e.email);
 
-  const replyTo = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(row.email) ? row.email : undefined;
-
-  function sendEmail(payload) {
-    return fetch('https://api.resend.com/emails', {
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(8000),
-    }).then(async res => {
-      if (!res.ok) console.error('Resend error:', res.status, await res.text());
-      return res.ok;
-    }, e => {
-      console.error('Resend error:', e);
-      return false;
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'MyQuest website <hello@myquest.au>',
+        to: [TO],
+        reply_to: validEmail ? e.email : undefined,
+        subject: `New enquiry: ${e.biz_name} — ${e.suburb} (via ${e.heard})`,
+        html,
+      }),
+      signal: AbortSignal.timeout(10000),
     });
+    if (!res.ok) {
+      console.error('Resend error:', res.status, await res.text());
+      return json({ error: 'Could not send enquiry.' }, 502);
+    }
+  } catch (err) {
+    console.error('Resend error:', err);
+    return json({ error: 'Could not send enquiry.' }, 502);
   }
 
-  const [notified] = await Promise.all([
-    sendEmail({
-      from: 'MyQuest <hello@myquest.au>',
-      to: ['hello@myquest.au'],
-      reply_to: replyTo,
-      subject: `${saved ? 'New inquiry' : 'New inquiry (NOT saved to CRM)'}: ${row.biz_name} — ${row.suburb}`,
-      html: adminEmailHtml,
-    }),
-    sendEmail({
-      from: 'MyQuest <hello@myquest.au>',
-      to: [row.email],
-      subject: 'We\'ve received your inquiry — MyQuest',
-      html: confirmEmailHtml,
-    }),
-  ]);
-
-  if (!saved && !notified) return json({ error: 'Failed to save inquiry.' }, 500);
-
-  return json({ success: true, id: inquiryId });
+  return json({ success: true });
 }

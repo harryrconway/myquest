@@ -1,159 +1,53 @@
 # MyQuest
 
-Cleaning business management platform — online quoting, job scheduling, staff management, and client tracking.
+Website for MyQuest Pty Ltd, commercial cleaning on the Gold Coast and Tweed Heads: [myquest.au](https://myquest.au).
 
-**Stack:** Vanilla HTML/CSS/JS → Cloudflare Pages · Cloudflare Workers (Functions) · Supabase (Postgres + Auth + Storage)  
-**No bundler. No framework. No build step.**
-
----
-
-## Local Development
-
-Two options depending on what you're working on:
-
-| Method | Command | Works for |
-|---|---|---|
-| Pages only | `python3 -m http.server 8788 --directory public` | All HTML/CSS/JS, dashboard UI |
-| Pages + API | `npx wrangler pages dev public --port 8788` | Everything including `/api/*` calls |
-
-API calls (login, saving data, uploads) only work under Wrangler — they'll 404 with the plain python server.
-
-Everything the website serves lives in `public/`. Cloudflare Pages publishes only that folder (build output directory `public`), so `functions/`, `supabase/`, `watch/` and these docs stay private. Never put anything in `public/` that shouldn't be readable by anyone.
+**Stack:** static HTML on Cloudflare Pages, one Pages Function for the enquiry form, Resend to email enquiries. No framework, no build step, no database.
 
 ---
 
-## Setting up .dev.vars (one-time, local only)
+## Layout
 
-`.dev.vars` is a private file that lives only on your computer. It gives the local API functions your secret keys so they can connect to Supabase, send emails, etc. **It is never committed to git.**
-
-1. Duplicate `.dev.vars.example` → rename the copy to `.dev.vars`
-2. Fill in each value (see where to find them below)
-3. Done — Wrangler picks it up automatically
-
-**Where to find each key:**
-
-| Key | Where |
+| Path | What it is |
 |---|---|
-| `SUPABASE_URL` | Supabase dashboard → Project Settings → API → Project URL |
-| `SUPABASE_ANON_KEY` | Supabase dashboard → Project Settings → API → anon/public key |
-| `SUPABASE_SERVICE_KEY` | Supabase dashboard → Project Settings → API → service_role key |
-| `RESEND_API_KEY` | Resend dashboard → API Keys |
-| `TURNSTILE_SECRET` | Cloudflare dashboard → Turnstile → your site → Secret Key |
-| `CRON_SECRET` | Any random string — must match the reminder worker config |
-| `ADMIN_EMAIL` | Your email address for shift alerts |
+| `public/` | Everything the website serves. Each page is a single HTML file with its CSS and JS inline. |
+| `public/assets/` | Logos, icons, the share image (`og.png`) and the self-hosted Instrument Sans font. |
+| `public/_headers`, `public/_redirects` | Security and cache headers, and redirects for retired URLs. |
+| `functions/api/submit-inquiry.js` | `POST /api/submit-inquiry`: emails the enquiry to hello@myquest.au. |
 
----
+Cloudflare Pages publishes only `public/` (build output directory `public`) plus `functions/`. Nothing outside `public/` is readable on the live site, so never put docs, notes or secrets in there.
 
-## Environment Variables (production)
+## Local development
 
-The same keys must also be set in Cloudflare Pages → **Settings → Environment Variables** for the live site. Do this once, or whenever a key changes.
-
-| Variable | Purpose |
-|---|---|
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_ANON_KEY` | Public key — safe to expose, RLS controls access |
-| `SUPABASE_SERVICE_KEY` | Secret key — bypasses RLS. Never expose to browser. |
-| `RESEND_API_KEY` | Sends transactional emails |
-| `TURNSTILE_SECRET` | Validates bot-check on the quote form |
-| `CRON_SECRET` | Protects cron endpoints |
-| `ADMIN_EMAIL` | Where urgent shift alerts are sent |
-
----
-
-## Database Setup (first time)
-
-Run all migrations in order in the Supabase SQL Editor:
-
-```
-supabase/migrations/20260612_company_settings.sql
-supabase/migrations/20260612_staff_colour.sql
-supabase/migrations/20260613_staff_onboarding.sql
-supabase/migrations/20260614_onboarding_extra.sql
-supabase/migrations/20260617_schedule_reminder_sent.sql
-supabase/migrations/20260618_recurrence_columns.sql
-supabase/migrations/20260622_open_shift_coverage.sql
-supabase/migrations/20260622_profiles_realtime.sql
-supabase/migrations/20260622_staff_documents_storage_policy.sql
-supabase/migrations/20260625_input_length_constraints.sql
-supabase/migrations/20260627_staff_hr_fields.sql
-supabase/migrations/20260628_profiles_hris_columns.sql
-supabase/migrations/20260628_rls_security_hardening.sql
-supabase/migrations/20260628_status_workflow.sql
-supabase/migrations/20260629_quote_internal_fields.sql
+```bash
+npx wrangler pages dev public --port 8788
 ```
 
-All migrations use `IF NOT EXISTS` and are safe to re-run.
+The form needs `RESEND_API_KEY` in a local `.dev.vars` file (see `.dev.vars.example`; it's gitignored). Without it the form shows its error message, everything else works. For pages only, `python3 -m http.server 8788 --directory public` is enough.
 
----
+## Enquiries
 
-## Security Model
+The form on the home page posts to `/api/submit-inquiry`, which emails hello@myquest.au through Resend with the customer as the reply-to. The subject ends with how they heard about us, e.g. `(via Facebook)`, so Gmail search answers "how many enquiries came from Facebook".
 
-| Layer | What it enforces |
-|---|---|
-| **Cloudflare Functions** | All writes go through `/api/*`. JWT verified on every request. Role checked server-side before any mutation. |
-| **Supabase RLS** | `profiles`: SELECT open to authenticated users; INSERT/UPDATE/DELETE blocked (service role only). `staff-documents` storage: staff can only read their own profile photo; compliance docs are owner/manager only. |
-| **Frontend** | `data-min-role` attributes hide pages and elements below required role. `auth.js` redirects unauthenticated users and staff with `onboarding` status. |
-| **API field tiers** | `update-profile`: owner-only fields (HR notes, doc URLs, role, status) gated server-side. `get-staff-profile`: returns different field sets for owner vs self-caller — HR fields never sent to staff. |
+Every email also includes **Came from** (the referring site, UTM tags or ad click, captured on the visitor's first page of the session) and **First page seen**. Tag links you post with UTM parameters to make this precise, for example `https://myquest.au/?utm_source=facebook&utm_medium=social&utm_campaign=spring`.
 
-**Never expose `SUPABASE_SERVICE_KEY` to the client.** It bypasses RLS and has full database access.
+A hidden honeypot field drops most spam bots without a captcha.
 
----
+## Production settings
+
+- Cloudflare Pages → myquest → Settings: build output directory `public`, no build command.
+- Environment variable: `RESEND_API_KEY` (encrypted). Nothing else is needed.
 
 ## Deployment
 
-Push to `main` → Cloudflare Pages auto-deploys `public/` plus `functions/`. No build step required.
-
-Cache-busting is manual: update `?v=YYYYMMDD` query strings on `<script>` and `<link>` tags when changing JS/CSS files.
-
----
-
-## Monitoring
-
-Supabase pauses free projects after about a week without database activity, which takes the CRM and inquiry saving down. Two things guard against that:
-
-- `/api/submit-inquiry` always emails the inquiry to hello@myquest.au, even when Supabase is unreachable. Those emails are titled **New inquiry (NOT saved to CRM)** and must be added to the CRM by hand.
-- `watch/` is a separate Cloudflare Worker (`myquest-watch`) that runs every 15 minutes. It calls `/api/health` (one database read, which keeps Supabase awake) and checks the website, the inquiry form and CRM sign in. Failures email hello@myquest.au through Resend, with a reminder every 6 hours and an email on recovery.
-
-Deploy the watcher from `watch/` with `npx wrangler deploy`. It needs one secret, set with `npx wrangler secret put RESEND_API_KEY`.
-
----
+Push to `main` and Cloudflare Pages deploys in about 20 seconds.
 
 ## Mobile requirement
 
-**Every UI change must render correctly on mobile (375px viewport).** Before committing any HTML/CSS change, check:
+**Every UI change must render correctly on mobile (375px viewport).** Before committing any HTML or CSS change, check:
 
-- No horizontal overflow — nothing should cause the page body to scroll sideways
+- No horizontal overflow: nothing should make the page scroll sideways
 - Tap targets are at least 44×44px
 - Multi-column grids collapse to 1–2 columns on small screens
-- Fixed/overlay elements account for the 56px mobile bar (`top:56px` or `padding-top:56px`)
+- Fixed or overlay elements account for the 56px mobile bar
 - Text does not overflow its container
-
----
-
-## After deploying login changes (one-time action required)
-
-The login flow now goes through `/api/login` (a Cloudflare Worker) instead of calling Supabase directly from the browser. The Worker needs `SUPABASE_ANON_KEY` to be set as a production environment variable — without it, login will return a server configuration error on the live site.
-
-**Steps:**
-
-1. Go to [Cloudflare Pages](https://dash.cloudflare.com) → select your **myquest** project
-2. Click **Settings** in the top tab bar → then **Environment variables** in the left sidebar
-3. Under the **Production** heading, click **Add variable**
-4. Fill in:
-   - **Variable name:** `SUPABASE_ANON_KEY`
-   - **Value:** your Supabase anon key (Supabase dashboard → Project Settings → API → the key listed under **anon public**)
-   - **Type:** leave as **Text** (this key is already public — it ships in your browser JS — so it does not need to be encrypted)
-5. Click **Save**
-6. Trigger a redeploy — env var changes don't apply until the next deploy:
-   - Go to **Deployments** → click the three-dot menu on the latest deployment → **Retry deployment**
-   - Wait for it to finish (usually ~30 seconds)
-
-Login will not work on the live site until all 6 steps are completed.
-
----
-
-## Developer Wiki
-
-Full technical reference: [`/docs/index.html`](docs/index.html)
-
-Covers: architecture, database schema, RLS policies, all API endpoints, dashboard pages, JS modules, security model.
