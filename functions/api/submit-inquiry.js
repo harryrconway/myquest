@@ -106,7 +106,7 @@ export async function onRequestPost({ request, env }) {
         from: 'MyQuest website <hello@myquest.au>',
         to: [TO],
         reply_to: validEmail ? e.email : undefined,
-        subject: `New ${{ home: 'home ', 'ndis-dva': 'NDIS / DVA ' }[e.space_type] || ''}enquiry: ${who} — ${e.suburb} (via ${e.heard})`,
+        subject: `New ${{ home: 'home ', 'ndis-dva': 'NDIS / DVA ' }[e.space_type] || ''}enquiry: ${who}, ${e.suburb} (via ${e.heard})`,
         html,
       }),
       signal: AbortSignal.timeout(10000),

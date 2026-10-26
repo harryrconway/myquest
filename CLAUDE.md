@@ -1,7 +1,7 @@
 # MyQuest — AI Developer Context
 
 ## What this is
-Marketing website for a cleaning business: commercial (offices, medical, retail and showrooms, builders) and homes (house cleaning page, plus an NDIS & DVA page). NDIS and DVA content lives only on `/ndis-dva-cleaning` and the home page; the site never states NDIS registration or DVA approval status. Static HTML on Cloudflare Pages, one Pages Function (`functions/api/submit-inquiry.js`) that emails enquiries through Resend. No CRM, no database, no framework, no build step. Keep it that way unless the owner asks otherwise.
+Marketing website for a cleaning business: commercial (offices, medical, retail and showrooms, builders) and homes (house cleaning page, plus an NDIS & DVA page). NDIS and DVA content lives on `/ndis-dva-cleaning` and the home page, with a link in the other services section of each service page; the site never states NDIS registration or DVA approval status. Static HTML on Cloudflare Pages, one Pages Function (`functions/api/submit-inquiry.js`) that emails enquiries through Resend. No CRM, no database, no framework, no build step. Keep it that way unless the owner asks otherwise.
 
 Pages publishes only `public/`. Everything else in the repo is private. Never add docs, notes, secrets or server code under `public/`.
 
@@ -17,3 +17,6 @@ Pages publishes only `public/`. Everything else in the repo is private. Never ad
 - Structured data: LocalBusiness on the home page, Service plus BreadcrumbList on service pages.
 - Add it to `public/sitemap.xml` and `public/llms.txt`, and update `lastmod`.
 - Check it at 375px wide (see README, Mobile requirement).
+
+## Writing style
+- Never use em dashes (—), en dashes (–) or hyphens in any written copy (page text, headings, meta descriptions, alt text, emails). Rephrase instead, for example "police checked" not "police-checked", "once off" not "once-off". Code, CSS, class names, URLs and file names are exempt.
