@@ -1,9 +1,9 @@
 const TO = 'hello@myquest.au';
-const REQUIRED = ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sqm_range', 'frequency', 'heard'];
+const REQUIRED = ['contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sqm_range', 'frequency', 'heard'];
 
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
-  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', other: 'Other' },
+  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', other: 'Other' },
   frequency: { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off' },
 };
 
@@ -55,6 +55,7 @@ export async function onRequestPost({ request, env }) {
   for (const field of REQUIRED) {
     if (!text(body[field])) return json({ error: `Missing required field: ${field}` }, 400);
   }
+  if (text(body.space_type) !== 'home' && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing.
   if (text(body.website)) return json({ success: true });
@@ -68,8 +69,9 @@ export async function onRequestPost({ request, env }) {
   const bathrooms = body.baths == null ? '' : String(parseInt(body.baths, 10) >= 3 ? '3 or more' : parseInt(body.baths, 10));
   const kitchen = body.kitchen === true ? 'Yes' : body.kitchen === false ? 'No' : '';
 
+  const who = e.biz_name || e.contact_name;
   const rows = [
-    ['Business', `<strong>${esc(e.biz_name)}</strong>`],
+    ['Business', e.biz_name ? `<strong>${esc(e.biz_name)}</strong>` : ''],
     ['Contact', esc(e.contact_name)],
     ['Email', `<a href="mailto:${esc(e.email)}">${esc(e.email)}</a>`],
     ['Mobile', `<a href="tel:${esc(e.mobile)}">${esc(e.mobile)}</a>`],
@@ -88,7 +90,7 @@ export async function onRequestPost({ request, env }) {
   ].filter(([, v]) => v);
 
   const html = `
-    <h2 style="margin:0 0 16px;font-family:Arial,sans-serif">New enquiry: ${esc(e.biz_name)}</h2>
+    <h2 style="margin:0 0 16px;font-family:Arial,sans-serif">New enquiry: ${esc(who)}</h2>
     <table style="border-collapse:collapse;width:100%;font-size:14px;font-family:Arial,sans-serif">
       ${rows.map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;width:140px;vertical-align:top">${k}</td><td style="padding:6px 0">${v}</td></tr>`).join('')}
     </table>
@@ -104,7 +106,7 @@ export async function onRequestPost({ request, env }) {
         from: 'MyQuest website <hello@myquest.au>',
         to: [TO],
         reply_to: validEmail ? e.email : undefined,
-        subject: `New enquiry: ${e.biz_name} — ${e.suburb} (via ${e.heard})`,
+        subject: `New ${e.space_type === 'home' ? 'home ' : ''}enquiry: ${who} — ${e.suburb} (via ${e.heard})`,
         html,
       }),
       signal: AbortSignal.timeout(10000),
