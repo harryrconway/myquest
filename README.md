@@ -27,7 +27,7 @@ The form needs `RESEND_API_KEY` in a local `.dev.vars` file (see `.dev.vars.exam
 
 ## Enquiries
 
-The form on the home page posts to `/api/submit-inquiry`. Space types are office, retail, medical, home and other; business name is optional for homes. Service page buttons link to `/?space=<type>#enquire` so the form opens with that type picked. The function emails hello@myquest.au through Resend with the customer as the reply-to. The subject ends with how they heard about us, e.g. `(via Facebook)`, so Gmail search answers "how many enquiries came from Facebook".
+The form on the home page posts to `/api/submit-inquiry`. Space types are office, retail, medical, home, ndis-dva and other; business name is optional for home and ndis-dva, and ndis-dva skips the instant estimate (pricing depends on the client's support arrangements). Service page buttons link to `/?space=<type>#enquire` so the form opens with that type picked. The function emails hello@myquest.au through Resend with the customer as the reply-to. The subject ends with how they heard about us, e.g. `(via Facebook)`, so Gmail search answers "how many enquiries came from Facebook".
 
 Every email also includes **Came from** (the referring site, UTM tags or ad click, captured on the visitor's first page of the session) and **First page seen**. Tag links you post with UTM parameters to make this precise, for example `https://myquest.au/?utm_source=facebook&utm_medium=social&utm_campaign=spring`.
 

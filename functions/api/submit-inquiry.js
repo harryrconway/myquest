@@ -3,7 +3,7 @@ const REQUIRED = ['contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sq
 
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
-  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', other: 'Other' },
+  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', other: 'Other' },
   frequency: { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off' },
 };
 
@@ -55,7 +55,7 @@ export async function onRequestPost({ request, env }) {
   for (const field of REQUIRED) {
     if (!text(body[field])) return json({ error: `Missing required field: ${field}` }, 400);
   }
-  if (text(body.space_type) !== 'home' && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
+  if (!['home', 'ndis-dva'].includes(text(body.space_type)) && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing.
   if (text(body.website)) return json({ success: true });
@@ -106,7 +106,7 @@ export async function onRequestPost({ request, env }) {
         from: 'MyQuest website <hello@myquest.au>',
         to: [TO],
         reply_to: validEmail ? e.email : undefined,
-        subject: `New ${e.space_type === 'home' ? 'home ' : ''}enquiry: ${who} — ${e.suburb} (via ${e.heard})`,
+        subject: `New ${{ home: 'home ', 'ndis-dva': 'NDIS / DVA ' }[e.space_type] || ''}enquiry: ${who} — ${e.suburb} (via ${e.heard})`,
         html,
       }),
       signal: AbortSignal.timeout(10000),

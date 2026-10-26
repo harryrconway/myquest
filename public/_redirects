@@ -5,3 +5,5 @@
 /airbnb* / 301
 /end-of-lease* / 301
 /dashboard* / 301
+/ndis /ndis-dva-cleaning 301
+/dva /ndis-dva-cleaning 301
