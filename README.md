@@ -33,6 +33,10 @@ Every email also includes **Came from** (the referring site, UTM tags or ad clic
 
 A hidden honeypot field drops most spam bots without a captcha.
 
+## Analytics
+
+Google Analytics 4 (`G-XGVV9RYC00`) is on every page, and each successful enquiry sends a `generate_lead` event with `space_type`, `heard` and `clean_type`. Mark `generate_lead` as a key event in GA and import it into Google Ads as the conversion. Cloudflare Web Analytics also runs (cookie-free, injected by Cloudflare). New pages need the GA snippet, and any new third-party domain needs adding to the CSP in `public/_headers`.
+
 ## Production settings
 
 - Cloudflare Pages → myquest → Settings: build output directory `public`, no build command.

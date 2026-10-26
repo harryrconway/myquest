@@ -6,7 +6,7 @@ Marketing website for a cleaning business: commercial (offices, medical, retail 
 Pages publishes only `public/`. Everything else in the repo is private. Never add docs, notes, secrets or server code under `public/`.
 
 ## Conventions
-- Each page is one self-contained HTML file with inline CSS and JS. Keep pages fast: no third-party scripts, fonts or embeds (Cloudflare Web Analytics is injected by Cloudflare itself).
+- Each page is one self-contained HTML file with inline CSS and JS. Keep pages fast: no third-party scripts, fonts or embeds other than Google Analytics (`G-XGVV9RYC00`, right after `<meta charset>` on every page, allowed in the CSP in `_headers`) and Cloudflare Web Analytics (injected by Cloudflare itself). A successful enquiry sends a GA `generate_lead` event with space_type, heard and clean_type.
 - The only font is Instrument Sans, self-hosted at `public/assets/fonts/instrument-sans.woff2` and preloaded on every page.
 - Internal links use clean URLs (`/office-cleaning`, not `/office-cleaning.html`).
 - Default to no code comments. Only add one when the WHY is non-obvious.
