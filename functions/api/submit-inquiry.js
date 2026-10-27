@@ -1,6 +1,16 @@
 const TO = 'hello@myquest.au';
 const REQUIRED = ['contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sqm_range', 'frequency', 'heard'];
 
+// Matches the Google Calendar event colours used for bookings.
+const SPACE_COLOURS = {
+  office: ['#3F51B5', '#fff'],
+  retail: ['#F4511E', '#fff'],
+  medical: ['#D50000', '#fff'],
+  home: ['#F6BF26', '#000'],
+  'ndis-dva': ['#8E24AA', '#fff'],
+  other: ['#E67C73', '#fff'],
+};
+
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
   space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', other: 'Other' },
@@ -70,6 +80,7 @@ export async function onRequestPost({ request, env }) {
   const kitchen = body.kitchen === true ? 'Yes' : body.kitchen === false ? 'No' : '';
 
   const who = e.biz_name || e.contact_name;
+  const colour = SPACE_COLOURS[e.space_type] || ['#666666', '#fff'];
   const rows = [
     ['Business', e.biz_name ? `<strong>${esc(e.biz_name)}</strong>` : ''],
     ['Contact', esc(e.contact_name)],
@@ -77,7 +88,7 @@ export async function onRequestPost({ request, env }) {
     ['Mobile', `<a href="tel:${esc(e.mobile)}">${esc(e.mobile)}</a>`],
     ['Suburb', esc(e.suburb)],
     ['Clean type', esc(LABELS.clean_type[e.clean_type] || e.clean_type)],
-    ['Space type', esc(LABELS.space_type[e.space_type] || e.space_type)],
+    ['Space type', `<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:bold;background:${colour[0]};color:${colour[1]}">${esc(LABELS.space_type[e.space_type] || e.space_type)}</span>`],
     ['Size', esc(e.sqm_range)],
     ['Frequency', esc(LABELS.frequency[e.frequency] || e.frequency)],
     ['Kitchen', kitchen],
@@ -93,6 +104,7 @@ export async function onRequestPost({ request, env }) {
   ].filter(([, v]) => v);
 
   const html = `
+    <div style="background:${colour[0]};color:${colour[1]};padding:10px 16px;border-radius:8px;margin:0 0 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:1px;text-transform:uppercase">${esc(LABELS.space_type[e.space_type] || e.space_type)}</div>
     <h2 style="margin:0 0 16px;font-family:Arial,sans-serif">New enquiry: ${esc(who)}</h2>
     <table style="border-collapse:collapse;width:100%;font-size:14px;font-family:Arial,sans-serif">
       ${rows.map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;width:140px;vertical-align:top">${k}</td><td style="padding:6px 0">${v}</td></tr>`).join('')}
