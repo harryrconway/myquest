@@ -61,7 +61,7 @@ export async function onRequestPost({ request, env }) {
   if (text(body.website)) return json({ success: true });
 
   const e = Object.fromEntries(
-    ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard'].map(k => [k, text(body[k])]),
+    ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard', 'preferred_date', 'preferred_time', 'preferred_days'].map(k => [k, text(body[k])]),
   );
   const site = new URL(request.url).hostname.replace(/^www\./, '');
   const from = cameFrom(body.from, site);
@@ -83,6 +83,9 @@ export async function onRequestPost({ request, env }) {
     ['Kitchen', kitchen],
     ['Bathrooms', bathrooms],
     ['Estimate shown', esc(e.estimate)],
+    ['Preferred start', esc(e.preferred_date)],
+    ['Preferred time', esc(e.preferred_time)],
+    ['Best days', esc(e.preferred_days)],
     ['Notes', esc(e.notes).replace(/\n/g, '<br>')],
     ['Heard about us', `<strong>${esc(e.heard)}</strong>`],
     ['Came from', esc(from)],
