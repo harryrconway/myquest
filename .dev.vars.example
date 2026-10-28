@@ -1,1 +1,12 @@
 RESEND_API_KEY=re_xxxxxxxxxxxx
+
+# Text messages through ClickSend (optional: leave out to switch texts off)
+CLICKSEND_USERNAME=you@example.com
+CLICKSEND_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ALERT_MOBILE=+61413154932
+# Only once "MyQuest" is registered on the ACMA Sender ID Register through ClickSend
+# SMS_FROM=MyQuest
+
+# Lead log in the MyQuest Leads Google Sheet (optional)
+LEADS_WEBHOOK_URL=https://script.google.com/macros/s/xxxxxxxx/exec
+LEADS_SECRET=long-random-string

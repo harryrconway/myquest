@@ -165,7 +165,48 @@ ${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 1
   return { html, text: textBody, subject: `We've received your enquiry, ${first}` };
 }
 
-export async function onRequestPost({ request, env }) {
+// Turns an Australian mobile like 0412 345 678 into +61412345678, or returns '' if it isn't one.
+function auMobile(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (/^04\d{8}$/.test(digits)) return '+61' + digits.slice(1);
+  if (/^614\d{8}$/.test(digits)) return '+' + digits;
+  return '';
+}
+
+// Plain characters only, so each text stays a cheap standard SMS.
+function smsText(value) {
+  return String(value).replace(/[\u2018\u2019]/g, "'").replace(/[^\x20-\x7E\n]/g, '');
+}
+
+async function sendSms(env, to, body) {
+  const message = { source: 'myquest-website', to, body: smsText(body) };
+  if (env.SMS_FROM) message.from = env.SMS_FROM;
+  const res = await fetch('https://rest.clicksend.com/v3/sms/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Basic ' + btoa(`${env.CLICKSEND_USERNAME}:${env.CLICKSEND_API_KEY}`),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ messages: [message] }),
+    signal: AbortSignal.timeout(10000),
+  });
+  const data = await res.json().catch(() => ({}));
+  const status = data && data.data && data.data.messages && data.data.messages[0] && data.data.messages[0].status;
+  if (!res.ok || status !== 'SUCCESS') throw new Error(`SMS to ${to} failed: ${res.status} ${status || data.response_code || ''}`);
+}
+
+async function logLead(env, lead) {
+  const res = await fetch(env.LEADS_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...lead, secret: env.LEADS_SECRET }),
+    signal: AbortSignal.timeout(15000),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) throw new Error(`Lead log failed: ${res.status} ${data.error || ''}`);
+}
+
+export async function onRequestPost({ request, env, waitUntil }) {
   let body;
   try {
     body = await request.json();
@@ -245,6 +286,35 @@ export async function onRequestPost({ request, env }) {
   } catch (err) {
     console.error('Resend error:', err);
     return json({ error: 'Could not send enquiry.' }, 502);
+  }
+
+  const space = LABELS.space_type[e.space_type] || e.space_type;
+  const freq = LABELS.frequency[e.frequency] || e.frequency;
+  const range = /^(\$[\d,]+ to \$[\d,]+)/.exec(e.estimate);
+  const jobs = [];
+  if (env.CLICKSEND_USERNAME && env.CLICKSEND_API_KEY) {
+    if (env.ALERT_MOBILE) {
+      jobs.push(sendSms(env, env.ALERT_MOBILE,
+        `New MyQuest enquiry: ${who} (${space}), ${e.suburb}. ${e.contact_name} ${e.mobile}. ${range ? range[1] + ' per clean' : 'Priced with client'}, ${freq.toLowerCase()}. Via ${e.heard}.`));
+    }
+    const customerMobile = auMobile(e.mobile);
+    if (customerMobile && customerMobile !== env.ALERT_MOBILE) {
+      jobs.push(sendSms(env, customerMobile,
+        `Hi ${e.contact_name.split(/\s+/)[0].slice(0, 30)}, thanks for your enquiry with MyQuest. Harry will call you ${callWhen()} to confirm your quote. Questions? Call 0413 154 932.`));
+    }
+  }
+  if (env.LEADS_WEBHOOK_URL && env.LEADS_SECRET) {
+    jobs.push(logLead(env, {
+      space_type: space, biz_name: e.biz_name, contact_name: e.contact_name, mobile: e.mobile, email: e.email,
+      address: e.address, suburb: e.suburb, clean_type: LABELS.clean_type[e.clean_type] || e.clean_type,
+      sqm_range: e.sqm_range, frequency: freq, kitchen, bathrooms, estimate: e.estimate,
+      preferred_date: e.preferred_date, preferred_time: e.preferred_time, preferred_days: e.preferred_days,
+      heard: e.heard, came_from: from, landing, notes: e.notes,
+    }));
+  }
+  if (jobs.length) {
+    const done = Promise.allSettled(jobs).then(results => results.forEach(r => r.status === 'rejected' && console.error(r.reason)));
+    if (waitUntil) waitUntil(done); else await done;
   }
 
   if (validEmail) {
