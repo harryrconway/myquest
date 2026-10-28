@@ -8,13 +8,14 @@ const SPACE_COLOURS = {
   medical: ['#D50000', '#fff'],
   home: ['#F6BF26', '#000'],
   'ndis-dva': ['#8E24AA', '#fff'],
+  builder: ['#039BE5', '#fff'],
   other: ['#E67C73', '#fff'],
 };
 
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
-  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', other: 'Other' },
-  frequency: { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off' },
+  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', builder: 'Builder’s clean', other: 'Other' },
+  frequency: { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off' },
 };
 
 const REFERRERS = [
@@ -181,7 +182,7 @@ export async function onRequestPost({ request, env }) {
   if (text(body.website)) return json({ success: true });
 
   const e = Object.fromEntries(
-    ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard', 'preferred_date', 'preferred_time', 'preferred_days'].map(k => [k, text(body[k])]),
+    ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard', 'preferred_date', 'preferred_time', 'preferred_days', 'address'].map(k => [k, text(body[k])]),
   );
   const site = new URL(request.url).hostname.replace(/^www\./, '');
   const from = cameFrom(body.from, site);
@@ -196,6 +197,7 @@ export async function onRequestPost({ request, env }) {
     ['Contact', esc(e.contact_name)],
     ['Email', `<a href="mailto:${esc(e.email)}">${esc(e.email)}</a>`],
     ['Mobile', `<a href="tel:${esc(e.mobile)}">${esc(e.mobile)}</a>`],
+    ['Address', esc(e.address)],
     ['Suburb', esc(e.suburb)],
     ['Clean type', esc(LABELS.clean_type[e.clean_type] || e.clean_type)],
     ['Space type', `<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:bold;background:${colour[0]};color:${colour[1]}">${esc(LABELS.space_type[e.space_type] || e.space_type)}</span>`],
