@@ -54,6 +54,116 @@ function cameFrom(from, siteHost) {
   return known ? `${known[1]} (${host})` : host;
 }
 
+const SITE = 'https://myquest.au';
+
+// Queensland has no daylight saving, so Brisbane is always UTC+10.
+function callWhen(now = new Date()) {
+  const b = new Date(now.getTime() + 10 * 3600000);
+  const day = b.getUTCDay();
+  const hour = b.getUTCHours();
+  if (day >= 1 && day <= 5 && hour < 15) return 'today';
+  if (day === 5 || day === 6) return 'on Monday';
+  return 'tomorrow';
+}
+
+function confirmationEmail(e) {
+  const first = e.contact_name.split(/\s+/)[0];
+  const funded = e.space_type === 'ndis-dva';
+  const when = callWhen();
+  const range = /^(\$[\d,]+ to \$[\d,]+)/.exec(e.estimate);
+  const month = /~(\$[\d,]+)\/month/.exec(e.estimate);
+  const big = funded || !range ? 'Priced with you' : range[1];
+  const small = funded || !range
+    ? 'We’ll talk through pricing with you before the first clean.'
+    : 'per clean' + (month ? ` · about ${month[1]} a month` : '');
+  const startShort = e.preferred_date ? e.preferred_date.replace(/^(\w{3})\w*/, '$1').replace(/ \d{4}$/, '') : '';
+  const summary = [
+    LABELS.space_type[e.space_type] || e.space_type,
+    e.sqm_range,
+    LABELS.frequency[e.frequency] || e.frequency,
+    e.preferred_time ? e.preferred_time.split(' (')[0] : '',
+    startShort ? `From ${startShort}` : '',
+  ].filter(Boolean).join(' · ');
+  const steps = [
+    ['Enquiry received', ''],
+    ['We call you', `Usually ${when}, to talk through your space.`],
+    ['A quick walk through if needed', 'Mostly for larger, medical or ongoing cleans.'],
+    [funded ? 'Agreed price, clear invoices' : 'Fixed written quote', funded ? 'Everything confirmed before the first clean.' : 'The price we quote is the price you pay.'],
+  ];
+  const L = 'color:#111;text-decoration:none;white-space:nowrap';
+  const bar = '<span style="color:#999;padding:0 8px">|</span>';
+  const svc = (t, u) => `<a href="${SITE}/${u}" style="${L}">${t}</a>`;
+
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Enquiry received</title></head>
+<body style="margin:0;padding:0;background:#f4f4f2">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">Thanks ${esc(first)}. We’ll call you ${when} to confirm your quote.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f2"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#111">
+<tr><td style="background:#111111;padding:28px 36px"><a href="${SITE}"><img src="${SITE}/assets/email-logo-white.png" width="120" height="34" alt="MyQuest" style="display:block;border:0"></a></td></tr>
+<tr><td align="center" style="padding:40px 36px 0">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="width:56px;height:56px;border-radius:28px;background:#111;color:#fff;font-size:26px;line-height:56px">&#10003;</td></tr></table>
+<h1 style="margin:18px 0 8px;font-size:28px;line-height:1.2;letter-spacing:-0.5px">Enquiry received</h1>
+<p style="margin:0;color:#555;font-size:15px;line-height:1.6">Thanks ${esc(first)}. We’ll call you ${when} to confirm your quote.</p>
+</td></tr>
+<tr><td style="padding:28px 36px 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e4e4e4;border-radius:14px">
+<tr><td align="center" style="padding:24px 20px">
+<p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;color:#777;text-transform:uppercase">${funded ? 'Your quote' : 'Your estimate'}</p>
+<p style="margin:0;font-size:34px;line-height:1.15;font-weight:bold;letter-spacing:-0.5px">${big}</p>
+<p style="margin:6px 0 0;color:#666;font-size:13px;line-height:1.5">${small}</p>
+</td></tr>
+<tr><td align="center" style="border-top:1px solid #eeeeee;padding:16px 20px;font-size:13px;color:#444;line-height:1.7">${esc(summary)}</td></tr>
+</table>
+</td></tr>
+<tr><td style="padding:30px 36px 0">
+<p style="margin:0 0 14px;font-size:11px;letter-spacing:2px;color:#777;text-transform:uppercase">What happens next</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.45">
+${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 14px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="width:24px;height:24px;border-radius:12px;font-size:12px;line-height:24px;${i === 0 ? 'background:#111;color:#fff' : i === 1 ? 'border:1.5px solid #111;color:#111;line-height:21px' : 'border:1.5px solid #bbb;color:#888;line-height:21px'}">${i === 0 ? '&#10003;' : i + 1}</td></tr></table></td><td valign="top" style="padding:2px 0 14px"><b>${t}</b>${d ? `<br><span style="color:#666">${d}</span>` : ''}</td></tr>`).join('')}
+</table>
+</td></tr>
+<tr><td align="center" style="padding:22px 36px 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#111;border-radius:999px"><a href="tel:+61413154932" style="display:block;padding:17px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold">Call us now · 0413 154 932</a></td></tr></table>
+<p style="margin:14px 0 0;font-size:14px"><a href="${SITE}" style="color:#111">Back to myquest.au &rarr;</a></p>
+</td></tr>
+<tr><td style="padding:26px 36px 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f4;border-radius:12px"><tr><td style="padding:16px 20px;font-size:14px;line-height:1.6;color:#333">Want to speed things up? Just reply to this email with a few photos of your space and anything we should know about access.</td></tr></table>
+<p style="margin:14px 0 0;font-size:12px;color:#888;line-height:1.6">${funded ? '' : 'Your estimate is a guide based on what you told us. '}We confirm a fixed written price before any work begins. <a href="${SITE}/policies" style="color:#888">Our policies</a></p>
+</td></tr>
+<tr><td align="center" style="padding:34px 24px 34px">
+<div style="height:1px;background:#e6e6e6;margin:0 0 30px;line-height:1px;font-size:1px">&nbsp;</div>
+<a href="${SITE}"><img src="${SITE}/assets/email-logo.png" width="170" height="48" alt="MyQuest" style="display:block;border:0;margin:0 auto"></a>
+<p style="margin:10px 0 18px;font-size:11px;letter-spacing:3px;color:#111">COMMERCIAL &amp; HOME CLEANING</p>
+<p style="margin:0 0 18px;font-size:13px;line-height:1.9"><a href="mailto:hello@myquest.au" style="${L}">hello@myquest.au</a>${bar}<a href="tel:+61413154932" style="${L}">0413 154 932</a>${bar}<a href="${SITE}" style="${L}">Gold Coast &amp; Northern Rivers</a></p>
+<div style="height:1px;background:#111;margin:0 0 14px;line-height:1px;font-size:1px">&nbsp;</div>
+<p style="margin:0;font-size:10px;letter-spacing:1.5px;line-height:2.3">${svc('OFFICE CLEANING', 'office-cleaning')}${bar}${svc('HOUSE CLEANING', 'house-cleaning')}${bar}${svc('NDIS &amp; DVA', 'ndis-dva-cleaning')}<br>${svc('MEDICAL CENTRES', 'medical-centre-cleaning')}${bar}${svc('RETAIL', 'retail-cleaning')}${bar}${svc('BUILDER’S CLEAN', 'builder-clean')}</p>
+</td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  const textBody = [
+    'Enquiry received',
+    '',
+    `Thanks ${first}. We'll call you ${when} to confirm your quote.`,
+    '',
+    `${funded ? 'Your quote' : 'Your estimate'}: ${big} ${funded ? '' : small}`.trim(),
+    summary,
+    '',
+    'What happens next',
+    ...steps.map(([t, d], i) => `${i + 1}. ${t}${d ? `: ${d}` : ''}`),
+    '',
+    'Call us: 0413 154 932',
+    `Website: ${SITE}`,
+    '',
+    'Want to speed things up? Reply to this email with a few photos of your space and anything we should know about access.',
+    '',
+    'MyQuest | Commercial & home cleaning',
+    'hello@myquest.au | 0413 154 932 | Gold Coast & Northern Rivers',
+  ].join('\n');
+
+  return { html, text: textBody, subject: `We've received your enquiry, ${first}` };
+}
+
 export async function onRequestPost({ request, env }) {
   let body;
   try {
@@ -133,6 +243,21 @@ export async function onRequestPost({ request, env }) {
   } catch (err) {
     console.error('Resend error:', err);
     return json({ error: 'Could not send enquiry.' }, 502);
+  }
+
+  if (validEmail) {
+    try {
+      const c = confirmationEmail(e);
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: 'MyQuest <hello@myquest.au>', to: [e.email], reply_to: TO, subject: c.subject, html: c.html, text: c.text }),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) console.error('Confirmation email error:', res.status, await res.text());
+    } catch (err) {
+      console.error('Confirmation email error:', err);
+    }
   }
 
   return json({ success: true });
