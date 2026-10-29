@@ -73,10 +73,11 @@ function confirmationEmail(e) {
   const when = callWhen();
   const range = /^(\$[\d,]+ to \$[\d,]+)/.exec(e.estimate);
   const month = /~(\$[\d,]+)\/month/.exec(e.estimate);
+  const gst = /(plus|including) GST/.exec(e.estimate);
   const big = funded || !range ? 'Priced with you' : range[1];
   const small = funded || !range
     ? 'We’ll talk through pricing with you before the first clean.'
-    : 'per clean' + (month ? ` · about ${month[1]} a month` : '');
+    : 'per clean' + (gst ? ` ${gst[0]}` : '') + (month ? ` · about ${month[1]} a month` : '');
   const startShort = e.preferred_date ? e.preferred_date.replace(/^(\w{3})\w*/, '$1').replace(/ \d{4}$/, '') : '';
   const summary = [
     LABELS.space_type[e.space_type] || e.space_type,

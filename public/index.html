@@ -610,17 +610,21 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     if(kEl&&kEl.value==='yes')hrs+=0.75;
     var bEl=document.querySelector('input[name=iqBath]:checked');
     if(bEl)hrs+=(BATH[bEl.value]||0);
-    var per=(hrs*70)+20;
-    return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,mult:MTH[f.value],freq:f.value,sqm:s.value,kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null};
+    var sp=document.querySelector('input[name=iqSpace]:checked');
+    // Consumer law needs home prices shown with GST included; businesses compare prices before GST
+    var home=!!sp&&sp.value==='home';
+    var per=((hrs*70)+20)*(home?1.1:1);
+    return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,mult:MTH[f.value],freq:f.value,sqm:s.value,kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null,gst:home?'including GST':'plus GST'};
   }
   function renderQuote(){
     var s3=document.getElementById('iqS3'),hd=s3.querySelector('.iq-head h3'),sub=s3.querySelector('.iq-head p'),lbl=s3.querySelector('.iq-price-lbl');
     if(isFunded()){hd.textContent='Your quote';sub.textContent='NDIS and DVA cleaning';document.getElementById('iqPriceRange').textContent='Priced with you';lbl.textContent='no instant estimate';document.getElementById('iqStats').innerHTML='';document.getElementById('iqDisc').textContent='Pricing for NDIS and DVA cleaning depends on your support arrangements, so we’ll talk it through and confirm a price with you directly before the first clean.';return;}
-    hd.textContent='Your estimate';sub.textContent='Based on what you’ve told us.';lbl.textContent='per clean (estimated)';
+    hd.textContent='Your estimate';sub.textContent='Based on what you’ve told us.';
     var q=calc();if(!q)return;
+    lbl.textContent='per clean '+q.gst+' (estimated)';
     document.getElementById('iqPriceRange').textContent=fmt(q.lo)+' to '+fmt(q.hi);
     var st='';
-    if(q.mult){var m=q.per*q.mult;st='<div class="iq-stat iq-stat-once"><div class=iq-stat-val>'+fmt(m)+'</div><div class=iq-stat-lbl>per month (estimated)</div></div>';}
+    if(q.mult){var m=q.per*q.mult;st='<div class="iq-stat iq-stat-once"><div class=iq-stat-val>'+fmt(m)+'</div><div class=iq-stat-lbl>per month '+q.gst+' (estimated)</div></div>';}
     else{st='<div class="iq-stat iq-stat-once"><div class=iq-stat-val>Once off clean</div><div class=iq-stat-lbl>No ongoing commitment required</div></div>';}
     document.getElementById('iqStats').innerHTML=st;
     document.getElementById('iqDisc').textContent=q.sqm==='500m²+'?'This is an estimated quote. For larger premises, the final price may vary. We’ll confirm after reviewing your space.':'This is an estimated quote based on the details you’ve provided. Final pricing is confirmed after we assess your premises.';
@@ -656,7 +660,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     if(!valS4())return;
     var btn=document.getElementById('iqSubmit');btn.textContent='Sending…';btn.disabled=true;
     var q=isFunded()?null:calc();
-    var est=q?fmt(q.lo)+' to '+fmt(q.hi)+' per clean'+(q.mult?' (~'+fmt(q.per*q.mult)+'/month)':''):'';
+    var est=q?fmt(q.lo)+' to '+fmt(q.hi)+' per clean '+q.gst+(q.mult?' (~'+fmt(q.per*q.mult)+'/month)':''):'';
     var estLine=est||'';
     var spaceEl=document.querySelector('input[name=iqSpace]:checked');
     var sqmEl=document.querySelector('input[name=iqSqm]:checked');
