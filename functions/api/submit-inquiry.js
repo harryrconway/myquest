@@ -176,6 +176,32 @@ async function logLead(env, lead) {
   if (!res.ok || !data.ok) throw new Error(`Lead log failed: ${res.status} ${data.error || ''}`);
 }
 
+// ServiceM8 returns the new record's id in a header, not the body.
+async function sm8Create(env, record, body) {
+  const res = await fetch(`https://api.servicem8.com/api_1.0/${record}.json`, {
+    method: 'POST',
+    headers: { 'X-Api-Key': env.SERVICEM8_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(15000),
+  });
+  const uuid = res.headers.get('x-record-uuid');
+  if (!res.ok || !uuid) throw new Error(`ServiceM8 ${record} failed: ${res.status} ${await res.text()}`);
+  return uuid;
+}
+
+// Each enquiry becomes a client with a contact, and a quote job holding the enquiry details.
+async function sendToServiceM8(env, e, validEmail, description) {
+  const [first, ...rest] = e.contact_name.split(/\s+/);
+  const contact = { first, last: rest.join(' '), mobile: e.mobile, ...(validEmail ? { email: e.email } : {}) };
+  const address = [e.address, e.suburb].filter(Boolean).join(', ');
+  const company = await sm8Create(env, 'company', { name: (e.biz_name || e.contact_name).slice(0, 100), address });
+  const job = await sm8Create(env, 'job', { status: 'Quote', company_uuid: company, job_address: address, job_description: description });
+  await Promise.all([
+    sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
+    sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
+  ]);
+}
+
 export async function onRequestPost({ request, env, waitUntil }) {
   let body;
   try {
@@ -269,6 +295,24 @@ export async function onRequestPost({ request, env, waitUntil }) {
       preferred_date: e.preferred_date, preferred_time: e.preferred_time, preferred_days: e.preferred_days,
       heard: e.heard, came_from: from, landing, notes: e.notes,
     }));
+  }
+  if (env.SERVICEM8_API_KEY) {
+    jobs.push(sendToServiceM8(env, e, validEmail, [
+      'Website enquiry',
+      ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
+      ['Space type', space],
+      ['Size', e.sqm_range],
+      ['Frequency', freq],
+      ['Kitchen', kitchen],
+      ['Bathrooms', bathrooms],
+      ['Estimate shown', e.estimate],
+      ['Preferred start', e.preferred_date],
+      ['Preferred time', e.preferred_time],
+      ['Best days', e.preferred_days],
+      ['Notes', e.notes],
+      ['Heard about us', e.heard],
+      ['Came from', from],
+    ].filter(r => typeof r === 'string' || r[1]).map(r => typeof r === 'string' ? r : `${r[0]}: ${r[1]}`).join('\n')));
   }
   if (jobs.length) {
     const done = Promise.allSettled(jobs).then(results => results.forEach(r => r.status === 'rejected' && console.error(r.reason)));

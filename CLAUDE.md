@@ -1,7 +1,7 @@
 # MyQuest — AI Developer Context
 
 ## What this is
-Marketing website for a cleaning business: commercial (offices, medical, retail and showrooms, builders) and homes (house cleaning page, plus an NDIS & DVA page). NDIS and DVA content lives on `/ndis-dva-cleaning` and the home page, with a link in the other services section of each service page; the site never states NDIS registration or DVA approval status. Static HTML on Cloudflare Pages, one Pages Function (`functions/api/submit-inquiry.js`) that emails enquiries through Resend, sends the customer a confirmation email, and (when its Cloudflare variables are set) logs leads to a Google Sheet. Setup is in `integrations/README.md`. No CRM, no database, no framework, no build step. Keep it that way unless the owner asks otherwise.
+Marketing website for a cleaning business: commercial (offices, medical, retail and showrooms, builders) and homes (house cleaning page, plus an NDIS & DVA page). NDIS and DVA content lives on `/ndis-dva-cleaning` and the home page, with a link in the other services section of each service page; the site never states NDIS registration or DVA approval status. Static HTML on Cloudflare Pages, one Pages Function (`functions/api/submit-inquiry.js`) that emails enquiries through Resend, sends the customer a confirmation email, and (when their Cloudflare variables are set) creates a client and quote job in ServiceM8 and logs leads to a Google Sheet. Setup is in `integrations/README.md`. ServiceM8 is the CRM and Xero the accounts; the site keeps no database, framework or build step of its own. Keep it that way unless the owner asks otherwise.
 
 Pages publishes only `public/`. Everything else in the repo is private. Never add docs, notes, secrets or server code under `public/`.
 
