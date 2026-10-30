@@ -190,13 +190,35 @@ async function sm8Create(env, record, body) {
   return uuid;
 }
 
+// Job categories in ServiceM8, by the form's space type. A name missing in ServiceM8 leaves the job uncategorised.
+const SM8_CATEGORY = { office: 'Office', retail: 'Retail', medical: 'Medical', builder: 'Builders', home: 'Home', 'ndis-dva': 'NDIS and DVA', other: 'Other' };
+
+async function sm8CategoryUuid(env, spaceType) {
+  const name = SM8_CATEGORY[spaceType];
+  if (!name) return null;
+  try {
+    const res = await fetch('https://api.servicem8.com/api_1.0/category.json', {
+      headers: { 'X-Api-Key': env.SERVICEM8_API_KEY },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return null;
+    const match = (await res.json()).find(c => c.active == 1 && String(c.name).trim().toLowerCase() === name.toLowerCase());
+    return match ? match.uuid : null;
+  } catch {
+    return null;
+  }
+}
+
 // Each enquiry becomes a client with a contact, and a quote job holding the enquiry details.
 async function sendToServiceM8(env, e, validEmail, description) {
   const [first, ...rest] = e.contact_name.split(/\s+/);
   const contact = { first, last: rest.join(' '), mobile: e.mobile, ...(validEmail ? { email: e.email } : {}) };
   const address = [e.address, e.suburb].filter(Boolean).join(', ');
-  const company = await sm8Create(env, 'company', { name: (e.biz_name || e.contact_name).slice(0, 100), address });
-  const job = await sm8Create(env, 'job', { status: 'Quote', company_uuid: company, job_address: address, job_description: description });
+  const [company, category] = await Promise.all([
+    sm8Create(env, 'company', { name: (e.biz_name || e.contact_name).slice(0, 100), address }),
+    sm8CategoryUuid(env, e.space_type),
+  ]);
+  const job = await sm8Create(env, 'job', { status: 'Quote', company_uuid: company, job_address: address, job_description: description, ...(category ? { category_uuid: category } : {}) });
   await Promise.all([
     sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),

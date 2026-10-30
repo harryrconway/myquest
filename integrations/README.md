@@ -16,6 +16,7 @@ Each enquiry then creates:
 - a client named after the business (or the person, for homes), with the street address and suburb
 - that person as the client's primary contact, with mobile and email
 - a job with status Quote at the same address, whose description lists every form answer, the estimate shown and where the visitor came from
+- the job category that matches the space type (Office, Retail, Medical, Builders, Home, NDIS and DVA or Other), if a category with that name exists in ServiceM8. Open the job and use More, Apply Template to add the matching checklist.
 
 A repeat enquiry creates a new client, so merge duplicates in ServiceM8 if it happens.
 
