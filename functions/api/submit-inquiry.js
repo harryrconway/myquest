@@ -1,5 +1,6 @@
 const TO = 'hello@myquest.au';
-const REQUIRED = ['contact_name', 'email', 'mobile', 'suburb', 'space_type', 'sqm_range', 'frequency', 'heard'];
+const REQUIRED = ['contact_name', 'email', 'mobile', 'suburb', 'space_type', 'frequency', 'heard'];
+const PERSONAL = ['home', 'ndis-dva'];
 
 // Matches the Google Calendar event colours used for bookings.
 const SPACE_COLOURS = {
@@ -82,6 +83,7 @@ function confirmationEmail(e) {
   const summary = [
     LABELS.space_type[e.space_type] || e.space_type,
     e.sqm_range,
+    e.bedrooms ? `${e.bedrooms} bedroom${e.bedrooms === '1' ? '' : 's'}` : '',
     LABELS.frequency[e.frequency] || e.frequency,
     e.preferred_time ? e.preferred_time.split(' (')[0] : '',
     startShort ? `From ${startShort}` : '',
@@ -191,13 +193,29 @@ async function sm8Get(env, path) {
 // Same hours as the website's instant estimate, so the quote matches what the customer was shown.
 const SQM_HOURS = { 'Under 100m²': 1.5, '100 to 300m²': 3, '300 to 500m²': 5, '500m²+': 8 };
 const BATH_HOURS = { 0: 0, 1: 0.5, 2: 1, 3: 1.5 };
+// Homes are estimated by bedrooms, with the kitchen and first bathroom included.
+const BED_HOURS = { 1: 1.5, 2: 2, 3: 2.5, 4: 3, 5: 3.5 };
+const HOME_BATH_HOURS = { 0: 0, 1: 0, 2: 0.5, 3: 1 };
 
-function estimateHours(sqm, cleanType, kitchen, baths) {
-  let hrs = SQM_HOURS[sqm];
-  if (!hrs) return null;
-  if (cleanType === 'deep') hrs *= 1.5;
-  if (kitchen === true) hrs += 0.75;
-  if (baths != null && !Number.isNaN(parseInt(baths, 10))) hrs += BATH_HOURS[Math.min(parseInt(baths, 10), 3)] || 0;
+function count(n, max) {
+  const v = parseInt(n, 10);
+  return Number.isNaN(v) ? null : Math.min(Math.max(v, 0), max);
+}
+
+function estimateHours({ sqm, cleanType, kitchen, baths, bedrooms }) {
+  const bath = count(baths, 3);
+  const beds = count(bedrooms, 5);
+  let hrs;
+  if (beds) {
+    hrs = BED_HOURS[beds] + HOME_BATH_HOURS[bath ?? 1];
+    if (cleanType === 'deep') hrs *= 1.5;
+  } else {
+    hrs = SQM_HOURS[sqm];
+    if (!hrs) return null;
+    if (cleanType === 'deep') hrs *= 1.5;
+    if (kitchen === true) hrs += 0.75;
+    if (bath != null) hrs += BATH_HOURS[bath];
+  }
   return Math.round(hrs * 100) / 100;
 }
 
@@ -271,7 +289,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
   for (const field of REQUIRED) {
     if (!text(body[field])) return json({ error: `Missing required field: ${field}` }, 400);
   }
-  if (!['home', 'ndis-dva'].includes(text(body.space_type)) && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
+  const personal = PERSONAL.includes(text(body.space_type));
+  if (!personal && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
+  const beds = count(body.bedrooms, 5);
+  if (!beds && !text(body.sqm_range)) return json({ error: `Missing required field: ${personal ? 'bedrooms' : 'sqm_range'}` }, 400);
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing.
   if (text(body.website)) return json({ success: true });
@@ -284,6 +305,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const landing = text(body.from && body.from.landing) || '/';
   const bathrooms = body.baths == null ? '' : String(parseInt(body.baths, 10) >= 3 ? '3 or more' : parseInt(body.baths, 10));
   const kitchen = body.kitchen === true ? 'Yes' : body.kitchen === false ? 'No' : '';
+  const bedrooms = beds ? (beds >= 5 ? '5 or more' : String(beds)) : '';
+  e.bedrooms = bedrooms;
 
   const who = e.biz_name || e.contact_name;
   const colour = SPACE_COLOURS[e.space_type] || ['#666666', '#fff'];
@@ -297,6 +320,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ['Clean type', esc(LABELS.clean_type[e.clean_type] || e.clean_type)],
     ['Space type', `<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:bold;background:${colour[0]};color:${colour[1]}">${esc(LABELS.space_type[e.space_type] || e.space_type)}</span>`],
     ['Size', esc(e.sqm_range)],
+    ['Bedrooms', esc(bedrooms)],
     ['Frequency', esc(LABELS.frequency[e.frequency] || e.frequency)],
     ['Kitchen', kitchen],
     ['Bathrooms', bathrooms],
@@ -346,12 +370,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const freq = LABELS.frequency[e.frequency] || e.frequency;
   const jobs = [];
   if (env.SERVICEM8_API_KEY) {
-    const hours = estimateHours(e.sqm_range, e.clean_type, body.kitchen, body.baths);
+    const hours = estimateHours({ sqm: e.sqm_range, cleanType: e.clean_type, kitchen: body.kitchen, baths: body.baths, bedrooms: beds });
     jobs.push(sendToServiceM8(env, e, validEmail, e.space_type === 'ndis-dva' ? null : hours, [
       'Website enquiry',
       ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
       ['Space type', space],
       ['Size', e.sqm_range],
+      ['Bedrooms', bedrooms],
       ['Frequency', freq],
       ['Kitchen', kitchen],
       ['Bathrooms', bathrooms],
