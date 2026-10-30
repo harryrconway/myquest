@@ -166,17 +166,6 @@ ${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 1
   return { html, text: textBody, subject: `We've received your enquiry, ${first}` };
 }
 
-async function logLead(env, lead) {
-  const res = await fetch(env.LEADS_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...lead, secret: env.LEADS_SECRET }),
-    signal: AbortSignal.timeout(15000),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.ok) throw new Error(`Lead log failed: ${res.status} ${data.error || ''}`);
-}
-
 // ServiceM8 returns the new record's id in a header, not the body.
 async function sm8Create(env, record, body) {
   const res = await fetch(`https://api.servicem8.com/api_1.0/${record}.json`, {
@@ -188,6 +177,49 @@ async function sm8Create(env, record, body) {
   const uuid = res.headers.get('x-record-uuid');
   if (!res.ok || !uuid) throw new Error(`ServiceM8 ${record} failed: ${res.status} ${await res.text()}`);
   return uuid;
+}
+
+async function sm8Get(env, path) {
+  const res = await fetch(`https://api.servicem8.com/api_1.0/${path}`, {
+    headers: { 'X-Api-Key': env.SERVICEM8_API_KEY },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error(`ServiceM8 GET ${path.split('?')[0]} failed: ${res.status}`);
+  return res.json();
+}
+
+// Same hours as the website's instant estimate, so the quote matches what the customer was shown.
+const SQM_HOURS = { 'Under 100m²': 1.5, '100 to 300m²': 3, '300 to 500m²': 5, '500m²+': 8 };
+const BATH_HOURS = { 0: 0, 1: 0.5, 2: 1, 3: 1.5 };
+
+function estimateHours(sqm, cleanType, kitchen, baths) {
+  let hrs = SQM_HOURS[sqm];
+  if (!hrs) return null;
+  if (cleanType === 'deep') hrs *= 1.5;
+  if (kitchen === true) hrs += 0.75;
+  if (baths != null && !Number.isNaN(parseInt(baths, 10))) hrs += BATH_HOURS[Math.min(parseInt(baths, 10), 3)] || 0;
+  return Math.round(hrs * 100) / 100;
+}
+
+// Adds the cleaning hours and the travel and supplies fee to the quote, using the ServiceM8 items CLEAN and TRAVEL.
+async function addQuoteLines(env, job, hours) {
+  const items = await sm8Get(env, 'material.json');
+  const find = code => items.find(m => m.active == 1 && String(m.item_number).trim().toUpperCase() === code);
+  const lines = [[find('CLEAN'), hours], [find('TRAVEL'), 1]].filter(([m]) => m);
+  for (const [m, qty] of lines) {
+    await sm8Create(env, 'jobmaterial', {
+      job_uuid: job, material_uuid: m.uuid, name: m.name, quantity: String(qty), price: m.price, cost: m.cost || '0',
+      displayed_amount_is_tax_inclusive: m.price_include_tax || '0', tax_rate_uuid: m.tax_rate_uuid || '',
+    });
+  }
+}
+
+// A repeat enquiry from the same email reuses that client instead of creating a duplicate.
+async function findClientByEmail(env, email) {
+  if (!email) return null;
+  const q = encodeURIComponent(`email eq '${email.replace(/'/g, "''")}' and active eq 1`);
+  const contacts = await sm8Get(env, `companycontact.json?%24filter=${q}`);
+  return contacts.length ? contacts[0].company_uuid : null;
 }
 
 // Job categories in ServiceM8, by the form's space type. A name missing in ServiceM8 leaves the job uncategorised.
@@ -209,19 +241,22 @@ async function sm8CategoryUuid(env, spaceType) {
   }
 }
 
-// Each enquiry becomes a client with a contact, and a quote job holding the enquiry details.
-async function sendToServiceM8(env, e, validEmail, description) {
+// Each enquiry becomes a quote job holding the enquiry details, with the estimate's lines already added.
+// A new email gets a new client and contact; a known email reuses its client.
+async function sendToServiceM8(env, e, validEmail, hours, description) {
   const [first, ...rest] = e.contact_name.split(/\s+/);
   const contact = { first, last: rest.join(' '), mobile: e.mobile, ...(validEmail ? { email: e.email } : {}) };
   const address = [e.address, e.suburb].filter(Boolean).join(', ');
+  const existing = validEmail ? await findClientByEmail(env, e.email).catch(err => { console.error(err); return null; }) : null;
   const [company, category] = await Promise.all([
-    sm8Create(env, 'company', { name: (e.biz_name || e.contact_name).slice(0, 100), address }),
+    existing || sm8Create(env, 'company', { name: (e.biz_name || e.contact_name).slice(0, 100), address }),
     sm8CategoryUuid(env, e.space_type),
   ]);
   const job = await sm8Create(env, 'job', { status: 'Quote', company_uuid: company, job_address: address, job_description: description, ...(category ? { category_uuid: category } : {}) });
   await Promise.all([
-    sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
+    existing ? null : sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
+    hours ? addQuoteLines(env, job, hours).catch(err => console.error('ServiceM8 quote lines failed:', err)) : null,
   ]);
 }
 
@@ -310,17 +345,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const space = LABELS.space_type[e.space_type] || e.space_type;
   const freq = LABELS.frequency[e.frequency] || e.frequency;
   const jobs = [];
-  if (env.LEADS_WEBHOOK_URL && env.LEADS_SECRET) {
-    jobs.push(logLead(env, {
-      space_type: space, biz_name: e.biz_name, contact_name: e.contact_name, mobile: e.mobile, email: e.email,
-      address: e.address, suburb: e.suburb, clean_type: LABELS.clean_type[e.clean_type] || e.clean_type,
-      sqm_range: e.sqm_range, frequency: freq, kitchen, bathrooms, estimate: e.estimate,
-      preferred_date: e.preferred_date, preferred_time: e.preferred_time, preferred_days: e.preferred_days,
-      heard: e.heard, came_from: from, landing, notes: e.notes,
-    }));
-  }
   if (env.SERVICEM8_API_KEY) {
-    jobs.push(sendToServiceM8(env, e, validEmail, [
+    const hours = estimateHours(e.sqm_range, e.clean_type, body.kitchen, body.baths);
+    jobs.push(sendToServiceM8(env, e, validEmail, e.space_type === 'ndis-dva' ? null : hours, [
       'Website enquiry',
       ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
       ['Space type', space],
