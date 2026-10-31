@@ -16,7 +16,7 @@ const SPACE_COLOURS = {
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
   space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', builder: 'Builder’s clean', other: 'Other' },
-  frequency: { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off' },
+  frequency: { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off', staged: 'In stages' },
 };
 
 const REFERRERS = [
@@ -292,7 +292,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const personal = PERSONAL.includes(text(body.space_type));
   if (!personal && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
   const beds = count(body.bedrooms, 5);
-  if (!beds && !text(body.sqm_range)) return json({ error: `Missing required field: ${personal ? 'bedrooms' : 'sqm_range'}` }, 400);
+  if (personal ? !beds : !text(body.sqm_range)) return json({ error: `Missing required field: ${personal ? 'bedrooms' : 'sqm_range'}` }, 400);
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing.
   if (text(body.website)) return json({ success: true });
@@ -370,7 +370,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const freq = LABELS.frequency[e.frequency] || e.frequency;
   const jobs = [];
   if (env.SERVICEM8_API_KEY) {
-    const hours = estimateHours({ sqm: e.sqm_range, cleanType: e.clean_type, kitchen: body.kitchen, baths: body.baths, bedrooms: beds });
+    const hours = estimateHours({ sqm: e.sqm_range, cleanType: e.clean_type, kitchen: body.kitchen, baths: body.baths, bedrooms: personal ? beds : null });
     jobs.push(sendToServiceM8(env, e, validEmail, e.space_type === 'ndis-dva' ? null : hours, [
       'Website enquiry',
       ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
