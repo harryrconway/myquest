@@ -226,9 +226,11 @@ async function addQuoteLines(env, job, hours) {
   const lines = [[find('CLEAN'), hours], [find('TRAVEL'), 1]].filter(([m]) => m);
   if (lines.length < 2) throw new Error(`Items CLEAN and TRAVEL not found (ServiceM8 returned ${items.length} items)`);
   for (const [m, qty] of lines) {
+    // ServiceM8 rejects a line unless displayed_amount matches the item's price, shown here before GST.
+    const price = String(Number(m.price) || 0);
     await sm8Create(env, 'jobmaterial', {
-      job_uuid: job, material_uuid: m.uuid, name: m.name, quantity: String(qty), price: m.price, cost: m.cost || '0',
-      displayed_amount_is_tax_inclusive: m.price_include_tax || '0', tax_rate_uuid: m.tax_rate_uuid || '',
+      job_uuid: job, material_uuid: m.uuid, name: m.name, quantity: String(qty), price, displayed_amount: price,
+      displayed_amount_is_tax_inclusive: '0', cost: m.cost || '0', tax_rate_uuid: m.tax_rate_uuid || '',
     });
   }
 }
