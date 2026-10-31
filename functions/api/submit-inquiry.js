@@ -224,6 +224,7 @@ async function addQuoteLines(env, job, hours) {
   const items = await sm8Get(env, 'material.json');
   const find = code => items.find(m => m.active == 1 && String(m.item_number).trim().toUpperCase() === code);
   const lines = [[find('CLEAN'), hours], [find('TRAVEL'), 1]].filter(([m]) => m);
+  if (lines.length < 2) throw new Error(`Items CLEAN and TRAVEL not found (ServiceM8 returned ${items.length} items)`);
   for (const [m, qty] of lines) {
     await sm8Create(env, 'jobmaterial', {
       job_uuid: job, material_uuid: m.uuid, name: m.name, quantity: String(qty), price: m.price, cost: m.cost || '0',
@@ -233,11 +234,20 @@ async function addQuoteLines(env, job, hours) {
 }
 
 // A repeat enquiry from the same email reuses that client instead of creating a duplicate.
+// Reuses a client only while it is still active, so archived test or old clients are never picked up.
 async function findClientByEmail(env, email) {
   if (!email) return null;
   const q = encodeURIComponent(`email eq '${email.replace(/'/g, "''")}' and active eq 1`);
   const contacts = await sm8Get(env, `companycontact.json?%24filter=${q}`);
-  return contacts.length ? contacts[0].company_uuid : null;
+  for (const c of contacts) {
+    const companies = await sm8Get(env, `company.json?%24filter=${encodeURIComponent(`uuid eq '${c.company_uuid}' and active eq 1`)}`);
+    if (companies.length) return c.company_uuid;
+  }
+  return null;
+}
+
+async function noteOnJob(env, job, text) {
+  await sm8Create(env, 'note', { related_object: 'job', related_object_uuid: job, note: text }).catch(err => console.error('ServiceM8 note failed:', err));
 }
 
 // Job categories in ServiceM8, by the form's space type. A name missing in ServiceM8 leaves the job uncategorised.
@@ -274,7 +284,10 @@ async function sendToServiceM8(env, e, validEmail, hours, description) {
   await Promise.all([
     existing ? null : sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
-    hours ? addQuoteLines(env, job, hours).catch(err => console.error('ServiceM8 quote lines failed:', err)) : null,
+    hours ? addQuoteLines(env, job, hours).catch(async err => {
+      console.error('ServiceM8 quote lines failed:', err);
+      await noteOnJob(env, job, `The website couldn't add the quote lines (${hours} hours of CLEAN plus TRAVEL), so please add them before sending the quote. Reason: ${String(err.message || err).slice(0, 400)}`);
+    }) : null,
   ]);
 }
 
