@@ -58,6 +58,29 @@ function cameFrom(from, siteHost) {
 
 const SITE = 'https://myquest.au';
 
+// Matches the hello@myquest.au Gmail signature.
+const SIG_LINK = 'color:#1a1a1a;text-decoration:none';
+const SIG_BAR = '<span style="color:#bbbbbb">&nbsp;&nbsp;|&nbsp;&nbsp;</span>';
+const SIGNATURE_HTML = `<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a1a1a">Kind regards,</p>
+<p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a1a1a"><b>The MyQuest Team</b></p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tr><td style="border-left:3px solid #1a1a1a;padding:2px 0 2px 12px;font-family:Arial,Helvetica,sans-serif">
+<div style="font-size:20px;font-weight:bold;color:#1a1a1a;letter-spacing:-0.5px;line-height:24px">MyQuest</div>
+<div style="font-size:10px;color:#777777;letter-spacing:2px;line-height:14px;padding-bottom:6px">COMMERCIAL &amp; HOME CLEANING</div>
+<div style="font-size:13px;color:#1a1a1a;line-height:19px"><a href="tel:+61413154932" style="${SIG_LINK}">0413 154 932</a>${SIG_BAR}<a href="mailto:hello@myquest.au" style="${SIG_LINK}">hello@myquest.au</a>${SIG_BAR}<a href="${SITE}" style="${SIG_LINK}">myquest.au</a></div>
+<div style="font-size:12px;color:#555555;line-height:18px">Gold Coast &amp; Northern Rivers</div>
+<div style="font-size:11px;color:#999999;line-height:17px;padding-top:2px">MyQuest Pty Ltd&nbsp;&nbsp;|&nbsp;&nbsp;ABN 65 693 175 405</div>
+</td></tr></table>`;
+const SIGNATURE_TEXT = [
+  'Kind regards,',
+  'The MyQuest Team',
+  '',
+  'MyQuest',
+  'COMMERCIAL & HOME CLEANING',
+  '0413 154 932 | hello@myquest.au | myquest.au',
+  'Gold Coast & Northern Rivers',
+  'MyQuest Pty Ltd | ABN 65 693 175 405',
+].join('\n');
+
 // Queensland has no daylight saving, so Brisbane is always UTC+10.
 function callWhen(now = new Date()) {
   const b = new Date(now.getTime() + 10 * 3600000);
@@ -94,9 +117,6 @@ function confirmationEmail(e) {
     ['A quick walk through if needed', 'Mostly for larger, medical or ongoing cleans.'],
     [funded ? 'Agreed price, clear invoices' : 'Fixed written quote', funded ? 'Everything confirmed before the first clean.' : 'The price we quote is the price you pay.'],
   ];
-  const L = 'color:#111;text-decoration:none;white-space:nowrap';
-  const bar = '<span style="color:#999;padding:0 8px">|</span>';
-  const svc = (t, u) => `<a href="${SITE}/${u}" style="${L}">${t}</a>`;
 
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Enquiry received</title></head>
 <body style="margin:0;padding:0;background:#f4f4f2">
@@ -133,13 +153,9 @@ ${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 1
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f4;border-radius:12px"><tr><td style="padding:16px 20px;font-size:14px;line-height:1.6;color:#333">Want to speed things up? Just reply to this email with a few photos of your space and anything we should know about access.</td></tr></table>
 <p style="margin:14px 0 0;font-size:12px;color:#888;line-height:1.6">${funded ? '' : 'Your estimate is a guide based on what you told us. '}We confirm a fixed written price before any work begins. <a href="${SITE}/policies" style="color:#888">Our policies</a></p>
 </td></tr>
-<tr><td align="center" style="padding:34px 24px 34px">
-<div style="height:1px;background:#e6e6e6;margin:0 0 30px;line-height:1px;font-size:1px">&nbsp;</div>
-<a href="${SITE}"><img src="${SITE}/assets/email-logo.png" width="170" height="48" alt="MyQuest" style="display:block;border:0;margin:0 auto"></a>
-<p style="margin:10px 0 18px;font-size:11px;letter-spacing:3px;color:#111">COMMERCIAL &amp; HOME CLEANING</p>
-<p style="margin:0 0 18px;font-size:13px;line-height:1.9"><a href="mailto:hello@myquest.au" style="${L}">hello@myquest.au</a>${bar}<a href="tel:+61413154932" style="${L}">0413 154 932</a>${bar}<a href="${SITE}" style="${L}">Gold Coast &amp; Northern Rivers</a></p>
-<div style="height:1px;background:#111;margin:0 0 14px;line-height:1px;font-size:1px">&nbsp;</div>
-<p style="margin:0;font-size:10px;letter-spacing:1.5px;line-height:2.3">${svc('OFFICE CLEANING', 'office-cleaning')}${bar}${svc('HOUSE CLEANING', 'house-cleaning')}${bar}${svc('NDIS &amp; DVA', 'ndis-dva-cleaning')}<br>${svc('MEDICAL CENTRES', 'medical-centre-cleaning')}${bar}${svc('RETAIL', 'retail-cleaning')}${bar}${svc('BUILDER’S CLEAN', 'builder-clean')}</p>
+<tr><td style="padding:32px 36px 36px">
+<div style="height:1px;background:#e6e6e6;margin:0 0 26px;line-height:1px;font-size:1px">&nbsp;</div>
+${SIGNATURE_HTML}
 </td></tr>
 </table>
 </td></tr></table>
@@ -161,8 +177,7 @@ ${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 1
     '',
     'Want to speed things up? Reply to this email with a few photos of your space and anything we should know about access.',
     '',
-    'MyQuest | Commercial & home cleaning',
-    'hello@myquest.au | 0413 154 932 | Gold Coast & Northern Rivers',
+    SIGNATURE_TEXT,
   ].join('\n');
 
   return { html, text: textBody, subject: `We've received your enquiry, ${first}` };
