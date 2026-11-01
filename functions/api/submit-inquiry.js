@@ -255,6 +255,14 @@ function estimateHours({ sqm, cleanType, kitchen, baths, bedrooms }) {
   return Math.round(hrs * 100) / 100;
 }
 
+// The estimate in hours and minutes, so the booking can be set to the right length.
+function bookingLength(hours) {
+  if (!hours) return '';
+  const mins = Math.round(hours * 4) * 15;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return [h ? `${h} hour${h === 1 ? '' : 's'}` : '', m ? `${m} minutes` : ''].filter(Boolean).join(' ');
+}
+
 // Adds the estimate to the quote using ServiceM8 items found by item code: CLEAN hours plus the TRAVEL fee,
 // or for NDIS, the NDIS item, which carries the support item name and number for claiming.
 async function addQuoteLines(env, job, wanted) {
@@ -431,6 +439,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const lines = e.space_type !== 'ndis-dva' ? [['CLEAN', hours], ['TRAVEL', 1]] : e.funding === 'ndis' ? [['NDIS', hours]] : null;
     jobs.push(sendToServiceM8(env, e, validEmail, lines, [
       'Website enquiry',
+      ['Booking length', bookingLength(hours)],
       ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
       ['Space type', space],
       ['Size', e.sqm_range],
