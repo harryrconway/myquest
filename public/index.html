@@ -96,6 +96,10 @@
 .iq-stat-val{font-family:var(--disp);font-size:15px;font-weight:600;color:var(--navy);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}
 .iq-stat-lbl{color:var(--stone);font-size:11px;font-weight:400;margin-top:6px}
 .iq-stat-once{grid-column:1/-1}
+.iq-stats .iq-stat.iq-fund{text-align:left;align-items:flex-start;padding:14px 16px}
+.iq-fund-h{font-family:var(--disp);font-size:15px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.iq-fund p{color:var(--stone);font-size:12.5px;line-height:1.55;margin:0 0 8px}
+.iq-fund a,.iq-disclaimer a{color:var(--navy);font-size:12.5px;font-weight:500;text-underline-offset:3px}
 .iq-step .iq-fgroup[data-g],.iq-step .mq-field[data-g]{transition:opacity .35s ease}
 .iq-step [data-g=done]{opacity:.6}
 .iq-step [data-g=next]{opacity:.38}
@@ -651,9 +655,11 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     var per=((hrs*70)+20)*(home?1.1:1);
     return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,mult:MTH[f.value],freq:f.value,sqm:s?s.value:'',kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null,gst:home?'including GST':'plus GST'};
   }
+  var FUND_HTML='<div class="iq-stat iq-stat-once iq-fund"><div class=iq-kicker>NDIS</div><div class=iq-fund-h>An hourly rate and claimable invoices</div><p>Cleaning is usually funded under House Cleaning and Other Household Activities (01_020_0120_1_1), which has an hourly price limit set by the NDIA. We agree the hours and rate with you, then invoice with the support item, dates and hours, ready for you or your plan manager to claim.</p><a href="https://www.ndis.gov.au/providers/pricing-and-payments/pricing/pricing-arrangements-and-price-limits" target=_blank rel="noopener noreferrer">NDIS price limits</a></div>'+
+    '<div class="iq-stat iq-stat-once iq-fund"><div class=iq-kicker>DVA</div><div class=iq-fund-h>Veterans’ Home Care or Household Services</div><p>Depending on your eligibility, DVA may fund cleaning through Veterans’ Home Care, or pay towards it through Household Services. Tell us how your support is set up and we’ll work with it.</p><a href="https://www.dva.gov.au/what-we-help-with/care-at-home-and-aged-care-services/living-independently/help-with-cleaning-and-housekeeping" target=_blank rel="noopener noreferrer">How DVA helps with cleaning</a></div>';
   function renderQuote(){
     var s3=document.getElementById('iqS3'),hd=s3.querySelector('.iq-head h3'),sub=s3.querySelector('.iq-head p'),lbl=s3.querySelector('.iq-price-lbl'),kick=s3.querySelector('.iq-price-block .iq-kicker');
-    if(isFunded()){hd.textContent='Your quote';sub.textContent='NDIS and DVA cleaning';kick.textContent='Your price';document.getElementById('iqPriceRange').textContent='Priced with you';lbl.textContent='No instant estimate';document.getElementById('iqStats').innerHTML='';document.getElementById('iqDisc').textContent='Pricing for NDIS and DVA cleaning depends on your support arrangements, so we’ll talk it through and confirm a price with you directly before the first clean.';return;}
+    if(isFunded()){hd.textContent='Your quote';sub.textContent='NDIS and DVA cleaning';kick.textContent='Your price';document.getElementById('iqPriceRange').textContent='Priced with you';lbl.textContent='Agreed in writing before your first clean';document.getElementById('iqStats').innerHTML=FUND_HTML;document.getElementById('iqDisc').innerHTML='We’ll talk through your plan or support arrangements and confirm the hours and price with you before anything is booked. <a href=/ndis-dva-cleaning>More about our NDIS and DVA cleaning</a>';return;}
     hd.textContent='Your estimate';sub.textContent='Based on what you’ve told us.';kick.textContent='Estimated price per clean';
     var q=calc();if(!q)return;
     var tag='<span class=iq-gst>'+(q.gst==='plus GST'?'Plus GST':'GST included')+'</span>';
