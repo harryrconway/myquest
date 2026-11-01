@@ -81,6 +81,17 @@ const SIGNATURE_TEXT = [
   'MyQuest Pty Ltd | ABN 65 693 175 405',
 ].join('\n');
 
+const GUIDE_READY = ['How to get ready for your first clean', '/guides/getting-ready-for-your-clean'];
+const READING = {
+  home: [['What a house clean covers', '/house-cleaning'], ['House cleaning prices on the Gold Coast', '/guides/house-cleaning-cost-gold-coast'], GUIDE_READY],
+  'ndis-dva': [['How our NDIS and DVA cleaning works', '/ndis-dva-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
+  builder: [["What a builder's clean covers", '/builder-clean'], ["Builder's clean checklist before handover", '/guides/builders-clean-checklist']],
+  office: [['What our office cleaning covers', '/office-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
+  medical: [['How we clean medical centres', '/medical-centre-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
+  retail: [['What our retail and showroom cleaning covers', '/retail-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
+  other: [['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY, ['All our cleaning guides', '/guides']],
+};
+
 // Queensland has no daylight saving, so Brisbane is always UTC+10.
 function callWhen(now = new Date()) {
   const b = new Date(now.getTime() + 10 * 3600000);
@@ -111,6 +122,7 @@ function confirmationEmail(e) {
     e.preferred_time ? e.preferred_time.split(' (')[0] : '',
     startShort ? `From ${startShort}` : '',
   ].filter(Boolean).join(' · ');
+  const reading = READING[e.space_type] || READING.other;
   const steps = [
     ['Enquiry received', ''],
     ['We call you', `Usually ${when}, to talk through your space.`],
@@ -151,6 +163,11 @@ ${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 1
 </td></tr>
 <tr><td style="padding:26px 36px 0">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f4;border-radius:12px"><tr><td style="padding:16px 20px;font-size:14px;line-height:1.6;color:#333">Want to speed things up? Just reply to this email with a few photos of your space and anything we should know about access.</td></tr></table>
+</td></tr>
+<tr><td style="padding:26px 36px 0">
+<p style="margin:0 0 4px;font-size:11px;letter-spacing:2px;color:#777;text-transform:uppercase">While you wait</p>
+<p style="margin:0 0 10px;font-size:14px;color:#555;line-height:1.6">A few short reads that answer the questions people usually ask us first.</p>
+${reading.map(([t, u]) => `<p style="margin:0;border-top:1px solid #eeeeee;padding:11px 0;font-size:14px;line-height:1.4"><a href="${SITE}${u}" style="color:#111;text-decoration:none"><b>${t}</b> &rarr;</a></p>`).join('')}
 <p style="margin:14px 0 0;font-size:12px;color:#888;line-height:1.6">${funded ? '' : 'Your estimate is a guide based on what you told us. '}We confirm a fixed written price before any work begins. <a href="${SITE}/policies" style="color:#888">Our policies</a></p>
 </td></tr>
 <tr><td style="padding:32px 36px 36px">
@@ -176,6 +193,9 @@ ${SIGNATURE_HTML}
     `Website: ${SITE}`,
     '',
     'Want to speed things up? Reply to this email with a few photos of your space and anything we should know about access.',
+    '',
+    'While you wait',
+    ...reading.map(([t, u]) => `${t}: ${SITE}${u}`),
     '',
     SIGNATURE_TEXT,
   ].join('\n');
