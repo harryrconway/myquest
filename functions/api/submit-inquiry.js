@@ -264,7 +264,7 @@ function bookingLength(hours) {
 }
 
 // Adds the estimate to the quote using ServiceM8 items found by item code: CLEAN hours plus the TRAVEL fee,
-// or for NDIS, the NDIS item, which carries the support item name and number for claiming.
+// or for NDIS and DVA, their capped hourly items (NDIS carries the support item name and number for claiming).
 async function addQuoteLines(env, job, wanted) {
   const items = await sm8Get(env, 'material.json');
   const find = code => items.find(m => m.active == 1 && String(m.item_number).trim().toUpperCase() === code);
@@ -457,8 +457,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const jobs = [];
   if (env.SERVICEM8_API_KEY) {
     const hours = estimateHours({ sqm: e.sqm_range, cleanType: e.clean_type, kitchen: body.kitchen, baths: body.baths, bedrooms: personal ? beds : null });
-    // DVA and unsure funding are priced with the client, so only NDIS gets lines.
-    const lines = e.space_type !== 'ndis-dva' ? [['CLEAN', hours], ['TRAVEL', 1]] : e.funding === 'ndis' ? [['NDIS', hours]] : null;
+    // NDIS and DVA have capped hourly rates, so they get their own hourly item and no TRAVEL fee.
+    // Funding not known yet is priced with the client.
+    const lines = e.space_type !== 'ndis-dva' ? [['CLEAN', hours], ['TRAVEL', 1]] : { ndis: [['NDIS', hours]], dva: [['DVA', hours]] }[e.funding] || null;
     jobs.push(sendToServiceM8(env, e, validEmail, lines, [
       'Website enquiry',
       ['Booking length', bookingLength(hours)],
