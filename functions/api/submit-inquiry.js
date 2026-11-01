@@ -16,6 +16,7 @@ const SPACE_COLOURS = {
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
   space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', builder: 'Builder’s clean', other: 'Other' },
+  funding: { ndis: 'NDIS', dva: 'DVA', unsure: 'Not sure yet' },
   frequency: { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off', staged: 'In stages' },
 };
 
@@ -254,12 +255,13 @@ function estimateHours({ sqm, cleanType, kitchen, baths, bedrooms }) {
   return Math.round(hrs * 100) / 100;
 }
 
-// Adds the cleaning hours and the travel and supplies fee to the quote, using the ServiceM8 items CLEAN and TRAVEL.
-async function addQuoteLines(env, job, hours) {
+// Adds the estimate to the quote using ServiceM8 items found by item code: CLEAN hours plus the TRAVEL fee,
+// or for NDIS, the NDIS item, which carries the support item name and number for claiming.
+async function addQuoteLines(env, job, wanted) {
   const items = await sm8Get(env, 'material.json');
   const find = code => items.find(m => m.active == 1 && String(m.item_number).trim().toUpperCase() === code);
-  const lines = [[find('CLEAN'), hours], [find('TRAVEL'), 1]].filter(([m]) => m);
-  if (lines.length < 2) throw new Error(`Items CLEAN and TRAVEL not found (ServiceM8 returned ${items.length} items)`);
+  const lines = wanted.map(([code, qty]) => [find(code), qty]).filter(([m]) => m);
+  if (lines.length < wanted.length) throw new Error(`Items ${wanted.map(w => w[0]).join(' and ')} not found (ServiceM8 returned ${items.length} items)`);
   for (const [m, qty] of lines) {
     // ServiceM8 rejects a line unless displayed_amount matches the item's price, shown here before GST.
     const price = String(Number(m.price) || 0);
@@ -308,7 +310,7 @@ async function sm8CategoryUuid(env, spaceType) {
 
 // Each enquiry becomes a quote job holding the enquiry details, with the estimate's lines already added.
 // A new email gets a new client and contact; a known email reuses its client.
-async function sendToServiceM8(env, e, validEmail, hours, description) {
+async function sendToServiceM8(env, e, validEmail, lines, description) {
   const [first, ...rest] = e.contact_name.split(/\s+/);
   const contact = { first, last: rest.join(' '), mobile: e.mobile, ...(validEmail ? { email: e.email } : {}) };
   const address = [e.address, e.suburb].filter(Boolean).join(', ');
@@ -321,9 +323,10 @@ async function sendToServiceM8(env, e, validEmail, hours, description) {
   await Promise.all([
     existing ? null : sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
-    hours ? addQuoteLines(env, job, hours).catch(async err => {
+    lines ? addQuoteLines(env, job, lines).catch(async err => {
       console.error('ServiceM8 quote lines failed:', err);
-      await noteOnJob(env, job, `The website couldn't add the quote lines (${hours} hours of CLEAN plus TRAVEL), so please add them before sending the quote. Reason: ${String(err.message || err).slice(0, 400)}`);
+      const what = lines.map(([code, qty]) => code === 'TRAVEL' ? 'TRAVEL' : `${qty} hours of ${code}`).join(' plus ');
+      await noteOnJob(env, job, `The website couldn't add the quote lines (${what}), so please add them before sending the quote. Reason: ${String(err.message || err).slice(0, 400)}`);
     }) : null,
   ]);
 }
@@ -350,6 +353,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const e = Object.fromEntries(
     ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard', 'preferred_date', 'preferred_time', 'preferred_days', 'address'].map(k => [k, text(body[k])]),
   );
+  e.funding = e.space_type === 'ndis-dva' && LABELS.funding[text(body.funding)] ? text(body.funding) : '';
+  const funding = LABELS.funding[e.funding] || '';
   const site = new URL(request.url).hostname.replace(/^www\./, '');
   const from = cameFrom(body.from, site);
   const landing = text(body.from && body.from.landing) || '/';
@@ -371,6 +376,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ['Space type', `<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:bold;background:${colour[0]};color:${colour[1]}">${esc(LABELS.space_type[e.space_type] || e.space_type)}</span>`],
     ['Size', esc(e.sqm_range)],
     ['Bedrooms', esc(bedrooms)],
+    ['Funding', esc(funding)],
     ['Frequency', esc(LABELS.frequency[e.frequency] || e.frequency)],
     ['Kitchen', kitchen],
     ['Bathrooms', bathrooms],
@@ -421,12 +427,15 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const jobs = [];
   if (env.SERVICEM8_API_KEY) {
     const hours = estimateHours({ sqm: e.sqm_range, cleanType: e.clean_type, kitchen: body.kitchen, baths: body.baths, bedrooms: personal ? beds : null });
-    jobs.push(sendToServiceM8(env, e, validEmail, e.space_type === 'ndis-dva' ? null : hours, [
+    // DVA and unsure funding are priced with the client, so only NDIS gets lines.
+    const lines = e.space_type !== 'ndis-dva' ? [['CLEAN', hours], ['TRAVEL', 1]] : e.funding === 'ndis' ? [['NDIS', hours]] : null;
+    jobs.push(sendToServiceM8(env, e, validEmail, lines, [
       'Website enquiry',
       ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
       ['Space type', space],
       ['Size', e.sqm_range],
       ['Bedrooms', bedrooms],
+      ['Funding', funding],
       ['Frequency', freq],
       ['Kitchen', kitchen],
       ['Bathrooms', bathrooms],

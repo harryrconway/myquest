@@ -16,7 +16,7 @@ Each enquiry then creates:
 - a client named after the business (or the person, for homes), with the street address and suburb, and that person as its primary contact. If a contact with the same email already exists, the enquiry uses that client instead of creating a duplicate
 - a job with status Quote at the same address, whose description lists every form answer, the estimate shown and where the visitor came from
 - the job category that matches the space type (Office, Retail, Medical, Builders, Home, NDIS and DVA or Other), if a category with that name exists in ServiceM8. Open the job and use More, Apply Template to add the matching checklist.
-- the quote lines from the website estimate: the hours on the item coded CLEAN and one TRAVEL fee, at their saved prices. NDIS and DVA enquiries get no lines, as they're priced with the client. Keep those two item codes in ServiceM8 (Settings > Materials & Services) and change prices there, not in the code; if the website's rates change, update both.
+- the quote lines from the website estimate: the hours on the item coded CLEAN and one TRAVEL fee, at their saved prices. NDIS enquiries instead get the estimated hours on the item coded NDIS (House Cleaning and Other Household Activities, support item 01_020_0120_1_1, GST free), so the invoice carries the support item for claiming. DVA and not sure enquiries get no lines, as they're priced with the client. Keep the CLEAN, TRAVEL and NDIS item codes in ServiceM8 (Settings > Materials & Services) and change prices there, not in the code; if the website's rates change, update both.
 
 ## 1. Protect against spam
 
