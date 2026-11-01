@@ -293,6 +293,24 @@ async function findClientByEmail(env, email) {
   return null;
 }
 
+// The Booking Reminder automation only reminds clients on jobs with this badge, so every website job gets it.
+async function addReminderBadge(env, job) {
+  const badge = (await sm8Get(env, 'badge.json')).find(b => b.active == 1 && String(b.name).trim().toLowerCase() === 'booking reminder');
+  if (!badge) throw new Error('Badge "Booking Reminder" not found');
+  const has = async () => String((await sm8Get(env, `job/${job}.json`)).badges || '').includes(badge.uuid);
+  // ServiceM8 stores badges as a JSON list; the API has accepted both a string and an array over time.
+  for (const badges of [JSON.stringify([badge.uuid]), [badge.uuid]]) {
+    const res = await fetch(`https://api.servicem8.com/api_1.0/job/${job}.json`, {
+      method: 'POST',
+      headers: { 'X-Api-Key': env.SERVICEM8_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ badges }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (res.ok && await has()) return;
+  }
+  throw new Error('ServiceM8 did not keep the badge');
+}
+
 async function noteOnJob(env, job, text) {
   await sm8Create(env, 'note', { related_object: 'job', related_object_uuid: job, note: text }).catch(err => console.error('ServiceM8 note failed:', err));
 }
@@ -331,6 +349,10 @@ async function sendToServiceM8(env, e, validEmail, lines, description) {
   await Promise.all([
     existing ? null : sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
+    addReminderBadge(env, job).catch(async err => {
+      console.error('ServiceM8 badge failed:', err);
+      await noteOnJob(env, job, `The website couldn't add the Booking Reminder badge, so please add it if you want the client reminded before their clean. Reason: ${String(err.message || err).slice(0, 300)}`);
+    }),
     lines ? addQuoteLines(env, job, lines).catch(async err => {
       console.error('ServiceM8 quote lines failed:', err);
       const what = lines.map(([code, qty]) => code === 'TRAVEL' ? 'TRAVEL' : `${qty} hours of ${code}`).join(' plus ');
