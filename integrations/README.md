@@ -17,6 +17,7 @@ Each enquiry then creates:
 - a job with status Quote at the same address, whose description lists every form answer, the estimate shown and where the visitor came from
 - the job category that matches the space type (Office, Retail, Medical, Builders, Home, NDIS and DVA or Other), if a category with that name exists in ServiceM8. Open the job and use More, Apply Template to add the matching checklist.
 - the quote lines from the website estimate: the hours on the item coded CLEAN and one TRAVEL fee, at their saved prices. NDIS enquiries instead get the estimated hours on the item coded NDIS (House Cleaning and Other Household Activities, support item 01_020_0120_1_1, GST free), so the invoice carries the support item for claiming. DVA and not sure enquiries get no lines, as they're priced with the client. Keep the CLEAN, TRAVEL and NDIS item codes in ServiceM8 (Settings > Materials & Services) and change prices there, not in the code; if the website's rates change, update both.
+- the Booking Reminder badge, so the 24 hour reminder goes out once the job is booked. Keep a badge with that exact name in ServiceM8 (Settings > Badges).
 
 ## 1. Protect against spam
 
