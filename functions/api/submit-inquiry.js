@@ -263,21 +263,53 @@ function bookingLength(hours) {
   return [h ? `${h} hour${h === 1 ? '' : 's'}` : '', m ? `${m} minutes` : ''].filter(Boolean).join(' ');
 }
 
-// Adds the estimate to the quote using ServiceM8 items found by item code: CLEAN hours plus the TRAVEL fee,
-// or for NDIS and DVA, their capped hourly items (NDIS carries the support item name and number for claiming).
-async function addQuoteLines(env, job, wanted) {
+// The quote line's name, e.g. "Office cleaning, weekly, per visit" or "Home deep clean, once off".
+function visitName(e) {
+  const space = { office: 'Office', retail: 'Retail', medical: 'Medical centre', home: 'Home', 'ndis-dva': 'Home' }[e.space_type] || '';
+  const what = e.space_type === 'builder' ? 'Builder’s clean' : `${space} ${e.clean_type === 'deep' ? 'deep clean' : 'cleaning'}`.trim();
+  const often = { 'once-off': 'once off', staged: 'in stages, per stage' }[e.frequency] || [LABELS.frequency[e.frequency], 'per visit'].filter(Boolean).join(', ').toLowerCase();
+  return `${what.charAt(0).toUpperCase()}${what.slice(1)}, ${often}`;
+}
+
+// What the quote and invoice tell the client: what, where and how often, with no hours or internal notes.
+function quoteDescription(e) {
+  const where = [e.address, e.suburb].filter(Boolean).join(', ');
+  const often = { daily: 'Daily visits.', weekly: 'Weekly visits.', fortnightly: 'Fortnightly visits.', monthly: 'Monthly visits.', 'once-off': 'A once off clean.', staged: 'Cleaned in stages as the work progresses.' }[e.frequency];
+  return [
+    `${visitName(e).split(',')[0]}${where ? ` at ${where}` : ''}.`,
+    often,
+    'Cleaned to our agreed checklist, with all products and equipment supplied.',
+    e.space_type === 'ndis-dva' ? 'Charged at the approved hourly rate for your funding.'
+      : `One fixed price ${{ 'once-off': 'for the clean', staged: 'per stage' }[e.frequency] || 'per visit'}. Anything outside the checklist is quoted separately.`,
+  ].filter(Boolean).join('\n');
+}
+
+// Commercial and home quotes get one fixed price line so clients never see hours: the VISIT item, priced at the
+// estimate's hours × the CLEAN hourly rate plus the TRAVEL job fee, all three saved in ServiceM8. NDIS and DVA bill
+// by the hour, so they get their capped hourly item instead (NDIS carries the support item name and number for claiming).
+async function addQuoteLines(env, job, quote) {
   const items = await sm8Get(env, 'material.json');
   const find = code => items.find(m => m.active == 1 && String(m.item_number).trim().toUpperCase() === code);
-  const lines = wanted.map(([code, qty]) => [find(code), qty]).filter(([m]) => m);
-  if (lines.length < wanted.length) throw new Error(`Items ${wanted.map(w => w[0]).join(' and ')} not found (ServiceM8 returned ${items.length} items)`);
-  for (const [m, qty] of lines) {
-    // ServiceM8 rejects a line unless displayed_amount matches the item's price, shown here before GST.
-    const price = String(Number(m.price) || 0);
-    await sm8Create(env, 'jobmaterial', {
-      job_uuid: job, material_uuid: m.uuid, name: m.name, quantity: String(qty), price, displayed_amount: price,
-      displayed_amount_is_tax_inclusive: '0', cost: m.cost || '0', tax_rate_uuid: m.tax_rate_uuid || '',
-    });
-  }
+  const codes = quote.visit ? ['VISIT', 'CLEAN', 'TRAVEL'] : [quote.code];
+  const [item, clean, travel] = codes.map(find);
+  if (!item || (quote.visit && (!clean || !travel))) throw new Error(`Items ${codes.join(', ')} not found (ServiceM8 returned ${items.length} items)`);
+  // ServiceM8 rejects a line unless displayed_amount matches its price, shown here before GST.
+  const price = String(quote.visit ? Math.round(quote.hours * Number(clean.price) + Number(travel.price)) : Number(item.price) || 0);
+  await sm8Create(env, 'jobmaterial', {
+    job_uuid: job, material_uuid: item.uuid, name: quote.visit ? quote.name : item.name, quantity: String(quote.visit ? 1 : quote.hours),
+    price, displayed_amount: price, displayed_amount_is_tax_inclusive: '0', cost: item.cost || '0', tax_rate_uuid: item.tax_rate_uuid || '',
+  });
+}
+
+// The Quote Description box on the job's Billing tab, which is what the quote and invoice show the client.
+async function setQuoteDescription(env, job, description) {
+  const res = await fetch(`https://api.servicem8.com/api_1.0/job/${job}.json`, {
+    method: 'POST',
+    headers: { 'X-Api-Key': env.SERVICEM8_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ work_done_description: description }),
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error(`ServiceM8 quote description failed: ${res.status} ${await res.text()}`);
 }
 
 // A repeat enquiry from the same email reuses that client instead of creating a duplicate.
@@ -334,9 +366,9 @@ async function sm8CategoryUuid(env, spaceType) {
   }
 }
 
-// Each enquiry becomes a quote job holding the enquiry details, with the estimate's lines already added.
-// A new email gets a new client and contact; a known email reuses its client.
-async function sendToServiceM8(env, e, validEmail, lines, description) {
+// Each enquiry becomes a quote job holding the enquiry details, with the estimate's line and the client's
+// quote description already added. A new email gets a new client and contact; a known email reuses its client.
+async function sendToServiceM8(env, e, validEmail, quote, description) {
   const [first, ...rest] = e.contact_name.split(/\s+/);
   const contact = { first, last: rest.join(' '), mobile: e.mobile, ...(validEmail ? { email: e.email } : {}) };
   const address = [e.address, e.suburb].filter(Boolean).join(', ');
@@ -353,11 +385,15 @@ async function sendToServiceM8(env, e, validEmail, lines, description) {
       console.error('ServiceM8 badge failed:', err);
       await noteOnJob(env, job, `The website couldn't add the Booking Reminder badge, so please add it if you want the client reminded before their clean. Reason: ${String(err.message || err).slice(0, 300)}`);
     }),
-    lines ? addQuoteLines(env, job, lines).catch(async err => {
-      console.error('ServiceM8 quote lines failed:', err);
-      const what = lines.map(([code, qty]) => code === 'TRAVEL' ? 'TRAVEL' : `${qty} hours of ${code}`).join(' plus ');
-      await noteOnJob(env, job, `The website couldn't add the quote lines (${what}), so please add them before sending the quote. Reason: ${String(err.message || err).slice(0, 400)}`);
+    quote ? addQuoteLines(env, job, quote).catch(async err => {
+      console.error('ServiceM8 quote line failed:', err);
+      const what = quote.visit ? `a VISIT line priced at ${quote.hours} hours × the CLEAN rate plus the TRAVEL fee` : `${quote.hours} hours of ${quote.code}`;
+      await noteOnJob(env, job, `The website couldn't add the quote line (${what}), so please add it before sending the quote. Reason: ${String(err.message || err).slice(0, 400)}`);
     }) : null,
+    setQuoteDescription(env, job, quoteDescription(e)).catch(async err => {
+      console.error('ServiceM8 quote description failed:', err);
+      await noteOnJob(env, job, `The website couldn't fill in the Quote Description on the Billing tab, so please add a short summary of the service before sending the quote. Reason: ${String(err.message || err).slice(0, 300)}`);
+    }),
   ]);
 }
 
@@ -459,8 +495,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const hours = estimateHours({ sqm: e.sqm_range, cleanType: e.clean_type, kitchen: body.kitchen, baths: body.baths, bedrooms: personal ? beds : null });
     // NDIS and DVA have capped hourly rates, so they get their own hourly item and no TRAVEL fee.
     // Funding not known yet is priced with the client.
-    const lines = e.space_type !== 'ndis-dva' ? [['CLEAN', hours], ['TRAVEL', 1]] : { ndis: [['NDIS', hours]], dva: [['DVA', hours]] }[e.funding] || null;
-    jobs.push(sendToServiceM8(env, e, validEmail, lines, [
+    const quote = !hours ? null : e.space_type !== 'ndis-dva' ? { visit: true, hours, name: visitName(e) } : { ndis: { code: 'NDIS', hours }, dva: { code: 'DVA', hours } }[e.funding] || null;
+    jobs.push(sendToServiceM8(env, e, validEmail, quote, [
       'Website enquiry',
       ['Booking length', bookingLength(hours)],
       ['Clean type', LABELS.clean_type[e.clean_type] || e.clean_type],
