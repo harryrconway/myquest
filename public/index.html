@@ -96,7 +96,7 @@
 .iq-stat-val{font-family:var(--disp);font-size:15px;font-weight:600;color:var(--navy);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}
 .iq-stat-lbl{color:var(--stone);font-size:11px;font-weight:400;margin-top:6px}
 .iq-stat-once{grid-column:1/-1}
-.iq-stats .iq-stat.iq-fund{text-align:left;align-items:flex-start;padding:14px 16px}
+.iq-stats .iq-stat.iq-fund{text-align:left;align-items:flex-start;padding:14px 16px}.iq-stats .iq-stat.iq-incl{text-align:left;align-items:flex-start;padding:clamp(18px,2.2vw,26px) clamp(18px,2.4vw,28px)}.iq-incl .iq-kicker{margin-bottom:14px}.iq-incl ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}.iq-incl li{position:relative;padding-left:28px;font-size:14px;line-height:1.45;color:var(--navy)}.iq-incl li::before{content:'';position:absolute;left:0;top:1px;width:18px;height:18px;border-radius:50%;background:var(--navy)}.iq-incl li::after{content:'';position:absolute;left:6px;top:6px;width:6px;height:3px;border-left:1.6px solid #fff;border-bottom:1.6px solid #fff;transform:rotate(-45deg)}
 .iq-fund-h{font-family:var(--disp);font-size:15px;font-weight:600;color:var(--navy);margin-bottom:6px}
 .iq-fund p{color:var(--stone);font-size:12.5px;line-height:1.55;margin:0 0 8px}
 .iq-fund a,.iq-disclaimer a{color:var(--navy);font-size:12.5px;font-weight:500;text-underline-offset:3px}
@@ -630,7 +630,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
 /* 4-step quote calculator */
 (()=>{
   var SQM={'Under 100m²':1.5,'100 to 300m²':3,'300 to 500m²':5,'500m²+':8};
-  var MTH={daily:21.67,weekly:4.33,fortnightly:2.17,monthly:1,'once-off':null,staged:null};
+  
   function r5(n){return Math.round(n/5)*5;}
   function fmt(n){return '$'+Math.round(n).toLocaleString('en-AU');}
   function v(id){return(document.getElementById(id)||{}).value||'';}
@@ -662,7 +662,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     // Consumer law needs home prices shown with GST included; businesses compare prices before GST
     var home=!!sp&&sp.value==='home';
     var per=((hrs*70)+20)*(home?1.1:1);
-    return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,mult:MTH[f.value],freq:f.value,sqm:s?s.value:'',kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null,gst:home?'including GST':'plus GST'};
+    return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,freq:f.value,sqm:s?s.value:'',kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null,gst:home?'including GST':'plus GST'};
   }
   var FUND_NDIS='<div class="iq-stat iq-stat-once iq-fund"><div class=iq-kicker>NDIS</div><div class=iq-fund-h>An hourly rate and claimable invoices</div><p>Cleaning is usually funded under House Cleaning and Other Household Activities (01_020_0120_1_1), which has an hourly price limit set by the NDIA. We agree the hours and rate with you, then invoice with the support item, dates and hours, ready for you or your plan manager to claim.</p><a href="https://www.ndis.gov.au/providers/pricing-and-payments/pricing/pricing-arrangements-and-price-limits" target=_blank rel="noopener noreferrer">NDIS price limits</a></div>',FUND_DVA='<div class="iq-stat iq-stat-once iq-fund"><div class=iq-kicker>DVA</div><div class=iq-fund-h>Veterans’ Home Care or Household Services</div><p>Depending on your eligibility, DVA may fund cleaning through Veterans’ Home Care, or pay towards it through Household Services. Tell us how your support is set up and we’ll work with it.</p><a href="https://www.dva.gov.au/what-we-help-with/care-at-home-and-aged-care-services/living-independently/help-with-cleaning-and-housekeeping" target=_blank rel="noopener noreferrer">How DVA helps with cleaning</a></div>';
   function renderQuote(){
@@ -673,10 +673,9 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     var tag='<span class=iq-gst>'+(q.gst==='plus GST'?'Plus GST':'GST included')+'</span>';
     lbl.innerHTML=tag;
     document.getElementById('iqPriceRange').textContent=fmt(q.lo)+' to '+fmt(q.hi);
-    var st='',BASIS={daily:'Based on a clean every weekday',weekly:'Based on weekly cleans',fortnightly:'Based on fortnightly cleans',monthly:'Based on one clean a month'};
-    if(q.mult){var m=q.per*q.mult;st='<div class="iq-stat iq-stat-once"><div class=iq-kicker>Estimated per month</div><div class=iq-stat-val>'+fmt(m)+tag+'</div><div class=iq-stat-lbl>'+BASIS[q.freq]+'</div></div>';}
-    else if(q.freq==='staged'){st='<div class="iq-stat iq-stat-once"><div class=iq-kicker>How often</div><div class=iq-stat-val>In stages</div><div class=iq-stat-lbl>We\u2019ll plan and price each stage with you</div></div>';}else{st='<div class="iq-stat iq-stat-once"><div class=iq-kicker>How often</div><div class=iq-stat-val>Once off clean</div><div class=iq-stat-lbl>No ongoing commitment required</div></div>';}
-    document.getElementById('iqStats').innerHTML=st;
+    var OFTEN={daily:'Every weekday',weekly:'Weekly cleans',fortnightly:'Fortnightly cleans',monthly:'Monthly cleans','once-off':'Once off clean',staged:'Cleaned in stages'};
+    var first={'once-off':'One fixed price, with no ongoing commitment',staged:'Each stage priced and agreed with you'}[q.freq]||'The same fixed price every visit';
+    document.getElementById('iqStats').innerHTML='<div class="iq-stat iq-stat-once iq-incl"><div class=iq-kicker>'+(OFTEN[q.freq]||'Your clean')+'</div><ul>'+[first,'All products and equipment supplied','Cleaned to a checklist agreed with you','Police checked, trained cleaners'].map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>';
     document.getElementById('iqDisc').textContent=q.sqm==='500m²+'?'This is an estimated quote. For larger premises, the final price may vary. We’ll confirm after reviewing your space.':'This is an estimated quote based on the details you’ve provided. Final pricing is confirmed after we assess your premises.';
   }
   function setNodes(active){
@@ -727,7 +726,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     if(!valS4())return;
     var btn=document.getElementById('iqSubmit');btn.textContent='Sending…';btn.disabled=true;
     var q=isFunded()?null:calc();
-    var est=q?fmt(q.lo)+' to '+fmt(q.hi)+' per clean '+q.gst+(q.mult?' (~'+fmt(q.per*q.mult)+'/month)':''):'';
+    var est=q?fmt(q.lo)+' to '+fmt(q.hi)+' per clean '+q.gst:'';
     var estLine=est||'';
     var spaceEl=document.querySelector('input[name=iqSpace]:checked');
     var sqmEl=document.querySelector('input[name=iqSqm]:checked');
