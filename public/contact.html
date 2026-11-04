@@ -31,9 +31,12 @@ function wireEmailSuggest(input,box){
     box.classList.add('show');
   }
   input.addEventListener('input',function(){
-    var v=input.value,at=v.indexOf('@');
-    if(at===-1){box.classList.remove('show');return;}
-    var local=v.slice(0,at),dom=v.slice(at+1).toLowerCase();
+    var v=input.value;
+    if(!v){box.classList.remove('show');return;}
+    var at=v.indexOf('@');
+    var local=at===-1?v:v.slice(0,at);
+    var dom=at===-1?'':v.slice(at+1).toLowerCase();
+    if(!local){box.classList.remove('show');return;}
     var items=DOMAINS.filter(function(d){return d.indexOf(dom)===0;}).slice(0,10).map(function(d){return local+'@'+d;});
     render(items);
   });
