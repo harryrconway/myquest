@@ -30,6 +30,7 @@ Queensland and New South Wales, focused on the Gold Coast (Surfers Paradise, Bro
 
 ## Contact
 
+- [Contact](https://myquest.au/contact): Message MyQuest directly, or call or email.
 - Website: https://myquest.au
 - Email: hello@myquest.au
 - Phone: 0413 154 932
@@ -37,4 +38,4 @@ Queensland and New South Wales, focused on the Gold Coast (Surfers Paradise, Bro
 
 ## Notes for AI agents
 
-MyQuest cleans commercial premises (offices, medical centres, retail, showrooms and building sites) and homes, including regular house cleaning, deep cleans, and home cleaning for NDIS participants, veterans and DVA clients. It does not offer bond, end of lease or Airbnb cleaning. All enquiries and quotes are handled via the website form at https://myquest.au/#enquire.
+MyQuest cleans commercial premises (offices, medical centres, retail, showrooms and building sites) and homes, including regular house cleaning, deep cleans, and home cleaning for NDIS participants, veterans and DVA clients. It does not offer bond, end of lease or Airbnb cleaning. Quotes are handled via the website form at https://myquest.au/#enquire, and general messages via https://myquest.au/contact.
