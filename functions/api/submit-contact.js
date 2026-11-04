@@ -1,5 +1,5 @@
 const TO = 'hello@myquest.au';
-const REQUIRED = ['name', 'email', 'message'];
+const REQUIRED = ['name', 'email', 'phone', 'message'];
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -98,12 +98,12 @@ export async function onRequestPost({ request, env }) {
 
   const validEmail = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(email);
   if (!validEmail) return json({ error: 'Please enter a valid email.' }, 400);
-  if (phone && !/^0\d{9}$/.test(phone)) return json({ error: 'Enter a 10 digit AU phone number.' }, 400);
+  if (!/^04\d{8}$/.test(phone)) return json({ error: 'Enter a 10 digit mobile number starting with 04.' }, 400);
 
   const rows = [
     ['Name', esc(name)],
     ['Email', `<a href="mailto:${esc(email)}">${esc(email)}</a>`],
-    ['Phone', phone ? `<a href="tel:${esc(phone)}">${esc(phone)}</a>` : ''],
+    ['Mobile', `<a href="tel:${esc(phone)}">${esc(phone)}</a>`],
     ['Message', esc(message).replace(/\n/g, '<br>')],
     ['Page', esc(page)],
   ].filter(([, v]) => v);
