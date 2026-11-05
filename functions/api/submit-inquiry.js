@@ -324,6 +324,23 @@ async function findClientByEmail(env, email) {
   return null;
 }
 
+// DVA Household Services invoices go to DVA's HHS accounts team, quoting the client's DVA references.
+const DVA_HHS_EMAIL = 'hhs.accounts@dva.gov.au';
+
+async function setUpDvaBilling(env, job, e) {
+  await sm8Create(env, 'jobcontact', { job_uuid: job, first: 'HHS Accounts', last: 'DVA', email: DVA_HHS_EMAIL, type: 'BILLING' });
+  const refs = [e.dva_claim && `Claim ${e.dva_claim}`, e.dva_file && `DVA file ${e.dva_file}`, e.dva_trn && `TRN ${e.dva_trn}`].filter(Boolean).join(', ');
+  if (refs) {
+    const res = await fetch(`https://api.servicem8.com/api_1.0/job/${job}.json`, {
+      method: 'POST',
+      headers: { 'X-Api-Key': env.SERVICEM8_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ purchase_order_number: refs.slice(0, 100) }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) throw new Error(`ServiceM8 job references failed: ${res.status}`);
+  }
+}
+
 // The Booking Reminder automation only reminds clients on jobs with this badge, so every website job gets it.
 async function addReminderBadge(env, job) {
   const badge = (await sm8Get(env, 'badge.json')).find(b => b.active == 1 && String(b.name).trim().toLowerCase() === 'booking reminder');
@@ -380,6 +397,10 @@ async function sendToServiceM8(env, e, validEmail, quote, description) {
   await Promise.all([
     existing ? null : sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
+    e.funding === 'dva' ? setUpDvaBilling(env, job, e).catch(async err => {
+      console.error('ServiceM8 DVA billing failed:', err);
+      await noteOnJob(env, job, `The website couldn't set up DVA billing, so please add ${DVA_HHS_EMAIL} as the billing contact and put the claim reference, DVA file number and TRN in the PO number. Reason: ${String(err.message || err).slice(0, 300)}`);
+    }) : null,
     addReminderBadge(env, job).catch(async err => {
       console.error('ServiceM8 badge failed:', err);
       await noteOnJob(env, job, `The website couldn't add the Booking Reminder badge, so please add it if you want the client reminded before their clean. Reason: ${String(err.message || err).slice(0, 300)}`);
@@ -420,6 +441,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   );
   e.funding = e.space_type === 'ndis-dva' && LABELS.funding[text(body.funding)] ? text(body.funding) : '';
   const funding = LABELS.funding[e.funding] || '';
+  const dva = e.funding === 'dva';
+  for (const k of ['dva_file', 'dva_claim', 'dva_trn']) e[k] = dva ? text(body[k]).slice(0, 40) : '';
   const site = new URL(request.url).hostname.replace(/^www\./, '');
   const from = cameFrom(body.from, site);
   const landing = text(body.from && body.from.landing) || '/';
@@ -442,6 +465,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ['Size', esc(e.sqm_range)],
     ['Bedrooms', esc(bedrooms)],
     ['Funding', esc(funding)],
+    ['DVA file number', esc(e.dva_file)],
+    ['Claim reference', esc(e.dva_claim)],
+    ['TRN', esc(e.dva_trn)],
     ['Frequency', esc(LABELS.frequency[e.frequency] || e.frequency)],
     ['Kitchen', kitchen],
     ['Bathrooms', bathrooms],
@@ -503,6 +529,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
       ['Size', e.sqm_range],
       ['Bedrooms', bedrooms],
       ['Funding', funding],
+      ['DVA file number', e.dva_file],
+      ['Claim reference', e.dva_claim],
+      ['TRN', e.dva_trn],
+      dva ? `DVA invoices: show the client name, claim reference, DVA file number and TRN, and email them to ${DVA_HHS_EMAIL} (set as the billing contact).` : '',
       ['Frequency', freq],
       ['Kitchen', kitchen],
       ['Bathrooms', bathrooms],
@@ -513,7 +543,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       ['Notes', e.notes],
       ['Heard about us', e.heard],
       ['Came from', from],
-    ].filter(r => typeof r === 'string' || r[1]).map(r => typeof r === 'string' ? r : `${r[0]}: ${r[1]}`).join('\n')));
+    ].filter(r => typeof r === 'string' ? r : r[1]).map(r => typeof r === 'string' ? r : `${r[0]}: ${r[1]}`).join('\n')));
   }
   if (jobs.length) {
     const done = Promise.allSettled(jobs).then(results => results.forEach(r => r.status === 'rejected' && console.error(r.reason)));
