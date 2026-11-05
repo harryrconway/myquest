@@ -14,15 +14,16 @@ Changes apply from the next deployment (push a commit, or use Retry deployment o
 
 Each enquiry then creates:
 - a client named after the business (or the person, for homes), with the street address and suburb, and that person as its primary contact. If a contact with the same email already exists, the enquiry uses that client instead of creating a duplicate
-- a job with status Quote at the same address, whose description lists every form answer, the estimate shown and where the visitor came from
+- a job with status Quote at the same address, whose job description lists every form answer, the booking length (the estimated hours, which staff pay is worked out from), the estimate shown and where the visitor came from. The job description is internal; quotes and invoices never show it
+- a Quote Description (on the job's Billing tab) for the client: what, where and how often, with no hours
 - the job category that matches the space type (Office, Retail, Medical, Builders, Home, NDIS and DVA or Other), if a category with that name exists in ServiceM8. Open the job and use More, Apply Template to add the matching checklist.
-- the quote lines from the website estimate: the hours on the item coded CLEAN and one TRAVEL fee, at their saved prices. NDIS enquiries instead get the estimated hours on the item coded NDIS (House Cleaning and Other Household Activities, support item 01_020_0120_1_1, GST free), so the invoice carries the support item for claiming. DVA enquiries get the estimated hours on the item coded DVA (household cleaning at DVA's Household Services maximum, $79.90 an hour including GST for 2026). Neither gets the TRAVEL fee. Not sure enquiries get no lines, as they're priced with the client. Keep the CLEAN, TRAVEL, NDIS and DVA item codes in ServiceM8 (Settings > Materials & Services) and change prices there, not in the code; if the website's rates change, update both.
+- one quote line at a fixed price per visit, so clients never see hours: the item coded VISIT, named for the job (for example "Office cleaning, weekly, per visit"), at quantity 1 and priced at the estimated hours × the CLEAN hourly rate plus the TRAVEL job fee, rounded to the dollar, before GST. CLEAN and TRAVEL are internal rates only and never go on a quote. NDIS enquiries instead get the estimated hours on the item coded NDIS (House Cleaning and Other Household Activities, support item 01_020_0120_1_1, GST free), so the invoice carries the support item for claiming. DVA enquiries get the estimated hours on the item coded DVA (household cleaning at DVA's Household Services maximum, $79.90 an hour including GST for 2026). Both must show hours, and neither gets the TRAVEL fee. Not sure enquiries get no line, as they're priced with the client. Keep the VISIT, CLEAN, TRAVEL, NDIS and DVA item codes in ServiceM8 (Settings > Materials & Services) and change rates there, not in the code; if the website's rates change, update both.
 - for DVA enquiries, a billing contact for DVA's HHS accounts team (hhs.accounts@dva.gov.au), so the invoice goes to DVA, and the claim reference, DVA file number and TRN the client gave in the PO number, which shows on the invoice. Anything the client didn't give is added on the job before invoicing.
 - the Booking Reminder badge, so the 24 hour reminder goes out once the job is booked. Keep a badge with that exact name in ServiceM8 (Settings > Badges).
 
 ## 1. Protect against spam
 
-Cloudflare dashboard > Security > WAF > Rate limiting rules: limit `/api/submit-inquiry` to about 5 requests per 10 minutes per IP.
+Done 1 November 2026: the Cloudflare rate limiting rule "Enquiry form" (Security rules) blocks an IP for 10 seconds once it sends more than 3 requests to `/api/submit-inquiry` within 10 seconds, the most the free plan allows.
 This stops anyone flooding your inbox or ServiceM8 with fake enquiries.
 
 ## 2. Form step tracking (Google Analytics)
