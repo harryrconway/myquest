@@ -324,11 +324,11 @@ async function findClientByEmail(env, email) {
   return null;
 }
 
-// DVA Household Services invoices go to DVA's HHS accounts team, quoting the client's DVA references.
-const DVA_HHS_EMAIL = 'hhs.accounts@dva.gov.au';
+// DVA only pays Household Services invoices uploaded at its Provider Upload Page, never emailed ones,
+// so the job gets no DVA billing contact, just the client's DVA references, which show on the invoice.
+const DVA_UPLOAD = 'connect.dva.gov.au/provider/upload';
 
-async function setUpDvaBilling(env, job, e) {
-  await sm8Create(env, 'jobcontact', { job_uuid: job, first: 'HHS Accounts', last: 'DVA', email: DVA_HHS_EMAIL, type: 'BILLING' });
+async function addDvaReferences(env, job, e) {
   const refs = [e.dva_claim && `Claim ${e.dva_claim}`, e.dva_file && `DVA file ${e.dva_file}`, e.dva_trn && `TRN ${e.dva_trn}`].filter(Boolean).join(', ');
   if (refs) {
     const res = await fetch(`https://api.servicem8.com/api_1.0/job/${job}.json`, {
@@ -397,9 +397,9 @@ async function sendToServiceM8(env, e, validEmail, quote, description) {
   await Promise.all([
     existing ? null : sm8Create(env, 'companycontact', { company_uuid: company, ...contact, type: 'JOB', is_primary_contact: '1' }),
     sm8Create(env, 'jobcontact', { job_uuid: job, ...contact, type: 'JOB' }),
-    e.funding === 'dva' ? setUpDvaBilling(env, job, e).catch(async err => {
-      console.error('ServiceM8 DVA billing failed:', err);
-      await noteOnJob(env, job, `The website couldn't set up DVA billing, so please add ${DVA_HHS_EMAIL} as the billing contact and put the claim reference, DVA file number and TRN in the PO number. Reason: ${String(err.message || err).slice(0, 300)}`);
+    e.funding === 'dva' ? addDvaReferences(env, job, e).catch(async err => {
+      console.error('ServiceM8 DVA references failed:', err);
+      await noteOnJob(env, job, `The website couldn't add the DVA references, so please put the claim reference, DVA file number and TRN in the PO number. Reason: ${String(err.message || err).slice(0, 300)}`);
     }) : null,
     addReminderBadge(env, job).catch(async err => {
       console.error('ServiceM8 badge failed:', err);
@@ -532,7 +532,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       ['DVA file number', e.dva_file],
       ['Claim reference', e.dva_claim],
       ['TRN', e.dva_trn],
-      dva ? `DVA invoices: show the client name, claim reference, DVA file number and TRN, and email them to ${DVA_HHS_EMAIL} (set as the billing contact).` : '',
+      dva ? `DVA invoices: show the client name, claim reference, DVA file number and TRN, then upload the PDF at ${DVA_UPLOAD} with the client's TRN. Never email them, as DVA doesn't pay emailed invoices.` : '',
       ['Frequency', freq],
       ['Kitchen', kitchen],
       ['Bathrooms', bathrooms],
