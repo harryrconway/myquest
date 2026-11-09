@@ -7,6 +7,7 @@ const SPACE_COLOURS = {
   office: ['#3F51B5', '#fff'],
   retail: ['#F4511E', '#fff'],
   medical: ['#D50000', '#fff'],
+  gym: ['#0B8043', '#fff'],
   home: ['#F6BF26', '#000'],
   'ndis-dva': ['#8E24AA', '#fff'],
   builder: ['#039BE5', '#fff'],
@@ -15,7 +16,7 @@ const SPACE_COLOURS = {
 
 const LABELS = {
   clean_type: { maintenance: 'Maintenance clean', deep: 'Deep clean' },
-  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', home: 'Home', 'ndis-dva': 'NDIS / DVA', builder: 'Builder’s clean', other: 'Other' },
+  space_type: { office: 'Office', retail: 'Retail', medical: 'Medical', gym: 'Gym', home: 'Home', 'ndis-dva': 'NDIS / DVA', builder: 'Builder’s clean', other: 'Other' },
   funding: { ndis: 'NDIS', dva: 'DVA', unsure: 'Not sure yet' },
   frequency: { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', 'once-off': 'Once off', staged: 'In stages' },
 };
@@ -90,6 +91,7 @@ const READING = {
   office: [['What our office cleaning covers', '/office-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
   medical: [['How we clean medical centres', '/medical-centre-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
   retail: [['What our retail and showroom cleaning covers', '/retail-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
+  gym: [['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY, ['All our cleaning guides', '/guides']],
   other: [['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY, ['All our cleaning guides', '/guides']],
 };
 
@@ -264,7 +266,7 @@ function bookingLength(hours) {
 
 // The quote line's name, e.g. "Office cleaning, weekly, per visit" or "Home deep clean, once off".
 function visitName(e) {
-  const space = { office: 'Office', retail: 'Retail', medical: 'Medical centre', home: 'Home', 'ndis-dva': 'Home' }[e.space_type] || '';
+  const space = { office: 'Office', retail: 'Retail', medical: 'Medical centre', gym: 'Gym', home: 'Home', 'ndis-dva': 'Home' }[e.space_type] || '';
   const what = e.space_type === 'builder' ? 'Builder’s clean' : `${space} ${e.clean_type === 'deep' ? 'deep clean' : 'cleaning'}`.trim();
   const often = { 'once-off': 'once off', staged: 'in stages, per stage' }[e.frequency] || [LABELS.frequency[e.frequency], 'per visit'].filter(Boolean).join(', ').toLowerCase();
   return `${what.charAt(0).toUpperCase()}${what.slice(1)}, ${often}`;
@@ -364,7 +366,7 @@ async function noteOnJob(env, job, text) {
 }
 
 // Job categories in ServiceM8, by the form's space type. A name missing in ServiceM8 leaves the job uncategorised.
-const SM8_CATEGORY = { office: 'Office', retail: 'Retail', medical: 'Medical', builder: 'Builders', home: 'Home', 'ndis-dva': 'NDIS and DVA', other: 'Other' };
+const SM8_CATEGORY = { office: 'Office', retail: 'Retail', medical: 'Medical', gym: 'Gym', builder: 'Builders', home: 'Home', 'ndis-dva': 'NDIS and DVA', other: 'Other' };
 
 async function sm8CategoryUuid(env, spaceType) {
   const name = SM8_CATEGORY[spaceType];
