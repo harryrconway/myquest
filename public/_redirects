@@ -1,9 +1,14 @@
 /crm/* / 301
 /login* / 301
-/bond-cleaning* / 301
+/bond-clean* / 301
 /residential* /house-cleaning 301
 /airbnb* / 301
 /end-of-lease* / 301
 /dashboard* / 301
 /ndis /ndis-dva-cleaning 301
 /dva /ndis-dva-cleaning 301
+/commercial /office-cleaning 301
+/commercial.html /office-cleaning 301
+/gold-coast / 301
+/gold-coast.html / 301
+/northern-rivers* / 301
