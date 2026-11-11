@@ -664,7 +664,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
       if(kEl&&kEl.value==='yes')hrs+=0.75;
       if(bEl)hrs+=(BATH[bEl.value]||0);
     }
-    var per=((hrs*70)+20)*1.1;
+    var per=hrs*70;
     return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,freq:f.value,sqm:s?s.value:'',kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null,gst:'including GST'};
   }
   var FUND_NDIS='<div class="iq-stat iq-stat-once iq-fund"><div class=iq-kicker>NDIS</div><div class=iq-fund-h>An hourly rate and claimable invoices</div><p>Cleaning is usually funded under House Cleaning and Other Household Activities (01_020_0120_1_1), which has an hourly price limit set by the NDIA. We agree the hours and rate with you, then invoice with the support item, dates and hours, ready for you or your plan manager to claim.</p><a href="https://www.ndis.gov.au/providers/pricing-and-payments/pricing/pricing-arrangements-and-price-limits" target=_blank rel="noopener noreferrer">NDIS price limits</a></div>',FUND_DVA='<div class="iq-stat iq-stat-once iq-fund"><div class=iq-kicker>DVA</div><div class=iq-fund-h>Veterans’ Home Care or Household Services</div><p>Depending on your eligibility, DVA may fund cleaning through Veterans’ Home Care, or pay towards it through Household Services. Tell us how your support is set up and we’ll work with it.</p><a href="https://www.dva.gov.au/what-we-help-with/care-at-home-and-aged-care-services/living-independently/help-with-cleaning-and-housekeeping" target=_blank rel="noopener noreferrer">How DVA helps with cleaning</a></div>';
@@ -678,7 +678,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
     document.getElementById('iqPriceRange').textContent=fmt(q.lo)+' to '+fmt(q.hi);
     var OFTEN={daily:'Every weekday',weekly:'Weekly cleans',fortnightly:'Fortnightly cleans',monthly:'Monthly cleans','once-off':'Once off clean',staged:'Cleaned in stages'};
     var first={'once-off':'One fixed price, with no ongoing commitment',staged:'Each stage priced and agreed with you'}[q.freq]||'The same fixed price every visit';
-    document.getElementById('iqStats').innerHTML='<div class="iq-stat iq-stat-once iq-incl"><div class=iq-kicker>'+(OFTEN[q.freq]||'Your clean')+'</div><ul>'+[first,'All products and equipment supplied','Cleaned to a checklist agreed with you','Police checked, trained cleaners'].map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>';
+    document.getElementById('iqStats').innerHTML='<div class="iq-stat iq-stat-once iq-incl"><div class=iq-kicker>'+(OFTEN[q.freq]||'Your clean')+'</div><ul>'+[first,'No travel or call out fee','All products and equipment supplied','Cleaned to a checklist agreed with you','Police checked, trained cleaners'].map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>';
     document.getElementById('iqDisc').textContent=q.sqm==='500m²+'?'This is an estimated quote. For larger premises, the final price may vary. We’ll confirm after reviewing your space.':'This is an estimated quote based on the details you’ve provided. Final pricing is confirmed after we assess your premises.';
   }
   function setNodes(active){

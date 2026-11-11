@@ -286,7 +286,9 @@ function quoteDescription(e) {
 }
 
 // Commercial and home quotes get one fixed price line so clients never see hours: the VISIT item, priced at the
-// estimate's hours × the CLEAN hourly rate plus the TRAVEL job fee, all three saved in ServiceM8. NDIS and DVA bill
+// estimate's hours × the CLEAN hourly rate plus the TRAVEL job fee, all three saved in ServiceM8 before GST. CLEAN is
+// $63.64, which is the flat $70 an hour including GST, so the GST inclusive total is rounded to the nearest 50 cents to
+// land on exactly hours × $70. NDIS and DVA bill
 // by the hour, so they get their capped hourly item instead (NDIS carries the support item name and number for claiming).
 async function addQuoteLines(env, job, quote) {
   const items = await sm8Get(env, 'material.json');
@@ -294,12 +296,21 @@ async function addQuoteLines(env, job, quote) {
   const codes = quote.visit ? ['VISIT', 'CLEAN', 'TRAVEL'] : [quote.code];
   const [item, clean, travel] = codes.map(find);
   if (!item || (quote.visit && (!clean || !travel))) throw new Error(`Items ${codes.join(', ')} not found (ServiceM8 returned ${items.length} items)`);
-  // ServiceM8 rejects a line unless displayed_amount matches its price, shown here before GST.
-  const price = String(quote.visit ? Math.round(quote.hours * Number(clean.price) + Number(travel.price)) : Number(item.price) || 0);
-  await sm8Create(env, 'jobmaterial', {
-    job_uuid: job, material_uuid: item.uuid, name: quote.visit ? quote.name : item.name, quantity: String(quote.visit ? 1 : quote.hours),
-    price, displayed_amount: price, displayed_amount_is_tax_inclusive: '0', cost: item.cost || '0', tax_rate_uuid: item.tax_rate_uuid || '',
-  });
+  const line = { job_uuid: job, material_uuid: item.uuid, name: quote.visit ? quote.name : item.name, quantity: String(quote.visit ? 1 : quote.hours), cost: item.cost || '0', tax_rate_uuid: item.tax_rate_uuid || '' };
+  // ServiceM8 rejects a line unless displayed_amount matches its price.
+  if (!quote.visit) {
+    const price = String(Number(item.price) || 0);
+    return sm8Create(env, 'jobmaterial', { ...line, price, displayed_amount: price, displayed_amount_is_tax_inclusive: '0' });
+  }
+  const incGst = Math.round((quote.hours * Number(clean.price) + Number(travel.price)) * 1.1 * 2) / 2;
+  try {
+    await sm8Create(env, 'jobmaterial', { ...line, price: (incGst / 1.1).toFixed(4), displayed_amount: incGst.toFixed(2), displayed_amount_is_tax_inclusive: '1' });
+  } catch (err) {
+    // Fall back to a price before GST in whole cents, which can land a cent either side of the GST inclusive total.
+    console.error('ServiceM8 GST inclusive line failed, retrying before GST:', err);
+    const price = (incGst / 1.1).toFixed(2);
+    await sm8Create(env, 'jobmaterial', { ...line, price, displayed_amount: price, displayed_amount_is_tax_inclusive: '0' });
+  }
 }
 
 // The Quote Description box on the job's Billing tab, which is what the quote and invoice show the client.
