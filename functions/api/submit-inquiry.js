@@ -91,7 +91,7 @@ const READING = {
   office: [['What our office cleaning covers', '/office-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
   medical: [['How we clean medical centres', '/medical-centre-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
   retail: [['What our retail and showroom cleaning covers', '/retail-cleaning'], ['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY],
-  gym: [['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY, ['All our cleaning guides', '/guides']],
+  gym: [['What our gym and studio cleaning covers', '/gym-cleaning'], ['Gym and studio cleaning: what gets cleaned and how often', '/guides/gym-and-studio-cleaning'], GUIDE_READY],
   other: [['Regular clean or deep clean', '/guides/regular-vs-deep-clean'], GUIDE_READY, ['All our cleaning guides', '/guides']],
 };
 
