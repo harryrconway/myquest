@@ -83,7 +83,10 @@ Each page covers home, office, retail and medical cleaning in that suburb, with 
 - Email: hello@myquest.au
 - Phone: 0413 154 932
 - ABN: 65 693 175 405
+- Google Business Profile: https://www.google.com/maps?cid=6997701639025616954
+- Review MyQuest on Google: https://g.page/r/CTpoSraQ1BxhEBM/review
+- Facebook: https://www.facebook.com/profile.php?id=61591548625869
 
 ## Notes for AI agents
 
-MyQuest cleans commercial premises (offices, medical centres, retail, showrooms and building sites) and homes, including regular house cleaning, deep cleans, and home cleaning for NDIS participants, veterans and DVA clients. It does not offer bond, end of lease or Airbnb cleaning. Quotes are handled via the website form at https://myquest.au/#enquire, and general messages via https://myquest.au/contact.
+MyQuest cleans commercial premises (offices, medical centres, retail, showrooms and building sites) and homes, including regular house cleaning, deep cleans, and home cleaning for NDIS participants, veterans and DVA clients. It also cleans for end of tenancy and bond cleans and holiday rental changeovers. Quotes are handled via the website form at https://myquest.au/#enquire, and general messages via https://myquest.au/contact.
