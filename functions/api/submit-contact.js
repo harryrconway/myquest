@@ -99,6 +99,7 @@ export async function onRequestPost({ request, env }) {
   const validEmail = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(email);
   if (!validEmail) return json({ error: 'Please enter a valid email.' }, 400);
   if (!/^04\d{8}$/.test(phone)) return json({ error: 'Enter a 10 digit mobile number starting with 04.' }, 400);
+  if (message.split(/\s+/).filter(Boolean).length > 100) return json({ error: 'Please keep your message to 100 words.' }, 400);
 
   const rows = [
     ['Name', esc(name)],
