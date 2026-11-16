@@ -76,7 +76,7 @@ document.querySelectorAll('.faq-section details').forEach(d=>{
     e.preventDefault();
     if(d.open){b.animate([{height:b.scrollHeight+'px',opacity:1},{height:'0px',opacity:0}],{duration:300,easing:'cubic-bezier(.4,0,.2,1)'}).onfinish=()=>{d.open=false};return;}
     document.querySelectorAll('.faq-section details[open]').forEach(o=>{if(o!==d){let ob=o.querySelector('.a');ob.animate([{height:ob.scrollHeight+'px',opacity:1},{height:'0px',opacity:0}],{duration:300,easing:'cubic-bezier(.4,0,.2,1)'}).onfinish=()=>{o.open=false};}});
-    d.open=true;b.animate([{height:'0px',opacity:0},{height:b.scrollHeight+'px',opacity:1}],{duration:360,easing:'cubic-bezier(.4,0,.2,1)'});
+    d.open=true;b.animate([{height:'0px',paddingBottom:'0px',opacity:0},{height:b.scrollHeight+'px',paddingBottom:getComputedStyle(b).paddingBottom,opacity:1}],{duration:360,easing:'cubic-bezier(.4,0,.2,1)'});
   });
 });
 })()</script><script>(()=>{let nm=document.getElementById('menuOverlay'),btn=document.getElementById('menuBtn');if(!nm||!btn||!nm.classList.contains('nm'))return;
