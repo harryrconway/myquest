@@ -411,6 +411,123 @@ body:has(#enquire.qx) .eq-lead .title{color:#111!important;padding-bottom:24px}
 }
 #enquire.qx #iqCard .iq-step .svc-pick{width:100%!important;box-sizing:border-box}
 #enquire.qx #iqCard .iq-step #iqFG-bath,#enquire.qx #iqCard .iq-step #iqFG-bed,#enquire.qx #iqCard .iq-step #iqFG-kitchen{width:100%}
+/* every answer fits without scrolling: 5 or more answers go in two columns, and the card sizes to the screen */
+#enquire.qx #iqCard .iq-step .svc-pick:not(.qx-one),#enquire.qx #iqCard .iq-step #iqFG-bed .svc-pick:not(.qx-one){grid-template-columns:repeat(2,minmax(0,1fr))!important;max-width:820px}
+#enquire.qx #iqCard .iq-step #iqFG-bath .svc-pick.qx-one,#enquire.qx #iqCard .iq-step #iqFG-kitchen .svc-pick.qx-one{grid-template-columns:minmax(0,1fr)!important}
+@media (min-width:741px){#enquire.qx #iqCard{height:clamp(600px,calc(100svh - var(--qxh,80px) - 24px),760px)!important}}
+@media (max-width:740px){
+#enquire.qx #iqCard .iq-step .svc-pick:not(.qx-one),#enquire.qx #iqCard .iq-step #iqFG-space .svc-pick,#enquire.qx #iqCard .iq-step #iqFG-heard .svc-pick,#enquire.qx #iqCard .iq-step #iqFG-bed .svc-pick:not(.qx-one){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#enquire.qx #iqCard .svc-pick label{padding:11px 12px!important;gap:10px!important;font-size:16px!important}
+#enquire.qx #iqCard .svc-pick label::before{width:24px;height:24px;font-size:12px}
+}
+/* start date: quick answers and a row of days */
+#enquire.qx #mqDateField>.mq-label,#enquire.qx #mqDateField .mq-cal,#enquire.qx #mqDateField .mq-date-trigger,#enquire.qx #mqDateField .mq-note{display:none!important}
+#enquire.qx #mqDateField{max-width:820px!important;display:block!important}
+#enquire.qx .qx-when{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#enquire.qx .qx-wopt{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px solid rgba(0,0,0,.14);border-radius:16px;background:#fff;color:#111;font-family:var(--disp);font-size:18px;font-weight:500;text-align:left;cursor:pointer;transition:background .18s,border-color .18s,transform .18s,color .18s;min-width:0}
+#enquire.qx .qx-wopt:hover{border-color:#111;transform:translateX(3px)}
+#enquire.qx .qx-wopt .qx-wk{width:28px;height:28px;flex:none;border-radius:8px;border:1.5px solid rgba(0,0,0,.18);display:grid;place-items:center;font-size:13px;font-weight:600;color:#555}
+#enquire.qx .qx-wopt .qx-wt{flex:1;min-width:0}
+#enquire.qx .qx-wopt small{font-size:13.5px;color:#777;font-weight:400;white-space:nowrap}
+#enquire.qx .qx-wopt.on{background:#111;color:#fff;border-color:#111}
+#enquire.qx .qx-wopt.on .qx-wk{background:#fff;color:#111;border-color:#fff}
+#enquire.qx .qx-wopt.on small{color:#bbb}
+#enquire.qx .qx-strip-head{display:flex;justify-content:space-between;align-items:center;margin:24px 0 10px;font-size:15px;color:#555}
+#enquire.qx #mqDateField .mq-strip-nav{position:static!important;display:flex!important;align-items:center;gap:4px}
+#enquire.qx #mqDateField .mq-strip-nav__month{font-family:var(--disp);font-size:14.5px;font-weight:600;color:#111;margin-right:6px}
+#enquire.qx #mqDateField .mq-strip-nav__btn{appearance:none;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1.5px solid rgba(0,0,0,.14);border-radius:50%;background:#fff;color:#111;cursor:pointer}
+#enquire.qx #mqDateField .mq-strip-nav__btn svg{width:15px;height:15px}
+#enquire.qx #mqDateField .mq-strip-nav__btn:disabled{opacity:.35;cursor:default}
+#enquire.qx #mqDateField .mq-strip{display:flex!important;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0!important;padding:2px 0 6px!important;scroll-snap-type:x proximity;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}
+#enquire.qx #mqDateField .mq-strip::-webkit-scrollbar{display:none}
+#enquire.qx #mqDateField .mq-strip__day{flex:none;width:64px;height:78px!important;display:grid;align-content:center;justify-items:center;gap:2px;padding:0;border:1.5px solid rgba(0,0,0,.14);border-radius:16px;background:#fff;color:#111;font:inherit;cursor:pointer;scroll-snap-align:start;transition:background .18s,border-color .18s}
+#enquire.qx #mqDateField .mq-strip__day:hover{border-color:#111}
+#enquire.qx #mqDateField .mq-strip__wd,#enquire.qx #mqDateField .mq-strip__mon{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#777;line-height:1.2}
+#enquire.qx #mqDateField .mq-strip__num{font-size:21px;font-weight:600;line-height:1.2}
+#enquire.qx #mqDateField .mq-strip__day.is-selected{background:#111;border-color:#111;color:#fff}
+#enquire.qx #mqDateField .mq-strip__day.is-selected span{color:#fff}
+#enquire.qx #mqDaysField{max-width:820px!important}
+@media (max-width:740px){
+#enquire.qx .qx-when{gap:8px}
+#enquire.qx .qx-wopt{flex-wrap:wrap;gap:4px 10px;padding:11px 12px;font-size:16px}
+#enquire.qx .qx-wopt .qx-wk{width:24px;height:24px;font-size:12px}
+#enquire.qx .qx-wopt small{flex-basis:100%;padding-left:34px;font-size:12.5px}
+#enquire.qx .qx-strip-head{margin:18px 0 8px;font-size:14px}
+#enquire.qx #mqDateField .mq-strip__day{width:56px;height:70px!important}
+}
+/* sizes step down when a question would not fit, so nothing hides behind the buttons */
+#enquire.qx #iqCard .iq-step #iqFG-notes textarea{min-height:120px}
+#enquire.qx #iqCard .iq-quote-wrap{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)!important;gap:clamp(20px,3vw,44px)!important}
+#enquire.qx #iqCard .iq-disclaimer{background:none!important;border:0!important;padding:12px 0 0!important;font-size:13px!important;color:#777!important;line-height:1.5}
+#enquire.qx #iqCard .iq-stats{padding:18px 20px!important;border-radius:18px!important}
+@media (min-width:1100px){#enquire.qx #iqCard .iq-step #iqFG-space .svc-pick,#enquire.qx #iqCard .iq-step #iqFG-heard .svc-pick{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-width:none}#enquire.qx #iqCard .iq-step #iqFG-fund .svc-pick{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:none}}
+#enquire.qx #iqCard.qx-f1 .qx-top{padding-top:18px}
+#enquire.qx #iqCard.qx-f1 .iq-step{padding-top:24px!important}
+#enquire.qx #iqCard.qx-f1 .iq-head{margin-bottom:20px!important}
+#enquire.qx #iqCard.qx-f1 .iq-head h3{font-size:clamp(30px,3.4vw,50px)!important}
+#enquire.qx #iqCard.qx-f1 .svc-pick label,#enquire.qx #iqCard.qx-f1 .qx-wopt{padding-top:11px!important;padding-bottom:11px!important}
+#enquire.qx #iqCard.qx-f1 .svc-pick,#enquire.qx #iqCard.qx-f1 .qx-when{gap:8px!important}
+#enquire.qx #iqCard.qx-f1 .iq-actions{padding-top:16px!important;padding-bottom:20px!important}
+#enquire.qx #iqCard.qx-f1 .iq-price{font-size:clamp(38px,3.8vw,56px)!important}
+#enquire.qx #iqCard.qx-f2 .qx-num{margin-bottom:6px!important}
+#enquire.qx #iqCard.qx-f2 .iq-step{padding-top:18px!important}
+#enquire.qx #iqCard.qx-f2 .iq-head{margin-bottom:14px!important}
+#enquire.qx #iqCard.qx-f2 .iq-head h3{font-size:clamp(26px,2.8vw,40px)!important}
+#enquire.qx #iqCard.qx-f2 .svc-pick label,#enquire.qx #iqCard.qx-f2 .qx-wopt{padding-top:8px!important;padding-bottom:8px!important;font-size:16px!important}
+#enquire.qx #iqCard.qx-f2 .iq-fields,#enquire.qx #iqCard.qx-f2 .iq-fields .iq-2col{gap:12px 24px!important}
+#enquire.qx #iqCard.qx-f2 .iq-fgroup input{padding:4px 0 8px!important;font-size:17px!important}
+#enquire.qx #iqCard.qx-f2 .qx-strip-head{margin:14px 0 8px}
+#enquire.qx #iqCard.qx-f2 #mqDateField .mq-strip__day{height:64px!important}
+#enquire.qx #iqCard.qx-f2 .iq-actions{padding-top:12px!important;padding-bottom:16px!important}
+#enquire.qx #iqCard.qx-f2 .iq-actions>*{height:48px!important}
+#enquire.qx #iqCard.qx-f2 .iq-price{font-size:clamp(34px,3.2vw,48px)!important}
+#enquire.qx #iqCard.qx-f2 .iq-stats{padding:12px 16px!important}
+#enquire.qx #iqCard.qx-f2 #iqFG-notes textarea{min-height:80px}
+#enquire.qx #iqCard.qx-f3 .qx-top{padding-top:12px}
+#enquire.qx #iqCard.qx-f3 .qx-secs{font-size:12.5px}
+#enquire.qx #iqCard.qx-f3 .qx-sec{gap:6px}
+#enquire.qx #iqCard.qx-f3 .iq-head h3{font-size:clamp(24px,2.4vw,34px)!important}
+#enquire.qx #iqCard.qx-f3 .svc-pick label,#enquire.qx #iqCard.qx-f3 .qx-wopt{padding-top:6px!important;padding-bottom:6px!important;font-size:15px!important}
+#enquire.qx #iqCard.qx-f3 .svc-pick label::before,#enquire.qx #iqCard.qx-f3 .qx-wopt .qx-wk{width:22px;height:22px;font-size:11px}
+#enquire.qx #iqCard.qx-f3 .iq-fgroup>label,#enquire.qx #iqCard.qx-f3 .iq-fgroup>.f-label{margin-bottom:6px!important}
+#enquire.qx #iqCard.qx-f3 .iq-stats li,#enquire.qx #iqCard.qx-f3 .iq-recap{font-size:13.5px!important}
+#enquire.qx #iqCard.qx-f3 .iq-disclaimer{display:none}
+@media (max-width:740px){
+#enquire.qx #iqCard.qx-f1 .iq-head h3{font-size:30px!important}
+#enquire.qx #iqCard.qx-f2 .iq-head h3{font-size:27px!important}
+#enquire.qx #iqCard.qx-f3 .iq-head h3{font-size:24px!important}
+#enquire.qx #iqCard .iq-quote-wrap{grid-template-columns:minmax(0,1fr)!important}
+}
+@media (max-width:740px){
+#enquire.qx #iqCard .iq-price-block,#enquire.qx #iqCard .iq-recap{width:100%!important;max-width:none!important}
+#enquire.qx #iqCard .iq-price{font-size:40px!important;margin:2px 0!important}
+#enquire.qx #iqCard .iq-price-lbl{margin:0!important;font-size:14px!important}
+#enquire.qx #iqCard .iq-recap{margin-top:8px!important}
+#enquire.qx #iqCard .iq-recap>*{padding-top:6px!important;padding-bottom:6px!important;font-size:14px!important}
+#enquire.qx #iqCard .iq-change{margin-top:8px!important}
+#enquire.qx #iqCard .iq-quote-wrap{gap:12px!important}
+#enquire.qx #iqCard .iq-stats{padding:12px 14px!important;margin:0!important}
+#enquire.qx #iqCard .iq-stats li{font-size:13.5px!important;margin:0!important;padding-top:3px!important;padding-bottom:3px!important}
+#enquire.qx #iqCard .iq-disclaimer{display:none!important}
+#enquire.qx #iqCard.qx-f1 .iq-fgroup>label,#enquire.qx #iqCard.qx-f1 .iq-fgroup>.f-label{margin-bottom:6px!important}
+#enquire.qx #iqCard.qx-f1 .iq-fields{gap:12px!important}
+#enquire.qx #iqCard.qx-f2 .iq-fgroup input{height:42px!important;min-height:0!important}
+#enquire.qx #iqCard.qx-f2 .iq-fields{gap:8px!important}
+#enquire.qx #iqCard.qx-f2 .iq-recap>*{padding-top:4px!important;padding-bottom:4px!important}
+#enquire.qx #iqCard.qx-f2 .iq-price{font-size:34px!important}
+#enquire.qx #iqCard.qx-f3 .iq-stats{display:none!important}
+#enquire.qx #iqCard.qx-f3 .iq-fgroup input{height:38px!important}
+#enquire.qx #iqCard.qx-f3 .iq-fgroup>label,#enquire.qx #iqCard.qx-f3 .iq-fgroup>.f-label{font-size:13px!important;margin-bottom:3px!important}
+#enquire.qx #iqCard.qx-f3 .mq-time__face{padding-top:8px!important;padding-bottom:8px!important}
+#enquire.qx #iqCard.qx-f3 .qx-sec b{height:5px}
+}
+@media (max-width:740px){
+#enquire.qx #iqCard.qx-f3 .iq-fields .iq-2col{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 10px!important}
+#enquire.qx #iqCard.qx-f3 .iq-step #iqFG-fund .svc-pick{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#enquire.qx #iqCard.qx-f3 .iq-step #iqFG-fund .svc-pick label{justify-content:center;text-align:center!important;padding-left:6px!important;padding-right:6px!important}
+#enquire.qx #iqCard.qx-f3 .iq-step #iqFG-fund .svc-pick label::before{display:none}
+}
+@media (max-width:740px){#enquire.qx #iqCard.qx-f3 .mq-times{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}}
 @media (prefers-reduced-motion:reduce){#enquire.qx .qx-in,#enquire.qx .qx-in .svc-pick label{animation:none}}
 </style></head><body><a class=skip href=#main-content>Skip to main content</a><header id=header><div class="wrap nav"><a class=brand href=/><img src=/assets/myquest-logo.svg alt=MyQuest width=127 height=36 style="display:block"></a><div class=nav-right><button aria-label="Open menu" aria-controls=menuOverlay aria-expanded=false class=menu-btn id=menuBtn> <span class=bar></span> <span class=bar></span></button></div></div></header><div class=nm id=menuOverlay aria-hidden=true><div class=nm-bg></div><div class=nm-card role=dialog aria-modal=true aria-label=Menu><div class=nm-top><a href=/ aria-label="MyQuest home"><img src=/assets/myquest-logo.svg alt=MyQuest width=112 height=32></a><button type=button class=nm-x aria-label="Close menu"><svg aria-hidden=true width=18 height=18 viewBox="0 0 18 18" fill=none stroke=#fff stroke-width=2 stroke-linecap=round><path d="M3 3l12 12M15 3L3 15"/></svg></button></div><div class=nm-cols><div class=nm-left><nav class=nm-co aria-label=Company><p class=nm-lbl>Company</p><div class=nm-cg><a class="pl nm-st" href=#standard style="--i:8">The standard</a><a class="pl nm-st" href=#areas style="--i:9">Where we work</a><a class="pl nm-st" href=/guides style="--i:10">Guides</a><a class="pl nm-st" href=#careers style="--i:11">Careers</a><a class="pl nm-st" href=/policies style="--i:12">Policies</a><a class="pl nm-st" href=/contact style="--i:13">Contact</a></div></nav><div class=nm-ct><a class="pl nm-st" href=mailto:hello@myquest.au style="--i:14">hello@myquest.au</a><a class="pl nm-st" href=tel:+61413154932 style="--i:15">0413 154 932</a></div></div><nav class=nm-sv aria-label=Services><p class=nm-lbl>Services</p><a class="pl nm-st" href=/office-cleaning style="--i:1">Office cleaning</a><a class="pl nm-st" href=/house-cleaning style="--i:2">House cleaning</a><a class="pl nm-st" href=/ndis-dva-cleaning style="--i:3">NDIS &amp; DVA</a><a class="pl nm-st" href=/medical-centre-cleaning style="--i:4">Medical centres</a><a class="pl nm-st" href=/retail-cleaning style="--i:5">Retail &amp; showrooms</a><a class="pl nm-st" href=/gym-cleaning style="--i:6">Gyms &amp; studios</a><a class="pl nm-st" href=/builder-clean style="--i:7">Builder's clean</a></nav></div><a class="nm-go nm-st" href=/contact style="--i:16"><span><b>Not sure what you need?</b><small>Send us a message and we’ll help you work it out.</small></span><i aria-hidden=true>→</i></a></div></div><main id=main-content><section aria-labelledby=hero-h class="hero hq"><div class="wrap hq-main"><h1 id=hero-h><span class=hq-l1><span class=hq-a><span class=hero-ticker id=heroTicker><span class=ticker-live>Office</span></span> cleaning</span> <span class=hq-b>across the</span></span> <strong>Gold Coast &amp; Tweed.</strong></h1><p class=lede>MyQuest cleans homes, offices, medical centres, shops, showrooms, gyms and new builds, and looks after NDIS and DVA clients at home. Always with discretion, precision and a standard that doesn't slip.</p><div class=qs id=qs><label for=qsInput class=qs-lbl>Do we clean near you?</label><div class=qs-field><div class=qs-box><input id=qsInput class=qs-in type=text autocomplete=off autocapitalize=words autocorrect=off spellcheck=false enterkeyhint=search placeholder="Suburb or postcode, like Burleigh Heads" aria-describedby=qsHint><button type=button class=qs-clear id=qsClear aria-label="Clear the search" hidden><svg aria-hidden=true width=14 height=14 viewBox="0 0 14 14" fill=none stroke=currentColor stroke-width=2 stroke-linecap=round><path d="M2 2l10 10M12 2L2 12"/></svg></button><button type=button class=qs-go id=qsGo aria-label="Search and get an instant estimate"><svg aria-hidden=true width=22 height=22 viewBox="0 0 22 22" fill=none stroke=#fff stroke-width=2.2 stroke-linecap=round><circle cx=9.5 cy=9.5 r=6 /><path d="M14.5 14.5L19 19"/></svg></button></div><div class=qs-pop id=qsPop><div class=qs-clip><div class=qs-panel><p class=qs-note id=qsNote hidden></p><ul class=qs-list id=qsList aria-label="Suburbs we clean in"></ul><div class=qs-foot><span id=qsCount></span><span>Can't see yours? Call <a href=tel:+61413154932>0413 154 932</a></span></div></div></div></div></div><div class=qs-chips id=qsChips><span class=qs-chips-lbl>Popular<span class=qs-m> suburbs</span></span><div class=qs-chips-list><button type=button class=qs-chip data-s="Southport"><svg class=qs-chip-pin aria-hidden=true width=18 height=18 viewBox="0 0 20 20" fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round><path d="M10 18s6-5.2 6-10a6 6 0 10-12 0c0 4.8 6 10 6 10z"/><circle cx=10 cy=8 r=2.2 /></svg><span class=qs-chip-n>Southport</span><span class=qs-chip-r>Gold Coast</span><span class=qs-chip-a aria-hidden=true>→</span></button><button type=button class=qs-chip data-s="Burleigh Heads"><svg class=qs-chip-pin aria-hidden=true width=18 height=18 viewBox="0 0 20 20" fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round><path d="M10 18s6-5.2 6-10a6 6 0 10-12 0c0 4.8 6 10 6 10z"/><circle cx=10 cy=8 r=2.2 /></svg><span class=qs-chip-n>Burleigh Heads</span><span class=qs-chip-r>Gold Coast</span><span class=qs-chip-a aria-hidden=true>→</span></button><button type=button class=qs-chip data-s="Robina"><svg class=qs-chip-pin aria-hidden=true width=18 height=18 viewBox="0 0 20 20" fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round><path d="M10 18s6-5.2 6-10a6 6 0 10-12 0c0 4.8 6 10 6 10z"/><circle cx=10 cy=8 r=2.2 /></svg><span class=qs-chip-n>Robina</span><span class=qs-chip-r>Gold Coast</span><span class=qs-chip-a aria-hidden=true>→</span></button><button type=button class=qs-chip data-s="Tweed Heads"><svg class=qs-chip-pin aria-hidden=true width=18 height=18 viewBox="0 0 20 20" fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round><path d="M10 18s6-5.2 6-10a6 6 0 10-12 0c0 4.8 6 10 6 10z"/><circle cx=10 cy=8 r=2.2 /></svg><span class=qs-chip-n>Tweed Heads</span><span class=qs-chip-r>Tweed</span><span class=qs-chip-a aria-hidden=true>→</span></button></div></div><p id=qsHint class=qs-sr>Type your suburb or postcode. Use the up and down arrow keys to choose a suburb, then press Enter for an instant estimate.</p><p id=qsLive class=qs-sr aria-live=polite></p></div></div><div class="wrap hq-trust"><div class=hq-trust-in><span class=hq-gl-lbl>Guides</span><nav class=hq-gl aria-label="Popular guides"><a href=/guides/house-cleaning-cost-gold-coast>What does house cleaning cost?</a><a href=/guides/regular-vs-deep-clean>Regular or deep clean?</a><a href=/guides/ndis-house-cleaning>Can NDIS pay for cleaning?</a><a href=/guides/how-often-should-an-office-be-cleaned>How often to clean an office?</a></nav><a class=hq-svc href=/guides>All 13 guides <span aria-hidden=true>→</span></a></div></div></section><section aria-labelledby=svc-h id=services class=hx-svc><div class=wrap><div class=reveal><h2 class=title id=svc-h>Commercial and home cleaning, done properly.</h2><p class=hx-lead>We keep our list of services short, deliberately. It's how the work stays at the level our clients expect, every visit, not just the first.</p><a class=hx-pill href=#enquire>Get an instant estimate →</a></div><div class=reveal><div class=hx-grp>For workplaces</div><a class=hx-lnk href=/office-cleaning><h3>Offices &amp; workplaces</h3><span aria-hidden=true>→</span></a><a class=hx-lnk href=/medical-centre-cleaning><h3>Medical centres &amp; clinics</h3><span aria-hidden=true>→</span></a><a class=hx-lnk href=/retail-cleaning><h3>Retail &amp; showrooms</h3><span aria-hidden=true>→</span></a><a class=hx-lnk href=/gym-cleaning><h3>Gyms &amp; studios</h3><span aria-hidden=true>→</span></a><a class=hx-lnk href=/builder-clean><h3>Construction &amp; builders clean</h3><span aria-hidden=true>→</span></a><div class="hx-grp hx-grp2">For homes</div><a class=hx-lnk href=/house-cleaning><h3>Homes &amp; house cleaning</h3><span aria-hidden=true>→</span></a><a class=hx-lnk href=/ndis-dva-cleaning><h3>NDIS &amp; DVA</h3><span aria-hidden=true>→</span></a><p class=hx-note>We only take on work we know we can deliver properly. If we're not the right fit, we'll say so.</p></div></div></section><section aria-labelledby=std-h id=standard class=hx-std><div class=wrap><div class=reveal><h2 class=title id=std-h>What "done properly" actually means.</h2><p class=hx-sub>Anyone can clean where people are looking. Our standard lives in the places a quick once over misses: the edges, the corners, the details you only notice when they are wrong. It is the difference between a space that looks clean and one that feels genuinely cared for.</p></div><div class="hx-big reveal"><h3><span class=hx-hl>Insured</span> before we arrive.</h3><p>Appropriate cover in place before we step through the door. Every service, every time.</p></div><div class="hx-big reveal"><h3>Everyone <span class=hx-hl>checked</span>, personally.</h3><p>Police checked and personally interviewed before joining our team. No exceptions.</p></div><div class="hx-big reveal"><h3><span class=hx-hl>Price first</span>, always.</h3><p>A clear written quote before any work begins. The price we give is the price you pay.</p></div><div class="hx-big reveal"><h3><span class=hx-hl>Quality</span> over quantity.</h3><p>We keep our client list deliberately manageable. Care and consistency, not volume.</p></div></div></section><section class=hx-rgn id=areas aria-labelledby=areas-h><div class=wrap><div class="hx-rgn-head reveal"><h2 class=title id=areas-h>Two regions. Local hands in each.</h2><p>You deal directly with the person responsible for your area, from first proposal to every clean after.</p></div><div class="hx-reg reveal"><div><h3>Gold Coast</h3><p class=hx-reg-meta>Queensland · 23 suburbs</p></div><div class=hx-subs-wrap><div class="hx-subs is-closed" id=subs-gc><a href=/paradise-point>Paradise Point</a><a href=/runaway-bay>Runaway Bay</a><a href=/helensvale>Helensvale</a><a href=/labrador>Labrador</a><a href=/southport>Southport</a><a href=/main-beach>Main Beach</a><a href=/surfers-paradise>Surfers Paradise</a><a href=/ashmore>Ashmore</a><a href=/benowa>Benowa</a><a href=/nerang>Nerang</a><a href=/carrara>Carrara</a><a href=/broadbeach>Broadbeach</a><a href=/mermaid-beach>Mermaid Beach</a><a href=/robina>Robina</a><a href=/miami>Miami</a><a href=/mudgeeraba>Mudgeeraba</a><a href=/varsity-lakes>Varsity Lakes</a><a href=/burleigh-heads>Burleigh Heads</a><a href=/burleigh-waters>Burleigh Waters</a><a href=/palm-beach>Palm Beach</a><a href=/currumbin>Currumbin</a><a href=/tugun>Tugun</a><a href=/coolangatta>Coolangatta</a></div><button type=button class=hx-more aria-expanded=false aria-controls=subs-gc data-n=23><span class=hx-more-i aria-hidden=true></span><span class=hx-more-t>Show all 23 suburbs</span></button></div></div><div class="hx-reg reveal"><div><h3>Northern Rivers</h3><p class=hx-reg-meta>New South Wales · 11 suburbs</p></div><div class=hx-subs-wrap><div class="hx-subs is-closed" id=subs-nr><a href=/tweed-heads>Tweed Heads</a><a href=/fingal-head>Fingal Head</a><a href=/banora-point>Banora Point</a><a href=/terranora>Terranora</a><a href=/bilambil>Bilambil</a><a href=/duranbah>Duranbah</a><a href=/kingscliff>Kingscliff</a><a href=/casuarina>Casuarina</a><a href=/cabarita-beach>Cabarita Beach</a><a href=/pottsville>Pottsville</a><a href=/murwillumbah>Murwillumbah</a></div><button type=button class=hx-more aria-expanded=false aria-controls=subs-nr data-n=11><span class=hx-more-i aria-hidden=true></span><span class=hx-more-t>Show all 11 suburbs</span></button></div></div><div class="hx-rgn-foot reveal"><p>Nearby but unsure? Ask and we'll tell you straight.</p><a href=/contact>Ask about your suburb →</a></div></div></section><div class=eq-lead aria-hidden=true><div class=wrap><p class=title>Life gets busy.<br>We've got the<br><span class=hx-hl2>cleaning covered.</span></p></div></div><section aria-labelledby=eq-h class=enquire id=enquire><div class=wrap><div class=reveal><h2 class=title id=eq-h style=margin-top:26px>Life gets busy.<br>We've got the<br><span class=hx-hl2>cleaning covered.</span></h2><p style=opacity:.75;max-width:44ch;margin-top:16px;font-weight:300>Tell us about your space. Every enquiry is answered personally, usually the same day. No obligation and no pressure either way.</p><div class=c-block><div><a href=mailto:hello@myquest.au>hello@myquest.au</a></div><div><a href=tel:+61413154932 style="display:inline-flex;align-items:center;gap:8px"><svg width=14 height=14 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=1.6 stroke-linecap=round stroke-linejoin=round aria-hidden=true><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.09h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 5.5 5.5l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>0413 154 932</a></div></div></div><div class="iq-card reveal" id=iqCard>
 <div class=iq-nodes aria-hidden=true>
@@ -1407,10 +1524,13 @@ var S={
    {ids:['iqFG-bath'],q:HL('How many ','bathrooms','?'),auto:1}],
 2:[{ids:['iqFG-freq'],q:HL('How often would you like ','us','?'),auto:1},
    {ids:['mqTimeField'],q:HL('What time of day ','suits','?'),auto:1},
-   {ids:['mqDateField','mqDaysField'],q:HL('When would you like to ','start','?')}],
+   {ids:['mqDateField'],q:HL('When would you like to ','start','?'),when:1},
+   {ids:['mqDaysField'],q:HL('Which days ','suit you','?')}],
 3:[{ids:[],q:HL('Your estimate is ','ready','.')}],
-4:[{ids:['iqFG-biz','iqFG-contact','iqFG-mobile','iqFG-email','iqFG-address','iqFG-suburb','iqDva'],q:HL('Where should we ','send it','?'),focus:1},
-   {ids:['iqFG-heard','iqFG-notes'],q:HL('Last one. How did you ','hear about us','?')}]
+4:[{ids:['iqFG-biz','iqFG-contact','iqFG-mobile','iqFG-email','iqFG-address','iqFG-suburb'],q:HL('Where should we ','send it','?'),focus:1},
+   {ids:['iqDva'],q:HL('Any ','DVA details','?')},
+   {ids:['iqFG-heard'],q:HL('How did you ','hear about us','?'),auto:1},
+   {ids:['iqFG-notes'],q:HL('Last one. Anything we ','should know','?'),focus:1}]
 };
 (function(){var pk=document.querySelector('#iqFG-space .svc-pick');if(!pk)return;['spHome','spOffice','spFunded','spMedical','spRetail','spGym','spBuilder','spOther'].forEach(function(id){var i=document.getElementById(id),l=pk.querySelector('label[for='+id+']');if(i&&l){pk.appendChild(i);pk.appendChild(l)}})})();
 var NAMES=['About your space','Your schedule','Your estimate','Your details'],BTN={1:'iqNext1',2:'iqNext2',3:'iqNext3',4:'iqSubmit'},BACK={2:'iqBack1',3:'iqBack2',4:'iqBack3'};
@@ -1453,8 +1573,7 @@ function render(anim){
   [].slice.call(u.st.querySelectorAll('.iq-2col,.iq-pair,.iq-col,.iq-grid')).reverse().forEach(function(w){var kids=[].filter.call(w.children,function(c){return !c.hidden});w.classList.toggle('qx-off',kids.length>0&&kids.every(function(c){return c.classList.contains('qx-off')}))});
   var vg=groups(x).filter(function(g){return g.matches('.iq-fgroup,.mq-field')});
   if(vg.length===1&&vg[0].querySelector('input[type=radio]'))vg[0].classList.add('qx-solo');
-  els(x).forEach(function(e){var p=e.querySelector('.svc-pick');if(p)p.classList.toggle('qx-one',[].filter.call(p.querySelectorAll('label'),function(l){return !l.hidden}).length<=4)});
-  if(anim){[u.st.querySelector('.iq-head')].concat(els(x)).forEach(function(e){if(!e)return;e.classList.remove('qx-in');void e.offsetWidth;e.classList.add('qx-in')});if(step===3){var q=u.st.querySelector('.iq-quote-wrap');if(q){q.classList.remove('qx-in');void q.offsetWidth;q.classList.add('qx-in')}}}
+  els(x).forEach(function(e){var p=e.querySelector('.svc-pick');if(p)p.classList.toggle('qx-one',[].filter.call(p.querySelectorAll('label'),function(l){return !l.hidden}).length<=3)});
   if(anim)u.st.scrollTop=0;u.h3.innerHTML=typeof x.q==='function'?x.q():x.q;u.p.textContent=NAMES[step-1];
   var before=0,total=0;for(var s=1;s<=4;s++){var n=list(s).length;if(s<step)before+=n;total+=n}
   var g=before+idx+1;u.num.textContent='Step '+g+' of '+total;fills.forEach(function(f,i){var s=i+1;f.style.width=s<step?'100%':s>step?'0%':Math.round((idx+1)/L.length*100)+'%'});
@@ -1465,9 +1584,13 @@ function render(anim){
   u.hint.classList.add('qx-hide');
   u.back.classList.toggle('qx-hide',idx===0&&!!u.rback);u.back.disabled=idx===0&&!u.rback;
   if(u.rback)u.rback.classList.toggle('qx-hide',idx>0);var as=u.st.querySelector('.iq-assure');if(as)as.classList.toggle('qx-hide',!last);
+  fit(u.st);
+  if(anim){[u.st.querySelector('.iq-head')].concat(els(x)).forEach(function(e){if(!e)return;e.classList.remove('qx-in');void e.offsetWidth;e.classList.add('qx-in')});if(step===3){var q=u.st.querySelector('.iq-quote-wrap');if(q){q.classList.remove('qx-in');void q.offsetWidth;q.classList.add('qx-in')}}}
 }
 function keep(){if(Math.abs(scrollY-cardY())>2)toCard(true)}
 function advance(){if(idx<list(step).length-1)go(idx+1,true);else{var r=ui[step]&&ui[step].real;if(r&&step<4)r.click()}}
+function fit(st){var lv=['qx-f1','qx-f2','qx-f3'];lv.forEach(function(k){card.classList.remove(k)});if(st.scrollHeight<=st.clientHeight+2)return;for(var i=0;i<lv.length;i++){card.classList.add(lv[i]);if(st.scrollHeight<=st.clientHeight+2)return}}
+addEventListener('resize',function(){var u=ui[step];if(u)fit(u.st)});
 function go(n,user){
   var L=list(step);if(n<0||n>=L.length)return;idx=n;render(true);keep();
   if(user&&L[n].focus&&matchMedia('(hover: hover)').matches){var f=els(L[n]).map(function(e){return e.querySelector('input')}).filter(function(i){return i&&vis(i)})[0];if(f)setTimeout(function(){f.focus({preventScroll:true})},350)}
@@ -1483,6 +1606,25 @@ card.addEventListener('change',function(e){
 card.addEventListener('click',function(e){var l=e.target.closest&&e.target.closest('label');if(!l)return;var i=l.htmlFor?$(l.htmlFor):l.querySelector('input');if(!i||i.type!=='radio'||!i.checked)return;var x=scr();if(!x||!x.auto||!els(x).some(function(el){return el.contains(i)}))return;if(complete(x)){clearTimeout(timer);var at=step,ai=idx;timer=setTimeout(function(){if(step===at&&idx===ai)advance()},300)}});
 card.addEventListener('input',function(e){var g=e.target.closest&&e.target.closest('.iq-fgroup');if(g&&g.classList.contains('iq-field-err')&&filled(g))g.classList.remove('iq-field-err')});
 $('iqChange').addEventListener('click',function(){resetTo0=true},true);
+// Start date: quick answers plus a row of days, so it all fits on one screen
+(function setupWhen(){var df=$('mqDateField');if(!df||df.querySelector('.qx-when'))return;var strip=df.querySelector('.mq-strip'),nav=df.querySelector('.mq-strip-nav');if(!strip){if(!setupWhen.w){setupWhen.w=1;document.addEventListener('DOMContentLoaded',setupWhen);addEventListener('load',setupWhen)}return}
+var flex=false,WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function mon(w){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+((8-d.getDay())%7||7)+7*w);return d.getTime()}
+function btnFor(ts){var bs=strip.querySelectorAll('[data-ts]');for(var i=0;i<bs.length;i++)if(+bs[i].getAttribute('data-ts')>=ts-43200000)return bs[i];return null}
+var O=[['asap','As soon as possible',function(){var f=strip.querySelector('[data-ts]');return f?+f.getAttribute('data-ts'):0}],['next','Next week',function(){return mon(0)}],['two','In two weeks',function(){return mon(1)}],['flex','I’m flexible',null]];
+var qw=document.createElement('div');qw.className='qx-when';qw.setAttribute('role','group');qw.setAttribute('aria-label','Quick start dates');
+O.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.className='qx-wopt';b.dataset.k=o[0];var t=o[2]?btnFor(o[2]()):null,d=t?new Date(+t.getAttribute('data-ts')):null;
+b.innerHTML='<span class=qx-wk>'+'ABCD'[i]+'</span><span class=qx-wt>'+o[1]+'</span>'+(d?'<small>'+WD[d.getDay()]+' '+d.getDate()+' '+MO[d.getMonth()]+'</small>':'<small>We’ll work it out</small>');qw.appendChild(b)});
+var head=document.createElement('div');head.className='qx-strip-head';head.innerHTML='<span>Or pick a day</span>';if(nav)head.appendChild(nav);
+strip.parentNode.insertBefore(qw,strip);strip.parentNode.insertBefore(head,strip);
+function sync(){var sel=strip.querySelector('.is-selected'),ts=sel?+sel.getAttribute('data-ts'):0;qw.querySelectorAll('.qx-wopt').forEach(function(b,i){var o=O[i],on=o[2]?(sel&&btnFor(o[2]())===sel):(!sel&&flex);b.classList.toggle('on',!!on);b.setAttribute('aria-pressed',on?'true':'false')})}
+function later(){clearTimeout(timer);var at=step,ai=idx;timer=setTimeout(function(){if(step===at&&idx===ai)advance()},380)}
+qw.addEventListener('click',function(e){var b=e.target.closest('.qx-wopt');if(!b)return;var i=[].indexOf.call(qw.children,b),o=O[i],sel=strip.querySelector('.is-selected');
+  if(!o[2]){if(sel)sel.click();flex=true}else{var t=btnFor(o[2]());if(t&&t!==sel)t.click();flex=false;if(t)t.scrollIntoView({block:'nearest',inline:'center'})}sync();later()});
+strip.addEventListener('click',function(e){if(!e.target.closest('[data-ts]'))return;flex=false;setTimeout(function(){sync();if(strip.querySelector('.is-selected'))later()},0)});
+document.addEventListener('keydown',function(e){if(e.metaKey||e.ctrlKey||e.altKey||!/^[a-dA-D]$/.test(e.key))return;var x=scr();if(!x||!x.when)return;var t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))return;var b=qw.children['ABCD'.indexOf(e.key.toUpperCase())];if(b){e.preventDefault();b.click()}});
+sync()})();
+
 function cardY(){var hh=(document.querySelector('header')||{}).offsetHeight||80;return Math.max(0,Math.round(card.getBoundingClientRect().top+scrollY-hh-12))}
 function toCard(smooth){var sm=smooth&&!matchMedia('(prefers-reduced-motion: reduce)').matches;scrollTo({top:cardY(),behavior:sm?'smooth':'auto'});
 // sections above can still be settling while we scroll, so check where the form ended up and nudge it into place
