@@ -105,104 +105,146 @@ function callWhen(now = new Date()) {
   return 'tomorrow';
 }
 
+// What each kind of space gets in its confirmation email, taken from that space's service page.
+const SPACE_COPY = {
+  office: {
+    noun: 'office', link: ['See the full office checklist', '/office-cleaning'],
+    covers: [['Desks and touchpoints', 'Surfaces wiped, phones, light switches and door handles sanitised.'], ['Kitchen and breakroom', 'Benchtops, sink, appliances and microwave, with bins emptied and relined.'], ['Bathrooms', 'Toilets, basins, mirrors, taps and dispensers cleaned and restocked.'], ['Vacuuming and mopping', 'All floor types, under desks and along edges, not just the open areas.']],
+    know: [['Around your hours', 'Early mornings, evenings or weekends, at a regular time we stick to.'], ['Same cleaner', 'Where possible, the same person each visit, so you know who is in your space.']],
+  },
+  medical: {
+    noun: 'clinic', link: ['See how we clean medical centres', '/medical-centre-cleaning'],
+    covers: [['Consultation and treatment rooms', 'Benches, surfaces and touchpoints cleaned with hospital grade disinfectant.'], ['Waiting areas', 'Chairs, tables, reception desk, door handles and light switches.'], ['Bathrooms', 'Toilets, basins, taps, mirrors and dispensers, to an infection control standard.'], ['Colour coded equipment', 'Separate cloths and mops for each zone to prevent cross contamination.']],
+    know: [['After hours cleans', 'Evenings after the last patient, or early mornings before doors open.'], ['Cleaning logs', 'Signed logs and documented schedules on request, handy for accreditation.']],
+  },
+  retail: {
+    noun: 'store', link: ['See the full retail checklist', '/retail-cleaning'],
+    covers: [['Floors', 'All floor types done properly, under fixtures and along edges.'], ['Entry and glass', 'Front doors, shopfront windows and display glass cleaned streak free.'], ['Surfaces and displays', 'Shelves, counters, display cases and point of sale areas wiped and reset.'], ['Bathrooms', 'Toilets, basins, mirrors, taps and dispensers cleaned, bins relined.']],
+    know: [['Before you open', 'Before open, after close or a quiet midweek window, so trade isn’t disrupted.'], ['Keys and alarms', 'Access is arranged in writing before the first clean and handled securely.']],
+  },
+  gym: {
+    noun: 'gym', link: ['See the full gym and studio checklist', '/gym-cleaning'],
+    covers: [['Training floor and equipment', 'Benches, boxes, mats and handles wiped and disinfected.'], ['Change rooms and showers', 'Toilets, showers, benches and lockers cleaned, drains cleared, supplies refilled.'], ['Touch points', 'Door handles, light switches, water fountains and check in screens.'], ['Floors', 'Chalk and dust vacuumed off rubber flooring, then mopped with a pH neutral cleaner.']],
+    know: [['Around your classes', 'After the last class, before the first, or in the quiet gap between sessions.'], ['The right products', 'A pH neutral cleaner on rubber flooring, never bleach, and disinfectant where hands touch most.']],
+  },
+  home: {
+    noun: 'home', link: ['See the full house checklist', '/house-cleaning'],
+    covers: [['Kitchen', 'Benchtops, splashback, sink, stovetop and appliance fronts, microwave inside.'], ['Bathrooms', 'Showers, baths, toilets, basins, mirrors and taps cleaned and shined.'], ['Floors', 'Vacuumed and mopped throughout, along edges and under what we can move.'], ['Dusting', 'Surfaces, shelves, skirting boards, light switches and door handles.']],
+    know: [['Same cleaner', 'Where possible, the same person each visit, who gets to know your home.'], ['Keys and access', 'Home, away, key safe or spare key, agreed before the first clean.']],
+  },
+  'ndis-dva': {
+    noun: 'home', link: ['See what every clean covers', '/ndis-dva-cleaning'],
+    covers: [['Kitchen', 'Benchtops, splashback, sink, stovetop and appliance fronts, microwave inside.'], ['Bathrooms', 'Showers, baths, toilets, basins, mirrors and taps cleaned and shined.'], ['Floors', 'Vacuumed and mopped throughout, along edges and under what we can move.'], ['Bedrooms and living areas', 'Surfaces wiped, mirrors and glass streak free, rooms left neat.']],
+    know: [['A familiar cleaner', 'Where possible, the same patient, police checked cleaner every visit.'], ['Clear invoices', 'Itemised invoices with the details you need for your records or your funding.']],
+  },
+  builder: {
+    noun: 'site', link: ["See the full builder's clean checklist", '/builder-clean'],
+    covers: [['Debris removal', 'Leftover materials, packaging and construction waste collected and disposed of.'], ['Dust and vacuuming', 'Fine dust from floors, walls, vents and skirting boards with HEPA filter vacuums.'], ['Kitchens and bathrooms', 'Sinks, taps, showers, tiles and appliances, with grout haze removed.'], ['Windows and floors', 'Protective films and stickers removed, floors swept, vacuumed and mopped.']],
+    know: [['Around other trades', 'We coordinate timing with your site manager and work alongside finishing trades.'], ['Handover ready', 'We work to your build schedule and don’t leave until the job is right.']],
+  },
+  other: {
+    noun: 'space', link: ['See all our cleaning services', '/'],
+    covers: [['A checklist agreed with you', 'We confirm exactly what gets cleaned before the first visit.'], ['Kitchens and bathrooms', 'Benches, sinks, toilets, basins, mirrors and taps cleaned.'], ['Floors', 'Vacuumed and mopped, along edges and under what we can move.'], ['Touch points and bins', 'Door handles and light switches wiped, bins emptied and relined.']],
+    know: [['Same cleaner', 'Where possible, the same person each visit.'], ['Written quotes', 'A fixed price before work begins. What we quote is what you pay.']],
+  },
+};
+
+// The look shared with our outreach emails: a white card with a black outline, pale green highlights.
+const EF = "font-family:'Instrument Sans',Helvetica,Arial,sans-serif";
+const EHL = 'background-color:#e5f4e4;color:#143f1d;padding:0 6px;border-radius:6px';
+const EHEAD = (title) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>@media (max-width:620px){.mq-pad{padding-left:22px!important;padding-right:22px!important}.mq-col{display:block!important;width:100%!important;box-sizing:border-box!important;padding:0 0 10px!important}.mq-h1{font-size:34px!important;line-height:38px!important}.mq-big{font-size:32px!important;line-height:36px!important}}</style></head>`;
+const ELABEL = (t) => `<div style="${EF};font-size:14px;color:#555555;padding-bottom:12px">${t}</div>`;
+const ERULE = '<tr><td class="mq-pad" style="padding:30px 36px 0"><div style="border-top:1px solid #e3e3e0;height:0;line-height:0;font-size:0">&nbsp;</div></td></tr>';
+const EBTN = (label, href, dark = true, full = false) => `<table role="presentation" cellpadding="0" cellspacing="0" style="${full ? 'width:100%' : ''}"><tr><td align="center" style="background-color:${dark ? '#111111' : '#ffffff'};border:1.5px solid #111111;border-radius:999px"><a href="${href}" style="display:block;padding:14px 26px;color:${dark ? '#ffffff' : '#111111'};text-decoration:none;${EF};font-size:16px;font-weight:600;white-space:nowrap">${label}</a></td></tr></table>`;
+const EDOT = (i) => `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td width="32" height="32" align="center" style="${i === 0 ? 'background-color:#1d5c2a;color:#ffffff' : 'background-color:#ffffff;color:#111111;border:1.5px solid #111111'};border-radius:999px;${EF};font-size:14px;font-weight:600;line-height:32px">${i + 1}</td></tr></table>`;
+const EPAIRS = (items, cell) => items.reduce((rows, x, i) => (i % 2 ? rows[rows.length - 1].push(x) : rows.push([x]), rows), [])
+  .map(pair => `<tr>${pair.map((x, j) => `<td class="mq-col" width="50%" valign="top" style="padding:0 ${j ? 0 : 6}px 10px ${j ? 6 : 0}px">${cell(x)}</td>`).join('')}${pair.length < 2 ? '<td class="mq-col" width="50%"></td>' : ''}</tr>`).join('');
+const ESIG = `<tr><td class="mq-pad" style="padding:26px 36px 0;${EF}"><div style="font-size:16px;line-height:24px;color:#222222">Kind regards,</div><div style="font-size:24px;line-height:30px;font-weight:600;letter-spacing:-0.5px;color:#111111;padding-top:2px">The MyQuest team</div>
+<div style="padding-top:12px;font-size:14px;line-height:23px;color:#555555"><a href="tel:+61413154932" style="color:#111111;font-weight:600;text-decoration:none">0413 154 932</a> &nbsp;·&nbsp; <a href="mailto:hello@myquest.au" style="color:#111111;font-weight:600;text-decoration:none">hello@myquest.au</a> &nbsp;·&nbsp; <a href="${SITE}" style="color:#111111;font-weight:600;text-decoration:none">myquest.au</a><br>Gold Coast and Northern Rivers<br>MyQuest Pty Ltd &nbsp;·&nbsp; ABN 65 693 175 405</div></td></tr>`;
+const ECARD = (body) => `<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;border:1.5px solid #111111;border-radius:24px;background-color:#ffffff;color:#111111;${EF}">${body}</table>`;
+const EWRAP = (pre, card) => `<body style="margin:0;padding:0;background-color:#f2f2f0">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">${pre}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f2f2f0"><tr><td align="center" style="padding:28px 12px">${card}</td></tr></table>
+</body></html>`;
+
 function confirmationEmail(e) {
   const first = e.contact_name.split(/\s+/)[0];
   const funded = e.space_type === 'ndis-dva';
   const when = callWhen();
   const range = /^(\$[\d,]+ to \$[\d,]+)/.exec(e.estimate);
   const gst = /(plus|including) GST/.exec(e.estimate);
-  const big = funded || !range ? 'Priced with you' : range[1];
-  const small = funded || !range
-    ? 'We’ll talk through pricing with you before the first clean.'
-    : 'per clean' + (gst ? ` ${gst[0]}` : '');
+  const priced = !funded && !!range;
+  const big = priced ? range[1] : 'Priced with you';
+  const small = priced ? 'per clean' + (gst ? `, ${gst[0]}` : '') : funded ? 'We agree the hours and rate with you before the first clean.' : 'We’ll talk through pricing with you before the first clean.';
   const startShort = e.preferred_date ? e.preferred_date.replace(/^(\w{3})\w*/, '$1').replace(/ \d{4}$/, '') : '';
   const summary = [
     LABELS.space_type[e.space_type] || e.space_type,
     e.sqm_range,
     e.bedrooms ? `${e.bedrooms} bedroom${e.bedrooms === '1' ? '' : 's'}` : '',
+    LABELS.clean_type[e.clean_type] || '',
     LABELS.frequency[e.frequency] || e.frequency,
     e.preferred_time ? e.preferred_time.split(' (')[0] : '',
     startShort ? `From ${startShort}` : '',
   ].filter(Boolean).join(' · ');
+  const copy = SPACE_COPY[e.space_type] || SPACE_COPY.other;
   const reading = READING[e.space_type] || READING.other;
   const steps = [
-    ['Enquiry received', ''],
-    ['We call you', `Usually ${when}, to talk through your space.`],
+    ['We call you', `Usually ${when}, to talk through your ${copy.noun}.`],
     ['A quick walk through if needed', 'Mostly for larger, medical or ongoing cleans.'],
     [funded ? 'Agreed price, clear invoices' : 'Fixed written quote', funded ? 'Everything confirmed before the first clean.' : 'The price we quote is the price you pay.'],
   ];
-
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Enquiry received</title></head>
-<body style="margin:0;padding:0;background:#f4f4f2">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0">Thanks ${esc(first)}. We’ll call you ${when} to confirm your quote.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f2"><tr><td align="center" style="padding:24px 12px">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#111">
-<tr><td style="background:#111111;padding:28px 36px"><a href="${SITE}"><img src="${SITE}/assets/email-logo-white.png" width="120" height="34" alt="MyQuest" style="display:block;border:0"></a></td></tr>
-<tr><td align="center" style="padding:40px 36px 0">
-<table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="width:56px;height:56px;border-radius:28px;background:#111;color:#fff;font-size:26px;line-height:56px">&#10003;</td></tr></table>
-<h1 style="margin:18px 0 8px;font-size:28px;line-height:1.2;letter-spacing:-0.5px">Enquiry received</h1>
-<p style="margin:0;color:#555;font-size:15px;line-height:1.6">Thanks ${esc(first)}. We’ll call you ${when} to confirm your quote.</p>
-</td></tr>
-<tr><td style="padding:28px 36px 0">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e4e4e4;border-radius:14px">
-<tr><td align="center" style="padding:24px 20px">
-<p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;color:#777;text-transform:uppercase">${funded ? 'Your quote' : 'Your estimate'}</p>
-<p style="margin:0;font-size:34px;line-height:1.15;font-weight:bold;letter-spacing:-0.5px">${big}</p>
-<p style="margin:6px 0 0;color:#666;font-size:13px;line-height:1.5">${small}</p>
-</td></tr>
-<tr><td align="center" style="border-top:1px solid #eeeeee;padding:16px 20px;font-size:13px;color:#444;line-height:1.7">${esc(summary)}</td></tr>
-</table>
-</td></tr>
-<tr><td style="padding:30px 36px 0">
-<p style="margin:0 0 14px;font-size:11px;letter-spacing:2px;color:#777;text-transform:uppercase">What happens next</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.45">
-${steps.map(([t, d], i) => `<tr><td width="34" valign="top" style="padding:0 0 14px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" style="width:24px;height:24px;border-radius:12px;font-size:12px;line-height:24px;${i === 0 ? 'background:#111;color:#fff' : i === 1 ? 'border:1.5px solid #111;color:#111;line-height:21px' : 'border:1.5px solid #bbb;color:#888;line-height:21px'}">${i === 0 ? '&#10003;' : i + 1}</td></tr></table></td><td valign="top" style="padding:2px 0 14px"><b>${t}</b>${d ? `<br><span style="color:#666">${d}</span>` : ''}</td></tr>`).join('')}
-</table>
-</td></tr>
-<tr><td align="center" style="padding:22px 36px 0">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#111;border-radius:999px"><a href="tel:+61413154932" style="display:block;padding:17px 20px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold">Call us now · 0413 154 932</a></td></tr></table>
-<p style="margin:14px 0 0;font-size:14px"><a href="${SITE}" style="color:#111">Back to myquest.au &rarr;</a></p>
-</td></tr>
-<tr><td style="padding:26px 36px 0">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f4;border-radius:12px"><tr><td style="padding:16px 20px;font-size:14px;line-height:1.6;color:#333">Want to speed things up? Just reply to this email with a few photos of your space and anything we should know about access.</td></tr></table>
-</td></tr>
-<tr><td style="padding:26px 36px 0">
-<p style="margin:0 0 4px;font-size:11px;letter-spacing:2px;color:#777;text-transform:uppercase">While you wait</p>
-<p style="margin:0 0 10px;font-size:14px;color:#555;line-height:1.6">A few short reads that answer the questions people usually ask us first.</p>
-${reading.map(([t, u]) => `<p style="margin:0;border-top:1px solid #eeeeee;padding:11px 0;font-size:14px;line-height:1.4"><a href="${SITE}${u}" style="color:#111;text-decoration:none"><b>${t}</b> &rarr;</a></p>`).join('')}
-<p style="margin:14px 0 0;font-size:12px;color:#888;line-height:1.6">${funded ? '' : 'Your estimate is a guide based on what you told us. '}We confirm a fixed written price before any work begins. <a href="${SITE}/policies" style="color:#888">Our policies</a></p>
-</td></tr>
-<tr><td style="padding:32px 36px 36px">
-<div style="height:1px;background:#e6e6e6;margin:0 0 26px;line-height:1px;font-size:1px">&nbsp;</div>
-${SIGNATURE_HTML}
-</td></tr>
-</table>
-</td></tr></table>
-</body></html>`;
+  const subject = priced ? `You’re all set, ${first}. Here’s your estimate` : `You’re all set, ${first}`;
+  const card = ECARD(`
+<tr><td class="mq-pad" style="padding:28px 36px 0"><a href="${SITE}"><img src="${SITE}/assets/email-logo.png" width="120" height="34" alt="MyQuest" style="display:block;border:0"></a></td></tr>
+<tr><td class="mq-pad" style="padding:36px 36px 0;${EF}"><div class="mq-h1" style="font-size:44px;line-height:46px;font-weight:600;letter-spacing:-1.5px;color:#111111">You’re all set, <span style="${EHL}">${esc(first)}</span>.</div>
+<div style="padding-top:14px;font-size:18px;line-height:27px;color:#555555">We’ve got your enquiry for ${esc(e.suburb)}. Here’s what you asked for and what comes next.</div></td></tr>
+<tr><td class="mq-pad" style="padding:28px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#e5f4e4;border-radius:20px;padding:26px 26px 22px;${EF}">
+<div style="font-size:14px;color:#2c5a36">${funded ? 'Your quote' : 'Your estimate'}</div>
+<div class="mq-big" style="padding-top:4px;font-size:40px;line-height:44px;font-weight:600;letter-spacing:-1.2px;color:#143f1d">${big}</div>
+<div style="padding-top:4px;font-size:15px;line-height:22px;color:#2c5a36">${small}</div>
+<div style="margin-top:18px;border-top:1px solid #c6e2c4;padding-top:14px;font-size:14px;line-height:22px;color:#143f1d">${esc(summary)}</div>
+</td></tr></table></td></tr>
+<tr><td class="mq-pad" style="padding:32px 36px 0">${ELABEL('How it works from here')}<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${steps.map(([t, d], i) => `<td class="mq-col" width="33%" valign="top" style="padding:0 12px 0 0;${EF}">${EDOT(i)}<div style="padding-top:12px;font-size:16px;line-height:21px;font-weight:600;color:#111111">${t}</div><div style="padding-top:4px;font-size:14px;line-height:20px;color:#555555">${d}</div></td>`).join('')}</tr></table></td></tr>
+${ERULE}
+<tr><td class="mq-pad" style="padding:28px 36px 0">${ELABEL(`Every ${copy.noun} clean includes`)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${EPAIRS(copy.covers, ([t, d]) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#f4f4f2;border-radius:14px;padding:14px 16px;${EF}"><div style="font-size:16px;font-weight:600;color:#111111">${t}</div><div style="padding-top:4px;font-size:14px;line-height:20px;color:#555555">${d}</div></td></tr></table>`)}</table>
+<a href="${SITE}${copy.link[1]}" style="${EF};font-size:15px;font-weight:600;color:#111111">${copy.link[0]} &rarr;</a></td></tr>
+<tr><td class="mq-pad" style="padding:22px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${EPAIRS(copy.know, ([t, d]) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border:1.5px solid #111111;border-radius:16px;padding:16px 18px;${EF}"><div style="font-size:16px;font-weight:600;color:#111111">${t}</div><div style="padding-top:5px;font-size:14px;line-height:21px;color:#555555">${d}</div></td></tr></table>`)}</table></td></tr>
+<tr><td class="mq-pad" style="padding:22px 36px 0">${ELABEL('Answers to what people ask first')}<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${reading.map(([t, u], j) => `<td class="mq-col" width="${Math.floor(100 / reading.length)}%" valign="top" style="padding:0 ${j < reading.length - 1 ? 6 : 0}px 0 0"><a href="${SITE}${u}" style="display:block;text-decoration:none;color:#111111;background-color:#f4f4f2;border-radius:14px;padding:14px 14px 16px;${EF};font-size:14.5px;line-height:20px;font-weight:600">${t}<div style="padding-top:10px;font-size:15px">&rarr;</div></a></td>`).join('')}</tr></table></td></tr>
+<tr><td class="mq-pad" align="center" style="padding:30px 36px 0;${EF}"><div style="font-size:15px;line-height:24px;color:#555555;padding-bottom:16px">Want to speed things up? Reply with a few photos of your ${copy.noun} and anything we should know about access.</div>${EBTN('Call 0413 154 932', 'tel:+61413154932')}</td></tr>
+${ERULE}
+${ESIG}
+<tr><td class="mq-pad" style="padding:26px 36px 30px;${EF};font-size:12.5px;line-height:20px;color:#999999">You’re getting this because you asked MyQuest for a quote. ${priced ? 'Your estimate is a guide based on what you told us. ' : ''}We confirm a fixed written price before any work begins. <a href="${SITE}/policies" style="color:#999999">Our policies</a></td></tr>`);
+  const html = EHEAD('Enquiry received') + '\n' + EWRAP(`We’ll call you ${when} about ${esc(e.suburb)}.`, card);
 
   const textBody = [
-    'Enquiry received',
+    `You're all set, ${first}.`,
     '',
-    `Thanks ${first}. We'll call you ${when} to confirm your quote.`,
+    `We've got your enquiry for ${e.suburb}. We'll call you ${when} to confirm your quote.`,
     '',
-    `${funded ? 'Your quote' : 'Your estimate'}: ${big} ${funded ? '' : small}`.trim(),
+    `${funded ? 'Your quote' : 'Your estimate'}: ${priced ? `${big} ${small}` : `${big}. ${small}`}`,
     summary,
     '',
-    'What happens next',
-    ...steps.map(([t, d], i) => `${i + 1}. ${t}${d ? `: ${d}` : ''}`),
+    'How it works from here',
+    ...steps.map(([t, d], i) => `${i + 1}. ${t}: ${d}`),
     '',
-    'Call us: 0413 154 932',
-    `Website: ${SITE}`,
+    `Every ${copy.noun} clean includes`,
+    ...copy.covers.map(([t, d]) => `• ${t}: ${d}`),
+    `${copy.link[0]}: ${SITE}${copy.link[1]}`,
     '',
-    'Want to speed things up? Reply to this email with a few photos of your space and anything we should know about access.',
+    ...copy.know.map(([t, d]) => `${t}: ${d}`),
     '',
-    'While you wait',
+    'Answers to what people ask first',
     ...reading.map(([t, u]) => `${t}: ${SITE}${u}`),
+    '',
+    `Want to speed things up? Reply with a few photos of your ${copy.noun} and anything we should know about access.`,
+    'Call us: 0413 154 932',
     '',
     SIGNATURE_TEXT,
   ].join('\n');
 
-  return { html, text: textBody, subject: `We've received your enquiry, ${first}` };
+  return { html, text: textBody, subject };
 }
 
 // ServiceM8 returns the new record's id in a header, not the body.
@@ -494,15 +536,22 @@ export async function onRequestPost({ request, env, waitUntil }) {
     ['First page seen', esc(landing)],
   ].filter(([, v]) => v);
 
-  const html = `
-    <div style="background:${colour[0]};color:${colour[1]};padding:10px 16px;border-radius:8px;margin:0 0 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:1px;text-transform:uppercase">${esc(LABELS.space_type[e.space_type] || e.space_type)}</div>
-    <h2 style="margin:0 0 16px;font-family:Arial,sans-serif">New enquiry: ${esc(who)}</h2>
-    <table style="border-collapse:collapse;width:100%;font-size:14px;font-family:Arial,sans-serif">
-      ${rows.map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;width:140px;vertical-align:top">${k}</td><td style="padding:6px 0">${v}</td></tr>`).join('')}
-    </table>
-    <p style="margin:20px 0 0;font-size:13px;color:#999;font-family:Arial,sans-serif">Press Reply to answer ${esc(e.contact_name)} directly.</p>`;
-
   const validEmail = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(e.email);
+  const firstName = e.contact_name.split(/\s+/)[0];
+  const priceShown = e.space_type === 'ndis-dva' ? (funding ? `${funding}, priced with them` : 'Priced with them') : (/^(\$[\d,]+ to \$[\d,]+)/.exec(e.estimate) || [])[1] || e.estimate || 'Not shown';
+  const tiles = [['Estimate', esc(priceShown)], ['Suburb', esc(e.suburb)], ['Heard about us', esc(e.heard)], ['Start', esc(e.preferred_date || 'Not set yet')]];
+  const shown = ['Suburb', 'Space type', 'Estimate shown', 'Preferred start', 'Heard about us'];
+  const card = ECARD(`
+<tr><td class="mq-pad" style="padding:26px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td><img src="${SITE}/assets/email-logo.png" width="106" height="30" alt="MyQuest" style="display:block;border:0"></td><td align="right" style="${EF};font-size:14px;color:#555555">New enquiry</td></tr></table></td></tr>
+<tr><td class="mq-pad" style="padding:26px 36px 0;${EF}"><span style="display:inline-block;padding:4px 12px;border-radius:999px;background-color:${colour[0]};color:${colour[1]};font-size:13px;font-weight:700">${esc(LABELS.space_type[e.space_type] || e.space_type)}</span>
+<div class="mq-h1" style="padding-top:12px;font-size:36px;line-height:40px;font-weight:600;letter-spacing:-1.2px;color:#111111">${esc(who)}</div>
+<div style="padding-top:4px;font-size:16px;color:#555555">${e.biz_name ? `${esc(e.contact_name)} · ` : ''}${esc(e.suburb)}</div></td></tr>
+<tr><td class="mq-pad" style="padding:22px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${EPAIRS(tiles.map((x, i) => [x, i]), ([[k, v], i]) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:${i ? '#f4f4f2' : '#e5f4e4'};border-radius:14px;padding:14px 16px;${EF}"><div style="font-size:13px;color:${i ? '#555555' : '#2c5a36'}">${k}</div><div style="padding-top:4px;font-size:18px;font-weight:600;color:${i ? '#111111' : '#143f1d'}">${v}</div></td></tr></table>`)}</table></td></tr>
+<tr><td class="mq-pad" style="padding:14px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="mq-col" width="50%" style="padding-right:5px">${EBTN(`Call ${esc(firstName)}`, `tel:${esc(e.mobile.replace(/\s/g, ''))}`, true, true)}</td><td class="mq-col" width="50%" style="padding-left:5px">${validEmail ? EBTN('Reply by email', `mailto:${esc(e.email)}`, false, true) : ''}</td></tr></table></td></tr>
+<tr><td class="mq-pad" style="padding:28px 36px 0">${ELABEL('Everything they told us')}<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.filter(([k]) => !shown.includes(k)).concat([['Came from', esc(from)], ['First page seen', esc(landing)]]).filter(([k], i, a) => a.findIndex(([x]) => x === k) === i).map(([k, v]) => `<tr><td valign="top" style="padding:12px 12px 12px 0;border-top:1px solid #e3e3e0;width:150px;${EF};font-size:15px;color:#555555">${k}</td><td style="padding:12px 0;border-top:1px solid #e3e3e0;${EF};font-size:15px;font-weight:600;color:#111111">${String(v).replace(/<a /g, '<a style="color:#111111" ')}</td></tr>`).join('')}<tr><td colspan="2" style="border-top:1px solid #e3e3e0;height:0;line-height:0;font-size:0">&nbsp;</td></tr></table></td></tr>
+<tr><td class="mq-pad" style="padding:22px 36px 30px;${EF};font-size:13.5px;line-height:21px;color:#888888">Press Reply to answer ${esc(firstName)} directly. ${env.SERVICEM8_API_KEY ? 'It’s also being added to ServiceM8 as a Quote job, with the estimate lines and details filled in.' : ''}</td></tr>`);
+  const html = EHEAD('New enquiry') + '\n' + EWRAP(`${esc(who)}, ${esc(e.suburb)}. ${esc(priceShown)}.`, card);
+
 
   try {
     const res = await fetch('https://api.resend.com/emails', {
