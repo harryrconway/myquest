@@ -951,8 +951,7 @@ document.querySelectorAll('[data-email-sugg]').forEach(function(wrap){
       if(!r.ok)throw new Error('err');
       if(window.gtag)gtag('event','generate_lead',{space_type:body.space_type,heard:body.heard,clean_type:body.clean_type});
       document.getElementById('iqThanksName').textContent=firstName;
-      goTo(4,5);
-      setTimeout(function(){document.getElementById('iqThanks').classList.add('go')},320);if(window.mqThanks){var L=function(e){return e?((document.querySelector('label[for="'+e.id+'"]')||{}).textContent||e.value).trim():''},bd=document.querySelector('input[name=iqBed]:checked');mqThanks('enquiry',firstName,[['Space',L(spaceEl)],['Size',body.sqm_range||(bd?L(bd)+' bedrooms':'')],['How often',L(freqEl)],['Suburb',body.suburb],['Estimate',est],['Phone',body.mobile]])}
+      if(window.mqThanks){var L=function(e){return e?((document.querySelector('label[for="'+e.id+'"]')||{}).textContent||e.value).trim():''},bd=document.querySelector('input[name=iqBed]:checked');mqThanks('enquiry',firstName,[['Space',L(spaceEl)],['Size',body.sqm_range||(bd?L(bd)+' bedrooms':'')],['How often',L(freqEl)],['Suburb',body.suburb],['Estimate',est],['Phone',body.mobile]]);resetIq(4);}else{goTo(4,5);setTimeout(function(){document.getElementById('iqThanks').classList.add('go')},320);}
     }).catch(function(){
       btn.textContent='Get my free quote';btn.disabled=false;
       var e=document.createElement('p');e.style.cssText='color:#c0392b;font-size:13px;margin-top:10px;text-align:center;';
@@ -961,13 +960,14 @@ document.querySelectorAll('[data-email-sugg]').forEach(function(wrap){
       setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},6000);
     });
   });
-  document.getElementById('iqRestart').addEventListener('click',function(){
+  function resetIq(from){
     document.getElementById('iqThanks').classList.remove('go');
     ['iqBiz','iqContact','iqMobile','iqEmail','iqSuburb','iqAddress','iqNotes','iqDvaFile','iqDvaClaim','iqDvaTrn'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
     document.querySelectorAll('input[name=iqType],input[name=iqSpace],input[name=iqKitchen],input[name=iqBath],input[name=iqBed],input[name=iqSqm],input[name=iqFreq],input[name=iqHeard],input[name=preferred_time],input[name=iqFund]').forEach(function(r){r.checked=false;});var mw=document.querySelector('[data-mq-when]');if(mw)mw.dispatchEvent(new Event('mq-reset'));var md=document.getElementById('mqDaysField');if(md)md.hidden=false;
     document.getElementById('iqSubmit').textContent='Get my free quote';document.getElementById('iqSubmit').disabled=false;setBizLabel();
-    goTo(5,1);setNodes(1);
-  });
+    goTo(from,1);setNodes(1);
+  }
+  document.getElementById('iqRestart').addEventListener('click',function(){resetIq(5);});
   setNodes(1);
   document.getElementById('iqCard').addEventListener('change',function(){if(window.gtag)gtag('event','enquiry_start');},{once:true});
   (function(){var card=document.getElementById('iqCard');if(!card)return;var steps=Array.prototype.slice.call(card.querySelectorAll('.iq-step'));var maxH=0;steps.forEach(function(s){steps.forEach(function(x){x.classList.add('iq-hidden');});s.classList.remove('iq-hidden');maxH=Math.max(maxH,card.scrollHeight);});steps.forEach(function(x){x.classList.add('iq-hidden');});var s1=document.getElementById('iqS1');if(s1)s1.classList.remove('iq-hidden');if(maxH&&window.innerWidth>1024)card.style.minHeight=maxH+'px';})();
