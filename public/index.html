@@ -1625,7 +1625,7 @@ var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MO=['Jan','Feb','Mar','Apr','
 var head=document.createElement('div');head.className='qx-strip-head';var lbl=document.createElement('span');lbl.setAttribute('aria-live','polite');head.appendChild(lbl);if(nav)head.appendChild(nav);
 strip.parentNode.insertBefore(head,strip);
 function sync(){var sel=strip.querySelector('.is-selected'),d=sel?new Date(+sel.getAttribute('data-ts')):null;lbl.innerHTML=d?'Starting <b>'+WD[d.getDay()]+' '+d.getDate()+' '+MO[d.getMonth()]+'</b>':'Pick a day'}
-function later(){if(vis($('mqDaysField')))return;clearTimeout(timer);var at=step,ai=idx;timer=setTimeout(function(){if(step===at&&idx===ai)advance()},380)}
+function later(){clearTimeout(timer);var at=step,ai=idx;timer=setTimeout(function(){if(step===at&&idx===ai)advance()},vis($('mqDaysField'))?650:380)}
 new MutationObserver(sync).observe(strip,{subtree:true,attributes:true,attributeFilter:['class']});
 strip.addEventListener('click',function(e){if(!e.target.closest('[data-ts]'))return;setTimeout(function(){if(strip.querySelector('.is-selected'))later()},0)});
 sync()})();
