@@ -432,7 +432,7 @@ body:has(#enquire.qx) .eq-lead .title{color:#111!important;padding-bottom:24px}
 #enquire.qx .qx-wopt.on{background:#111;color:#fff;border-color:#111}
 #enquire.qx .qx-wopt.on .qx-wk{background:#fff;color:#111;border-color:#fff}
 #enquire.qx .qx-wopt.on small{color:#bbb}
-#enquire.qx .qx-strip-head{display:flex;justify-content:space-between;align-items:center;margin:24px 0 10px;font-size:15px;color:#555}
+#enquire.qx .qx-strip-head{display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px;font-size:16px;color:#555} #enquire.qx .qx-strip-head b{color:#1d5c2a;background:#e5f4e4;font-weight:600;padding:2px 8px;border-radius:6px;margin-left:4px} #enquire.qx .qx-strip-head{gap:12px} #enquire.qx .qx-strip-head>span{white-space:nowrap} @media (max-width:740px){#enquire.qx #mqDateField .qx-strip-head .mq-strip-nav__month{display:none}}
 #enquire.qx #mqDateField .mq-strip-nav{position:static!important;display:flex!important;align-items:center;gap:4px}
 #enquire.qx #mqDateField .mq-strip-nav__month{font-family:var(--disp);font-size:14.5px;font-weight:600;color:#111;margin-right:6px}
 #enquire.qx #mqDateField .mq-strip-nav__btn{appearance:none;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1.5px solid rgba(0,0,0,.14);border-radius:50%;background:#fff;color:#111;cursor:pointer}
@@ -597,7 +597,10 @@ body:has(#enquire.qx) .eq-lead .title{color:#111!important;padding-bottom:24px}
       <input type=radio name=iqBed id=bd2 value=2><label for=bd2>2</label>
       <input type=radio name=iqBed id=bd3 value=3><label for=bd3>3</label>
       <input type=radio name=iqBed id=bd4 value=4><label for=bd4>4</label>
-      <input type=radio name=iqBed id=bd5p value=5+><label for=bd5p>5+</label>
+      <input type=radio name=iqBed id=bd5 value=5><label for=bd5>5</label>
+      <input type=radio name=iqBed id=bd6 value=6><label for=bd6>6</label>
+      <input type=radio name=iqBed id=bd7 value=7><label for=bd7>7</label>
+      <input type=radio name=iqBed id=bd8p value=8+><label for=bd8p>8+</label>
     </div>
     <div class=iq-err-msg>Please select the number of bedrooms</div>
   </div>
@@ -615,7 +618,9 @@ body:has(#enquire.qx) .eq-lead .title{color:#111!important;padding-bottom:24px}
       <input type=radio name=iqBath id=bt0 value=0><label for=bt0>0</label>
       <input type=radio name=iqBath id=bt1 value=1><label for=bt1>1</label>
       <input type=radio name=iqBath id=bt2 value=2><label for=bt2>2</label>
-      <input type=radio name=iqBath id=bt3p value=3+><label for=bt3p>3+</label>
+      <input type=radio name=iqBath id=bt3 value=3><label for=bt3>3</label>
+      <input type=radio name=iqBath id=bt4 value=4><label for=bt4>4</label>
+      <input type=radio name=iqBath id=bt5p value=5+><label for=bt5p>5+</label>
     </div>
   </div>
   </div>
@@ -1071,8 +1076,8 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
   function v(id){return(document.getElementById(id)||{}).value||'';}
   function clearFG(id){var el=document.getElementById(id);if(el)el.classList.remove('iq-field-err','iq-radio-err');}
   function setFG(id,radio){var el=document.getElementById(id);if(el)el.classList.add(radio?'iq-radio-err':'iq-field-err');}
-  var BATH={'0':0,'1':0.5,'2':1.0,'3+':1.5};
-  var BED={'1':1.5,'2':2,'3':2.5,'4':3,'5+':3.5},HOME_BATH={'0':0,'1':0,'2':0.5,'3+':1};
+  var BATH={'0':0,'1':0.5,'2':1,'3':1.5,'4':2,'5+':2.5};
+  var BED={'1':1.5,'2':2,'3':2.5,'4':3,'5':3.5,'6':4,'7':4.5,'8+':5},HOME_BATH={'0':0,'1':0,'2':0.5,'3':1,'4':1.5,'5+':2};
   function calc(){
     var t=document.querySelector('input[name=iqType]:checked');
     var s=document.querySelector('input[name=iqSqm]:checked');
@@ -1225,7 +1230,7 @@ document.querySelectorAll('[data-email-sugg]').forEach(function(wrap){
     var spaceEl=document.querySelector('input[name=iqSpace]:checked');
     var sqmEl=document.querySelector('input[name=iqSqm]:checked');
     var freqEl=document.querySelector('input[name=iqFreq]:checked');
-    var body={biz_name:v('iqBiz').trim(),contact_name:v('iqContact').trim(),email:v('iqEmail').trim(),mobile:v('iqMobile').trim(),suburb:v('iqSuburb').trim(),space_type:spaceEl?spaceEl.value:'',sqm_range:sqmEl&&!isPersonal()?sqmEl.value:'',bedrooms:(function(){var b=document.querySelector('input[name=iqBed]:checked');return b&&(isPersonal()||spaceVal()==='builder')?(b.value==='5+'?5:parseInt(b.value,10)):null})(),frequency:freqEl?freqEl.value:'',estimate:estLine||null,kitchen:(function(){var k=document.querySelector('input[name=iqKitchen]:checked');return k&&!isPersonal()?k.value==='yes':null})(),baths:(function(){var b=document.querySelector('input[name=iqBath]:checked');return b?(b.value==='3+'?3:parseInt(b.value,10)):null})(),address:v('iqAddress').trim(),notes:v('iqNotes').trim(),clean_type:(document.querySelector('input[name=iqType]:checked')||{}).value||'',funding:isFunded()?((document.querySelector('input[name=iqFund]:checked')||{}).value||''):'',dva_file:isDva()?v('iqDvaFile').trim():'',dva_claim:isDva()?v('iqDvaClaim').trim():'',dva_trn:isDva()?v('iqDvaTrn').trim():'',heard:(document.querySelector('input[name=iqHeard]:checked')||{}).value||'',preferred_date:(document.querySelector('[data-mq-date-input]')||{}).value||'',preferred_time:(document.querySelector('input[name=preferred_time]:checked')||{}).value||'',preferred_days:(document.getElementById('mqDaysField')||{}).hidden?'':((document.querySelector('[data-mq-days-input]')||{}).value||''),website:v('iqWebsite'),from:(function(){try{return JSON.parse(sessionStorage.mqFrom||'{}')}catch(e){return {}}})()};
+    var body={biz_name:v('iqBiz').trim(),contact_name:v('iqContact').trim(),email:v('iqEmail').trim(),mobile:v('iqMobile').trim(),suburb:v('iqSuburb').trim(),space_type:spaceEl?spaceEl.value:'',sqm_range:sqmEl&&!isPersonal()?sqmEl.value:'',bedrooms:(function(){var b=document.querySelector('input[name=iqBed]:checked');return b&&(isPersonal()||spaceVal()==='builder')?parseInt(b.value,10):null})(),frequency:freqEl?freqEl.value:'',estimate:estLine||null,kitchen:(function(){var k=document.querySelector('input[name=iqKitchen]:checked');return k&&!isPersonal()?k.value==='yes':null})(),baths:(function(){var b=document.querySelector('input[name=iqBath]:checked');return b?parseInt(b.value,10):null})(),address:v('iqAddress').trim(),notes:v('iqNotes').trim(),clean_type:(document.querySelector('input[name=iqType]:checked')||{}).value||'',funding:isFunded()?((document.querySelector('input[name=iqFund]:checked')||{}).value||''):'',dva_file:isDva()?v('iqDvaFile').trim():'',dva_claim:isDva()?v('iqDvaClaim').trim():'',dva_trn:isDva()?v('iqDvaTrn').trim():'',heard:(document.querySelector('input[name=iqHeard]:checked')||{}).value||'',preferred_date:(document.querySelector('[data-mq-date-input]')||{}).value||'',preferred_time:(document.querySelector('input[name=preferred_time]:checked')||{}).value||'',preferred_days:(document.getElementById('mqDaysField')||{}).hidden?'':((document.querySelector('[data-mq-days-input]')||{}).value||''),website:v('iqWebsite'),from:(function(){try{return JSON.parse(sessionStorage.mqFrom||'{}')}catch(e){return {}}})()};
     var firstName=body.contact_name.split(/\s+/)[0];
     fetch('/api/submit-inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
       if(!r.ok)throw new Error('err');
@@ -1614,23 +1619,15 @@ card.addEventListener('change',function(e){
 card.addEventListener('click',function(e){var l=e.target.closest&&e.target.closest('label');if(!l)return;var i=l.htmlFor?$(l.htmlFor):l.querySelector('input');if(!i||i.type!=='radio'||!i.checked)return;var x=scr();if(!x||!x.auto||!els(x).some(function(el){return el.contains(i)}))return;if(complete(x)){clearTimeout(timer);var at=step,ai=idx;timer=setTimeout(function(){if(step===at&&idx===ai)advance()},300)}});
 card.addEventListener('input',function(e){var g=e.target.closest&&e.target.closest('.iq-fgroup');if(g&&g.classList.contains('iq-field-err')&&filled(g))g.classList.remove('iq-field-err')});
 $('iqChange').addEventListener('click',function(){resetTo0=true},true);
-// Start date: quick answers plus a row of days, so it all fits on one screen
-(function setupWhen(){var df=$('mqDateField');if(!df||df.querySelector('.qx-when'))return;var strip=df.querySelector('.mq-strip'),nav=df.querySelector('.mq-strip-nav');if(!strip){if(!setupWhen.w){setupWhen.w=1;document.addEventListener('DOMContentLoaded',setupWhen);addEventListener('load',setupWhen)}return}
-var flex=false,WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function mon(w){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+((8-d.getDay())%7||7)+7*w);return d.getTime()}
-function btnFor(ts){var bs=strip.querySelectorAll('[data-ts]');for(var i=0;i<bs.length;i++)if(+bs[i].getAttribute('data-ts')>=ts-43200000)return bs[i];return null}
-var O=[['asap','As soon as possible',function(){var f=strip.querySelector('[data-ts]');return f?+f.getAttribute('data-ts'):0}],['next','Next week',function(){return mon(0)}],['two','In two weeks',function(){return mon(1)}],['flex','I’m flexible',null]];
-var qw=document.createElement('div');qw.className='qx-when';qw.setAttribute('role','group');qw.setAttribute('aria-label','Quick start dates');
-O.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.className='qx-wopt';b.dataset.k=o[0];var t=o[2]?btnFor(o[2]()):null,d=t?new Date(+t.getAttribute('data-ts')):null;
-b.innerHTML='<span class=qx-wk>'+'ABCD'[i]+'</span><span class=qx-wt>'+o[1]+'</span>'+(d?'<small>'+WD[d.getDay()]+' '+d.getDate()+' '+MO[d.getMonth()]+'</small>':'<small>We’ll work it out</small>');qw.appendChild(b)});
-var head=document.createElement('div');head.className='qx-strip-head';head.innerHTML='<span>Or pick a day</span>';if(nav)head.appendChild(nav);
-strip.parentNode.insertBefore(qw,strip);strip.parentNode.insertBefore(head,strip);
-function sync(){var sel=strip.querySelector('.is-selected'),ts=sel?+sel.getAttribute('data-ts'):0;qw.querySelectorAll('.qx-wopt').forEach(function(b,i){var o=O[i],on=o[2]?(sel&&btnFor(o[2]())===sel):(!sel&&flex);b.classList.toggle('on',!!on);b.setAttribute('aria-pressed',on?'true':'false')})}
+// Start date: a row of days, with the chosen day shown above it
+(function setupWhen(){var df=$('mqDateField');if(!df||df.querySelector('.qx-strip-head'))return;var strip=df.querySelector('.mq-strip'),nav=df.querySelector('.mq-strip-nav');if(!strip){if(!setupWhen.w){setupWhen.w=1;document.addEventListener('DOMContentLoaded',setupWhen);addEventListener('load',setupWhen)}return}
+var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var head=document.createElement('div');head.className='qx-strip-head';var lbl=document.createElement('span');lbl.setAttribute('aria-live','polite');head.appendChild(lbl);if(nav)head.appendChild(nav);
+strip.parentNode.insertBefore(head,strip);
+function sync(){var sel=strip.querySelector('.is-selected'),d=sel?new Date(+sel.getAttribute('data-ts')):null;lbl.innerHTML=d?'Starting <b>'+WD[d.getDay()]+' '+d.getDate()+' '+MO[d.getMonth()]+'</b>':'Pick a day'}
 function later(){if(vis($('mqDaysField')))return;clearTimeout(timer);var at=step,ai=idx;timer=setTimeout(function(){if(step===at&&idx===ai)advance()},380)}
-qw.addEventListener('click',function(e){var b=e.target.closest('.qx-wopt');if(!b)return;var i=[].indexOf.call(qw.children,b),o=O[i],sel=strip.querySelector('.is-selected');
-  if(!o[2]){if(sel)sel.click();flex=true}else{var t=btnFor(o[2]());if(t&&t!==sel)t.click();flex=false;if(t)t.scrollIntoView({block:'nearest',inline:'center'})}sync();later()});
-strip.addEventListener('click',function(e){if(!e.target.closest('[data-ts]'))return;flex=false;setTimeout(function(){sync();if(strip.querySelector('.is-selected'))later()},0)});
-document.addEventListener('keydown',function(e){if(e.metaKey||e.ctrlKey||e.altKey||!/^[a-dA-D]$/.test(e.key))return;var x=scr();if(!x||!x.when)return;var t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))return;var b=qw.children['ABCD'.indexOf(e.key.toUpperCase())];if(b){e.preventDefault();b.click()}});
+new MutationObserver(sync).observe(strip,{subtree:true,attributes:true,attributeFilter:['class']});
+strip.addEventListener('click',function(e){if(!e.target.closest('[data-ts]'))return;setTimeout(function(){if(strip.querySelector('.is-selected'))later()},0)});
 sync()})();
 
 function cardY(){var hh=(document.querySelector('header')||{}).offsetHeight||80,y=0;for(var n=card;n;n=n.offsetParent)y+=n.offsetTop;return Math.max(0,Math.round(y-hh-12))}

@@ -271,10 +271,10 @@ async function sm8Get(env, path) {
 
 // Same hours as the website's instant estimate, so the quote matches what the customer was shown.
 const SQM_HOURS = { 'Under 100m²': 1.5, '100 to 300m²': 3, '300 to 500m²': 5, '500m²+': 8 };
-const BATH_HOURS = { 0: 0, 1: 0.5, 2: 1, 3: 1.5 };
+const BATH_HOURS = { 0: 0, 1: 0.5, 2: 1, 3: 1.5, 4: 2, 5: 2.5 };
 // Homes are estimated by bedrooms, with the kitchen and first bathroom included.
-const BED_HOURS = { 1: 1.5, 2: 2, 3: 2.5, 4: 3, 5: 3.5 };
-const HOME_BATH_HOURS = { 0: 0, 1: 0, 2: 0.5, 3: 1 };
+const BED_HOURS = { 1: 1.5, 2: 2, 3: 2.5, 4: 3, 5: 3.5, 6: 4, 7: 4.5, 8: 5 };
+const HOME_BATH_HOURS = { 0: 0, 1: 0, 2: 0.5, 3: 1, 4: 1.5, 5: 2 };
 
 function count(n, max) {
   const v = parseInt(n, 10);
@@ -282,8 +282,8 @@ function count(n, max) {
 }
 
 function estimateHours({ sqm, cleanType, kitchen, baths, bedrooms }) {
-  const bath = count(baths, 3);
-  const beds = count(bedrooms, 5);
+  const bath = count(baths, 5);
+  const beds = count(bedrooms, 8);
   let hrs;
   if (beds) {
     hrs = BED_HOURS[beds] + HOME_BATH_HOURS[bath ?? 1];
@@ -485,7 +485,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   }
   const personal = PERSONAL.includes(text(body.space_type));
   if (!personal && !text(body.biz_name)) return json({ error: 'Missing required field: biz_name' }, 400);
-  const beds = count(body.bedrooms, 5);
+  const beds = count(body.bedrooms, 8);
   if (personal ? !beds : !text(body.sqm_range)) return json({ error: `Missing required field: ${personal ? 'bedrooms' : 'sqm_range'}` }, 400);
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing.
@@ -501,9 +501,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const site = new URL(request.url).hostname.replace(/^www\./, '');
   const from = cameFrom(body.from, site);
   const landing = text(body.from && body.from.landing) || '/';
-  const bathrooms = body.baths == null ? '' : String(parseInt(body.baths, 10) >= 3 ? '3 or more' : parseInt(body.baths, 10));
+  const bathrooms = body.baths == null ? '' : String(parseInt(body.baths, 10) >= 5 ? '5 or more' : parseInt(body.baths, 10));
   const kitchen = body.kitchen === true ? 'Yes' : body.kitchen === false ? 'No' : '';
-  const bedrooms = beds ? (beds >= 5 ? '5 or more' : String(beds)) : '';
+  const bedrooms = beds ? (beds >= 8 ? '8 or more' : String(beds)) : '';
   e.bedrooms = bedrooms;
 
   const who = e.biz_name || e.contact_name;
