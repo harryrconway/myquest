@@ -188,7 +188,7 @@
 .qs-pop.is-open{opacity:1;visibility:visible;transform:none;transition:opacity .22s ease,transform .34s cubic-bezier(.2,.8,.2,1),visibility 0s}
 .qs-panel{background:#fff;border:1.5px solid var(--navy);border-radius:28px;padding:10px;box-shadow:0 30px 80px rgba(0,0,0,.18)}
 .qs-note{margin:8px 12px 10px;font-size:16px;line-height:1.5;color:#333}
-.qs-note[hidden]{display:none}
+.qs-note[hidden]{display:none}.qs-empty .qs-foot{display:none}.qs-shake .qs-box{animation:qsShake .42s cubic-bezier(.36,.07,.19,.97)}@keyframes qsShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}@media (prefers-reduced-motion:reduce){.qs-shake .qs-box{animation:none}}
 .qs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
 .qs-list:empty{display:none}
 .qs-row{display:flex;align-items:center;border-radius:18px;transition:background .2s}
@@ -1426,7 +1426,7 @@ function fill(){if(!R)return;const r=R.rows[cur];sync(R.kind==='near'&&R.place?R
 function say(t){clearTimeout(sayT);sayT=setTimeout(()=>{live.textContent=t;},450);}
 function sayRow(){const r=R&&R.rows[cur];if(r)say(r.s.name+', '+(r.s.gc?'Gold Coast':'Tweed')+'. Press Enter for an instant estimate.');}
 function setOpen(v){if(v===open)return;open=v;pop.classList.toggle('is-open',v);}
-function update(){
+function update(){root.classList.remove('qs-empty');
   const has=!!input.value.trim();
   clr.hidden=!has;chips.classList.toggle('is-off',has);
   if(!has){R=null;setOpen(false);live.textContent='';sync('');return;}
@@ -1460,7 +1460,7 @@ input.addEventListener('keydown',e=>{
   }
   const n=R?Math.min(R.rows.length,MAX):0;
   if(k==='ArrowDown'||k==='ArrowUp'){if(!n)return;e.preventDefault();if(!open){setOpen(true);return;}cur=(cur+(k==='ArrowDown'?1:-1)+n)%n;mark();sayRow();}
-  else if(k==='Enter'){if(!n){if(has){e.preventDefault();toForm();}return;}e.preventDefault();if(!open){setOpen(true);return;}const a=list.children[cur]&&list.children[cur].querySelector('.qs-est');if(a)a.click();}
+  else if(k==='Enter'){if(!n){e.preventDefault();if(has)toForm();else needPlace();return;}e.preventDefault();if(!open){setOpen(true);return;}const a=list.children[cur]&&list.children[cur].querySelector('.qs-est');if(a)a.click();}
   else if(k==='Escape'){if(open){e.preventDefault();setOpen(false);}else if(input.value){e.preventDefault();input.value='';update();}}
 });
 // Keep the typing focus in the box while the visitor picks from the list
@@ -1471,7 +1471,8 @@ list.addEventListener('click',e=>{
 });
 clr.addEventListener('click',()=>{input.value='';update();input.focus();});
 // The search button always moves the visitor on to the estimate form, carrying whatever suburb they searched
-function toForm(){const v=input.value.trim();if(v){if(!R)R=search(input.value);const r=R.rows[cur];const name=R.kind==='near'&&R.place?R.place:r?r.s.name:(R.place||'');if(name)choose(name);else{setOpen(false);input.blur();}}else input.blur();if(window.mqToForm)window.mqToForm();else{const f=$('enquire');if(f)f.scrollIntoView({behavior:still.matches?'auto':'smooth',block:'start'});}}
+function needPlace(){input.focus();R=null;list.textContent='';cnt.textContent='';note.textContent='Enter your suburb or postcode first, so we can check we clean there.';note.hidden=false;root.classList.add('qs-empty');setOpen(true);reveal();root.classList.remove('qs-shake');void root.offsetWidth;root.classList.add('qs-shake');live.textContent=note.textContent;}
+function toForm(){const v=input.value.trim();if(!v){needPlace();return;}if(v){if(!R)R=search(input.value);const r=R.rows[cur];const name=R.kind==='near'&&R.place?R.place:r?r.s.name:(R.place||'');if(name)choose(name);else{setOpen(false);input.blur();}}else input.blur();if(window.mqToForm)window.mqToForm();else{const f=$('enquire');if(f)f.scrollIntoView({behavior:still.matches?'auto':'smooth',block:'start'});}}
 go.addEventListener('click',toForm);
 chips.addEventListener('click',e=>{const c=e.target.closest('.qs-chip');if(!c)return;input.value=c.dataset.s;update();if(desk())input.focus();setOpen(true);reveal();});
 lbl.addEventListener('click',()=>{if(input.value.trim())setOpen(true);});
