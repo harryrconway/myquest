@@ -1076,6 +1076,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
   function v(id){return(document.getElementById(id)||{}).value||'';}
   function clearFG(id){var el=document.getElementById(id);if(el)el.classList.remove('iq-field-err','iq-radio-err');}
   function setFG(id,radio){var el=document.getElementById(id);if(el)el.classList.add(radio?'iq-radio-err':'iq-field-err');}
+  var MIN_HRS=2;
   var BATH={'0':0,'1':0.5,'2':1,'3':1.5,'4':2,'5+':2.5};
   var BED={'1':1.5,'2':2,'3':2.5,'4':3,'5':3.5,'6':4,'7':4.5,'8+':5},HOME_BATH={'0':0,'1':0,'2':0.5,'3':1,'4':1.5,'5+':2};
   function calc(){
@@ -1098,6 +1099,7 @@ let io=new IntersectionObserver(entries=>{entries.forEach(e=>{e.isIntersecting&&
       if(kEl&&kEl.value==='yes')hrs+=0.75;
       if(bEl)hrs+=(BATH[bEl.value]||0);
     }
+    hrs=Math.max(hrs,MIN_HRS);
     var per=hrs*70;
     return{lo:r5(per*.9),hi:r5(per*1.1),per:per,hrs:hrs,freq:f.value,sqm:s?s.value:'',kitchen:kEl?kEl.value:null,bath:bEl?bEl.value:null,gst:'including GST'};
   }

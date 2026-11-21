@@ -270,6 +270,8 @@ async function sm8Get(env, path) {
 }
 
 // Same hours as the website's instant estimate, so the quote matches what the customer was shown.
+// Every job is priced at no less than the award's 2 hour minimum paid shift.
+const MIN_HOURS = 2;
 const SQM_HOURS = { 'Under 100m²': 1.5, '100 to 300m²': 3, '300 to 500m²': 5, '500m²+': 8 };
 const BATH_HOURS = { 0: 0, 1: 0.5, 2: 1, 3: 1.5, 4: 2, 5: 2.5 };
 // Homes are estimated by bedrooms, with the kitchen and first bathroom included.
@@ -295,7 +297,7 @@ function estimateHours({ sqm, cleanType, kitchen, baths, bedrooms }) {
     if (kitchen === true) hrs += 0.75;
     if (bath != null) hrs += BATH_HOURS[bath];
   }
-  return Math.round(hrs * 100) / 100;
+  return Math.round(Math.max(hrs, MIN_HOURS) * 100) / 100;
 }
 
 // The estimate in hours and minutes, so the booking can be set to the right length.
