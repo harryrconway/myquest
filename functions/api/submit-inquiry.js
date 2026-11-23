@@ -1,3 +1,4 @@
+import { fromThisSite, tooFast } from './_guard.js';
 const TO = 'hello@myquest.au';
 const REQUIRED = ['contact_name', 'email', 'mobile', 'suburb', 'space_type', 'frequency', 'heard'];
 const PERSONAL = ['home', 'ndis-dva'];
@@ -475,6 +476,7 @@ async function sendToServiceM8(env, e, validEmail, quote, description) {
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
+  if (!fromThisSite(request)) return json({ error: 'Forbidden.' }, 403);
   let body;
   try {
     body = await request.json();
@@ -491,7 +493,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (personal ? !beds : !text(body.sqm_range)) return json({ error: `Missing required field: ${personal ? 'bedrooms' : 'sqm_range'}` }, 400);
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing.
-  if (text(body.website)) return json({ success: true });
+  if (text(body.website) || tooFast(body.elapsed, 8000)) return json({ success: true });
 
   const e = Object.fromEntries(
     ['biz_name', 'contact_name', 'email', 'mobile', 'suburb', 'clean_type', 'space_type', 'sqm_range', 'frequency', 'estimate', 'notes', 'heard', 'preferred_date', 'preferred_time', 'preferred_days', 'address'].map(k => [k, text(body[k])]),

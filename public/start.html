@@ -834,6 +834,7 @@ token = (location.hash.match(/t=([A-Za-z0-9_-]{20,64})/) || [])[1] || '';
   } catch { res = null; }
   $('#pLoad').hidden = true;
   if (!res || !res.ok) {
+    if (res && res.reason === 'used') $('#badText').textContent = 'This link has already been used, so your details are with us. Call or text Harry on 0413 154 932 if you need to change anything.';
     if (res && res.reason === 'expired') $('#badText').textContent = 'This link has expired. Call or text Harry on 0413 154 932 and he\'ll send you a new one.';
     $('#pBad').hidden = false;
     return;

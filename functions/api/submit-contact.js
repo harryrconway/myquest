@@ -1,3 +1,4 @@
+import { fromThisSite, tooFast } from './_guard.js';
 const TO = 'hello@myquest.au';
 const REQUIRED = ['name', 'email', 'phone', 'message'];
 
@@ -83,6 +84,7 @@ ${ESIG}
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!fromThisSite(request)) return json({ error: 'Forbidden.' }, 403);
   let body;
   try {
     body = await request.json();
@@ -91,7 +93,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Bots fill the hidden "website" field; pretend it worked and send nothing. Matches submit-inquiry.js.
-  if (text(body.website)) return json({ success: true });
+  if (text(body.website) || tooFast(body.elapsed, 3000)) return json({ success: true });
 
   for (const field of REQUIRED) {
     if (!text(body[field])) return json({ error: `Missing required field: ${field}` }, 400);

@@ -93,7 +93,7 @@ if(form){
     formErr.style.display='none';
     var btn=form.querySelector('button[type=submit]'),orig=btn.textContent;
     btn.disabled=true;btn.textContent='Sending…';
-    fetch('/api/submit-contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name.value.trim(),email:email.value.trim(),phone:phone.value.trim(),message:msg.value.trim(),website:site.value,page:location.pathname})})
+    fetch('/api/submit-contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name.value.trim(),email:email.value.trim(),phone:phone.value.trim(),message:msg.value.trim(),website:site.value,page:location.pathname,elapsed:Math.round(performance.now())})})
       .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
       .then(function(res){
         if(!res.ok)throw new Error((res.d&&res.d.error)||'Something went wrong.');

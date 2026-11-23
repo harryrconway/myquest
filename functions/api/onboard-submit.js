@@ -1,4 +1,4 @@
-import { findInvite } from './onboard-start.js';
+import { findInvite, markUsed, fromThisSite } from './onboard-start.js';
 import { agreementPdf } from './_onboard-pdf.js';
 
 const TO = 'hello@myquest.au';
@@ -170,15 +170,17 @@ async function send(env, payload) {
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!fromThisSite(request)) return json({ ok: false }, 403);
   const len = Number(request.headers.get('Content-Length') || 0);
   if (len > MAX_TOTAL) return json({ ok: false, error: 'Your files are too large together. Try smaller photos.' }, 413);
   if (!(request.headers.get('Content-Type') || '').includes('multipart/form-data')) return json({ ok: false }, 415);
   let form;
   try { form = await request.formData(); } catch { return json({ ok: false, error: 'Something went wrong sending. Please try again.' }, 400); }
 
-  const inv = await findInvite(form.get('t'));
+  const inv = await findInvite(form.get('t'), env);
   if (!inv) return json({ ok: false, error: 'This link is not valid. Call Harry on 0413 154 932.' }, 404);
   if (inv.expired) return json({ ok: false, error: 'This link has expired. Call Harry on 0413 154 932 for a new one.' }, 410);
+  if (inv.used) return json({ ok: false, error: 'This link has already been used to send your details. Call Harry on 0413 154 932 if you need to change anything.' }, 410);
 
   let d;
   try { d = clean(JSON.parse(form.get('data') || '{}')); } catch { return json({ ok: false, error: 'Something went wrong sending. Please try again.' }, 400); }
@@ -238,6 +240,7 @@ export async function onRequestPost({ request, env }) {
   } catch (e) {
     return json({ ok: false, error: 'We could not send your details just now. Please try again in a minute, or call Harry on 0413 154 932.' }, 502);
   }
+  try { await markUsed(env, inv); } catch (e) { console.error('Could not mark the link as used:', e); }
   return json({ ok: true, ref, when: inv.induction?.when || '', suburb: inv.induction?.suburb || '' });
 }
 

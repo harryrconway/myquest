@@ -3,7 +3,9 @@
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=31536000
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  X-Permitted-Cross-Domain-Policies: none
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cloudflareinsights.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.com.au; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.com.au; font-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
 
 /assets/fonts/*
@@ -18,4 +20,11 @@
 /start
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
+  ! Referrer-Policy
   Referrer-Policy: no-referrer
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cloudflareinsights.com; img-src 'self' data: blob:; font-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'
+
+/api/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex

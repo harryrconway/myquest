@@ -1,4 +1,4 @@
-import { findInvite } from './onboard-start.js';
+import { findInvite, fromThisSite } from './onboard-start.js';
 import { agreementHtml, SAFETY_HTML, HANDBOOK_HTML } from './_onboard-docs.js';
 
 function json(data, status = 200) {
@@ -10,13 +10,15 @@ function json(data, status = 200) {
 
 const clip = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 
-export async function onRequestPost({ request }) {
+export async function onRequestPost({ request, env }) {
+  if (!fromThisSite(request)) return new Response('{"ok":false}', { status: 403, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
   if (!(request.headers.get('Content-Type') || '').includes('application/json')) return json({ ok: false }, 415);
   let body;
   try { body = await request.json(); } catch { return json({ ok: false }, 400); }
-  const inv = await findInvite(body && body.t);
+  const inv = await findInvite(body && body.t, env);
   if (!inv) return json({ ok: false, reason: 'invalid' }, 404);
   if (inv.expired) return json({ ok: false, reason: 'expired' }, 410);
+  if (inv.used) return json({ ok: false, reason: 'used' }, 410);
 
   switch (body.doc) {
     case 'agreement':
