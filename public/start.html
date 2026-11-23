@@ -17,8 +17,14 @@ a{color:var(--green);font-weight:600}
 .hl{background:var(--mint);color:var(--green);padding:0 .18em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .mq{display:block;height:30px;width:auto}
 .app{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr)}
-.side{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 0;color:var(--ink)}
+.side{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:20px 22px 0;color:var(--ink)}
 .side .big,.side .steps{display:none}
+.segs{display:flex;gap:6px;width:100%;margin-top:16px}
+.segs span{flex:1;height:5px;border-radius:3px;background:var(--hair);transition:background .3s}
+.segs span.done{background:var(--green)}
+.segs span.now{background:var(--ink)}
+.test{width:100%;margin-top:10px;font-size:12px;font-weight:600;color:var(--green);background:var(--mint);border-radius:8px;padding:6px 10px}
+.test[hidden]{display:none}
 .count{font-size:14px;color:var(--stone)}
 .main{display:flex;flex-direction:column;min-height:calc(100vh - 50px)}
 #form{display:flex;flex-direction:column;flex:1}#form[hidden]{display:none}
@@ -30,8 +36,8 @@ h1{margin:0 0 14px;font-size:clamp(32px,8vw,40px);line-height:1.06;letter-spacin
 .ready{list-style:none;margin:0 0 18px;padding:0;border-top:1px solid var(--hair)}
 .ready li{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--hair);font-size:16px}
 .ready li::before{content:'';width:8px;height:8px;background:var(--green);border-radius:50%;flex:none;margin-top:9px}
-.sec{margin:30px 0 4px;padding-top:12px;border-top:2px solid var(--ink);font-size:14px;font-weight:600}
-.sec:first-of-type{margin-top:6px}
+.sec{margin:36px 0 0;font-size:19px;font-weight:600;letter-spacing:-.01em}
+.sec:first-of-type{margin-top:24px}
 .f{display:block;margin-top:16px}
 .f>span{display:block;font-size:14px;color:var(--stone);margin-bottom:6px}
 .in{display:block;width:100%;height:52px;border:1.5px solid rgba(0,0,0,.25);border-radius:12px;background:#fff;padding:13px 14px;font-size:16px;line-height:1.4;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
@@ -74,18 +80,25 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
 .sum b{font-weight:600;color:var(--stone)}
 @media (min-width:900px){
   .app{grid-template-columns:420px minmax(0,1fr)}
-  .side{position:sticky;top:0;height:100vh;background:var(--ink);color:#fff;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:48px 48px 40px}
-  .side .count{display:none}
+  .side{position:sticky;top:0;height:100vh;background:var(--ink);color:#fff;flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;padding:48px 48px 40px}
+  .side .count,.side .segs{display:none}
   .side .mq{align-self:flex-start;height:34px}
   .pane h1{display:none}
-  .side .big{display:block;margin-top:auto;font-size:44px;line-height:1.05;letter-spacing:-.03em;font-weight:600}
+  .side .big{display:block;margin-top:44px;font-size:42px;line-height:1.06;letter-spacing:-.03em;font-weight:600;text-wrap:balance}
   .side .big .hl{color:var(--green)}
-  .side .steps{display:block;list-style:none;margin:26px 0 0;padding:0}
-  .steps li{display:flex;gap:12px;align-items:center;padding:7px 0;font-size:15px;color:#888}
-  .steps li i{width:16px;height:16px;border-radius:50%;border:2px solid #666;flex:none}
-  .steps li i{width:18px;height:18px}
-  .steps li.done{color:#9fd39b}.steps li.done i{border-color:#9fd39b;background:#9fd39b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L19 7'/%3E%3C/svg%3E") no-repeat center}
-  .steps li.now{color:#fff;font-weight:600}.steps li.now i{border-color:#fff;background:transparent}
+  .side .steps{display:block;list-style:none;margin:40px 0 0;padding:0}
+  .steps li{position:relative;display:flex;gap:16px;align-items:flex-start;padding:0 0 28px;color:#8a8a8a}
+  .steps li:not(:last-child)::after{content:'';position:absolute;left:14px;top:34px;bottom:4px;width:2px;border-radius:2px;background:#333;transition:background .4s}
+  .steps li.done::after{background:var(--mint)}
+  .steps i{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #444;box-sizing:border-box;background:#111 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") no-repeat center;transition:background-color .3s,border-color .3s,box-shadow .3s}
+  .steps b{display:block;font-size:16px;font-weight:600;line-height:1.3}
+  .steps small{display:block;margin-top:2px;font-size:13px;color:#777}
+  .steps li.done{color:#fff}.steps li.done small{color:#9fd39b}
+  .steps li.done i{border-color:var(--mint);background:var(--mint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%231d5c2a' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L19 7'/%3E%3C/svg%3E") no-repeat center}
+  .steps li.now{color:#fff}.steps li.now small{color:#9fd39b}
+  .steps li.now i{border-color:var(--mint);background:#111;box-shadow:0 0 0 6px rgba(229,244,228,.14);animation:pulse 2.4s ease-in-out infinite}
+  .steps li.now i::after{content:'';display:block;width:10px;height:10px;margin:8px;border-radius:50%;background:var(--mint)}
+  @keyframes pulse{50%{box-shadow:0 0 0 10px rgba(229,244,228,.05)}}
   .main{min-height:100vh}
   .pane{padding:56px 64px 40px}
   .bar{background:#fff;color:var(--ink);border-top:1px solid var(--hair);padding:18px 64px 22px}
@@ -94,7 +107,7 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
   .go:disabled{background:#e4e4e4;color:#777}
   .back{color:var(--ink)}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -104,10 +117,12 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
     <span class="count" id="count">New starter</span>
     <div class="big" id="big">Welcome to <span class="hl">MyQuest</span></div>
     <ol class="steps" id="steps">
-      <li data-s="1"><i></i>About you</li>
-      <li data-s="2"><i></i>Read, tick and sign</li>
-      <li data-s="3"><i></i>Before your first shift</li>
+      <li data-s="1"><i></i><span><b>About you</b><small></small></span></li>
+      <li data-s="2"><i></i><span><b>Read, tick and sign</b><small></small></span></li>
+      <li data-s="3"><i></i><span><b>Before your first shift</b><small></small></span></li>
     </ol>
+    <div class="segs" id="segs"><span></span><span></span><span></span></div>
+    <p class="test" id="test" hidden>Test link: checks are off, so you can skip ahead.</p>
   </header>
 
   <main class="main">
@@ -374,17 +389,20 @@ function paint() {
     const c = checks1();
     c.forEach(([f, ok]) => { const el = form.querySelector(`[data-f="${f}"]`); if (el) el.classList.toggle('bad', !ok && touched.has(f)); });
     const miss = c.filter(([, ok]) => !ok);
-    go.disabled = miss.length > 0; go.textContent = 'Next';
-    hint.textContent = miss.length ? `Still needed: ${miss[0][2]}${miss.length > 1 && miss.length <= 5 ? ` and ${miss.length - 1} more` : ''}` : 'All done. Tap Next.';
+    go.disabled = miss.length > 0 && !invite?.test; go.textContent = 'Next';
+    hint.textContent = miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][2]}${miss.length > 1 && miss.length <= 5 ? ` and ${miss.length - 1} more` : ''}` : 'All done. Tap Next.';
   }
   if (step === 2) { go.hidden = true; hint.textContent = 'Stage 1 test complete'; }
   $('#back').hidden = step === 0;
   $('#count').textContent = step === 0 ? 'New starter' : `${step} of 3`;
   $('#big').innerHTML = TITLES[step] || TITLES[0];
+  const NOTE = ['', 'Your details and checks', 'Agreement, handbook and safety', 'Xero, ServiceM8 and your ID'];
   document.querySelectorAll('#steps li').forEach((li) => {
     const s = +li.dataset.s;
     li.className = s < step ? 'done' : s === step ? 'now' : '';
+    li.querySelector('small').textContent = s < step ? 'Done' : s === step ? 'In progress' : step === 0 && s === 1 ? `Up first: ${NOTE[s].toLowerCase()}` : NOTE[s];
   });
+  document.querySelectorAll('#segs span').forEach((sp, i) => { sp.className = i + 1 < step ? 'done' : i + 1 === step ? 'now' : ''; });
 }
 
 function show(n) {
@@ -401,7 +419,7 @@ function summary() {
     ['Emergency contact', `${val('ecName')} (${val('ecRel')}), ${fmtMobile(mobileNorm(val('ecMobile')))}`],
     ['Right to work', pick('rtw') === 'visa' ? `Visa ${val('visaType')}, expires ${val('visaExpiry')}, ${val('visaCond')}` : pick('rtw') === 'pr' ? 'Permanent resident' : 'Citizen'],
     ['Licence', `${val('licNo')} ${val('licState')}, expires ${val('licExpiry')}`], ['Car', `${val('rego')}, ${val('insurer')}`],
-    ['Police check', `${police?.name} (${Math.round((police?.size || 0) / 1024)} KB), issued ${val('policeDate')}, ref ${val('policeRef')}`],
+    ['Police check', `${police ? `${police.name} (${Math.round(police.size / 1024)} KB)` : 'none'}, issued ${val('policeDate')}, ref ${val('policeRef')}`],
     ['NDIS screening', { have: `${val('ndisNo')}, expires ${val('ndisExp')}`, applied: `Applied, ${val('ndisApp')}`, none: 'None' }[pick('ndis')]],
     ['Blue Card', pick('blue') === 'have' ? `${val('blueNo')}, expires ${val('blueExp')}` : 'None'],
     ['White Card', pick('white') === 'have' ? val('whiteNo') : 'None'],
@@ -463,7 +481,7 @@ $('#go').addEventListener('click', () => {
   if (step === 0) return show(1);
   if (step === 1) {
     const miss = checks1().filter(([, ok]) => !ok);
-    if (miss.length) { miss.forEach(([f]) => touched.add(f)); paint(); form.querySelector('.bad')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    if (miss.length && !invite.test) { miss.forEach(([f]) => touched.add(f)); paint(); form.querySelector('.bad')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     show(2);
   }
 });
@@ -489,6 +507,7 @@ token = (location.hash.match(/t=([A-Za-z0-9_-]{20,64})/) || [])[1] || '';
     return;
   }
   invite = res;
+  $('#test').hidden = !res.test;
   $('#first').textContent = res.name.split(/\s+/)[0];
   TITLES[0] = `Welcome to MyQuest, <span class="hl">${$('#first').innerHTML}</span>`;
   $('#name').value = res.name;

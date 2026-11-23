@@ -4,6 +4,7 @@ export const INVITES = [
   {
     hash: '85e93e3ded3be9b2516c8984fcb6f129304dfabff98660293e171f8dfb306f44',
     name: 'Harry Test',
+    test: true,
     email: 'hello@myquest.au',
     expires: '2026-12-07',
     induction: { when: 'Monday 1 December, 9am', where: '12 Example Street, Nerang QLD 4211' },

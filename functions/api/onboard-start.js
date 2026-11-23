@@ -44,6 +44,7 @@ export async function onRequestPost({ request }) {
     email: inv.email,
     expires: inv.expires,
     induction: inv.induction,
+    test: !!inv.test,
   });
 }
 
