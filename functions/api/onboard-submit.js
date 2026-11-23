@@ -100,7 +100,8 @@ const EHEAD = (title) => `<!doctype html><html lang="en"><head><meta charset="ut
 const ECARD = (body) => `<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;border:1.5px solid #111111;border-radius:24px;background-color:#ffffff;color:#111111;${EF}">${body}</table>`;
 const EWRAP = (pre, card) => `<body style="margin:0;padding:0;background-color:#f2f2f0"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${pre}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f2f2f0"><tr><td align="center" style="padding:28px 12px">${card}</td></tr></table></body></html>`;
 const ELOGO = (right) => `<tr><td class="mq-pad" style="padding:28px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td><a href="${SITE}"><img src="${SITE}/assets/email-logo.png" width="106" height="30" alt="MyQuest" style="display:block;border:0"></a></td><td align="right" style="${EF};font-size:14px;color:#555555">${right}</td></tr></table></td></tr>`;
-const ESIG = `<tr><td class="mq-pad" style="padding:26px 36px 30px;${EF}"><div style="font-size:16px;line-height:24px;color:#222222">See you soon,</div><div style="font-size:24px;line-height:30px;font-weight:600;letter-spacing:-0.5px;color:#111111;padding-top:2px">Harry Conway</div><div style="padding-top:10px;font-size:14px;line-height:23px;color:#555555">MyQuest &nbsp;·&nbsp; 0413 154 932 &nbsp;·&nbsp; hello@myquest.au &nbsp;·&nbsp; myquest.au<br>MyQuest Pty Ltd &nbsp;·&nbsp; ABN 65 693 175 405</div></td></tr>`;
+const ESIG = `<tr><td class="mq-pad" style="padding:26px 36px 0;${EF}"><div style="font-size:16px;line-height:24px;color:#222222">Kind regards,</div><div style="font-size:24px;line-height:30px;font-weight:600;letter-spacing:-0.5px;color:#111111;padding-top:2px">The MyQuest team</div>
+<div style="padding-top:12px;font-size:14px;line-height:23px;color:#555555"><a href="tel:+61413154932" style="color:#111111;font-weight:600;text-decoration:none">0413 154 932</a> &nbsp;·&nbsp; <a href="mailto:hello@myquest.au" style="color:#111111;font-weight:600;text-decoration:none">hello@myquest.au</a> &nbsp;·&nbsp; <a href="${SITE}" style="color:#111111;font-weight:600;text-decoration:none">myquest.au</a><br>Gold Coast and Northern Rivers<br>MyQuest Pty Ltd &nbsp;·&nbsp; ABN 65 693 175 405</div></td></tr>`;
 const EROW = (k, v) => `<tr><td style="padding:10px 12px 10px 0;border-bottom:1px solid #eeeeec;${EF};font-size:14px;color:#555555;vertical-align:top;width:38%">${esc(k)}</td><td style="padding:10px 0;border-bottom:1px solid #eeeeec;${EF};font-size:14px;line-height:21px;color:#111111;vertical-align:top">${esc(v)}</td></tr>`;
 const ECHIP = (t) => `<span style="display:inline-block;margin:0 6px 8px 0;padding:6px 12px;border-radius:999px;background-color:#e5f4e4;color:#143f1d;${EF};font-size:13px;font-weight:600">✓ ${esc(t)}</span>`;
 
@@ -134,8 +135,9 @@ ${ELOGO(test ? 'TEST · New starter' : 'New starter')}
 <tr><td class="mq-pad" style="padding:18px 36px 0">${['Details done', 'Police check uploaded', 'Agreement signed by both', 'Handbook and safety induction read', 'Xero done', 'ServiceM8 installed', 'Induction in calendar', d.idChoice === 'upload' ? 'ID uploaded' : 'Bringing ID'].map(ECHIP).join('')}</td></tr>
 <tr><td class="mq-pad" style="padding:14px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#f4f4f2;border-radius:18px;padding:20px 22px;${EF}"><div style="font-size:16px;font-weight:600;padding-bottom:8px">What to do next</div>${steps.map((s, i) => `<div style="font-size:15px;line-height:23px;padding:5px 0"><b>${i + 1}.</b> ${esc(s)}</div>`).join('')}</td></tr></table></td></tr>
 <tr><td class="mq-pad" style="padding:22px 36px 0"><div style="${EF};font-size:16px;font-weight:600;padding-bottom:4px">${esc(first)}'s details</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.map(([k, v]) => EROW(k, v)).join('')}</table></td></tr>
-<tr><td class="mq-pad" style="padding:22px 36px 30px;${EF};font-size:12.5px;line-height:19px;color:#777777">Signed by typing their name and drawing their signature on ${esc(d.signedAt)}; MyQuest's signature was added automatically. Reference ${esc(ref)}. Nothing is stored on the website, so this email is the only copy. Tax file number, super and bank details are never collected here; they are in Xero.</td></tr>`));
-  const text = `${d.name} has finished onboarding.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nWhat to do next:\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nReference ${ref}`;
+${ESIG}
+<tr><td class="mq-pad" style="padding:26px 36px 30px;${EF};font-size:12.5px;line-height:19px;color:#777777">Signed by typing their name and drawing their signature on ${esc(d.signedAt)}; MyQuest's signature was added automatically. Reference ${esc(ref)}. Nothing is stored on the website, so this email is the only copy. Tax file number, super and bank details are never collected here; they are in Xero.</td></tr>`));
+  const text = `${d.name} has finished onboarding.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nWhat to do next:\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nReference ${ref}\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
   return { html, text };
 }
 
@@ -143,7 +145,7 @@ function starterEmail(d, inv) {
   const first = d.name.split(/\s+/)[0];
   const ind = inv.induction || {};
   const html = EHEAD('Welcome to MyQuest') + EWRAP('Your signed agreement is attached', ECARD(`
-${ELOGO('Welcome')}
+${ELOGO('')}
 <tr><td class="mq-pad" style="padding:22px 36px 0"><h1 class="mq-h1" style="margin:0;${EF};font-size:34px;line-height:40px;font-weight:600;letter-spacing:-1px">Thanks ${esc(first)}, you're <span style="${EHL}">all set</span></h1></td></tr>
 <tr><td class="mq-pad" style="padding:14px 36px 0;${EF};font-size:16px;line-height:25px;color:#222222">We've got everything we need. Your casual employment agreement, signed by you and by MyQuest, is attached for your records.</td></tr>
 <tr><td class="mq-pad" style="padding:20px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#111111;border-radius:18px;padding:20px 22px;${EF};color:#ffffff"><div style="font-size:13px;color:#cfcfcf">Your induction</div><div style="font-size:20px;font-weight:600;padding-top:4px">${esc(ind.when || 'We will confirm the date with you')}</div><div style="font-size:14px;line-height:21px;color:#dddddd;padding-top:4px">${ind.suburb ? `In ${esc(ind.suburb)}. ` : ''}We'll text you the exact address the day before. Wear enclosed shoes.${d.idChoice === 'bring' ? ' Bring your driver licence and your passport or birth certificate.' : ''}</div></td></tr></table></td></tr>
@@ -151,9 +153,10 @@ ${ELOGO('Welcome')}
 <div style="padding:4px 0"><b>On the day:</b> we go through the safety induction together, then your first clean.</div>
 <div style="padding:4px 0"><b>Your jobs</b> appear in the ServiceM8 app, with the address, access notes and checklist.</div>
 <div style="padding:4px 0"><b>Getting paid:</b> weekly, every Wednesday, into the account you gave Xero. Pay slips come from Xero.</div></td></tr>
-<tr><td class="mq-pad" style="padding:18px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222">Any questions at all, call or text me on 0413 154 932.</td></tr>
-${ESIG}`));
-  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, is attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nHarry Conway\nMyQuest`;
+<tr><td class="mq-pad" style="padding:18px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222">Any questions at all, call or text Harry on 0413 154 932.</td></tr>
+${ESIG}
+<tr><td style="padding:0 0 30px;font-size:0;line-height:0">&nbsp;</td></tr>`));
+  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, is attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
   return { html, text };
 }
 
