@@ -693,10 +693,10 @@ function padState() {
   n.textContent = ok ? 'Signature added' : any ? 'Keep going: draw your full signature' : 'Use your finger on a phone, or your mouse or trackpad on a computer.';
   paint();
 }
-cv.addEventListener('pointerdown', (e) => { e.preventDefault(); drawing = true; cv.setPointerCapture(e.pointerId); strokes.push([pt(e)]); seg(strokes[strokes.length - 1]); });
+cv.addEventListener('pointerdown', (e) => { e.preventDefault(); drawing = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {} strokes.push([pt(e)]); seg(strokes[strokes.length - 1]); });
 cv.addEventListener('pointermove', (e) => {
   if (!drawing) return; e.preventDefault();
-  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : []; if (!evs.length) evs = [e];
   const st = strokes[strokes.length - 1]; evs.forEach((ev) => st.push(pt(ev)));
   redraw();
 });
