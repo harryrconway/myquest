@@ -124,7 +124,8 @@ function teamEmail(d, inv, files, ref, test) {
     'Open the police check' + (d.idChoice === 'upload' ? ' and ID photos' : '') + ' attached and make sure they look right.',
     'In Xero, go to Payroll, Employees, Onboarding, check their details and approve them.',
     'Add them as staff in ServiceM8 with the Staff (No pricing) role, if you haven’t yet.',
-    `At the induction (${inv.induction?.when || 'date to confirm'}): ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together and sign the induction record.`,
+    `The day before the induction (${inv.induction?.when || 'date to confirm'}${inv.induction?.suburb ? `, ${inv.induction.suburb}` : ''}), text them the exact address. They have been told to expect it.`,
+    `At the induction: ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together and sign the induction record.`,
     'Save the signed agreement and police check in their folder in Staff Records. Claude can do this in the morning report.',
   ];
   const html = EHEAD('New starter') + EWRAP(`${d.name} has finished onboarding`, ECARD(`
@@ -146,14 +147,14 @@ function starterEmail(d, inv) {
 ${ELOGO('Welcome')}
 <tr><td class="mq-pad" style="padding:22px 36px 0"><h1 class="mq-h1" style="margin:0;${EF};font-size:34px;line-height:40px;font-weight:600;letter-spacing:-1px">Thanks ${esc(first)}, you're <span style="${EHL}">all set</span></h1></td></tr>
 <tr><td class="mq-pad" style="padding:14px 36px 0;${EF};font-size:16px;line-height:25px;color:#222222">We've got everything we need. Your casual employment agreement, signed by you and by MyQuest, is attached for your records.</td></tr>
-<tr><td class="mq-pad" style="padding:20px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#111111;border-radius:18px;padding:20px 22px;${EF};color:#ffffff"><div style="font-size:13px;color:#cfcfcf">Your induction</div><div style="font-size:20px;font-weight:600;padding-top:4px">${esc(ind.when || 'We will confirm the date with you')}</div><div style="font-size:14px;line-height:21px;color:#dddddd;padding-top:4px">${esc(ind.where || '')}${ind.where ? '. ' : ''}Wear enclosed shoes.${d.idChoice === 'bring' ? ' Bring your driver licence and your passport or birth certificate.' : ''}</div></td></tr></table></td></tr>
+<tr><td class="mq-pad" style="padding:20px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#111111;border-radius:18px;padding:20px 22px;${EF};color:#ffffff"><div style="font-size:13px;color:#cfcfcf">Your induction</div><div style="font-size:20px;font-weight:600;padding-top:4px">${esc(ind.when || 'We will confirm the date with you')}</div><div style="font-size:14px;line-height:21px;color:#dddddd;padding-top:4px">${ind.suburb ? `In ${esc(ind.suburb)}. ` : ''}We'll text you the exact address the day before. Wear enclosed shoes.${d.idChoice === 'bring' ? ' Bring your driver licence and your passport or birth certificate.' : ''}</div></td></tr></table></td></tr>
 <tr><td class="mq-pad" style="padding:22px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222"><div style="font-size:16px;font-weight:600;padding-bottom:6px">What happens next</div>
 <div style="padding:4px 0"><b>On the day:</b> we go through the safety induction together, then your first clean.</div>
 <div style="padding:4px 0"><b>Your jobs</b> appear in the ServiceM8 app, with the address, access notes and checklist.</div>
 <div style="padding:4px 0"><b>Getting paid:</b> weekly, every Wednesday, into the account you gave Xero. Pay slips come from Xero.</div></td></tr>
 <tr><td class="mq-pad" style="padding:18px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222">Any questions at all, call or text me on 0413 154 932.</td></tr>
 ${ESIG}`));
-  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, is attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.where ? `, ${ind.where}` : ''}. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nHarry Conway\nMyQuest`;
+  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, is attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nHarry Conway\nMyQuest`;
   return { html, text };
 }
 
@@ -211,7 +212,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const png = d.signature.startsWith('data:image/png;base64,') ? Uint8Array.from(atob(d.signature.split(',')[1]), (c) => c.charCodeAt(0)) : null;
     pdfBytes = await agreementPdf({
-      name: d.name, address: d.address, start: inv.start || inv.induction?.when || '', email: d.email,
+      name: d.name, address: d.address, start: inv.start || '', email: d.email,
       signedAt, sentAt, ip: request.headers.get('CF-Connecting-IP') || '', signaturePng: png, ref,
     });
   } catch (e) {
@@ -235,7 +236,7 @@ export async function onRequestPost({ request, env }) {
   } catch (e) {
     return json({ ok: false, error: 'We could not send your details just now. Please try again in a minute, or call Harry on 0413 154 932.' }, 502);
   }
-  return json({ ok: true, ref, when: inv.induction?.when || '', where: inv.induction?.where || '' });
+  return json({ ok: true, ref, when: inv.induction?.when || '', suburb: inv.induction?.suburb || '' });
 }
 
 export async function onRequest() {

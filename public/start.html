@@ -793,7 +793,7 @@ async function send() {
     $('#doneName').textContent = val('name').split(/\s+/)[0] || invite.name.split(/\s+/)[0];
     $('#doneText').textContent = `We've emailed your signed agreement to ${val('email') || invite.email}. Harry has your details too.`;
     $('#doneWhen').textContent = res.when || 'We\'ll confirm the date with you';
-    $('#doneWhere').textContent = `${res.where ? res.where + '. ' : ''}Wear enclosed shoes${pick('idChoice') === 'bring' ? ', and bring your licence and passport or birth certificate' : ''}.`;
+    $('#doneWhere').textContent = `${res.suburb ? 'In ' + res.suburb + '. ' : ''}We'll text you the exact address the day before. Wear enclosed shoes${pick('idChoice') === 'bring' ? ', and bring your licence and passport or birth certificate' : ''}.`;
     show(4);
   } catch (e) {
     sending = false;
@@ -838,7 +838,7 @@ token = (location.hash.match(/t=([A-Za-z0-9_-]{20,64})/) || [])[1] || '';
     return;
   }
   invite = res;
-  if (res.induction && res.induction.when) $('#indText').textContent = `${res.induction.when}${res.induction.where ? ', ' + res.induction.where : ''}. Add it to your phone's calendar, then tick this.`;
+  if (res.induction && res.induction.when) $('#indText').textContent = `${res.induction.when}${res.induction.suburb ? ', in ' + res.induction.suburb : ''}. We'll text you the exact address the day before. Add it to your phone's calendar, then tick this.`;
   $('#test').hidden = !res.test;
   $('#first').textContent = res.name.split(/\s+/)[0];
   TITLES[0] = `Welcome to MyQuest, <span class="hl">${$('#first').innerHTML}</span>`;

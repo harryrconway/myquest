@@ -26,7 +26,7 @@ export async function onRequestPost({ request }) {
         html: agreementHtml({
           name: clip(body.name, 80) || inv.name,
           address: clip(body.address, 160),
-          start: inv.start || (inv.induction && inv.induction.when) || '',
+          start: inv.start || '',
         }),
       });
     case 'handbook':

@@ -11,7 +11,7 @@ export function agreementHtml({ name, address, start }) {
 <tr><th>Employer</th><td>MyQuest Pty Ltd, ABN 65 693 175 405, ACN 693 175 405</td></tr>
 <tr><th>Employee</th><td>${esc(name)}</td></tr>
 <tr><th>Employee address</th><td>${esc(address) || 'As given in step 1'}</td></tr>
-<tr><th>Start date</th><td>${esc(start)}</td></tr>
+<tr><th>Start date</th><td>${start ? `On or about ${esc(start)}` : 'The date of your induction'}</td></tr>
 <tr><th>Position</th><td>Cleaner (casual)</td></tr>
 <tr><th>Award</th><td>Cleaning Services Award 2020 (MA000022), Cleaning Services Employee Level 1</td></tr>
 <tr><th>Pay</th><td>Per job: the job’s estimated hours × $35.00, with the award guarantee in clause 5</td></tr>

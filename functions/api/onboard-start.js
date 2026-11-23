@@ -43,7 +43,7 @@ export async function onRequestPost({ request }) {
     name: inv.name,
     email: inv.email,
     expires: inv.expires,
-    induction: inv.induction,
+    induction: { when: inv.induction?.when || '', suburb: inv.induction?.suburb || '' },
     test: !!inv.test,
   });
 }
