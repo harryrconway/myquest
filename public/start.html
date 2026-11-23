@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>New starter | MyQuest</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url(/assets/fonts/instrument-sans.woff2) format('woff2')}
+:root{--ink:#111;--stone:#555;--hair:#e3e3e0;--green:#1d5c2a;--mint:#e5f4e4;--red:#b42318;--bg:#fff}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'Instrument Sans',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--green);font-weight:600}
+.hl{background:var(--mint);color:var(--green);padding:0 .18em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.mq{display:block;height:30px;width:auto}
+.app{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr)}
+.side{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 0;color:var(--ink)}
+.side .big,.side .steps{display:none}
+.count{font-size:14px;color:var(--stone)}
+.main{display:flex;flex-direction:column;min-height:calc(100vh - 50px)}
+#form{display:flex;flex-direction:column;flex:1}#form[hidden]{display:none}
+.pane{padding:22px 22px 28px;max-width:640px;width:100%;flex:1}
+.pane[hidden]{display:none}
+h1{margin:0 0 14px;font-size:clamp(32px,8vw,40px);line-height:1.06;letter-spacing:-.03em;font-weight:600;text-wrap:balance}
+.lede{margin:0 0 18px;font-size:17px;color:#333}
+.note{font-size:13px;color:var(--stone);margin:6px 0 0}
+.ready{list-style:none;margin:0 0 18px;padding:0;border-top:1px solid var(--hair)}
+.ready li{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--hair);font-size:16px}
+.ready li::before{content:'';width:20px;height:20px;border:2px solid var(--ink);border-radius:5px;flex:none;margin-top:2px}
+.sec{margin:30px 0 4px;padding-top:12px;border-top:2px solid var(--ink);font-size:14px;font-weight:600}
+.sec:first-of-type{margin-top:6px}
+.f{display:block;margin-top:16px}
+.f>span{display:block;font-size:14px;color:var(--stone)}
+.in{display:block;width:100%;border:0;border-bottom:2px solid var(--ink);border-radius:0;background:transparent;padding:10px 0 8px;font-size:17px;min-height:46px;outline:none;-webkit-appearance:none;appearance:none}
+textarea.in{resize:vertical;min-height:84px}
+.in:focus{border-bottom-color:var(--green);box-shadow:0 2px 0 var(--green)}
+.bad .in{border-bottom-color:var(--red)}
+.err{display:none;margin-top:6px;font-size:13px;font-weight:600;font-style:normal;color:var(--red)}
+.bad .err{display:block}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+.q{margin:20px 0 8px;font-size:15px;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{position:relative}
+.pill input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.pill span{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1.5px solid #c9c9c6;border-radius:999px;font-size:15px;font-weight:600;color:#333;background:#fff;transition:background .15s,color .15s,border-color .15s}
+.pill input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.pill input:focus-visible+span{outline:3px solid var(--mint);outline-offset:2px}
+.more[hidden]{display:none}
+.more{padding-left:14px;border-left:2px solid var(--mint);margin-top:4px}
+.sug{margin-top:8px;border:1.5px solid var(--hair);border-radius:12px;overflow:hidden}
+.sug[hidden]{display:none}
+.sug button{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--hair);padding:11px 14px;font-size:16px;cursor:pointer}
+.sug button:last-child{border-bottom:0}
+.sug button:hover,.sug button:focus-visible{background:var(--mint);color:var(--green);outline:none}
+.drop{display:flex;align-items:center;gap:10px;min-height:56px;margin-top:8px;padding:10px 14px;border:1.5px dashed #999;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;position:relative}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop.ok{border:1.5px solid var(--green);background:var(--mint);color:var(--green)}
+.drop svg{flex:none}
+.bar{position:sticky;bottom:0;background:var(--ink);color:#fff;padding:14px 22px calc(18px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:14px;z-index:5}
+.hint{font-size:13px;color:#bbb;line-height:1.35}
+.go{flex:none;min-height:50px;padding:0 24px;border:0;border-radius:10px;background:#fff;color:var(--ink);font-size:16px;font-weight:600;cursor:pointer}
+.go:disabled{background:#3a3a3a;color:#9a9a9a;cursor:not-allowed}
+.go.green{background:var(--mint);color:var(--green)}
+.back{background:transparent;border:0;color:#ddd;font-size:15px;font-weight:600;cursor:pointer;padding:12px 0}
+.back[hidden]{display:none}
+.msg{padding:60px 22px;max-width:560px}
+.sum{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair);font-size:15px}
+.sum li{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--hair)}
+.sum b{font-weight:600;color:var(--stone)}
+@media (min-width:900px){
+  .app{grid-template-columns:420px minmax(0,1fr)}
+  .side{position:sticky;top:0;height:100vh;background:var(--ink);color:#fff;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:48px 48px 40px}
+  .side .count{display:none}
+  .side .mq{align-self:flex-start;height:34px}
+  .pane h1{display:none}
+  .side .big{display:block;margin-top:auto;font-size:44px;line-height:1.05;letter-spacing:-.03em;font-weight:600}
+  .side .big .hl{color:var(--green)}
+  .side .steps{display:block;list-style:none;margin:26px 0 0;padding:0}
+  .steps li{display:flex;gap:12px;align-items:center;padding:7px 0;font-size:15px;color:#888}
+  .steps li i{width:16px;height:16px;border-radius:50%;border:2px solid #666;flex:none}
+  .steps li.done{color:#9fd39b}.steps li.done i{border-color:#9fd39b;background:#9fd39b}
+  .steps li.now{color:#fff;font-weight:600}.steps li.now i{border-color:#fff;background:#fff}
+  .main{min-height:100vh}
+  .pane{padding:56px 64px 40px}
+  .bar{background:#fff;color:var(--ink);border-top:1px solid var(--hair);padding:18px 64px 22px}
+  .hint{color:var(--stone)}
+  .go{background:var(--ink);color:#fff}
+  .go:disabled{background:#e4e4e4;color:#777}
+  .back{color:var(--ink)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="side">
+    <svg class="mq" viewBox="477 540 570 300" fill="currentColor" role="img" aria-label="MyQuest"><path transform="translate(456.197547,827.999909)" d="M268.8 0V-217.6H268L192 0H148.8L72.8-217.6H72V0H29.2V-276H93.2L170-55.6H170.8L248-276H311.6V0Z"/><path transform="translate(776.994869,827.999909)" d="M189.2-138C189.2-148.1 188.6-159.5 187.4-172.2 186.2-184.9 183.6-196.7 179.6-207.8 175.6-218.9 169.6-228.2 161.6-235.8 153.6-243.4 142.8-247.2 129.2-247.2 115.6-247.2 104.8-243.4 96.8-235.8 88.8-228.2 82.7-218.9 78.6-207.8 74.5-196.7 71.9-184.9 70.8-172.2 69.7-159.5 69.2-148.1 69.2-138 69.2-127.9 69.8-116.7 71-104.6 72.2-92.5 74.8-81.1 78.8-70.4 82.8-59.7 88.8-50.9 96.8-43.8 104.8-36.7 115.6-33.2 129.2-33.2 142.8-33.2 153.5-36.7 161.4-43.8 169.3-50.9 175.3-59.7 179.4-70.4 183.5-81.1 186.2-92.5 187.4-104.6 188.6-116.7 189.2-127.9 189.2-138ZM129.2 0C107.6 0 89.6-3.6 75.2-10.8 60.8-18 49.3-27.8 40.8-40.2 32.3-52.6 26.3-67.2 22.8-84 19.3-100.8 17.6-118.8 17.6-138 17.6-157.2 19.3-175.4 22.6-192.6 25.9-209.8 31.8-224.9 40.2-238 48.6-251.1 60-261.4 74.4-269 88.8-276.6 107.1-280.4 129.2-280.4 151.1-280.4 169.2-276.6 183.6-269 198-261.4 209.5-251.1 218-238 226.5-224.9 232.5-209.8 235.8-192.6 239.1-175.4 240.8-157.2 240.8-138 240.8-129.2 240.4-120.1 239.6-110.8 238.8-101.5 237.4-92.2 235.4-83 233.4-73.8 230.5-64.9 226.8-56.4 223.1-47.9 218.3-40.1 212.4-33.2L262.4-36V0Z"/></svg>
+    <span class="count" id="count">New starter</span>
+    <div class="big" id="big">Welcome to <span class="hl">MyQuest</span></div>
+    <ol class="steps" id="steps">
+      <li data-s="1"><i></i>01 About you</li>
+      <li data-s="2"><i></i>02 Read, tick and sign</li>
+      <li data-s="3"><i></i>03 Before your first shift</li>
+    </ol>
+  </header>
+
+  <main class="main">
+    <section class="msg" id="pLoad"><p class="lede">Checking your link…</p></section>
+
+    <section class="msg" id="pBad" hidden>
+      <h1>This link <span class="hl">isn't working</span></h1>
+      <p class="lede" id="badText">It may have expired or been copied incorrectly. Call or text Harry on 0413 154 932 and he'll send you a new one.</p>
+    </section>
+
+    <form id="form" novalidate hidden>
+      <section class="pane" id="p0">
+        <h1>Welcome to MyQuest, <span class="hl" id="first">there</span></h1>
+        <p class="lede">Three steps, about 10 minutes. Have these ready before you start:</p>
+        <ul class="ready">
+          <li>Your national police check (PDF or photo)</li>
+          <li>Your driver licence and car details</li>
+          <li>An emergency contact's name and mobile</li>
+          <li>Any NDIS, Blue Card or White Card numbers, if you have them</li>
+        </ul>
+        <p class="note">Nothing is saved until you send at the end, so finish it in one go. Your details only go to MyQuest. <a href="/policies">Privacy policy</a></p>
+      </section>
+
+      <section class="pane" id="p1" hidden>
+        <h1>Tell us <span class="hl">about you</span></h1>
+
+        <div class="sec">Your contact details</div>
+        <label class="f" data-f="name"><span>Full legal name</span><input class="in" id="name" name="name" autocomplete="name" maxlength="80"><em class="err">Enter your full name, first and last.</em></label>
+        <label class="f" data-f="mobile"><span>Mobile</span><input class="in" id="mobile" name="mobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="04"><em class="err">Enter an Australian mobile: 10 digits starting with 04.</em></label>
+        <label class="f" data-f="email"><span>Email</span><input class="in" id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120"><em class="err">Enter a real email address, like name@gmail.com.</em></label>
+        <div class="sug" id="sug" hidden role="listbox" aria-label="Email suggestions"></div>
+        <label class="f" data-f="address"><span>Home address (street, suburb, state, postcode)</span><input class="in" id="address" name="address" autocomplete="street-address" maxlength="160"><em class="err">Enter your full home address, including the postcode.</em></label>
+        <label class="f" data-f="dob"><span>Date of birth</span><input class="in" id="dob" name="dob" type="date" autocomplete="bday"><em class="err">Enter your date of birth.</em></label>
+
+        <div class="sec">Emergency contact</div>
+        <div class="two">
+          <label class="f" data-f="ecName"><span>Their name</span><input class="in" id="ecName" name="ecName" maxlength="80"><em class="err">Enter their name.</em></label>
+          <label class="f" data-f="ecRel"><span>Relationship to you</span><input class="in" id="ecRel" name="ecRel" maxlength="40" placeholder="Partner, parent, friend"><em class="err">How do you know them?</em></label>
+        </div>
+        <label class="f" data-f="ecMobile"><span>Their mobile</span><input class="in" id="ecMobile" name="ecMobile" type="tel" inputmode="tel" maxlength="16" placeholder="04"><em class="err">Enter an Australian mobile: 10 digits starting with 04.</em></label>
+
+        <div class="sec">Right to work in Australia</div>
+        <div class="pills" data-g="rtw">
+          <label class="pill"><input type="radio" name="rtw" value="citizen"><span>Australian or NZ citizen</span></label>
+          <label class="pill"><input type="radio" name="rtw" value="pr"><span>Permanent resident</span></label>
+          <label class="pill"><input type="radio" name="rtw" value="visa"><span>Visa holder</span></label>
+        </div>
+        <div class="more" data-show="rtw=visa" hidden>
+          <div class="two">
+            <label class="f" data-f="visaType"><span>Visa subclass</span><input class="in" id="visaType" name="visaType" maxlength="40" placeholder="For example, 500"><em class="err">Enter your visa subclass.</em></label>
+            <label class="f" data-f="visaExpiry"><span>Visa expiry</span><input class="in" id="visaExpiry" name="visaExpiry" type="date"><em class="err">Enter a date in the future.</em></label>
+          </div>
+          <label class="f" data-f="visaCond"><span>Any work conditions on your visa?</span><input class="in" id="visaCond" name="visaCond" maxlength="160" placeholder="For example, 48 hours a fortnight, or none"><em class="err">Tell us any conditions, or write none.</em></label>
+        </div>
+
+        <div class="sec">Driving</div>
+        <div class="two">
+          <label class="f" data-f="licNo"><span>Driver licence number</span><input class="in" id="licNo" name="licNo" maxlength="20" autocapitalize="characters"><em class="err">Enter your licence number.</em></label>
+          <label class="f" data-f="licState"><span>Licence state</span><select class="in" id="licState" name="licState"><option value="">Choose</option><option>QLD</option><option>NSW</option><option>VIC</option><option>SA</option><option>WA</option><option>TAS</option><option>NT</option><option>ACT</option></select><em class="err">Choose a state.</em></label>
+          <label class="f" data-f="licExpiry"><span>Licence expiry</span><input class="in" id="licExpiry" name="licExpiry" type="date"><em class="err">Enter a date in the future.</em></label>
+          <label class="f" data-f="rego"><span>Car registration</span><input class="in" id="rego" name="rego" maxlength="10" autocapitalize="characters"><em class="err">Enter your rego.</em></label>
+        </div>
+        <label class="f" data-f="insurer"><span>Car insurer and cover</span><input class="in" id="insurer" name="insurer" maxlength="80" placeholder="For example, RACQ comprehensive"><em class="err">Enter your insurer.</em></label>
+
+        <div class="sec">Checks and cards</div>
+        <div class="q">National police check</div>
+        <label class="drop" id="policeDrop" data-f="police">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+          <span id="policeText">Take a photo or upload (PDF or photo, up to 10 MB)</span>
+          <input type="file" id="police" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif">
+        </label>
+        <p class="err" id="policeErr" style="display:none"></p>
+        <div class="two">
+          <label class="f" data-f="policeDate"><span>Date issued</span><input class="in" id="policeDate" name="policeDate" type="date"><em class="err">Enter the date on your check.</em></label>
+          <label class="f" data-f="policeRef"><span>Reference number</span><input class="in" id="policeRef" name="policeRef" maxlength="40"><em class="err">Enter the reference number.</em></label>
+        </div>
+
+        <div class="q">NDIS Worker Screening Check</div>
+        <div class="pills" data-g="ndis">
+          <label class="pill"><input type="radio" name="ndis" value="have"><span>I have one</span></label>
+          <label class="pill"><input type="radio" name="ndis" value="applied"><span>I've applied</span></label>
+          <label class="pill"><input type="radio" name="ndis" value="none"><span>I don't have one</span></label>
+        </div>
+        <p class="note" data-show="ndis=none" hidden>That's fine. We'll tell you if a job needs one and help you apply.</p>
+        <div class="more" data-show="ndis=have" hidden><div class="two">
+          <label class="f" data-f="ndisNo"><span>Clearance number</span><input class="in" id="ndisNo" name="ndisNo" maxlength="30"><em class="err">Enter the clearance number.</em></label>
+          <label class="f" data-f="ndisExp"><span>Expiry</span><input class="in" id="ndisExp" name="ndisExp" type="date"><em class="err">Enter a date in the future.</em></label>
+        </div></div>
+        <div class="more" data-show="ndis=applied" hidden>
+          <label class="f" data-f="ndisApp"><span>Application number</span><input class="in" id="ndisApp" name="ndisApp" maxlength="30"><em class="err">Enter your application number.</em></label>
+        </div>
+
+        <div class="q">Blue Card (QLD) or Working with Children Check (NSW)</div>
+        <div class="pills" data-g="blue">
+          <label class="pill"><input type="radio" name="blue" value="have"><span>I have one</span></label>
+          <label class="pill"><input type="radio" name="blue" value="none"><span>I don't have one</span></label>
+        </div>
+        <div class="more" data-show="blue=have" hidden><div class="two">
+          <label class="f" data-f="blueNo"><span>Card number</span><input class="in" id="blueNo" name="blueNo" maxlength="30"><em class="err">Enter the card number.</em></label>
+          <label class="f" data-f="blueExp"><span>Expiry</span><input class="in" id="blueExp" name="blueExp" type="date"><em class="err">Enter a date in the future.</em></label>
+        </div></div>
+
+        <div class="q">White Card (construction sites)</div>
+        <div class="pills" data-g="white">
+          <label class="pill"><input type="radio" name="white" value="have"><span>I have one</span></label>
+          <label class="pill"><input type="radio" name="white" value="none"><span>I don't have one</span></label>
+        </div>
+        <div class="more" data-show="white=have" hidden>
+          <label class="f" data-f="whiteNo"><span>Card number</span><input class="in" id="whiteNo" name="whiteNo" maxlength="30"><em class="err">Enter the card number.</em></label>
+        </div>
+
+        <div class="q">First aid certificate</div>
+        <div class="pills" data-g="aid">
+          <label class="pill"><input type="radio" name="aid" value="have"><span>I have one</span></label>
+          <label class="pill"><input type="radio" name="aid" value="none"><span>I don't have one</span></label>
+        </div>
+        <div class="more" data-show="aid=have" hidden>
+          <label class="f" data-f="aidExp"><span>Expiry</span><input class="in" id="aidExp" name="aidExp" type="date"><em class="err">Enter a date in the future.</em></label>
+        </div>
+
+        <div class="q">QLeave worker number (from another cleaning job)</div>
+        <div class="pills" data-g="qleave">
+          <label class="pill"><input type="radio" name="qleave" value="have"><span>I have one</span></label>
+          <label class="pill"><input type="radio" name="qleave" value="none"><span>I don't have one</span></label>
+        </div>
+        <div class="more" data-show="qleave=have" hidden>
+          <label class="f" data-f="qleaveNo"><span>QLeave worker number</span><input class="in" id="qleaveNo" name="qleaveNo" maxlength="20"><em class="err">Enter the number.</em></label>
+        </div>
+
+        <div class="sec">When you can work</div>
+        <div class="q">Days</div>
+        <div class="pills" data-g="days">
+          <label class="pill"><input type="checkbox" name="days" value="Mon"><span>Mon</span></label>
+          <label class="pill"><input type="checkbox" name="days" value="Tue"><span>Tue</span></label>
+          <label class="pill"><input type="checkbox" name="days" value="Wed"><span>Wed</span></label>
+          <label class="pill"><input type="checkbox" name="days" value="Thu"><span>Thu</span></label>
+          <label class="pill"><input type="checkbox" name="days" value="Fri"><span>Fri</span></label>
+          <label class="pill"><input type="checkbox" name="days" value="Sat"><span>Sat</span></label>
+          <label class="pill"><input type="checkbox" name="days" value="Sun"><span>Sun</span></label>
+        </div>
+        <div class="q">Times</div>
+        <div class="pills" data-g="times">
+          <label class="pill"><input type="checkbox" name="times" value="Early morning"><span>Early morning</span></label>
+          <label class="pill"><input type="checkbox" name="times" value="Daytime"><span>Daytime</span></label>
+          <label class="pill"><input type="checkbox" name="times" value="Evening"><span>Evening</span></label>
+        </div>
+
+        <div class="sec">Uniform and safety</div>
+        <div class="q">Shirt size</div>
+        <div class="pills" data-g="shirt">
+          <label class="pill"><input type="radio" name="shirt" value="S"><span>S</span></label>
+          <label class="pill"><input type="radio" name="shirt" value="M"><span>M</span></label>
+          <label class="pill"><input type="radio" name="shirt" value="L"><span>L</span></label>
+          <label class="pill"><input type="radio" name="shirt" value="XL"><span>XL</span></label>
+          <label class="pill"><input type="radio" name="shirt" value="2XL"><span>2XL</span></label>
+          <label class="pill"><input type="radio" name="shirt" value="3XL"><span>3XL</span></label>
+        </div>
+        <div class="q">Any allergies, injuries or anything we should know to keep you safe?</div>
+        <div class="pills" data-g="health">
+          <label class="pill"><input type="radio" name="health" value="no"><span>No</span></label>
+          <label class="pill"><input type="radio" name="health" value="yes"><span>Yes, I'll explain</span></label>
+        </div>
+        <div class="more" data-show="health=yes" hidden>
+          <label class="f" data-f="healthText"><span>Tell us what we should know (kept private)</span><textarea class="in" id="healthText" name="healthText" maxlength="600"></textarea><em class="err">Tell us a little more.</em></label>
+        </div>
+
+        <p class="note" style="margin-top:28px">We use these details to employ you and keep you safe at work. Only MyQuest sees them. Your tax file number and bank details go through Xero, never this form.</p>
+      </section>
+
+      <section class="pane" id="p2" hidden>
+        <h1>Step 1 <span class="hl">done</span></h1>
+        <p class="lede">Step 2 (read, tick and sign) is the next stage we build. Here's what you entered, so you can check it all came through.</p>
+        <ul class="sum" id="sum"></ul>
+      </section>
+
+      <div class="bar">
+        <button type="button" class="back" id="back" hidden>Back</button>
+        <span class="hint" id="hint"></span>
+        <button type="button" class="go" id="go">Start</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script>
+{
+const $ = (s) => document.querySelector(s);
+const form = $('#form');
+const DOMAINS = ['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.com','yahoo.com.au','live.com.au','outlook.com.au','bigpond.com','me.com'];
+let TITLES = ['Welcome to <span class="hl">MyQuest</span>','Tell us <span class="hl">about you</span>','Read, tick and <span class="hl">sign</span>','Ready for your <span class="hl">first shift</span>?'];
+let step = 0, invite = null, police = null, token = '';
+const touched = new Set();
+
+const val = (id) => ($('#' + id)?.value || '').trim();
+const pick = (g) => form.querySelector(`input[name="${g}"]:checked`)?.value || '';
+const picks = (g) => [...form.querySelectorAll(`input[name="${g}"]:checked`)].map((i) => i.value);
+const today = () => new Date(new Date().toDateString());
+const future = (d) => !!d && new Date(d + 'T00:00:00') >= today();
+
+function mobileNorm(v) {
+  let d = v.replace(/[\s()-]/g, '');
+  if (d.startsWith('+61')) d = '0' + d.slice(3); else if (d.startsWith('61') && d.length === 11) d = '0' + d.slice(2);
+  return /^04\d{8}$/.test(d) ? d : '';
+}
+const fmtMobile = (d) => `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7)}`;
+const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v) && !/\.\./.test(v);
+
+// Every check for step 1, in the order the form shows them: [field, passes, short name for the hint]
+function checks1() {
+  const dob = val('dob');
+  const age = dob ? (today() - new Date(dob + 'T00:00:00')) / 31557600000 : 0;
+  const c = [
+    ['name', /\S+\s+\S+/.test(val('name')), 'your full name'],
+    ['mobile', !!mobileNorm(val('mobile')), 'your mobile'],
+    ['email', emailOk(val('email')), 'your email'],
+    ['address', val('address').length >= 10 && /\d{4}\s*$/.test(val('address')), 'your address with postcode'],
+    ['dob', age >= 15 && age < 90, 'your date of birth'],
+    ['ecName', val('ecName').length >= 2, 'emergency contact name'],
+    ['ecRel', val('ecRel').length >= 2, 'their relationship to you'],
+    ['ecMobile', !!mobileNorm(val('ecMobile')) && mobileNorm(val('ecMobile')) !== mobileNorm(val('mobile')), 'their mobile'],
+    ['rtw', !!pick('rtw'), 'right to work'],
+  ];
+  if (pick('rtw') === 'visa') c.push(['visaType', val('visaType').length >= 2, 'visa subclass'], ['visaExpiry', future(val('visaExpiry')), 'visa expiry'], ['visaCond', val('visaCond').length >= 2, 'visa conditions']);
+  c.push(
+    ['licNo', val('licNo').length >= 4, 'licence number'],
+    ['licState', !!val('licState'), 'licence state'],
+    ['licExpiry', future(val('licExpiry')), 'licence expiry'],
+    ['rego', val('rego').length >= 2, 'car rego'],
+    ['insurer', val('insurer').length >= 2, 'car insurer'],
+    ['police', !!police, 'your police check'],
+    ['policeDate', !!val('policeDate') && !future(val('policeDate')) || val('policeDate') === new Date().toISOString().slice(0, 10), 'police check date'],
+    ['policeRef', val('policeRef').length >= 4, 'police check reference'],
+    ['ndis', !!pick('ndis'), 'NDIS Worker Screening'],
+  );
+  if (pick('ndis') === 'have') c.push(['ndisNo', val('ndisNo').length >= 4, 'NDIS clearance number'], ['ndisExp', future(val('ndisExp')), 'NDIS expiry']);
+  if (pick('ndis') === 'applied') c.push(['ndisApp', val('ndisApp').length >= 4, 'NDIS application number']);
+  c.push(['blue', !!pick('blue'), 'Blue Card']);
+  if (pick('blue') === 'have') c.push(['blueNo', val('blueNo').length >= 4, 'Blue Card number'], ['blueExp', future(val('blueExp')), 'Blue Card expiry']);
+  c.push(['white', !!pick('white'), 'White Card']);
+  if (pick('white') === 'have') c.push(['whiteNo', val('whiteNo').length >= 3, 'White Card number']);
+  c.push(['aid', !!pick('aid'), 'first aid']);
+  if (pick('aid') === 'have') c.push(['aidExp', future(val('aidExp')), 'first aid expiry']);
+  c.push(['qleave', !!pick('qleave'), 'QLeave']);
+  if (pick('qleave') === 'have') c.push(['qleaveNo', val('qleaveNo').length >= 4, 'QLeave number']);
+  c.push(
+    ['days', picks('days').length > 0, 'days you can work'],
+    ['times', picks('times').length > 0, 'times you can work'],
+    ['shirt', !!pick('shirt'), 'shirt size'],
+    ['health', !!pick('health'), 'the safety question'],
+  );
+  if (pick('health') === 'yes') c.push(['healthText', val('healthText').length >= 3, 'what we should know']);
+  return c;
+}
+
+function paint() {
+  // Show the extra fields that belong to the answer picked.
+  form.querySelectorAll('[data-show]').forEach((el) => {
+    const [g, v] = el.dataset.show.split('=');
+    el.hidden = pick(g) !== v;
+  });
+  const go = $('#go'), hint = $('#hint');
+  if (step === 0) { go.disabled = false; go.textContent = 'Start'; hint.textContent = invite ? `Link valid until ${new Date(invite.expires + 'T12:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'long' })}` : ''; }
+  if (step === 1) {
+    const c = checks1();
+    c.forEach(([f, ok]) => { const el = form.querySelector(`[data-f="${f}"]`); if (el) el.classList.toggle('bad', !ok && touched.has(f)); });
+    const miss = c.filter(([, ok]) => !ok);
+    go.disabled = miss.length > 0; go.textContent = 'Next';
+    hint.textContent = miss.length ? `Still needed: ${miss[0][2]}${miss.length > 1 && miss.length <= 5 ? ` and ${miss.length - 1} more` : ''}` : 'All done. Tap Next.';
+  }
+  if (step === 2) { go.hidden = true; hint.textContent = 'Stage 1 test complete'; }
+  $('#back').hidden = step === 0;
+  $('#count').textContent = step === 0 ? 'New starter' : `${step} of 3`;
+  $('#big').innerHTML = TITLES[step] || TITLES[0];
+  document.querySelectorAll('#steps li').forEach((li) => {
+    const s = +li.dataset.s;
+    li.className = s < step ? 'done' : s === step ? 'now' : '';
+  });
+}
+
+function show(n) {
+  step = n;
+  ['p0', 'p1', 'p2'].forEach((id, i) => { $('#' + id).hidden = i !== n; });
+  if (n === 2) summary();
+  paint();
+  window.scrollTo(0, 0);
+}
+
+function summary() {
+  const rows = [
+    ['Name', val('name')], ['Mobile', fmtMobile(mobileNorm(val('mobile')))], ['Email', val('email')], ['Address', val('address')], ['Date of birth', val('dob')],
+    ['Emergency contact', `${val('ecName')} (${val('ecRel')}), ${fmtMobile(mobileNorm(val('ecMobile')))}`],
+    ['Right to work', pick('rtw') === 'visa' ? `Visa ${val('visaType')}, expires ${val('visaExpiry')}, ${val('visaCond')}` : pick('rtw') === 'pr' ? 'Permanent resident' : 'Citizen'],
+    ['Licence', `${val('licNo')} ${val('licState')}, expires ${val('licExpiry')}`], ['Car', `${val('rego')}, ${val('insurer')}`],
+    ['Police check', `${police?.name} (${Math.round((police?.size || 0) / 1024)} KB), issued ${val('policeDate')}, ref ${val('policeRef')}`],
+    ['NDIS screening', { have: `${val('ndisNo')}, expires ${val('ndisExp')}`, applied: `Applied, ${val('ndisApp')}`, none: 'None' }[pick('ndis')]],
+    ['Blue Card', pick('blue') === 'have' ? `${val('blueNo')}, expires ${val('blueExp')}` : 'None'],
+    ['White Card', pick('white') === 'have' ? val('whiteNo') : 'None'],
+    ['First aid', pick('aid') === 'have' ? `Expires ${val('aidExp')}` : 'None'],
+    ['QLeave', pick('qleave') === 'have' ? val('qleaveNo') : 'None'],
+    ['Available', `${picks('days').join(', ')}; ${picks('times').join(', ')}`], ['Shirt', pick('shirt')],
+    ['Safety notes', pick('health') === 'yes' ? val('healthText') : 'None'],
+  ];
+  const sum = $('#sum');
+  sum.textContent = '';
+  rows.forEach(([k, v]) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = k; const s = document.createElement('span'); s.textContent = v; li.append(b, s); sum.append(li); });
+}
+
+// Email suggestions as they type after the @.
+function suggest() {
+  const v = val('email'), box = $('#sug');
+  const at = v.indexOf('@');
+  box.textContent = '';
+  if (at < 1) { box.hidden = true; return; }
+  const user = v.slice(0, at), part = v.slice(at + 1).toLowerCase();
+  const list = DOMAINS.filter((d) => d.startsWith(part) && d !== part).slice(0, 4);
+  box.hidden = !list.length;
+  list.forEach((d) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = `${user}@${d}`;
+    b.addEventListener('mousedown', (e) => e.preventDefault());
+    b.addEventListener('click', () => { $('#email').value = `${user}@${d}`; box.hidden = true; touched.add('email'); paint(); $('#address').focus(); });
+    box.append(b);
+  });
+}
+
+form.addEventListener('input', (e) => { if (e.target.id === 'email') suggest(); paint(); });
+form.addEventListener('change', (e) => { const n = e.target.name || e.target.id; if (n) touched.add(n); paint(); });
+form.addEventListener('focusout', (e) => {
+  const t = e.target, n = t.name || t.id;
+  if (!n || t.type === 'file') return;
+  if ((n === 'mobile' || n === 'ecMobile') && mobileNorm(t.value)) t.value = fmtMobile(mobileNorm(t.value));
+  if (n === 'email') { t.value = t.value.trim().toLowerCase(); setTimeout(() => { if (!$('#sug').contains(document.activeElement)) $('#sug').hidden = true; }, 150); }
+  if (t.value !== '' || t.type === 'radio' || t.type === 'checkbox') touched.add(n);
+  paint();
+});
+
+$('#police').addEventListener('change', (e) => {
+  const f = e.target.files[0], err = $('#policeErr');
+  police = null; err.style.display = 'none';
+  touched.add('police');
+  if (f) {
+    const okType = /^(application\/pdf|image\/(jpeg|png|heic|heif))$/.test(f.type) || /\.(pdf|jpe?g|png|heic|heif)$/i.test(f.name);
+    if (!okType) { err.textContent = 'Please upload a PDF or a photo (JPG, PNG or HEIC).'; err.style.display = 'block'; }
+    else if (f.size > 10 * 1024 * 1024) { err.textContent = 'That file is over 10 MB. Try a smaller photo or the PDF.'; err.style.display = 'block'; }
+    else police = f;
+  }
+  $('#policeDrop').classList.toggle('ok', !!police);
+  $('#policeText').textContent = police ? `${police.name} added` : 'Take a photo or upload (PDF or photo, up to 10 MB)';
+  paint();
+});
+
+$('#go').addEventListener('click', () => {
+  if (step === 0) return show(1);
+  if (step === 1) {
+    const miss = checks1().filter(([, ok]) => !ok);
+    if (miss.length) { miss.forEach(([f]) => touched.add(f)); paint(); form.querySelector('.bad')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    show(2);
+  }
+});
+$('#back').addEventListener('click', () => show(Math.max(0, step - 1)));
+form.addEventListener('submit', (e) => e.preventDefault());
+window.addEventListener('beforeunload', (e) => { if (step > 0) { e.preventDefault(); e.returnValue = ''; } });
+
+$('#dob').max = new Date(Date.now() - 15 * 31557600000).toISOString().slice(0, 10);
+$('#policeDate').max = new Date().toISOString().slice(0, 10);
+
+// The link's token lives after the #, so it never reaches server logs or other sites.
+token = (location.hash.match(/t=([A-Za-z0-9_-]{20,64})/) || [])[1] || '';
+(async () => {
+  let res = null;
+  try {
+    const r = await fetch('/api/onboard-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token }) });
+    res = await r.json();
+  } catch { res = null; }
+  $('#pLoad').hidden = true;
+  if (!res || !res.ok) {
+    if (res && res.reason === 'expired') $('#badText').textContent = 'This link has expired. Call or text Harry on 0413 154 932 and he\'ll send you a new one.';
+    $('#pBad').hidden = false;
+    return;
+  }
+  invite = res;
+  $('#first').textContent = res.name.split(/\s+/)[0];
+  TITLES[0] = `Welcome to MyQuest, <span class="hl">${$('#first').innerHTML}</span>`;
+  $('#name').value = res.name;
+  if (res.email) $('#email').value = res.email;
+  form.hidden = false;
+  show(0);
+})();
+}
+</script>
+</body>
+</html>
