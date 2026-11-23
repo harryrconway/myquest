@@ -128,7 +128,6 @@ export async function agreementPdf({ name, address, start, email, signedAt, sent
 
   pages.forEach((p, i) => {
     p.drawText(`Casual employment agreement  |  ${safe(name)}  |  Page ${i + 1} of ${pages.length}`, { x: M, y: 30, size: 8, font: reg, color: GREY });
-    p.drawRectangle({ x: W - M - 40, y: 26, width: 40, height: 3, color: GREEN });
   });
   return pdf.save();
 }
