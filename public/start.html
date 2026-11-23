@@ -144,6 +144,25 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
 .rf span{font-size:13px;color:var(--stone)}
 .rf .go{background:var(--ink);color:#fff}
 .rf .go:disabled{background:#e4e4e4;color:#777}
+.pad{position:relative;margin-top:8px;border:1.5px solid rgba(0,0,0,.25);border-radius:12px;background:#fff;height:190px;touch-action:none;overflow:hidden}
+.pad.on{border-color:var(--ink)}
+.pad canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none}
+.pad .base{position:absolute;left:18px;right:18px;bottom:44px;border-top:1.5px dashed #c9c9c6;pointer-events:none}
+.pad .ph{position:absolute;left:18px;bottom:16px;font-size:13px;color:#999;pointer-events:none}
+.pad .clr{position:absolute;top:10px;right:10px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.pad .clr[hidden]{display:none}
+.padNote{margin-top:6px;font-size:13px;color:var(--stone)}
+.padNote.ok{color:var(--green);font-weight:600}
+.card{border:1.5px solid rgba(0,0,0,.18);border-radius:16px;padding:16px;margin-top:12px}
+.card .tk{font-weight:600}
+.card small{display:block;margin:6px 0 0 36px;font-size:14px;color:var(--stone);line-height:1.45}
+.ind{background:var(--ink);color:#fff;border-radius:16px;padding:18px;margin-top:14px}
+.ind small{display:block;font-size:13px;color:#bbb}.ind b{display:block;font-size:19px;font-weight:600;margin-top:2px}.ind span{display:block;font-size:14px;color:#ddd;margin-top:4px}
+.spin{width:16px;height:16px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;vertical-align:-3px;margin-right:8px;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.sendErr{margin-top:14px;padding:12px 14px;border-radius:12px;background:#fdecea;color:var(--red);font-size:14px;font-weight:600}
+.sendErr[hidden]{display:none}
+.donetick{width:72px;height:72px;border-radius:50%;background:var(--mint);display:grid;place-content:center;margin-bottom:22px}
 @media (min-width:900px){.reader{align-items:center}.sheet{height:86vh;border-radius:20px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -360,13 +379,45 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
         <label class="tk locked" style="margin-top:14px"><input type="checkbox" id="agree" disabled>I agree to work for MyQuest Pty Ltd on the terms in the casual employment agreement</label>
         <label class="f" data-f="sign"><span>Type your full legal name to sign</span><input class="in sig" id="sign" autocomplete="off" spellcheck="false" maxlength="80"><em class="err" id="signErr">Type your name exactly as in step 1.</em></label>
         <p class="signed" id="signed" hidden></p>
+        <div class="q" style="margin-top:22px">Draw your signature</div>
+        <div class="pad" id="pad"><canvas id="padCanvas" aria-label="Signature pad. Draw your signature with your finger or mouse." role="img"></canvas><div class="base"></div><span class="ph" id="padPh">Sign here with your finger or mouse</span><button type="button" class="clr" id="padClear" hidden>Clear</button></div>
+        <p class="padNote" id="padNote">Use your finger on a phone, or your mouse or trackpad on a computer.</p>
         <p class="note" style="margin-top:14px">When you send at the end, MyQuest Pty Ltd signs too, through Harry Conway, Director, and you both get the signed agreement by email.</p>
       </section>
 
       <section class="pane" id="p3" hidden>
         <h1>Ready for your <span class="hl">first shift</span>?</h1>
-        <p class="lede">This step (Xero, ServiceM8, your ID and sending it all to MyQuest) is the next stage we build. For testing, here's everything so far.</p>
-        <ul class="sum" id="sum"></ul>
+        <p class="lede">Tick each one once it's done. When you send, MyQuest is told straight away.</p>
+        <div class="card"><label class="tk"><input type="checkbox" id="xero">Xero is done</label><small>Your tax file number, super and bank details, through the secure link Xero emailed you. Can't find it? Search your inbox for "Xero".</small></div>
+        <div class="card"><label class="tk"><input type="checkbox" id="servicem8">ServiceM8 is installed and I've logged in</label><small>Get the free ServiceM8 app from the App Store or Google Play, and log in with the details ServiceM8 emailed you.</small></div>
+        <div class="card"><label class="tk"><input type="checkbox" id="induction">My induction is in my calendar</label><small id="indText">We'll confirm the date with you.</small></div>
+
+        <div class="sec">Your ID</div>
+        <p class="note" style="font-size:15px;color:#333;margin-top:8px">We need to see your driver licence and your passport or birth certificate. Send photos now to save time on the day, or bring them along.</p>
+        <div class="pills" data-g="idChoice" style="margin-top:12px">
+          <label class="pill"><input type="radio" name="idChoice" value="upload"><span>Upload photos now</span></label>
+          <label class="pill"><input type="radio" name="idChoice" value="bring"><span>I'll bring them to my induction</span></label>
+        </div>
+        <div class="more" data-show="idChoice=upload" hidden>
+          <div class="q">Driver licence (front)</div>
+          <label class="drop" id="id1Drop"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg><span id="id1Text">Take a photo or upload</span><input type="file" id="id1" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif"></label>
+          <div class="q">Passport or birth certificate</div>
+          <label class="drop" id="id2Drop"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg><span id="id2Text">Take a photo or upload</span><input type="file" id="id2" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif"></label>
+          <p class="err" id="idErr" style="display:none"></p>
+          <p class="note">Sent privately to MyQuest only, by email. Nothing is kept on the website.</p>
+        </div>
+
+        <div class="sec">Last thing</div>
+        <div class="card"><label class="tk"><input type="checkbox" id="truthful">Everything I've given is true and correct, and I'll tell MyQuest if anything changes</label></div>
+        <p class="sendErr" id="sendErr" hidden></p>
+      </section>
+
+      <section class="pane" id="p4" hidden>
+        <div class="donetick"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1d5c2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg></div>
+        <h1 style="display:block">Welcome to the team, <span class="hl" id="doneName">there</span></h1>
+        <p class="lede" id="doneText">We've emailed you a copy of your signed agreement.</p>
+        <div class="ind" id="doneInd"><small>Your induction</small><b id="doneWhen"></b><span id="doneWhere"></span></div>
+        <p class="note" style="margin-top:18px">Questions? Call or text Harry on 0413 154 932. You can close this page now.</p>
       </section>
 
       <div class="bar">
@@ -391,7 +442,7 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
 const $ = (s) => document.querySelector(s);
 const form = $('#form');
 const DOMAINS = ['gmail.com','outlook.com','hotmail.com','icloud.com','yahoo.com','yahoo.com.au','live.com.au','outlook.com.au','bigpond.com','me.com'];
-let TITLES = ['Welcome to <span class="hl">MyQuest</span>','Tell us <span class="hl">about you</span>','Read, tick and <span class="hl">sign</span>','Ready for your <span class="hl">first shift</span>?'];
+let TITLES = ['Welcome to <span class="hl">MyQuest</span>','Tell us <span class="hl">about you</span>','Read, tick and <span class="hl">sign</span>','Ready for your <span class="hl">first shift</span>?','You\'re all <span class="hl">set</span>'];
 let step = 0, invite = null, police = null, token = '';
 const touched = new Set();
 
@@ -488,12 +539,19 @@ function paint() {
     form.querySelector('[data-f="sign"]').classList.toggle('bad', !ok && touched.has('sign') && val('sign') !== '');
     const miss = checks2().filter(([, v]) => !v);
     go.hidden = false; go.disabled = miss.length > 0 && !invite?.test; go.textContent = 'Next';
-    hint.textContent = miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][1]}` : 'All signed. Tap Next.';
+    hint.textContent = miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][2]}` : 'All signed. Tap Next.';
   }
-  if (step === 3) { go.hidden = true; hint.textContent = 'Stage 2 test complete'; }
-  if (step < 2) go.hidden = false;
-  $('#back').hidden = step === 0;
-  $('#count').textContent = step === 0 ? 'New starter' : `${step} of 3`;
+  if (step === 3) {
+    const miss = checks3().filter(([, v]) => !v);
+    go.hidden = false; go.classList.add('green'); go.textContent = 'Send to MyQuest';
+    go.disabled = (miss.length > 0 && !invite?.test) || sending;
+    if (sending) go.innerHTML = '<span class="spin"></span>Sending';
+    hint.textContent = sending ? 'Sending your details securely' : miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][2]}` : 'Ready to send';
+  } else go.classList.remove('green');
+  document.querySelector('.bar').style.display = step === 4 ? 'none' : '';
+  if (step < 3) go.hidden = false;
+  $('#back').hidden = step === 0 || step === 4 || sending;
+  $('#count').textContent = step === 0 ? 'New starter' : step === 4 ? 'Done' : `${step} of 3`;
   $('#big').innerHTML = TITLES[step] || TITLES[0];
   const NOTE = ['', 'Your details and checks', 'Agreement, handbook and safety', 'Xero, ServiceM8 and your ID'];
   document.querySelectorAll('#steps li').forEach((li) => {
@@ -506,32 +564,10 @@ function paint() {
 
 function show(n) {
   step = n;
-  ['p0', 'p1', 'p2', 'p3'].forEach((id, i) => { $('#' + id).hidden = i !== n; });
-  if (n === 3) summary();
+  ['p0', 'p1', 'p2', 'p3', 'p4'].forEach((id, i) => { $('#' + id).hidden = i !== n; });
+  if (n === 2) requestAnimationFrame(padSize);
   paint();
   window.scrollTo(0, 0);
-}
-
-function summary() {
-  const rows = [
-    ['Name', val('name')], ['Mobile', fmtMobile(mobileNorm(val('mobile')))], ['Email', val('email')], ['Address', val('address')], ['Date of birth', val('dob')],
-    ['Emergency contact', `${val('ecName')} (${val('ecRel')}), ${fmtMobile(mobileNorm(val('ecMobile')))}`],
-    ['Right to work', pick('rtw') === 'visa' ? `Visa ${val('visaType')}, expires ${val('visaExpiry')}, ${val('visaCond')}` : pick('rtw') === 'pr' ? 'Permanent resident' : 'Citizen'],
-    ['Licence', `${val('licNo')} ${val('licState')}, expires ${val('licExpiry')}`], ['Car', `${val('rego')}, ${val('insurer')}`],
-    ['Police check', `${police ? `${police.name} (${Math.round(police.size / 1024)} KB)` : 'none'}, issued ${val('policeDate')}, ref ${val('policeRef')}`],
-    ['NDIS screening', { have: `${val('ndisNo')}, expires ${val('ndisExp')}`, applied: `Applied, ${val('ndisApp')}`, none: 'None' }[pick('ndis')]],
-    ['Blue Card', pick('blue') === 'have' ? `${val('blueNo')}, expires ${val('blueExp')}` : 'None'],
-    ['White Card', pick('white') === 'have' ? val('whiteNo') : 'None'],
-    ['First aid', pick('aid') === 'have' ? `Expires ${val('aidExp')}` : 'None'],
-    ['QLeave', pick('qleave') === 'have' ? val('qleaveNo') : 'None'],
-    ['Available', `${picks('days').join(', ')}; ${picks('times').join(', ')}`], ['Shirt', pick('shirt')],
-    ['Safety notes', pick('health') === 'yes' ? val('healthText') : 'None'],
-    ['Documents read', DOC_IDS.filter((d) => readDocs.has(d)).map((d) => DOC_NAMES[d].replace(/^read /, '')).join(', ') || 'None'],
-    ['Signed', signedAt ? `${val('sign')}, ${signedAt.toLocaleString('en-AU')}` : 'Not signed'],
-  ];
-  const sum = $('#sum');
-  sum.textContent = '';
-  rows.forEach(([k, v]) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = k; const s = document.createElement('span'); s.textContent = v; li.append(b, s); sum.append(li); });
 }
 
 // Email suggestions as they type after the @.
@@ -579,7 +615,7 @@ $('#police').addEventListener('change', (e) => {
 });
 
 const DOC_IDS = ['agreement', 'fwis', 'cceis', 'handbook', 'safety'];
-const DOC_NAMES = { agreement: 'read the agreement', fwis: 'the Fair Work statement', cceis: 'the casual statement', handbook: 'the Staff Handbook', safety: 'the safety induction' };
+const DOC_NAMES = { agreement: 'the agreement', fwis: 'the Fair Work statement', cceis: 'the casual statement', handbook: 'the Staff Handbook', safety: 'the safety induction' };
 const readDocs = new Set();
 let signedAt = null, readerDoc = '', reachedEnd = false;
 const norm = (v) => v.toLowerCase().replace(/[^a-z']+/g, ' ').trim();
@@ -589,6 +625,7 @@ function checks2() {
     ...DOC_IDS.map((d) => [d, !!form.querySelector(`[data-tick="${d}"]`).checked, `tick ${DOC_NAMES[d]}`]),
     ['agree', $('#agree').checked, 'tick that you agree'],
     ['sign', sigOk(), 'type your name to sign'],
+    ['pad', padOk(), 'draw your signature'],
   ];
 }
 
@@ -624,8 +661,150 @@ $('#rClose').addEventListener('click', closeDoc);
 $('#rDone').addEventListener('click', () => { readDocs.add(readerDoc); const t = form.querySelector(`[data-tick="${readerDoc}"]`); closeDoc(); t?.focus(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#reader').hidden) closeDoc(); });
 
+// Signature pad: smooth strokes, sized for the screen, kept as points so it survives a resize.
+const pad = $('#pad'), cv = $('#padCanvas'), ctx = cv.getContext('2d');
+let strokes = [], drawing = false, padW = 600, padH = 190;
+function padSize() {
+  const r = cv.getBoundingClientRect(), dpr = Math.max(1, window.devicePixelRatio || 1);
+  if (!r.width) return;
+  padW = r.width; padH = r.height;
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); redraw();
+}
+function seg(st) {
+  ctx.beginPath(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111'; ctx.lineWidth = 2.6;
+  const w = cv.getBoundingClientRect().width, h = cv.getBoundingClientRect().height, P = st.map(([x, y]) => [x * w, y * h]);
+  if (P.length === 1) { ctx.arc(P[0][0], P[0][1], 1.4, 0, Math.PI * 2); ctx.fillStyle = '#111'; ctx.fill(); return; }
+  ctx.moveTo(P[0][0], P[0][1]);
+  for (let i = 1; i < P.length - 1; i++) { const mx = (P[i][0] + P[i + 1][0]) / 2, my = (P[i][1] + P[i + 1][1]) / 2; ctx.quadraticCurveTo(P[i][0], P[i][1], mx, my); }
+  ctx.lineTo(P[P.length - 1][0], P[P.length - 1][1]); ctx.stroke();
+}
+function redraw() { const r = cv.getBoundingClientRect(); ctx.clearRect(0, 0, r.width, r.height); strokes.forEach(seg); }
+function pt(e) { const r = cv.getBoundingClientRect(); return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))]; }
+function padOk() {
+  const r = cv.getBoundingClientRect(); let len = 0, minX = 1, maxX = 0, minY = 1, maxY = 0;
+  strokes.forEach((st) => st.forEach(([x, y], i) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); if (i) len += Math.hypot((x - st[i - 1][0]) * r.width, (y - st[i - 1][1]) * r.height); }));
+  return len > 120 && (maxX - minX) * r.width > 50 && (maxY - minY) * r.height > 12;
+}
+function padState() {
+  const any = strokes.length > 0, ok = padOk();
+  $('#padPh').hidden = any; $('#padClear').hidden = !any; pad.classList.toggle('on', any);
+  const n = $('#padNote'); n.classList.toggle('ok', ok);
+  n.textContent = ok ? 'Signature added' : any ? 'Keep going: draw your full signature' : 'Use your finger on a phone, or your mouse or trackpad on a computer.';
+  paint();
+}
+cv.addEventListener('pointerdown', (e) => { e.preventDefault(); drawing = true; cv.setPointerCapture(e.pointerId); strokes.push([pt(e)]); seg(strokes[strokes.length - 1]); });
+cv.addEventListener('pointermove', (e) => {
+  if (!drawing) return; e.preventDefault();
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  const st = strokes[strokes.length - 1]; evs.forEach((ev) => st.push(pt(ev)));
+  redraw();
+});
+const endStroke = () => { if (drawing) { drawing = false; padState(); } };
+cv.addEventListener('pointerup', endStroke); cv.addEventListener('pointercancel', endStroke); cv.addEventListener('lostpointercapture', endStroke);
+$('#padClear').addEventListener('click', () => { strokes = []; redraw(); padState(); });
+window.addEventListener('resize', () => { if (step === 2) padSize(); });
+// The signature as a tidy PNG: just the ink, cropped, in black on transparent.
+function padPng() {
+  const W = 900, H = 260, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  let minX = 1, maxX = 0, minY = 1, maxY = 0;
+  strokes.forEach((st) => st.forEach(([a, b]) => { minX = Math.min(minX, a); maxX = Math.max(maxX, a); minY = Math.min(minY, b); maxY = Math.max(maxY, b); }));
+  const r = { width: padW, height: padH }, bw = (maxX - minX) * r.width || 1, bh = (maxY - minY) * r.height || 1;
+  const k = Math.min((W - 40) / bw, (H - 40) / bh);
+  x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#111'; x.fillStyle = '#111'; x.lineWidth = Math.max(3, 2.6 * k * 0.8);
+  const map = ([a, b]) => [20 + (a - minX) * r.width * k, 20 + (b - minY) * r.height * k];
+  strokes.forEach((st) => {
+    const P = st.map(map); x.beginPath();
+    if (P.length === 1) { x.arc(P[0][0], P[0][1], x.lineWidth / 2, 0, Math.PI * 2); x.fill(); return; }
+    x.moveTo(P[0][0], P[0][1]);
+    for (let i = 1; i < P.length - 1; i++) x.quadraticCurveTo(P[i][0], P[i][1], (P[i][0] + P[i + 1][0]) / 2, (P[i][1] + P[i + 1][1]) / 2);
+    x.lineTo(P[P.length - 1][0], P[P.length - 1][1]); x.stroke();
+  });
+  return c.toDataURL('image/png');
+}
+
+// Step 3: first shift ticks, ID and sending.
+let id1 = null, id2 = null, sending = false;
+function checks3() {
+  const c = [['xero', $('#xero').checked, 'tick Xero'], ['servicem8', $('#servicem8').checked, 'tick ServiceM8'], ['induction', $('#induction').checked, 'tick your induction'], ['idChoice', !!pick('idChoice'), 'choose how you\'ll show your ID']];
+  if (pick('idChoice') === 'upload') c.push(['id1', !!id1, 'your driver licence photo'], ['id2', !!id2, 'your passport or birth certificate photo']);
+  c.push(['truthful', $('#truthful').checked, 'tick that it\'s all correct']);
+  return c;
+}
+function fileOk(f) {
+  if (!f) return 'none';
+  if (!(/^(application\/pdf|image\/(jpeg|png|heic|heif))$/.test(f.type) || /\.(pdf|jpe?g|png|heic|heif)$/i.test(f.name))) return 'Please upload a PDF or a photo (JPG, PNG or HEIC).';
+  if (f.size > 10 * 1024 * 1024) return 'That file is over 10 MB. Try a smaller photo.';
+  return '';
+}
+['id1', 'id2'].forEach((k) => $('#' + k).addEventListener('change', (e) => {
+  const f = e.target.files[0], bad = fileOk(f), err = $('#idErr');
+  err.style.display = bad && bad !== 'none' ? 'block' : 'none'; err.textContent = bad === 'none' ? '' : bad;
+  if (k === 'id1') id1 = bad ? null : f; else id2 = bad ? null : f;
+  const got = k === 'id1' ? id1 : id2;
+  $('#' + k + 'Drop').classList.toggle('ok', !!got);
+  $('#' + k + 'Text').textContent = got ? `${got.name} added` : 'Take a photo or upload';
+  paint();
+}));
+// Big phone photos are shrunk before sending, so uploads stay quick and under the email size limit.
+async function shrink(f) {
+  if (!f || !/^image\/(jpeg|png)$/.test(f.type) || f.size < 1.2 * 1024 * 1024) return f;
+  try {
+    const bmp = await createImageBitmap(f), k = Math.min(1, 2200 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise((res) => c.toBlob(res, 'image/jpeg', 0.84));
+    return blob && blob.size < f.size ? new File([blob], f.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }) : f;
+  } catch { return f; }
+}
+function gather() {
+  return {
+    name: val('name'), mobile: val('mobile'), email: val('email'), address: val('address'), dob: val('dob'),
+    ecName: val('ecName'), ecRel: val('ecRel'), ecMobile: val('ecMobile'),
+    rtw: pick('rtw'), visaType: val('visaType'), visaExpiry: val('visaExpiry'), visaCond: val('visaCond'),
+    licNo: val('licNo'), licState: val('licState'), licExpiry: val('licExpiry'), rego: val('rego'), insurer: val('insurer'),
+    policeDate: val('policeDate'), policeRef: val('policeRef'),
+    ndis: pick('ndis'), ndisNo: val('ndisNo'), ndisExp: val('ndisExp'), ndisApp: val('ndisApp'),
+    blue: pick('blue'), blueNo: val('blueNo'), blueExp: val('blueExp'), white: pick('white'), whiteNo: val('whiteNo'),
+    aid: pick('aid'), aidExp: val('aidExp'), qleave: pick('qleave'), qleaveNo: val('qleaveNo'),
+    days: picks('days'), times: picks('times'), shirt: pick('shirt'), health: pick('health'), healthText: val('healthText'),
+    read: [...readDocs], agree: $('#agree').checked, sign: val('sign'), signedAt: (signedAt || new Date()).toISOString(),
+    signature: strokes.length ? padPng() : '',
+    xero: $('#xero').checked, servicem8: $('#servicem8').checked, induction: $('#induction').checked,
+    idChoice: pick('idChoice'), truthful: $('#truthful').checked,
+  };
+}
+async function send() {
+  if (sending) return;
+  const miss = checks3().filter(([, v]) => !v);
+  if (miss.length && !invite.test) return paint();
+  sending = true; $('#sendErr').hidden = true; paint();
+  try {
+    const fd = new FormData();
+    fd.append('t', token);
+    fd.append('data', JSON.stringify(gather()));
+    if (police) fd.append('police', await shrink(police));
+    if (pick('idChoice') === 'upload') { if (id1) fd.append('id1', await shrink(id1)); if (id2) fd.append('id2', await shrink(id2)); }
+    const r = await fetch('/api/onboard-submit', { method: 'POST', body: fd });
+    let res = null; try { res = await r.json(); } catch {}
+    if (!r.ok || !res || !res.ok) throw new Error((res && res.error) || 'We could not send your details just now. Please try again, or call Harry on 0413 154 932.');
+    sending = false;
+    $('#doneName').textContent = val('name').split(/\s+/)[0] || invite.name.split(/\s+/)[0];
+    $('#doneText').textContent = `We've emailed your signed agreement to ${val('email') || invite.email}. Harry has your details too.`;
+    $('#doneWhen').textContent = res.when || 'We\'ll confirm the date with you';
+    $('#doneWhere').textContent = `${res.where ? res.where + '. ' : ''}Wear enclosed shoes${pick('idChoice') === 'bring' ? ', and bring your licence and passport or birth certificate' : ''}.`;
+    show(4);
+  } catch (e) {
+    sending = false;
+    const el = $('#sendErr'); el.textContent = e.message; el.hidden = false;
+    paint(); el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+}
+
 $('#go').addEventListener('click', () => {
   if (step === 0) return show(1);
+  if (step === 3) return send();
   if (step === 2) {
     const miss = checks2().filter(([, v]) => !v);
     if (miss.length && !invite.test) { touched.add('sign'); paint(); return; }
@@ -639,7 +818,7 @@ $('#go').addEventListener('click', () => {
 });
 $('#back').addEventListener('click', () => show(Math.max(0, step - 1)));
 form.addEventListener('submit', (e) => e.preventDefault());
-window.addEventListener('beforeunload', (e) => { if (step > 0) { e.preventDefault(); e.returnValue = ''; } });
+window.addEventListener('beforeunload', (e) => { if (step > 0 && step < 4) { e.preventDefault(); e.returnValue = ''; } });
 
 $('#dob').max = new Date(Date.now() - 15 * 31557600000).toISOString().slice(0, 10);
 $('#policeDate').max = new Date().toISOString().slice(0, 10);
@@ -659,6 +838,7 @@ token = (location.hash.match(/t=([A-Za-z0-9_-]{20,64})/) || [])[1] || '';
     return;
   }
   invite = res;
+  if (res.induction && res.induction.when) $('#indText').textContent = `${res.induction.when}${res.induction.where ? ', ' + res.induction.where : ''}. Add it to your phone's calendar, then tick this.`;
   $('#test').hidden = !res.test;
   $('#first').textContent = res.name.split(/\s+/)[0];
   TITLES[0] = `Welcome to MyQuest, <span class="hl">${$('#first').innerHTML}</span>`;
