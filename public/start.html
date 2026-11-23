@@ -107,6 +107,44 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
   .go:disabled{background:#e4e4e4;color:#777}
   .back{color:var(--ink)}
 }
+.docs{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.doc{border:1.5px solid rgba(0,0,0,.18);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s,background .2s}
+.doc.read{border-color:var(--green)}
+.doc.done{background:#f7fbf6;border-color:var(--green)}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dh b{font-size:17px;font-weight:600;line-height:1.3}
+.dh small{display:block;font-size:13px;color:var(--stone);margin-top:3px;font-weight:400}
+.open{flex:none;min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none;color:var(--ink)}
+.doc.read .open{border-color:var(--green);color:var(--green)}
+.tk{display:flex;gap:12px;align-items:center;font-size:15px;cursor:pointer;min-height:32px}
+.tk input{appearance:none;-webkit-appearance:none;margin:0;flex:none;width:24px;height:24px;border:2px solid var(--ink);border-radius:7px;background:#fff;display:grid;place-content:center;cursor:pointer}
+.tk input:checked{background:var(--green);border-color:var(--green)}
+.tk input:checked::after{content:'';width:11px;height:6px;border:solid #fff;border-width:0 0 2.5px 2.5px;transform:translate(0,-1px) rotate(-45deg)}
+.tk input:disabled{border-color:#c9c9c6;background:#f3f3f1;cursor:not-allowed}
+.tk input:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.tk.locked{color:#9a9a9a;cursor:not-allowed}
+.sig{font-size:24px;font-style:italic;height:60px}
+.signed{margin-top:8px;font-size:13px;color:var(--green);font-weight:600}
+.signed[hidden]{display:none}
+.reader{position:fixed;inset:0;z-index:30;background:rgba(17,17,17,.55);display:flex;align-items:flex-end;justify-content:center}
+.reader[hidden]{display:none}
+.sheet{background:#fff;width:100%;max-width:780px;height:94vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.rh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--hair)}
+.rh b{font-size:18px;font-weight:600}
+.x{width:44px;height:44px;border-radius:50%;border:0;background:#f1f1ee;font-size:22px;line-height:1;cursor:pointer}
+.rbar{height:4px;background:var(--hair)}.rbar i{display:block;height:100%;width:0;background:var(--green);transition:width .15s}
+.rb{flex:1;overflow-y:auto;padding:8px 22px 30px;font-size:16px;line-height:1.6;-webkit-overflow-scrolling:touch}
+.rb h3{font-size:18px;font-weight:600;margin:26px 0 8px}
+.rb p{margin:10px 0}.rb ul,.rb ol{padding-left:22px}.rb li{margin:6px 0}
+.rb table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+.rb th,.rb td{border:1px solid var(--hair);padding:8px 10px;text-align:left;vertical-align:top}
+.rb th{background:#f6f6f3;font-weight:600}
+.rb table.kv th{width:34%}
+.rf{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--hair)}
+.rf span{font-size:13px;color:var(--stone)}
+.rf .go{background:var(--ink);color:#fff}
+.rf .go:disabled{background:#e4e4e4;color:#777}
+@media (min-width:900px){.reader{align-items:center}.sheet{height:86vh;border-radius:20px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -293,8 +331,41 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
       </section>
 
       <section class="pane" id="p2" hidden>
-        <h1>Step 1 <span class="hl">done</span></h1>
-        <p class="lede">Step 2 (read, tick and sign) is the next stage we build. Here's what you entered, so you can check it all came through.</p>
+        <h1>Read, tick and <span class="hl">sign</span></h1>
+        <p class="lede">Open each one and read it to the end. Its tick unlocks once you have.</p>
+        <div class="docs">
+          <div class="doc" data-doc="agreement">
+            <div class="dh"><span><b>Casual employment agreement</b><small>Your pay, shifts, safety and the rules we both follow</small></span><button type="button" class="open">Read</button></div>
+            <label class="tk locked"><input type="checkbox" data-tick="agreement" disabled>I've read the agreement</label>
+          </div>
+          <div class="doc" data-doc="fwis">
+            <div class="dh"><span><b>Fair Work Information Statement</b><small>Your rights at work, from the Fair Work Ombudsman</small></span><a class="open" href="https://www.fairwork.gov.au/employment-conditions/national-employment-standards/fair-work-information-statement" target="_blank" rel="noopener noreferrer">Open</a></div>
+            <label class="tk locked"><input type="checkbox" data-tick="fwis" disabled>I've read it</label>
+          </div>
+          <div class="doc" data-doc="cceis">
+            <div class="dh"><span><b>Casual Employment Information Statement</b><small>What being a casual means, from the Fair Work Ombudsman</small></span><a class="open" href="https://www.fairwork.gov.au/employment-conditions/information-statements/casual-employment-information-statement" target="_blank" rel="noopener noreferrer">Open</a></div>
+            <label class="tk locked"><input type="checkbox" data-tick="cceis" disabled>I've read it</label>
+          </div>
+          <div class="doc" data-doc="handbook">
+            <div class="dh"><span><b>MyQuest Staff Handbook</b><small>How we work, how you're paid, and every job step by step</small></span><button type="button" class="open">Read</button></div>
+            <label class="tk locked"><input type="checkbox" data-tick="handbook" disabled>I've read the handbook</label>
+          </div>
+          <div class="doc" data-doc="safety">
+            <div class="dh"><span><b>Safety induction</b><small>Chemicals, lifting, working alone and emergencies. We go through it together on the day too.</small></span><button type="button" class="open">Read</button></div>
+            <label class="tk locked"><input type="checkbox" data-tick="safety" disabled>I've read the safety induction</label>
+          </div>
+        </div>
+
+        <div class="sec">Sign your agreement</div>
+        <label class="tk locked" style="margin-top:14px"><input type="checkbox" id="agree" disabled>I agree to work for MyQuest Pty Ltd on the terms in the casual employment agreement</label>
+        <label class="f" data-f="sign"><span>Type your full legal name to sign</span><input class="in sig" id="sign" autocomplete="off" spellcheck="false" maxlength="80"><em class="err" id="signErr">Type your name exactly as in step 1.</em></label>
+        <p class="signed" id="signed" hidden></p>
+        <p class="note" style="margin-top:14px">When you send at the end, MyQuest Pty Ltd signs too, through Harry Conway, Director, and you both get the signed agreement by email.</p>
+      </section>
+
+      <section class="pane" id="p3" hidden>
+        <h1>Ready for your <span class="hl">first shift</span>?</h1>
+        <p class="lede">This step (Xero, ServiceM8, your ID and sending it all to MyQuest) is the next stage we build. For testing, here's everything so far.</p>
         <ul class="sum" id="sum"></ul>
       </section>
 
@@ -304,6 +375,14 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
         <button type="button" class="go" id="go">Start</button>
       </div>
     </form>
+    <div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-labelledby="rTitle">
+      <div class="sheet">
+        <div class="rh"><b id="rTitle"></b><button type="button" class="x" id="rClose" aria-label="Close">×</button></div>
+        <div class="rbar"><i id="rProg"></i></div>
+        <div class="rb" id="rBody" tabindex="0"></div>
+        <div class="rf"><span id="rHint">Scroll to the end to finish</span><button type="button" class="go" id="rDone" disabled>I've read it</button></div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -392,7 +471,27 @@ function paint() {
     go.disabled = miss.length > 0 && !invite?.test; go.textContent = 'Next';
     hint.textContent = miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][2]}${miss.length > 1 && miss.length <= 5 ? ` and ${miss.length - 1} more` : ''}` : 'All done. Tap Next.';
   }
-  if (step === 2) { go.hidden = true; hint.textContent = 'Stage 1 test complete'; }
+  if (step === 2) {
+    DOC_IDS.forEach((d) => {
+      const card = form.querySelector(`[data-doc="${d}"]`), tick = card.querySelector('input'), lab = tick.closest('label');
+      tick.disabled = !readDocs.has(d); lab.classList.toggle('locked', tick.disabled);
+      card.classList.toggle('read', readDocs.has(d)); card.classList.toggle('done', tick.checked);
+      const btn = card.querySelector('.open'); btn.textContent = readDocs.has(d) ? 'Read again' : card.querySelector('a.open') ? 'Open' : 'Read';
+    });
+    const agree = $('#agree');
+    agree.disabled = !readDocs.has('agreement'); agree.closest('label').classList.toggle('locked', agree.disabled);
+    const ok = sigOk();
+    if (ok && !signedAt) signedAt = new Date();
+    if (!ok) signedAt = null;
+    $('#signed').hidden = !ok;
+    if (ok) $('#signed').textContent = `Signed by ${val('sign')} on ${signedAt.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} at ${signedAt.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' })}`;
+    form.querySelector('[data-f="sign"]').classList.toggle('bad', !ok && touched.has('sign') && val('sign') !== '');
+    const miss = checks2().filter(([, v]) => !v);
+    go.hidden = false; go.disabled = miss.length > 0 && !invite?.test; go.textContent = 'Next';
+    hint.textContent = miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][1]}` : 'All signed. Tap Next.';
+  }
+  if (step === 3) { go.hidden = true; hint.textContent = 'Stage 2 test complete'; }
+  if (step < 2) go.hidden = false;
   $('#back').hidden = step === 0;
   $('#count').textContent = step === 0 ? 'New starter' : `${step} of 3`;
   $('#big').innerHTML = TITLES[step] || TITLES[0];
@@ -407,8 +506,8 @@ function paint() {
 
 function show(n) {
   step = n;
-  ['p0', 'p1', 'p2'].forEach((id, i) => { $('#' + id).hidden = i !== n; });
-  if (n === 2) summary();
+  ['p0', 'p1', 'p2', 'p3'].forEach((id, i) => { $('#' + id).hidden = i !== n; });
+  if (n === 3) summary();
   paint();
   window.scrollTo(0, 0);
 }
@@ -427,6 +526,8 @@ function summary() {
     ['QLeave', pick('qleave') === 'have' ? val('qleaveNo') : 'None'],
     ['Available', `${picks('days').join(', ')}; ${picks('times').join(', ')}`], ['Shirt', pick('shirt')],
     ['Safety notes', pick('health') === 'yes' ? val('healthText') : 'None'],
+    ['Documents read', DOC_IDS.filter((d) => readDocs.has(d)).map((d) => DOC_NAMES[d].replace(/^read /, '')).join(', ') || 'None'],
+    ['Signed', signedAt ? `${val('sign')}, ${signedAt.toLocaleString('en-AU')}` : 'Not signed'],
   ];
   const sum = $('#sum');
   sum.textContent = '';
@@ -477,8 +578,59 @@ $('#police').addEventListener('change', (e) => {
   paint();
 });
 
+const DOC_IDS = ['agreement', 'fwis', 'cceis', 'handbook', 'safety'];
+const DOC_NAMES = { agreement: 'read the agreement', fwis: 'the Fair Work statement', cceis: 'the casual statement', handbook: 'the Staff Handbook', safety: 'the safety induction' };
+const readDocs = new Set();
+let signedAt = null, readerDoc = '', reachedEnd = false;
+const norm = (v) => v.toLowerCase().replace(/[^a-z']+/g, ' ').trim();
+const sigOk = () => val('sign').length > 3 && norm(val('sign')) === norm(val('name'));
+function checks2() {
+  return [
+    ...DOC_IDS.map((d) => [d, !!form.querySelector(`[data-tick="${d}"]`).checked, `tick ${DOC_NAMES[d]}`]),
+    ['agree', $('#agree').checked, 'tick that you agree'],
+    ['sign', sigOk(), 'type your name to sign'],
+  ];
+}
+
+form.querySelectorAll('a.open').forEach((a) => a.addEventListener('click', () => { readDocs.add(a.closest('.doc').dataset.doc); setTimeout(paint, 300); }));
+form.querySelectorAll('button.open').forEach((b) => b.addEventListener('click', () => openDoc(b.closest('.doc').dataset.doc)));
+
+async function openDoc(d) {
+  readerDoc = d; reachedEnd = readDocs.has(d);
+  $('#rTitle').textContent = 'Loading…'; $('#rBody').innerHTML = ''; $('#rProg').style.width = '0';
+  $('#reader').hidden = false; document.body.style.overflow = 'hidden';
+  $('#rDone').disabled = !reachedEnd; $('#rHint').textContent = reachedEnd ? 'You have read this one' : 'Scroll to the end to finish';
+  try {
+    const r = await fetch('/api/onboard-doc', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token, doc: d, name: val('name'), address: val('address') }) });
+    const res = await r.json();
+    if (!res.ok) throw new Error();
+    $('#rTitle').textContent = res.title;
+    $('#rBody').innerHTML = res.html;
+  } catch {
+    $('#rTitle').textContent = 'Could not load this';
+    $('#rBody').textContent = 'Check your connection and try again. If it keeps happening, call Harry on 0413 154 932.';
+  }
+  $('#rBody').scrollTop = 0; progress(); $('#rClose').focus();
+}
+function progress() {
+  const b = $('#rBody'), max = b.scrollHeight - b.clientHeight;
+  const pct = max <= 0 ? 100 : Math.min(100, (b.scrollTop / max) * 100);
+  $('#rProg').style.width = pct + '%';
+  if (pct >= 97 && b.childElementCount) { reachedEnd = true; $('#rDone').disabled = false; $('#rHint').textContent = 'All read'; }
+}
+function closeDoc() { $('#reader').hidden = true; document.body.style.overflow = ''; paint(); form.querySelector(`[data-doc="${readerDoc}"] .open`)?.focus(); }
+$('#rBody').addEventListener('scroll', progress, { passive: true });
+$('#rClose').addEventListener('click', closeDoc);
+$('#rDone').addEventListener('click', () => { readDocs.add(readerDoc); const t = form.querySelector(`[data-tick="${readerDoc}"]`); closeDoc(); t?.focus(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#reader').hidden) closeDoc(); });
+
 $('#go').addEventListener('click', () => {
   if (step === 0) return show(1);
+  if (step === 2) {
+    const miss = checks2().filter(([, v]) => !v);
+    if (miss.length && !invite.test) { touched.add('sign'); paint(); return; }
+    return show(3);
+  }
   if (step === 1) {
     const miss = checks1().filter(([, ok]) => !ok);
     if (miss.length && !invite.test) { miss.forEach(([f]) => touched.add(f)); paint(); form.querySelector('.bad')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
