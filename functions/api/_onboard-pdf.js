@@ -112,7 +112,7 @@ export async function agreementPdf({ name, address, start, email, signedAt, sent
 
   if (signaturePng) {
     const img = await pdf.embedPng(signaturePng);
-    const s = Math.min((colW - 24) / img.width, 48 / img.height);
+    const s = Math.min((colW - 24) / img.width, 40 / img.height);
     page.drawImage(img, { x: xR + 12, y: top - 72, width: img.width * s, height: img.height * s });
   }
   page.drawLine({ start: { x: xR + 12, y: top - 74 }, end: { x: xR + colW - 12, y: top - 74 }, thickness: 0.7, color: INK });
