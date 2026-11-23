@@ -704,15 +704,16 @@ const endStroke = () => { if (drawing) { drawing = false; padState(); } };
 cv.addEventListener('pointerup', endStroke); cv.addEventListener('pointercancel', endStroke); cv.addEventListener('lostpointercapture', endStroke);
 $('#padClear').addEventListener('click', () => { strokes = []; redraw(); padState(); });
 window.addEventListener('resize', () => { if (step === 2) padSize(); });
-// The signature as a tidy PNG: just the ink, cropped, in black on transparent.
+// The signature as a tidy PNG: just the ink, cropped, in bold black on white. No transparency, so every PDF viewer shows it.
 function padPng() {
   const W = 900, H = 260, c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   let minX = 1, maxX = 0, minY = 1, maxY = 0;
   strokes.forEach((st) => st.forEach(([a, b]) => { minX = Math.min(minX, a); maxX = Math.max(maxX, a); minY = Math.min(minY, b); maxY = Math.max(maxY, b); }));
   const r = { width: padW, height: padH }, bw = (maxX - minX) * r.width || 1, bh = (maxY - minY) * r.height || 1;
   const k = Math.min((W - 40) / bw, (H - 40) / bh);
-  x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#111'; x.fillStyle = '#111'; x.lineWidth = Math.max(3, 2.6 * k * 0.8);
+  x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#111'; x.fillStyle = '#111'; x.lineWidth = 10;
   const map = ([a, b]) => [20 + (a - minX) * r.width * k, 20 + (b - minY) * r.height * k];
   strokes.forEach((st) => {
     const P = st.map(map); x.beginPath();
