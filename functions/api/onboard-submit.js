@@ -1,5 +1,5 @@
 import { findInvite, markUsed, fromThisSite } from './onboard-start.js';
-import { agreementPdf } from './_onboard-pdf.js';
+import { agreementPdf, handbookPdf } from './_onboard-pdf.js';
 
 const TO = 'hello@myquest.au';
 const SITE = 'https://myquest.au';
@@ -144,10 +144,10 @@ ${ESIG}
 function starterEmail(d, inv) {
   const first = d.name.split(/\s+/)[0];
   const ind = inv.induction || {};
-  const html = EHEAD('Welcome to MyQuest') + EWRAP('Your signed agreement is attached', ECARD(`
+  const html = EHEAD('Welcome to MyQuest') + EWRAP('Your signed agreement and Staff Handbook are attached', ECARD(`
 ${ELOGO('')}
 <tr><td class="mq-pad" style="padding:22px 36px 0"><h1 class="mq-h1" style="margin:0;${EF};font-size:34px;line-height:40px;font-weight:600;letter-spacing:-1px">Thanks ${esc(first)}, you're <span style="${EHL}">all set</span></h1></td></tr>
-<tr><td class="mq-pad" style="padding:14px 36px 0;${EF};font-size:16px;line-height:25px;color:#222222">We've got everything we need. Your casual employment agreement, signed by you and by MyQuest, is attached for your records.</td></tr>
+<tr><td class="mq-pad" style="padding:14px 36px 0;${EF};font-size:16px;line-height:25px;color:#222222">We've got everything we need. Your casual employment agreement, signed by you and by MyQuest, and your own copy of the MyQuest Staff Handbook are attached for your records.</td></tr>
 <tr><td class="mq-pad" style="padding:20px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#111111;border-radius:18px;padding:20px 22px;${EF};color:#ffffff"><div style="font-size:13px;color:#cfcfcf">Your induction</div><div style="font-size:20px;font-weight:600;padding-top:4px">${esc(ind.when || 'We will confirm the date with you')}</div><div style="font-size:14px;line-height:21px;color:#dddddd;padding-top:4px">${ind.suburb ? `In ${esc(ind.suburb)}. ` : ''}We'll text you the exact address the day before. Wear enclosed shoes.${d.idChoice === 'bring' ? ' Bring your driver licence and your passport or birth certificate.' : ''}</div></td></tr></table></td></tr>
 <tr><td class="mq-pad" style="padding:22px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222"><div style="font-size:16px;font-weight:600;padding-bottom:6px">What happens next</div>
 <div style="padding:4px 0"><b>On the day:</b> we go through the safety induction together, then your first clean.</div>
@@ -156,7 +156,7 @@ ${ELOGO('')}
 <tr><td class="mq-pad" style="padding:18px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222">Any questions at all, call or text Harry on 0413 154 932.</td></tr>
 ${ESIG}
 <tr><td style="padding:0 0 30px;font-size:0;line-height:0">&nbsp;</td></tr>`));
-  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, is attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
+  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, and your own copy of the MyQuest Staff Handbook are attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
   return { html, text };
 }
 
@@ -223,6 +223,11 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'We could not make your agreement. Please try again, or call Harry on 0413 154 932.' }, 500);
   }
   const agreement = { filename: fileName(`Casual employment agreement, ${d.name}, signed.pdf`), content: b64(pdfBytes) };
+  // The handbook is a courtesy copy, so a problem making it never stops the signed agreement going out.
+  let handbook = null;
+  try {
+    handbook = { filename: fileName(`MyQuest Staff Handbook, ${d.name}.pdf`), content: b64(await handbookPdf({ name: d.name, givenAt: sentAt })) };
+  } catch (e) { console.error('Could not make the handbook PDF:', e); }
 
   try {
     const team = teamEmail(d, inv, [agreement, ...files], ref, inv.test);
@@ -234,8 +239,8 @@ export async function onRequestPost({ request, env }) {
     const mine = starterEmail(d, inv);
     await send(env, {
       from: 'MyQuest <hello@myquest.au>', to: [d.email], reply_to: TO,
-      subject: `Welcome to MyQuest, ${d.name.split(/\s+/)[0]}: your signed agreement`, html: mine.html, text: mine.text,
-      attachments: [agreement],
+      subject: `Welcome to MyQuest, ${d.name.split(/\s+/)[0]}: your signed agreement and handbook`, html: mine.html, text: mine.text,
+      attachments: handbook ? [agreement, handbook] : [agreement],
     });
   } catch (e) {
     return json({ ok: false, error: 'We could not send your details just now. Please try again in a minute, or call Harry on 0413 154 932.' }, 502);
