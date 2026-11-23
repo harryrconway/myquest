@@ -339,11 +339,11 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
             <label class="tk locked"><input type="checkbox" data-tick="agreement" disabled>I've read the agreement</label>
           </div>
           <div class="doc" data-doc="fwis">
-            <div class="dh"><span><b>Fair Work Information Statement</b><small>Your rights at work, from the Fair Work Ombudsman</small></span><a class="open" href="https://www.fairwork.gov.au/employment-conditions/national-employment-standards/fair-work-information-statement" target="_blank" rel="noopener noreferrer">Open</a></div>
+            <div class="dh"><span><b>Fair Work Information Statement</b><small>Your rights at work, from the Fair Work Ombudsman. Opens in a new tab; this page stays open behind it.</small></span><a class="open" href="https://www.fairwork.gov.au/employment-conditions/national-employment-standards/fair-work-information-statement" target="_blank" rel="noopener noreferrer">Open <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:6px"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></a></div>
             <label class="tk locked"><input type="checkbox" data-tick="fwis" disabled>I've read it</label>
           </div>
           <div class="doc" data-doc="cceis">
-            <div class="dh"><span><b>Casual Employment Information Statement</b><small>What being a casual means, from the Fair Work Ombudsman</small></span><a class="open" href="https://www.fairwork.gov.au/employment-conditions/information-statements/casual-employment-information-statement" target="_blank" rel="noopener noreferrer">Open</a></div>
+            <div class="dh"><span><b>Casual Employment Information Statement</b><small>What being a casual means, from the Fair Work Ombudsman. Opens in a new tab; this page stays open behind it.</small></span><a class="open" href="https://www.fairwork.gov.au/employment-conditions/information-statements/casual-employment-information-statement" target="_blank" rel="noopener noreferrer">Open <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:6px"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></a></div>
             <label class="tk locked"><input type="checkbox" data-tick="cceis" disabled>I've read it</label>
           </div>
           <div class="doc" data-doc="handbook">
@@ -476,7 +476,7 @@ function paint() {
       const card = form.querySelector(`[data-doc="${d}"]`), tick = card.querySelector('input'), lab = tick.closest('label');
       tick.disabled = !readDocs.has(d); lab.classList.toggle('locked', tick.disabled);
       card.classList.toggle('read', readDocs.has(d)); card.classList.toggle('done', tick.checked);
-      const btn = card.querySelector('.open'); btn.textContent = readDocs.has(d) ? 'Read again' : card.querySelector('a.open') ? 'Open' : 'Read';
+      const btn = card.querySelector('button.open'); if (btn) btn.textContent = readDocs.has(d) ? 'Read again' : 'Read';
     });
     const agree = $('#agree');
     agree.disabled = !readDocs.has('agreement'); agree.closest('label').classList.toggle('locked', agree.disabled);
