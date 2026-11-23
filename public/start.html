@@ -33,14 +33,17 @@ h1{margin:0 0 14px;font-size:clamp(32px,8vw,40px);line-height:1.06;letter-spacin
 .sec{margin:30px 0 4px;padding-top:12px;border-top:2px solid var(--ink);font-size:14px;font-weight:600}
 .sec:first-of-type{margin-top:6px}
 .f{display:block;margin-top:16px}
-.f>span{display:block;font-size:14px;color:var(--stone)}
-.in{display:block;width:100%;border:0;border-bottom:2px solid var(--ink);border-radius:0;background:transparent;padding:10px 0 8px;font-size:17px;min-height:46px;outline:none;-webkit-appearance:none;appearance:none}
-textarea.in{resize:vertical;min-height:84px}
-.in:focus{border-bottom-color:var(--green);box-shadow:0 2px 0 var(--green)}
-.bad .in{border-bottom-color:var(--red)}
+.f>span{display:block;font-size:14px;color:var(--stone);margin-bottom:6px}
+.in{display:block;width:100%;height:52px;border:1.5px solid rgba(0,0,0,.25);border-radius:12px;background:#fff;padding:13px 14px;font-size:16px;line-height:1.4;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
+select.in{padding-right:40px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='1.8'/%3E%3C/svg%3E") no-repeat right 16px center}
+.in::placeholder{color:#999}
+.in:-webkit-autofill{-webkit-box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:#111}
+textarea.in{resize:vertical;height:auto;min-height:120px}
+.in:focus{border-color:var(--ink)}
+.bad .in{border-color:var(--red)}
 .err{display:none;margin-top:6px;font-size:13px;font-weight:600;font-style:normal;color:var(--red)}
 .bad .err{display:block}
-.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
 .q{margin:20px 0 8px;font-size:15px;font-weight:600}
 .pills{display:flex;flex-wrap:wrap;gap:8px}
 .pill{position:relative}
@@ -50,12 +53,11 @@ textarea.in{resize:vertical;min-height:84px}
 .pill input:focus-visible+span{outline:3px solid var(--mint);outline-offset:2px}
 .more[hidden]{display:none}
 .more{padding-left:14px;border-left:2px solid var(--mint);margin-top:4px}
-.sug{margin-top:8px;border:1.5px solid var(--hair);border-radius:12px;overflow:hidden}
+.sug{margin-top:8px;padding:6px;border:1.5px solid var(--ink);border-radius:18px;background:#fff;box-shadow:0 18px 44px rgba(0,0,0,.14)}
 .sug[hidden]{display:none}
-.sug button{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--hair);padding:11px 14px;font-size:16px;cursor:pointer}
-.sug button:last-child{border-bottom:0}
+.sug button{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:12px;padding:11px 12px;font-size:16px;cursor:pointer}
 .sug button:hover,.sug button:focus-visible{background:var(--mint);color:var(--green);outline:none}
-.drop{display:flex;align-items:center;gap:10px;min-height:56px;margin-top:8px;padding:10px 14px;border:1.5px dashed #999;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;position:relative}
+.drop{display:flex;align-items:center;gap:10px;min-height:56px;margin-top:8px;padding:10px 14px;border:1.5px dashed rgba(0,0,0,.35);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;position:relative}
 .drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .drop.ok{border:1.5px solid var(--green);background:var(--mint);color:var(--green)}
 .drop svg{flex:none}
