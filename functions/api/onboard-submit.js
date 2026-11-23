@@ -88,7 +88,12 @@ function b64(bytes) {
   for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
   return btoa(s);
 }
-const fileName = (s) => String(s || 'file').replace(/[^A-Za-z0-9._ ]+/g, '').slice(-60) || 'file';
+// Keeps the start of the name (what the file is) and its extension; very long names lose letters from the middle.
+const fileName = (s) => {
+  const clean = String(s || 'file').replace(/[^A-Za-z0-9.,_ ]+/g, '').replace(/\s+/g, ' ').trim() || 'file';
+  const m = /^(.*?)(\.[A-Za-z0-9]{1,5})?$/.exec(clean);
+  return m[1].length > 90 ? m[1].slice(0, 90).trimEnd() + (m[2] || '') : clean;
+};
 const ausDate = (v) => (isDate(v) ? new Date(v + 'T12:00:00Z').toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
 
 // Email styling shared with the enquiry and contact emails.
@@ -102,42 +107,85 @@ const EWRAP = (pre, card) => `<body style="margin:0;padding:0;background-color:#
 const ELOGO = (right) => `<tr><td class="mq-pad" style="padding:28px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td><a href="${SITE}"><img src="${SITE}/assets/email-logo.png" width="106" height="30" alt="MyQuest" style="display:block;border:0"></a></td><td align="right" style="${EF};font-size:14px;color:#555555">${right}</td></tr></table></td></tr>`;
 const ESIG = `<tr><td class="mq-pad" style="padding:26px 36px 0;${EF}"><div style="font-size:16px;line-height:24px;color:#222222">Kind regards,</div><div style="font-size:24px;line-height:30px;font-weight:600;letter-spacing:-0.5px;color:#111111;padding-top:2px">The MyQuest team</div>
 <div style="padding-top:12px;font-size:14px;line-height:23px;color:#555555"><a href="tel:+61413154932" style="color:#111111;font-weight:600;text-decoration:none">0413 154 932</a> &nbsp;·&nbsp; <a href="mailto:hello@myquest.au" style="color:#111111;font-weight:600;text-decoration:none">hello@myquest.au</a> &nbsp;·&nbsp; <a href="${SITE}" style="color:#111111;font-weight:600;text-decoration:none">myquest.au</a><br>Gold Coast and Northern Rivers<br>MyQuest Pty Ltd &nbsp;·&nbsp; ABN 65 693 175 405</div></td></tr>`;
-const EROW = (k, v) => `<tr><td style="padding:10px 12px 10px 0;border-bottom:1px solid #eeeeec;${EF};font-size:14px;color:#555555;vertical-align:top;width:38%">${esc(k)}</td><td style="padding:10px 0;border-bottom:1px solid #eeeeec;${EF};font-size:14px;line-height:21px;color:#111111;vertical-align:top">${esc(v)}</td></tr>`;
-const ECHIP = (t) => `<span style="display:inline-block;margin:0 6px 8px 0;padding:6px 12px;border-radius:999px;background-color:#e5f4e4;color:#143f1d;${EF};font-size:13px;font-weight:600">✓ ${esc(t)}</span>`;
+
+const ETXT = 'word-break:break-word;overflow-wrap:anywhere';
+const EFIELD = (k, v, last) => `<tr><td style="padding:9px 0;${last ? '' : 'border-bottom:1px solid #e6e6e3;'}${EF}"><div style="font-size:12.5px;line-height:17px;color:#666666">${esc(k)}</div><div style="font-size:15px;line-height:22px;color:#111111;font-weight:600;${ETXT}">${v}</div></td></tr>`;
+const EGROUP = (title, fields) => { const f = fields.filter(([, v]) => v); return `<tr><td class="mq-pad" style="padding:12px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed"><tr><td style="background-color:#f4f4f2;border-radius:18px;padding:16px 20px 8px;${EF}"><div style="font-size:13px;line-height:18px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#555555;padding-bottom:2px">${esc(title)}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed">${f.map(([k, v], i) => EFIELD(k, v, i === f.length - 1)).join('')}</table></td></tr></table></td></tr>`; };
+const ETICK = (t) => `<tr><td width="30" valign="top" style="padding:7px 0"><div style="width:18px;height:18px;border:1.5px solid #111111;border-radius:6px"></div></td><td style="padding:7px 0;${EF};font-size:15px;line-height:22px;color:#111111;${ETXT}">${t}</td></tr>`;
+
+const join = (...parts) => parts.filter((x) => x && String(x).trim()).join(', ');
+const daysUntil = (v) => (isDate(v) ? Math.round((Date.parse(v) - Date.parse(today())) / 864e5) : null);
 
 function teamEmail(d, inv, files, ref, test) {
   const first = d.name.split(/\s+/)[0];
-  const rows = [
-    ['Mobile', fmtMobile(mobile(d.mobile))], ['Email', d.email], ['Address', d.address], ['Date of birth', ausDate(d.dob)],
-    ['Emergency contact', `${d.ecName} (${d.ecRel}), ${fmtMobile(mobile(d.ecMobile) || '0000000000')}`],
-    ['Right to work', d.rtw === 'visa' ? `Visa ${d.visaType}, expires ${ausDate(d.visaExpiry)}. Conditions: ${d.visaCond}` : d.rtw === 'pr' ? 'Permanent resident' : 'Australian or NZ citizen'],
-    ['Driver licence', `${d.licNo} (${d.licState}), expires ${ausDate(d.licExpiry)}`], ['Car', `Rego ${d.rego}, insured with ${d.insurer}`],
-    ['Police check', `Issued ${ausDate(d.policeDate)}, reference ${d.policeRef} (attached)`],
-    ['NDIS Worker Screening', { have: `${d.ndisNo}, expires ${ausDate(d.ndisExp)}`, applied: `Applied, application ${d.ndisApp}`, none: "Doesn't have one" }[d.ndis] || ''],
-    ['Blue Card or WWCC', d.blue === 'have' ? `${d.blueNo}, expires ${ausDate(d.blueExp)}` : "Doesn't have one"],
-    ['White Card', d.white === 'have' ? d.whiteNo : "Doesn't have one"], ['First aid', d.aid === 'have' ? `Expires ${ausDate(d.aidExp)}` : "Doesn't have one"],
-    ['QLeave worker number', d.qleave === 'have' ? d.qleaveNo : "Doesn't have one"],
-    ['Available', `${d.days.join(', ')}; ${d.times.join(', ').toLowerCase()}`], ['Shirt size', d.shirt],
-    ['Allergies or safety notes', d.health === 'yes' ? d.healthText : 'None'],
-    ['ID', d.idChoice === 'upload' ? 'Photos attached' : 'Will bring to the induction'],
+  const m = mobile(d.mobile), ecm = mobile(d.ecMobile);
+  const tel = (n) => (n ? `<a href="tel:+61${n.slice(1)}" style="color:#111111;text-decoration:none">${fmtMobile(n)}</a>` : '');
+  const exp = (v) => (isDate(v) ? `expires ${ausDate(v)}` : '');
+  const ind = inv.induction || {};
+
+  // Anything worth a second look before the first shift.
+  const flags = [];
+  const soon = (label, v, days = 60) => { const n = daysUntil(v); if (n !== null && n <= days) flags.push(n < 0 ? `${label} expired on ${ausDate(v)}.` : `${label} expires on ${ausDate(v)}, in ${n} day${n === 1 ? '' : 's'}.`); };
+  soon('Their driver licence', d.licExpiry);
+  if (d.rtw === 'visa') { soon('Their visa', d.visaExpiry, 90); flags.push(`They work on a visa (${d.visaType || 'type not given'}). Check the conditions: ${d.visaCond || 'none given'}.`); }
+  soon('Their NDIS Worker Screening', d.ndis === 'have' ? d.ndisExp : '');
+  if (d.ndis !== 'have') flags.push(d.ndis === 'applied' ? 'NDIS Worker Screening is still being processed, so hold off on NDIS homes until it comes through.' : 'They have no NDIS Worker Screening, so they can’t clean NDIS homes yet.');
+  const pd = daysUntil(d.policeDate); if (pd !== null && pd < -365) flags.push(`Their police check was issued on ${ausDate(d.policeDate)}, more than 12 months ago. Ask for a new one.`);
+  if (d.health === 'yes' && d.healthText) flags.push(`Allergies or safety notes: ${d.healthText}`);
+
+  const groups = [
+    ['Contact', [
+      ['Mobile', tel(m)], ['Email', d.email ? `<a href="mailto:${esc(d.email)}" style="color:#111111;text-decoration:none">${esc(d.email)}</a>` : ''],
+      ['Address', esc(d.address)], ['Date of birth', esc(ausDate(d.dob))],
+      ['Emergency contact', [esc(d.ecName), d.ecRel ? `(${esc(d.ecRel)})` : '', tel(ecm)].filter(Boolean).join(' ')],
+    ]],
+    ['Right to work and driving', [
+      ['Right to work', esc(d.rtw === 'visa' ? join(`Visa ${d.visaType || ''}`.trim(), exp(d.visaExpiry)) : d.rtw === 'pr' ? 'Permanent resident' : 'Australian or NZ citizen')],
+      ['Driver licence', esc(join(d.licNo && d.licState ? `${d.licNo} (${d.licState})` : d.licNo, exp(d.licExpiry)))],
+      ['Car', esc(join(d.rego && `Rego ${d.rego}`, d.insurer && `insured with ${d.insurer}`))],
+    ]],
+    ['Checks and cards', [
+      ['Police check', esc(join(isDate(d.policeDate) && `Issued ${ausDate(d.policeDate)}`, d.policeRef && `reference ${d.policeRef}`, 'attached'))],
+      ['NDIS Worker Screening', esc({ have: join(d.ndisNo, exp(d.ndisExp)), applied: join('Applied', d.ndisApp && `application ${d.ndisApp}`), none: 'None' }[d.ndis] || 'None')],
+      ['Blue Card or WWCC', esc(d.blue === 'have' ? join(d.blueNo, exp(d.blueExp)) : 'None')],
+      ['White Card', esc(d.white === 'have' ? d.whiteNo || 'Yes' : 'None')],
+      ['First aid', esc(d.aid === 'have' ? join('Yes', exp(d.aidExp)) : 'None')],
+      ['QLeave worker number', esc(d.qleave === 'have' ? d.qleaveNo : 'None yet')],
+      ['ID', esc(d.idChoice === 'upload' ? 'Photos attached' : 'Bringing it to the induction')],
+    ]],
+    ['Work', [
+      ['Available', esc(join((d.days || []).join(', '), (d.times || []).join(', ').toLowerCase()))],
+      ['Shirt size', esc(d.shirt)], ['Allergies or safety notes', esc(d.health === 'yes' ? d.healthText : 'None')],
+    ]],
   ];
+
   const steps = [
-    'Open the police check' + (d.idChoice === 'upload' ? ' and ID photos' : '') + ' attached and make sure they look right.',
+    `Open the police check${d.idChoice === 'upload' ? ' and ID photos' : ''} attached and make sure they look right.`,
     'In Xero, go to Payroll, Employees, Onboarding, check their details and approve them.',
     'Add them as staff in ServiceM8 with the Staff (No pricing) role, if you haven’t yet.',
-    `The day before the induction (${inv.induction?.when || 'date to confirm'}${inv.induction?.suburb ? `, ${inv.induction.suburb}` : ''}), text them the exact address. They have been told to expect it.`,
-    `At the induction: ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together and sign the induction record.`,
-    'Save the signed agreement and police check in their folder in Staff Records. Claude can do this in the morning report.',
+    `The day before the induction${ind.when ? ` (${ind.when}${ind.suburb ? `, ${ind.suburb}` : ''})` : ''}, text them the exact address.`,
+    `At the induction, ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together and sign the induction record.`,
+    'Save the signed agreement and police check in their folder in Staff Records.',
   ];
+  const attached = files.map((f) => f.filename.replace(/\.(pdf|jpe?g|png|heic|heif)$/i, ''));
+
   const html = EHEAD('New starter') + EWRAP(`${d.name} has finished onboarding`, ECARD(`
-${ELOGO(test ? 'TEST · New starter' : 'New starter')}
-<tr><td class="mq-pad" style="padding:22px 36px 0"><h1 class="mq-h1" style="margin:0;${EF};font-size:34px;line-height:40px;font-weight:600;letter-spacing:-1px">${esc(d.name)} is <span style="${EHL}">ready to start</span></h1></td></tr>
-<tr><td class="mq-pad" style="padding:18px 36px 0">${['Details done', 'Police check uploaded', 'Agreement signed by both', 'Handbook and safety induction read', 'Xero done', 'ServiceM8 installed', 'Induction in calendar', d.idChoice === 'upload' ? 'ID uploaded' : 'Bringing ID'].map(ECHIP).join('')}</td></tr>
-<tr><td class="mq-pad" style="padding:14px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#f4f4f2;border-radius:18px;padding:20px 22px;${EF}"><div style="font-size:16px;font-weight:600;padding-bottom:8px">What to do next</div>${steps.map((s, i) => `<div style="font-size:15px;line-height:23px;padding:5px 0"><b>${i + 1}.</b> ${esc(s)}</div>`).join('')}</td></tr></table></td></tr>
-<tr><td class="mq-pad" style="padding:22px 36px 0"><div style="${EF};font-size:16px;font-weight:600;padding-bottom:4px">${esc(first)}'s details</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.map(([k, v]) => EROW(k, v)).join('')}</table></td></tr>
+${ELOGO(test ? '<span style="background-color:#e5f4e4;color:#143f1d;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600">TEST</span>' : 'New starter')}
+<tr><td class="mq-pad" style="padding:22px 36px 0"><h1 class="mq-h1" style="margin:0;${EF};font-size:32px;line-height:38px;font-weight:600;letter-spacing:-1px;${ETXT}">${esc(d.name)} is <span style="${EHL}">ready to start</span></h1>
+<div style="${EF};font-size:15px;line-height:23px;color:#444444;padding-top:10px">Onboarding finished and the agreement is signed by both of you.${ind.when ? ` Induction ${esc(ind.when)}${ind.suburb ? ` in ${esc(ind.suburb)}` : ''}.` : ''}</div></td></tr>
+<tr><td class="mq-pad" style="padding:18px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed"><tr><td style="background-color:#111111;border-radius:18px;padding:18px 20px;${EF};color:#ffffff">
+<div style="font-size:13px;line-height:18px;color:#bdbdbd">Reach ${esc(first)}</div>
+<div style="font-size:22px;line-height:30px;font-weight:600;padding-top:2px">${m ? `<a href="tel:+61${m.slice(1)}" style="color:#ffffff;text-decoration:none">${fmtMobile(m)}</a>` : 'No mobile given'}</div>
+<div style="font-size:14px;line-height:21px;color:#e6e6e6;${ETXT}">${esc(d.email)}</div></td></tr></table></td></tr>
+${flags.length ? `<tr><td class="mq-pad" style="padding:12px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed"><tr><td style="background-color:#e5f4e4;border-radius:18px;padding:16px 20px;${EF};color:#143f1d"><div style="font-size:16px;line-height:22px;font-weight:600;padding-bottom:4px">Worth a look</div>${flags.map((f) => `<div style="font-size:14.5px;line-height:22px;padding:3px 0;${ETXT}">${esc(f)}</div>`).join('')}</td></tr></table></td></tr>` : ''}
+<tr><td class="mq-pad" style="padding:22px 36px 0;${EF}"><div style="font-size:18px;line-height:24px;font-weight:600;padding-bottom:4px">What to do next</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed">${steps.map((t) => ETICK(esc(t))).join('')}</table></td></tr>
+<tr><td class="mq-pad" style="padding:20px 36px 0;${EF}"><div style="font-size:18px;line-height:24px;font-weight:600">${esc(first)}’s details</div></td></tr>
+${groups.map(([t, f]) => EGROUP(t, f)).join('\n')}
+<tr><td class="mq-pad" style="padding:20px 36px 0;${EF}"><div style="font-size:13px;line-height:18px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#555555;padding-bottom:8px">Attached</div>${attached.map((a) => `<div style="font-size:14.5px;line-height:21px;padding:3px 0;${ETXT}">📎 ${esc(a)}</div>`).join('')}</td></tr>
 ${ESIG}
-<tr><td class="mq-pad" style="padding:26px 36px 30px;${EF};font-size:12.5px;line-height:19px;color:#777777">Signed by typing their name and drawing their signature on ${esc(d.signedAt)}; MyQuest's signature was added automatically. Reference ${esc(ref)}. Nothing is stored on the website, so this email is the only copy. Tax file number, super and bank details are never collected here; they are in Xero.</td></tr>`));
-  const text = `${d.name} has finished onboarding.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nWhat to do next:\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nReference ${ref}\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
+<tr><td class="mq-pad" style="padding:22px 36px 30px;${EF};font-size:12.5px;line-height:19px;color:#777777;${ETXT}">Signed by typing their name and drawing their signature on ${esc(d.signedAt)}; MyQuest’s signature was added automatically. Reference ${esc(ref)}. Nothing is stored on the website, so this email is the only copy. Tax file number, super and bank details are never collected here; they are in Xero.</td></tr>`));
+  const plainV = (v) => String(v).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+  const text = `${d.name} has finished onboarding.\n\n${flags.length ? `Worth a look:\n${flags.map((f) => `- ${f}`).join('\n')}\n\n` : ''}What to do next:\n${steps.map((s) => `[ ] ${s}`).join('\n')}\n\n${groups.map(([t, f]) => `${t}\n${f.filter(([, v]) => v).map(([k, v]) => `${k}: ${plainV(v)}`).join('\n')}`).join('\n\n')}\n\nAttached: ${attached.join('; ')}\n\nReference ${ref}\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
   return { html, text };
 }
 
