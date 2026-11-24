@@ -164,7 +164,7 @@ function teamEmail(d, inv, files, ref, test) {
     'In Xero, go to Payroll, Employees, Onboarding, check their details and approve them.',
     'Add them as staff in ServiceM8 with the Staff (No pricing) role, if you haven’t yet.',
     `The day before the induction${ind.when ? ` (${ind.when}${ind.suburb ? `, ${ind.suburb}` : ''})` : ''}, text them the exact address.`,
-    `At the induction, ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together and sign the induction record.`,
+    `At the induction, ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together, sign the induction record, and note the uniform, equipment and products you give them in the Staff Register.`,
     'Save the signed agreement and police check in their folder in Staff Records.',
   ];
   const attached = files.map((f) => f.filename.replace(/\.(pdf|jpe?g|png|heic|heif)$/i, ''));

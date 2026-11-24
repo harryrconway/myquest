@@ -49,7 +49,7 @@ export function agreementHtml({ name, address, start }) {
 <p><b>6.1</b> Travel time between jobs during a shift is work time and is included in the award guarantee in clause 5.2. MyQuest pays any fares for travel between jobs.</p>
 <p><b>6.2</b> If MyQuest asks you to use your own vehicle for work and you agree, MyQuest pays the vehicle allowance in the award for the kilometres you travel between jobs. You must hold a current driver licence and insurance for any vehicle you use for work.</p>
 <p><b>6.3</b> MyQuest pays any other allowance the award requires when it applies, such as the toilet cleaning, refuse collection and broken shift allowances.</p>
-<p><b>6.4</b> MyQuest provides 2 uniform shirts and replaces them when reasonably needed. If MyQuest asks you to buy any uniform item, we will reimburse the cost.</p>
+<p><b>6.4</b> MyQuest provides your uniform (2 shirts), your cleaning equipment and products, and your protective gear, and replaces them when reasonably needed. They remain MyQuest property and are for MyQuest work only. MyQuest records what it gives you. If MyQuest asks you to buy any uniform item, we will reimburse the cost.</p>
 <h3>7. Leave and absences</h3>
 <p><b>7.1</b> As a casual employee you do not receive paid annual leave or paid personal leave; the casual loading is paid instead. You have the National Employment Standards entitlements that apply to casual employees, including unpaid carer’s leave, unpaid compassionate leave, community service leave and paid family and domestic violence leave.</p>
 <p><b>7.2</b> Long service leave applies under the relevant state law, including any portable long service leave scheme for the contract cleaning industry.</p>
@@ -69,7 +69,7 @@ export function agreementHtml({ name, address, start }) {
 <p><b>10.2</b> If a client reports a problem with a clean, MyQuest may ask you to return and fix it. That time is paid work time and is included in the award guarantee.</p>
 <h3>11. Ending your employment</h3>
 <p><b>11.1</b> Either you or MyQuest may end your casual employment at any time by telling the other in writing. MyQuest may end your employment immediately for serious misconduct, such as theft, violence, being affected by alcohol or drugs at work, a serious safety breach or a breach of client confidentiality.</p>
-<p><b>11.2</b> When your employment ends you must return all keys, access cards, uniform and equipment, and MyQuest will close your ServiceM8 access.</p>
+<p><b>11.2</b> When your employment ends you must return all MyQuest property within 7 days, including keys, access cards, uniform, equipment, cleaning products, protective gear and anything else MyQuest gave you for work, and MyQuest will close your ServiceM8 access. If an item is not returned, MyQuest may ask you to return it or to pay its reasonable replacement cost. MyQuest will only deduct an amount from your pay if you agree to that deduction in writing at the time.</p>
 <p><b>11.3</b> Your final pay, including any award guarantee payment, will be paid in the next pay run.</p>
 <h3>12. General</h3>
 <p><b>12.1</b> This agreement, together with the award and the National Employment Standards, sets out the terms of your employment and replaces any earlier discussions.</p>
@@ -182,7 +182,7 @@ export const HANDBOOK_HTML = `
 <h3>Your first week</h3>
 <table><tr><th>Step</th><th>When</th><th>What happens</th></tr>
 <tr><td>Get ready</td><td>Before your induction</td><td>Complete this onboarding, the Xero payroll link and ServiceM8.</td></tr>
-<tr><td>Induction</td><td>The date in your welcome email</td><td>Safety, chemicals and colour coding, ServiceM8, keys and alarm codes, how pay works. Collect your uniform and kit.</td></tr>
+<tr><td>Induction</td><td>The date in your welcome email</td><td>Safety, chemicals and colour coding, ServiceM8, keys and alarm codes, how pay works. Collect your uniform and kit, which stay MyQuest property and are returned when you finish.</td></tr>
 <tr><td>Supervised clean</td><td>At the end of your induction</td><td>Your first clean alongside a trainer, then we sign you off.</td></tr>
 <tr><td>On your own</td><td>After sign off</td><td>Accept shifts in ServiceM8 and start cleaning on your own.</td></tr>
 <tr><td>First pay day</td><td>The Wednesday after your first week</td><td>Pay goes into your bank account, with a pay slip emailed from Xero. Super is paid on top.</td></tr></table>
