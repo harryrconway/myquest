@@ -24,7 +24,7 @@ const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v) && !/\.\./.test(v
 const norm = (v) => String(v || '').toLowerCase().replace(/[^a-z']+/g, ' ').trim();
 const oneOf = (v, list) => list.includes(v);
 
-function problems(d) {
+function problems(d, inv) {
   const p = [];
   const need = (ok, what) => { if (!ok) p.push(what); };
   const age = isDate(d.dob) ? (Date.now() - Date.parse(d.dob)) / 31557600000 : 0;
@@ -55,7 +55,7 @@ function problems(d) {
   need(d.agree === true, 'agreement');
   need(norm(d.sign) === norm(d.name) && d.sign.length > 3, 'typed signature');
   need(/^data:image\/png;base64,[A-Za-z0-9+/=]{200,400000}$/.test(d.signature), 'drawn signature');
-  need(d.xero === true && d.servicem8 === true && d.induction === true, 'first shift ticks');
+  if (inv.induction?.when) need(d.induction === true, 'induction tick');
   need(oneOf(d.idChoice, ['upload', 'bring']), 'ID');
   need(d.truthful === true, 'declaration');
   return p;
@@ -78,7 +78,7 @@ function clean(raw) {
     shirt: s('shirt', 4), health: s('health', 3), healthText: s('healthText', 600),
     read: list('read', ['agreement', 'fwis', 'cceis', 'handbook', 'safety']), agree: d.agree === true, sign: s('sign', 80),
     signedAt: s('signedAt', 40), signature: typeof d.signature === 'string' ? d.signature.slice(0, 400100) : '',
-    xero: d.xero === true, servicem8: d.servicem8 === true, induction: d.induction === true,
+    induction: d.induction === true,
     idChoice: s('idChoice', 10), truthful: d.truthful === true,
   };
 }
@@ -161,8 +161,9 @@ function teamEmail(d, inv, files, ref, test) {
 
   const steps = [
     `Open the police check${d.idChoice === 'upload' ? ' and ID photos' : ''} attached and make sure they look right.`,
-    'In Xero, go to Payroll, Employees, Onboarding, check their details and approve them.',
-    'Add them as staff in ServiceM8 with the Staff (No pricing) role, if you haven’t yet.',
+    `In Xero, add ${first} as a new employee with ${d.email} and invite them to onboard online. Once they have added their tax file number, super and bank details, approve them under Payroll, Employees, Onboarding.`,
+    `Add ${first} as staff in ServiceM8 with the Staff (No pricing) role, using ${d.email}, so ServiceM8 emails them a login.`,
+    ...(ind.when ? [] : ['Book their induction and supervised first clean, and text them the date.']),
     `The day before the induction${ind.when ? ` (${ind.when}${ind.suburb ? `, ${ind.suburb}` : ''})` : ''}, text them the exact address.`,
     `At the induction, ${d.idChoice === 'upload' ? '' : 'sight their ID and licence, '}go through the safety induction together, sign the induction record, and note the uniform, equipment and products you give them in the Staff Register.`,
     'Save the signed agreement and police check in their folder in Staff Records.',
@@ -198,13 +199,14 @@ ${ELOGO('')}
 <tr><td class="mq-pad" style="padding:14px 36px 0;${EF};font-size:16px;line-height:25px;color:#222222">We've got everything we need. Your casual employment agreement, signed by you and by MyQuest, and your own copy of the MyQuest Staff Handbook are attached for your records.</td></tr>
 <tr><td class="mq-pad" style="padding:20px 36px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background-color:#111111;border-radius:18px;padding:20px 22px;${EF};color:#ffffff"><div style="font-size:13px;color:#cfcfcf">Your induction</div><div style="font-size:20px;font-weight:600;padding-top:4px">${esc(ind.when || 'We will confirm the date with you')}</div><div style="font-size:14px;line-height:21px;color:#dddddd;padding-top:4px">${ind.suburb ? `In ${esc(ind.suburb)}. ` : ''}We'll text you the exact address the day before. Wear enclosed shoes.${d.idChoice === 'bring' ? ' Bring your driver licence and your passport or birth certificate.' : ''}</div></td></tr></table></td></tr>
 <tr><td class="mq-pad" style="padding:22px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222"><div style="font-size:16px;font-weight:600;padding-bottom:6px">What happens next</div>
+<div style="padding:4px 0"><b>Two emails are on the way:</b> one from Xero for your tax file number, super and bank details, and one from ServiceM8 with your app login. Please finish both before your induction.</div>
 <div style="padding:4px 0"><b>On the day:</b> we go through the safety induction together, then your first clean.</div>
 <div style="padding:4px 0"><b>Your jobs</b> appear in the ServiceM8 app, with the address, access notes and checklist.</div>
 <div style="padding:4px 0"><b>Getting paid:</b> weekly, every Wednesday, into the account you gave Xero. Pay slips come from Xero.</div></td></tr>
 <tr><td class="mq-pad" style="padding:18px 36px 0;${EF};font-size:15px;line-height:23px;color:#222222">Any questions at all, call or text Harry on 0413 154 932.</td></tr>
 ${ESIG}
 <tr><td style="padding:0 0 30px;font-size:0;line-height:0">&nbsp;</td></tr>`));
-  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, and your own copy of the MyQuest Staff Handbook are attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nAny questions, call or text Harry on 0413 154 932.\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
+  const text = `Thanks ${first}, you're all set.\n\nYour casual employment agreement, signed by you and by MyQuest, and your own copy of the MyQuest Staff Handbook are attached.\n\nYour induction: ${ind.when || 'to be confirmed'}${ind.suburb ? `, in ${ind.suburb}` : ''}. We'll text you the exact address the day before. Wear enclosed shoes.\n\nTwo emails are on the way: one from Xero for your tax file number, super and bank details, and one from ServiceM8 with your app login. Please finish both before your induction.\n\nAny questions, call or text Harry on 0413 154 932.\n\nKind regards,\nThe MyQuest team\n0413 154 932 · hello@myquest.au · myquest.au\nGold Coast and Northern Rivers\nMyQuest Pty Ltd · ABN 65 693 175 405`;
   return { html, text };
 }
 
@@ -247,7 +249,7 @@ export async function onRequestPost({ request, env }) {
   };
 
   if (!inv.test) {
-    const p = problems(d);
+    const p = problems(d, inv);
     if (p.length) return json({ ok: false, error: `Some answers need fixing: ${p.join(', ')}.` }, 422);
   }
   try {

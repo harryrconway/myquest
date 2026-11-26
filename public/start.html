@@ -72,7 +72,8 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
 .go{flex:none;min-height:50px;padding:0 24px;border:0;border-radius:10px;background:#fff;color:var(--ink);font-size:16px;font-weight:600;cursor:pointer}
 .go:disabled{background:#3a3a3a;color:#9a9a9a;cursor:not-allowed}
 .go.green{background:var(--mint);color:var(--green)}
-.back{background:transparent;border:0;color:#ddd;font-size:15px;font-weight:600;cursor:pointer;padding:12px 0}
+.back{flex:none;background:transparent;border:0;color:#ddd;font-size:15px;font-weight:600;cursor:pointer;padding:12px 0}
+@media (max-width:400px){.bar{gap:12px}.go{padding:0 18px}.go .wide{display:none}}
 .back[hidden]{display:none}
 .msg{padding:60px 22px;max-width:560px}
 .sum{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair);font-size:15px}
@@ -156,6 +157,7 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
 .card{border:1.5px solid rgba(0,0,0,.18);border-radius:16px;padding:16px;margin-top:12px}
 .card .tk{font-weight:600}
 .card small{display:block;margin:6px 0 0 36px;font-size:14px;color:var(--stone);line-height:1.45}
+.card.info b{display:block;font-size:15px;font-weight:600}.card.info small{margin-left:0}
 .ind{background:var(--ink);color:#fff;border-radius:16px;padding:18px;margin-top:14px}
 .ind small{display:block;font-size:13px;color:#bbb}.ind b{display:block;font-size:19px;font-weight:600;margin-top:2px}.ind span{display:block;font-size:14px;color:#ddd;margin-top:4px}
 .spin{width:16px;height:16px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;vertical-align:-3px;margin-right:8px;animation:sp .7s linear infinite}
@@ -387,10 +389,11 @@ textarea.in{resize:vertical;height:auto;min-height:120px}
 
       <section class="pane" id="p3" hidden>
         <h1>Ready for your <span class="hl">first shift</span>?</h1>
-        <p class="lede">Tick each one once it's done. When you send, MyQuest is told straight away.</p>
-        <div class="card"><label class="tk"><input type="checkbox" id="xero">Xero is done</label><small>Your tax file number, super and bank details, through the secure link Xero emailed you. Can't find it? Search your inbox for "Xero".</small></div>
-        <div class="card"><label class="tk"><input type="checkbox" id="servicem8">ServiceM8 is installed and I've logged in</label><small>Get the free ServiceM8 app from the App Store or Google Play, and log in with the details ServiceM8 emailed you.</small></div>
-        <div class="card"><label class="tk"><input type="checkbox" id="induction">My induction is in my calendar</label><small id="indText">We'll confirm the date with you.</small></div>
+        <p class="lede">Once you send this, Harry sets you up in two apps. Look out for an email from each, and finish both before your induction.</p>
+        <div class="card info"><b>Xero, for your pay</b><small>A secure link to add your tax file number, super and bank details. We never ask for those here.</small></div>
+        <div class="card info"><b>ServiceM8, for your jobs</b><small>Your login for the free ServiceM8 app from the App Store or Google Play. Your shifts, addresses and checklists all live there.</small></div>
+        <div class="card" id="indCard" hidden><label class="tk"><input type="checkbox" id="induction">My induction is in my calendar</label><small id="indText"></small></div>
+        <div class="card info" id="indTbc"><b>Your induction</b><small>We'll confirm the date with you.</small></div>
 
         <div class="sec">Your ID</div>
         <p class="note" style="font-size:15px;color:#333;margin-top:8px">We need to see your driver licence and your passport or birth certificate. Send photos now to save time on the day, or bring them along.</p>
@@ -543,7 +546,7 @@ function paint() {
   }
   if (step === 3) {
     const miss = checks3().filter(([, v]) => !v);
-    go.hidden = false; go.classList.add('green'); go.textContent = 'Send to MyQuest';
+    go.hidden = false; go.classList.add('green'); go.innerHTML = 'Send<span class="wide"> to MyQuest</span>';
     go.disabled = (miss.length > 0 && !invite?.test) || sending;
     if (sending) go.innerHTML = '<span class="spin"></span>Sending';
     hint.textContent = sending ? 'Sending your details securely' : miss.length && invite?.test ? `Test link: skipping ${miss.length} check${miss.length > 1 ? 's' : ''}` : miss.length ? `Still needed: ${miss[0][2]}` : 'Ready to send';
@@ -553,7 +556,7 @@ function paint() {
   $('#back').hidden = step === 0 || step === 4 || sending;
   $('#count').textContent = step === 0 ? 'New starter' : step === 4 ? 'Done' : `${step} of 3`;
   $('#big').innerHTML = TITLES[step] || TITLES[0];
-  const NOTE = ['', 'Your details and checks', 'Agreement, handbook and safety', 'Xero, ServiceM8 and your ID'];
+  const NOTE = ['', 'Your details and checks', 'Agreement, handbook and safety', 'Your ID and what happens next'];
   document.querySelectorAll('#steps li').forEach((li) => {
     const s = +li.dataset.s;
     li.className = s < step ? 'done' : s === step ? 'now' : '';
@@ -725,10 +728,11 @@ function padPng() {
   return c.toDataURL('image/png');
 }
 
-// Step 3: first shift ticks, ID and sending.
+// Step 3: induction tick (only when a date is set), ID and sending.
 let id1 = null, id2 = null, sending = false;
 function checks3() {
-  const c = [['xero', $('#xero').checked, 'tick Xero'], ['servicem8', $('#servicem8').checked, 'tick ServiceM8'], ['induction', $('#induction').checked, 'tick your induction'], ['idChoice', !!pick('idChoice'), 'choose how you\'ll show your ID']];
+  const c = invite?.induction?.when ? [['induction', $('#induction').checked, 'tick your induction']] : [];
+  c.push(['idChoice', !!pick('idChoice'), 'choose how you\'ll show your ID']);
   if (pick('idChoice') === 'upload') c.push(['id1', !!id1, 'your driver licence photo'], ['id2', !!id2, 'your passport or birth certificate photo']);
   c.push(['truthful', $('#truthful').checked, 'tick that it\'s all correct']);
   return c;
@@ -772,7 +776,7 @@ function gather() {
     days: picks('days'), times: picks('times'), shirt: pick('shirt'), health: pick('health'), healthText: val('healthText'),
     read: [...readDocs], agree: $('#agree').checked, sign: val('sign'), signedAt: (signedAt || new Date()).toISOString(),
     signature: strokes.length ? padPng() : '',
-    xero: $('#xero').checked, servicem8: $('#servicem8').checked, induction: $('#induction').checked,
+    induction: $('#induction').checked,
     idChoice: pick('idChoice'), truthful: $('#truthful').checked,
   };
 }
@@ -792,7 +796,7 @@ async function send() {
     if (!r.ok || !res || !res.ok) throw new Error((res && res.error) || 'We could not send your details just now. Please try again, or call Harry on 0413 154 932.');
     sending = false;
     $('#doneName').textContent = val('name').split(/\s+/)[0] || invite.name.split(/\s+/)[0];
-    $('#doneText').textContent = `We've emailed your signed agreement to ${val('email') || invite.email}. Harry has your details too.`;
+    $('#doneText').textContent = `We've emailed your signed agreement to ${val('email') || invite.email}. Next, look out for an email from Xero and one from ServiceM8, and finish both before your induction.`;
     $('#doneWhen').textContent = res.when || 'We\'ll confirm the date with you';
     $('#doneWhere').textContent = `${res.suburb ? 'In ' + res.suburb + '. ' : ''}We'll text you the exact address the day before. Wear enclosed shoes${pick('idChoice') === 'bring' ? ', and bring your licence and passport or birth certificate' : ''}.`;
     show(4);
@@ -840,6 +844,7 @@ token = (location.hash.match(/t=([A-Za-z0-9_-]{20,64})/) || [])[1] || '';
     return;
   }
   invite = res;
+  $('#indCard').hidden = !res.induction?.when; $('#indTbc').hidden = !!res.induction?.when;
   if (res.induction && res.induction.when) $('#indText').textContent = `${res.induction.when}${res.induction.suburb ? ', in ' + res.induction.suburb : ''}. We'll text you the exact address the day before. Add it to your phone's calendar, then tick this.`;
   $('#test').hidden = !res.test;
   $('#first').textContent = res.name.split(/\s+/)[0];
