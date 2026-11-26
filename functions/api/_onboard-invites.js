@@ -10,4 +10,12 @@ export const INVITES = [
     start: '30 November 2026',
     induction: { when: 'Monday 30 November, 9am', suburb: 'Nerang' },
   },
+  {
+    hash: '52d842ba8f67d13ec92b6f023f8a871c9633dd2e14bdeaa3b359eb41f8fa794c',
+    name: 'Kailani Williams',
+    email: '',
+    expires: '2026-12-10',
+    start: '',
+    induction: { when: '', suburb: '' },
+  },
 ];
